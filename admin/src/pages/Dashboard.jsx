@@ -10,9 +10,9 @@ export default function Dashboard() {
       try {
         const token = localStorage.getItem("token");
 
-        // ❌ token nahi hai
+        // 🔥 agar token nahi → redirect
         if (!token) {
-          setError("No token found. Please login ❌");
+          window.location.href = "/login";
           return;
         }
 
@@ -31,6 +31,12 @@ export default function Dashboard() {
         console.log(err);
 
         if (err.response) {
+          // 🔥 invalid token → logout
+          if (err.response.status === 401) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+          }
+
           setError(err.response.data.message || "Something went wrong ❌");
         } else {
           setError("Network error ❌");
@@ -41,12 +47,22 @@ export default function Dashboard() {
     fetchDashboard();
   }, []);
 
+  // 🚪 logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  };
+
   // 🔄 loading
   if (!data && !error) {
-    return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
+    return (
+      <h2 style={{ textAlign: "center", marginTop: "50px" }}>
+        Loading...
+      </h2>
+    );
   }
 
-  // ❌ error show
+  // ❌ error
   if (error) {
     return (
       <h2 style={{ textAlign: "center", color: "red" }}>
@@ -55,11 +71,17 @@ export default function Dashboard() {
     );
   }
 
-  // ✅ dashboard
+  // dashboard UI
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Admin Dashboard 💎</h1>
+      
+      {/* Top Bar */}
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h1>Admin Dashboard 💎</h1>
+        <button onClick={handleLogout}>Logout 🚪</button>
+      </div>
 
+      {/* Stats */}
       <div style={{ marginTop: "20px" }}>
         <h3>Total Orders: {data.totalOrders}</h3>
         <h3>Total Users: {data.totalUsers}</h3>
