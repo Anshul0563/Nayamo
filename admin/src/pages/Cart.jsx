@@ -75,7 +75,7 @@ export default function Cart() {
 
           <h2>Total: ₹{total}</h2>
 
-          <button>Checkout 📦</button>
+          <button onClick={()=> window.location.href="./Checkout.jsx"}>Checkout 📦</button>
         </>
       )}
     </div>
