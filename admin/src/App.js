@@ -3,6 +3,7 @@ import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Cart from "./pages/Cart";
 
 function App() {
   return (
@@ -30,7 +31,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/cart"
+          element={<Cart />}
+        />
       </Routes>
     </BrowserRouter>
   );
