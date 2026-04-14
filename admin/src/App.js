@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import MyOrders from "./pages/MyOrders";
 
 function App() {
   return (
@@ -41,6 +42,10 @@ function App() {
           element={<Checkout/>}
           />
       </Routes>
+      <Routes
+      path="/my-orders"
+      element={<MyOrders/>}
+      />
     </BrowserRouter>
   );
 }

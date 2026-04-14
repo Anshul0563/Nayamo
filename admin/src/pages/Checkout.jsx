@@ -28,7 +28,7 @@ export default function Checkout() {
       );
 
       alert(res.data.message || "Order placed successfully 💎");
-      window.location.href = "/orders";
+      window.location.href = "/my-orders";
 
     } catch (err) {
       alert(err.response?.data?.message || "Order failed ❌");
