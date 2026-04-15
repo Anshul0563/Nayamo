@@ -8,9 +8,12 @@ exports.getDashboardStats = async () => {
   const totalUsers = await User.countDocuments();
   const totalProducts = await Product.countDocuments();
 
-  // Revenue (only confirmed orders)
   const revenueData = await Order.aggregate([
-    { $match: { status: "confirmed" } },
+    {
+      $match: {
+        status: { $in: ["confirmed", "packed", "shipped", "delivered"] }
+      }
+    },
     {
       $group: {
         _id: null,
@@ -21,12 +24,10 @@ exports.getDashboardStats = async () => {
 
   const totalRevenue = revenueData[0]?.totalRevenue || 0;
 
-  //  Recent Orders
   const recentOrders = await Order.find()
     .sort({ createdAt: -1 })
     .limit(5)
-    .populate("user")
-    .populate("items.product");
+    .populate("user", "name email");
 
   return {
     totalOrders,
@@ -35,4 +36,16 @@ exports.getDashboardStats = async () => {
     totalRevenue,
     recentOrders
   };
+};
+
+// ALL USERS
+exports.getAllUsers = async () => {
+  return await User.find()
+    .select("-password")
+    .sort({ createdAt: -1 });
+};
+
+// ALL PRODUCTS
+exports.getAllProducts = async () => {
+  return await Product.find().sort({ createdAt: -1 });
 };

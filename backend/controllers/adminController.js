@@ -1,7 +1,6 @@
 const orderService = require("../services/orderService");
 const adminService = require("../services/adminService");
 
-// VALID STATUSES
 const validStatuses = [
   "pending",
   "confirmed",
@@ -18,10 +17,8 @@ exports.getAllOrders = async (req, res) => {
 
     res.json({
       success: true,
-      count: orders.length,
       orders
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -35,11 +32,10 @@ exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
 
-    // status validation
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid status ❌"
+        message: "Invalid status"
       });
     }
 
@@ -48,20 +44,10 @@ exports.updateOrderStatus = async (req, res) => {
       status
     );
 
-    // order exist check
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found ❌"
-      });
-    }
-
     res.json({
       success: true,
-      message: "Order status updated 💎",
       order
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -69,6 +55,8 @@ exports.updateOrderStatus = async (req, res) => {
     });
   }
 };
+
+// DASHBOARD
 exports.getDashboardStats = async (req, res) => {
   try {
     const data = await adminService.getDashboardStats();
@@ -77,7 +65,40 @@ exports.getDashboardStats = async (req, res) => {
       success: true,
       data
     });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 
+// USERS
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await adminService.getAllUsers();
+
+    res.json({
+      success: true,
+      users
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// PRODUCTS
+exports.getAllProducts = async (req, res) => {
+  try {
+    const products = await adminService.getAllProducts();
+
+    res.json({
+      success: true,
+      products
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
