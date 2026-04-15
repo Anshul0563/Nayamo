@@ -6,16 +6,16 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
+import AdminOrders from "./pages/AdminOrders";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* Public Route */}
+        {/* Public */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Routes */}
+        {/* Protected */}
         <Route
           path="/"
           element={
@@ -33,19 +33,43 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/cart"
-          element={<Cart />}
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/checkout"
-          element={<Checkout/>}
-          />
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-orders"
+          element={
+            <ProtectedRoute>
+              <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/orders"
+          element={
+            <ProtectedRoute>
+              <AdminOrders />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-      <Routes
-      path="/my-orders"
-      element={<MyOrders/>}
-      />
     </BrowserRouter>
   );
 }
