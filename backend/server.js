@@ -7,6 +7,9 @@ const authRoutes = require("./routes/authRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const shippingRoutes = require("./routes/shippingRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+
 
 require("dotenv").config();
 
@@ -23,12 +26,14 @@ app.use(express.json());
 connectDB();
 
 //  routes
+app.use("/api/shipping",shippingRoutes);
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/payment",paymentRoutes);
 
 // test route
 app.get("/", (req, res) => {
