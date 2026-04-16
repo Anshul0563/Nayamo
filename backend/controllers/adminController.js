@@ -1,5 +1,6 @@
 const orderService = require("../services/orderService");
 const adminService = require("../services/adminService");
+const cloudinary = require("../config/cloudinary");
 
 const validStatuses = [
   "pending",
@@ -101,10 +102,11 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 /* PRODUCT IMAGE UPLOAD */
-const uploadProductImage = async (req, res) => {
+exports.uploadProductImage = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
+        success: false,
         message: "No image uploaded",
       });
     }
@@ -116,11 +118,14 @@ const uploadProductImage = async (req, res) => {
     });
 
     res.status(200).json({
+      success: true,
       url: result.secure_url,
     });
   } catch (error) {
     console.log(error);
+
     res.status(500).json({
+      success: false,
       message: "Image upload failed",
     });
   }
