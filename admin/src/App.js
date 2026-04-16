@@ -1,12 +1,17 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLayout from "./components/layout/AdminLayout";
+
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
-import Login from "./pages/Login";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import MyOrders from "./pages/MyOrders";
-import AdminOrders from "./pages/AdminOrders";
+import Inventory from "./pages/Inventory";
+import AddProduct from "./pages/AddProduct";
+import Payments from "./pages/Payments";
+import Analytics from "./pages/Analytics";
+import Returns from "./pages/Returns";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
@@ -15,60 +20,24 @@ function App() {
         {/* Public */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected */}
+        {/* Protected Admin Layout */}
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
-
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute>
-              <Orders />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/cart"
-          element={
-            <ProtectedRoute>
-              <Cart />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute>
-              <Checkout />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/my-orders"
-          element={
-            <ProtectedRoute>
-              <MyOrders />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/orders"
-          element={
-            <ProtectedRoute>
-              <AdminOrders />
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="inventory" element={<Inventory />} />
+          <Route path="add-product" element={<AddProduct />} />
+          <Route path="payments" element={<Payments />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="returns" element={<Returns />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

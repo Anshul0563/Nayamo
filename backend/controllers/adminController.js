@@ -5,25 +5,23 @@ const validStatuses = [
   "pending",
   "confirmed",
   "packed",
+  "ready_to_ship",
+  "pickup_requested",
+  "in_transit",
   "shipped",
   "delivered",
-  "cancelled"
+  "cancelled",
+  "returned",
+  "rto",
 ];
 
 // GET ALL ORDERS
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await orderService.getAllOrders();
-
-    res.json({
-      success: true,
-      orders
-    });
+    res.json({ success: true, orders });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -35,7 +33,7 @@ exports.updateOrderStatus = async (req, res) => {
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid status"
+        message: "Invalid status",
       });
     }
 
@@ -44,15 +42,9 @@ exports.updateOrderStatus = async (req, res) => {
       status
     );
 
-    res.json({
-      success: true,
-      order
-    });
+    res.json({ success: true, order });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -60,16 +52,9 @@ exports.updateOrderStatus = async (req, res) => {
 exports.getDashboardStats = async (req, res) => {
   try {
     const data = await adminService.getDashboardStats();
-
-    res.json({
-      success: true,
-      data
-    });
+    res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -77,16 +62,9 @@ exports.getDashboardStats = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await adminService.getAllUsers();
-
-    res.json({
-      success: true,
-      users
-    });
+    res.json({ success: true, users });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -94,15 +72,31 @@ exports.getAllUsers = async (req, res) => {
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await adminService.getAllProducts();
-
-    res.json({
-      success: true,
-      products
-    });
+    res.json({ success: true, products });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// UPDATE PRODUCT
+exports.updateProduct = async (req, res) => {
+  try {
+    const product = await adminService.updateProduct(
+      req.params.id,
+      req.body
+    );
+    res.json({ success: true, product });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// DELETE PRODUCT
+exports.deleteProduct = async (req, res) => {
+  try {
+    await adminService.deleteProduct(req.params.id);
+    res.json({ success: true, message: "Product deleted" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

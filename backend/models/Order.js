@@ -1,3 +1,4 @@
+// FILE: models/Order.js
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
@@ -56,31 +57,46 @@ const orderSchema = new mongoose.Schema(
 
     paidAt: Date,
 
-    razorpayOrderId: String,
-    razorpayPaymentId: String,
-    razorpaySignature: String,
-
     status: {
       type: String,
       enum: [
         "pending",
         "confirmed",
-        "packed",
-        "shipped",
+        "ready_to_ship",
+        "pickup_requested",
+        "in_transit",
+        "out_for_delivery",
         "delivered",
         "cancelled",
+        "returned",
+        "rto",
       ],
       default: "pending",
     },
 
-    shiprocket: {
-      shipmentId: String,
-      awb: String,
-      courier: String,
+    readyToShip: {
+      type: Boolean,
+      default: false,
+    },
+
+    delhivery: {
+      waybill: String,
       labelUrl: String,
+      courier: {
+        type: String,
+        default: "Delhivery",
+      },
+      pickupRequested: {
+        type: Boolean,
+        default: false,
+      },
       trackingUrl: String,
       createdAt: Date,
     },
+
+    deliveredAt: Date,
+    cancelledAt: Date,
+    returnedAt: Date,
   },
   { timestamps: true }
 );

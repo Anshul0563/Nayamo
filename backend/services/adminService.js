@@ -4,48 +4,81 @@ const Product = require("../models/Product");
 
 // DASHBOARD STATS
 exports.getDashboardStats = async () => {
-  const totalOrders = await Order.countDocuments();
-  const totalUsers = await User.countDocuments();
-  const totalProducts = await Product.countDocuments();
+  const [
+    totalOrders,
+    totalUsers,
+    totalProducts,
+    revenueData,
+    recentOrders,
+  ] = await Promise.all([
+    Order.countDocuments(),
+    User.countDocuments(),
+    Product.countDocuments(),
 
-  const revenueData = await Order.aggregate([
-    {
-      $match: {
-        status: { $in: ["confirmed", "packed", "shipped", "delivered"] }
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        totalRevenue: { $sum: "$totalPrice" }
-      }
-    }
+    Order.aggregate([
+      {
+        $match: {
+          status: {
+            $in: [
+              "confirmed",
+              "packed",
+              "ready_to_ship",
+              "pickup_requested",
+              "in_transit",
+              "shipped",
+              "delivered",
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$totalPrice" },
+        },
+      },
+    ]),
+
+    Order.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("user", "name email")
+      .lean(),
   ]);
-
-  const totalRevenue = revenueData[0]?.totalRevenue || 0;
-
-  const recentOrders = await Order.find()
-    .sort({ createdAt: -1 })
-    .limit(5)
-    .populate("user", "name email");
 
   return {
     totalOrders,
     totalUsers,
     totalProducts,
-    totalRevenue,
-    recentOrders
+    totalRevenue: revenueData[0]?.totalRevenue || 0,
+    recentOrders,
   };
 };
 
-// ALL USERS
+// USERS
 exports.getAllUsers = async () => {
   return await User.find()
     .select("-password")
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .lean();
 };
 
-// ALL PRODUCTS
+// PRODUCTS
 exports.getAllProducts = async () => {
-  return await Product.find().sort({ createdAt: -1 });
+  return await Product.find()
+    .sort({ createdAt: -1 })
+    .lean();
+};
+
+// UPDATE PRODUCT
+exports.updateProduct = async (id, data) => {
+  return await Product.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  }).lean();
+};
+
+// DELETE PRODUCT
+exports.deleteProduct = async (id) => {
+  return await Product.findByIdAndDelete(id);
 };
