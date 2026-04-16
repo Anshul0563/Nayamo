@@ -100,3 +100,28 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+/* PRODUCT IMAGE UPLOAD */
+const uploadProductImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No image uploaded",
+      });
+    }
+
+    const fileStr = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const result = await cloudinary.uploader.upload(fileStr, {
+      folder: "nayamo-products",
+    });
+
+    res.status(200).json({
+      url: result.secure_url,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Image upload failed",
+    });
+  }
+};
