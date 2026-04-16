@@ -34,7 +34,7 @@ export default function Inventory() {
   const token = localStorage.getItem("token");
 
   const api = axios.create({
-    baseURL: "http://localhost:5000/api/admin",
+    baseURL: "http://localhost:5050/api/admin",
     headers: { Authorization: `Bearer ${token}` },
   });
 
