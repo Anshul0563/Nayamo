@@ -1,89 +1,112 @@
 // FILE: admin/src/pages/Payments.jsx
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import {
   IndianRupee,
   Wallet,
-  CreditCard,
-  Landmark,
-  Download,
-  FileText,
-  BadgePercent,
-  Search,
-  RefreshCcw,
-  CheckCircle2,
   Clock3,
   AlertCircle,
+  CheckCircle2,
+  Search,
+  RefreshCcw,
+  CreditCard,
 } from "lucide-react";
 
 export default function Payments() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [month, setMonth] = useState("April 2026");
 
-  // Demo dynamic-ready structure
-  const transactions = [
-    {
-      id: "TXN89452",
-      customer: "Anshul",
-      method: "UPI",
-      amount: 1299,
-      status: "paid",
-      date: "16 Apr 2026",
-      gst: 233.82,
+  const token = localStorage.getItem("token");
+
+  const api = axios.create({
+    baseURL: "http://localhost:5050/api/admin",
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-    {
-      id: "TXN89453",
-      customer: "Riya",
-      method: "COD",
-      amount: 699,
-      status: "pending",
-      date: "16 Apr 2026",
-      gst: 125.82,
-    },
-    {
-      id: "TXN89454",
-      customer: "Mohit",
-      method: "Card",
-      amount: 2199,
-      status: "paid",
-      date: "15 Apr 2026",
-      gst: 395.82,
-    },
-    {
-      id: "TXN89455",
-      customer: "Neha",
-      method: "NetBanking",
-      amount: 499,
-      status: "failed",
-      date: "14 Apr 2026",
-      gst: 89.82,
-    },
-  ];
+  });
+
+  const loadPayments = async () => {
+    try {
+      setLoading(true);
+
+      const res = await api.get("/orders");
+      setOrders(res.data.orders || []);
+    } catch (error) {
+      console.log("Payments Load Error:", error.response?.data || error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPayments();
+  }, []);
+
+  const transactions = useMemo(() => {
+    return orders.map((order) => {
+      const isPaid =
+        order.isPaid ||
+        order.paymentStatus === "paid";
+
+      let status = "pending";
+
+      if (isPaid) status = "paid";
+      else if (order.paymentStatus === "failed")
+        status = "failed";
+
+      return {
+        id: order._id,
+        customer: order.user?.name || "Customer",
+        method:
+          order.paymentMethod === "cod"
+            ? "COD"
+            : "Online",
+        amount: Number(order.totalPrice || 0),
+        status,
+        date: new Date(
+          order.createdAt
+        ).toLocaleDateString(),
+      };
+    });
+  }, [orders]);
 
   const filtered = useMemo(() => {
     return transactions.filter(
       (item) =>
         item.id.toLowerCase().includes(search.toLowerCase()) ||
-        item.customer.toLowerCase().includes(search.toLowerCase())
+        item.customer
+          .toLowerCase()
+          .includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [transactions, search]);
 
   const stats = useMemo(() => {
-    const total = transactions.reduce((s, i) => s + i.amount, 0);
-    const paid = transactions
-      .filter((i) => i.status === "paid")
-      .reduce((s, i) => s + i.amount, 0);
+    const total = transactions.reduce(
+      (sum, item) => sum + item.amount,
+      0
+    );
+
+    const received = transactions
+      .filter((item) => item.status === "paid")
+      .reduce((sum, item) => sum + item.amount, 0);
 
     const pending = transactions
-      .filter((i) => i.status === "pending")
-      .reduce((s, i) => s + i.amount, 0);
+      .filter((item) => item.status === "pending")
+      .reduce((sum, item) => sum + item.amount, 0);
 
-    const gstCollected = transactions
-      .filter((i) => i.status === "paid")
-      .reduce((s, i) => s + i.gst, 0);
+    const failed = transactions
+      .filter((item) => item.status === "failed")
+      .reduce((sum, item) => sum + item.amount, 0);
 
-    return { total, paid, pending, gstCollected };
-  }, []);
+    return {
+      total,
+      received,
+      pending,
+      failed,
+    };
+  }, [transactions]);
 
   const Card = ({ title, value, icon: Icon, color }) => (
     <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
@@ -125,16 +148,24 @@ export default function Payments() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="h-[70vh] grid place-items-center text-white text-2xl">
+        Loading Payments...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 text-white">
       {/* Header */}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between">
         <div>
           <h1 className="text-2xl md:text-4xl font-bold">
-            Payments & GST
+            Payments
           </h1>
           <p className="text-zinc-400 mt-1">
-            Manage collections, settlements and tax reports.
+            Real-time payment analytics & transactions.
           </p>
         </div>
 
@@ -153,7 +184,10 @@ export default function Payments() {
             />
           </div>
 
-          <button className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center gap-2 font-semibold">
+          <button
+            onClick={loadPayments}
+            className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center gap-2 font-semibold"
+          >
             <RefreshCcw size={16} />
             Refresh
           </button>
@@ -171,7 +205,7 @@ export default function Payments() {
 
         <Card
           title="Received"
-          value={`₹${stats.paid}`}
+          value={`₹${stats.received}`}
           icon={Wallet}
           color="text-cyan-400"
         />
@@ -184,47 +218,48 @@ export default function Payments() {
         />
 
         <Card
-          title="GST Collected"
-          value={`₹${stats.gstCollected.toFixed(2)}`}
-          icon={BadgePercent}
-          color="text-violet-400"
+          title="Failed"
+          value={`₹${stats.failed}`}
+          icon={AlertCircle}
+          color="text-red-400"
         />
       </div>
 
-      {/* Payment Methods + GST */}
-      <div className="grid xl:grid-cols-3 gap-4">
-        {/* Methods */}
-        <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-white/5 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg md:text-xl font-semibold">
-              Recent Transactions
-            </h2>
+      {/* Transactions */}
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg md:text-xl font-semibold">
+            Recent Transactions
+          </h2>
 
-            <span className="text-sm text-zinc-400">
-              {filtered.length} records
-            </span>
-          </div>
+          <span className="text-sm text-zinc-400">
+            {filtered.length} records
+          </span>
+        </div>
 
-          <div className="space-y-3">
-            {filtered.map((item) => (
+        <div className="space-y-3">
+          {filtered.length === 0 ? (
+            <div className="text-center text-zinc-400 py-10">
+              No payments found
+            </div>
+          ) : (
+            filtered.map((item) => (
               <div
                 key={item.id}
                 className="rounded-2xl bg-black/30 border border-white/5 p-4 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between"
               >
                 <div>
-                  <p className="font-semibold">{item.customer}</p>
-                  <p className="text-sm text-zinc-400">
-                    {item.id} • {item.date}
+                  <p className="font-semibold">
+                    {item.customer}
+                  </p>
+
+                  <p className="text-sm text-zinc-400 break-all">
+                    #{item.id.slice(-8)} • {item.date}
                   </p>
                 </div>
 
                 <div className="text-sm text-zinc-400 flex items-center gap-2">
-                  {item.method === "UPI" && <Wallet size={15} />}
-                  {item.method === "Card" && <CreditCard size={15} />}
-                  {item.method === "NetBanking" && (
-                    <Landmark size={15} />
-                  )}
-                  {item.method === "COD" && <IndianRupee size={15} />}
+                  <CreditCard size={15} />
                   {item.method}
                 </div>
 
@@ -234,64 +269,18 @@ export default function Payments() {
 
                 <Status status={item.status} />
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* GST Panel */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-          <h2 className="text-lg md:text-xl font-semibold">
-            GST Center
-          </h2>
-
-          <div className="mt-4 space-y-3">
-            <div className="rounded-2xl bg-black/30 p-4 border border-white/5">
-              <p className="text-sm text-zinc-400">Return Month</p>
-              <select
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="mt-2 w-full px-3 py-3 rounded-2xl bg-zinc-900 border border-white/10 outline-none"
-              >
-                <option>April 2026</option>
-                <option>March 2026</option>
-                <option>February 2026</option>
-              </select>
-            </div>
-
-            <div className="rounded-2xl bg-black/30 p-4 border border-white/5">
-              <p className="text-sm text-zinc-400">Taxable Sales</p>
-              <h3 className="text-2xl font-bold mt-2">
-                ₹{stats.paid}
-              </h3>
-            </div>
-
-            <div className="rounded-2xl bg-black/30 p-4 border border-white/5">
-              <p className="text-sm text-zinc-400">GST Payable</p>
-              <h3 className="text-2xl font-bold mt-2 text-violet-400">
-                ₹{stats.gstCollected.toFixed(2)}
-              </h3>
-            </div>
-
-            <button className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-semibold flex items-center justify-center gap-2">
-              <FileText size={16} />
-              Generate GST Report
-            </button>
-
-            <button className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-semibold flex items-center justify-center gap-2">
-              <Download size={16} />
-              Download CSV
-            </button>
-          </div>
+            ))
+          )}
         </div>
       </div>
 
-      {/* Bottom Card */}
+      {/* Bottom */}
       <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-indigo-600/20 to-violet-600/20 p-6">
         <h3 className="text-xl font-bold">
-          Razorpay / Cashfree / Stripe Ready
+          Razorpay Ready
         </h3>
         <p className="text-zinc-300 mt-2">
-          Connect your gateway and track real-time settlements here.
+          Real payments automatically appear here after successful checkout.
         </p>
       </div>
     </div>
