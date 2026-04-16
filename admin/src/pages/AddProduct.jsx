@@ -27,9 +27,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="text-sm text-zinc-300 block mb-2">
-        {label}
-      </label>
+      <label className="text-sm text-zinc-300 block mb-2">{label}</label>
 
       <div className="relative">
         {icon && (
@@ -64,7 +62,7 @@ export default function AddProduct() {
           Authorization: `Bearer ${token}`,
         },
       }),
-    [token]
+    [token],
   );
 
   const initialForm = {
@@ -119,15 +117,11 @@ export default function AddProduct() {
 
   const validateForm = () => {
     if (!form.title.trim()) return "Product name is required";
-    if (!form.price || Number(form.price) <= 0)
-      return "Enter valid price";
-    if (!form.stock || Number(form.stock) < 0)
-      return "Enter valid stock";
+    if (!form.price || Number(form.price) <= 0) return "Enter valid price";
+    if (!form.stock || Number(form.stock) < 0) return "Enter valid stock";
     if (!form.category.trim()) return "Category is required";
-    if (!form.description.trim())
-      return "Description is required";
-    if (form.images.length === 0)
-      return "Please upload at least 1 image";
+    if (!form.description.trim()) return "Description is required";
+    if (form.images.length === 0) return "Please upload at least 1 image";
 
     return null;
   };
@@ -146,16 +140,11 @@ export default function AddProduct() {
         const data = new FormData();
         data.append("image", file);
 
-        const res = await api.post(
-          "/products/upload",
-          data,
-          {
-            headers: {
-              "Content-Type":
-                "multipart/form-data",
-            },
-          }
-        );
+        const res = await api.post("/products/upload", data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         uploaded.push(res.data.url);
       }
@@ -221,19 +210,12 @@ export default function AddProduct() {
       <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-5">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-2xl bg-indigo-600/20 grid place-items-center">
-            <Sparkles
-              size={22}
-              className="text-indigo-400"
-            />
+            <Sparkles size={22} className="text-indigo-400" />
           </div>
 
           <div>
-            <h1 className="text-3xl font-bold">
-              Add Product
-            </h1>
-            <p className="text-zinc-400">
-              Premium Product Panel
-            </p>
+            <h1 className="text-3xl font-bold">Add Product</h1>
+            <p className="text-zinc-400">Premium Product Panel</p>
           </div>
         </div>
       </div>
@@ -367,17 +349,13 @@ export default function AddProduct() {
                 <Save size={18} />
               )}
 
-              {loading
-                ? "Creating..."
-                : "Submit Product"}
+              {loading ? "Creating..." : "Submit Product"}
             </button>
           </div>
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6 h-fit">
-          <h2 className="text-lg font-semibold mb-4">
-            Product Images
-          </h2>
+          <h2 className="text-lg font-semibold mb-4">Product Images</h2>
 
           <label className="border-2 border-dashed border-white/15 rounded-2xl p-6 grid place-items-center cursor-pointer">
             <input
@@ -385,26 +363,15 @@ export default function AddProduct() {
               hidden
               multiple
               accept="image/*"
-              onChange={(e) =>
-                uploadImages(
-                  Array.from(e.target.files)
-                )
-              }
+              onChange={(e) => uploadImages(Array.from(e.target.files))}
             />
 
-            {uploading ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <ImagePlus />
-            )}
+            {uploading ? <Loader2 className="animate-spin" /> : <ImagePlus />}
           </label>
 
           <div className="grid grid-cols-2 gap-3 mt-4">
             {form.images.map((img, index) => (
-              <div
-                key={index}
-                className="relative"
-              >
+              <div key={index} className="relative">
                 <img
                   src={img}
                   alt="preview"
@@ -413,15 +380,57 @@ export default function AddProduct() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    removeImage(index)
-                  }
+                  onClick={() => removeImage(index)}
                   className="absolute top-2 right-2 bg-black/70 p-1 rounded-full"
                 >
                   <X size={14} />
                 </button>
               </div>
             ))}
+          </div>
+          {/* Live Preview Card */}
+          <div className="mt-5 rounded-2xl bg-black/30 border border-white/10 p-4 space-y-2">
+            {form.images[0] && (
+              <img
+                src={form.images[0]}
+                alt="main"
+                className="w-full h-40 object-cover rounded-xl"
+              />
+            )}
+
+            <h3 className="font-semibold truncate">
+              {form.title || "Product Name"}
+            </h3>
+
+            <p className="text-emerald-400 font-bold text-lg">
+              ₹{form.price || 0}
+            </p>
+
+            <p className="text-zinc-400 text-sm">Stock: {form.stock || 0}</p>
+
+            <p className="text-zinc-500 text-xs line-clamp-2">
+              {form.description || "Your product preview will appear here."}
+            </p>
+
+            <div className="flex flex-wrap gap-2 pt-2">
+              {form.category && (
+                <span className="px-2 py-1 text-xs rounded-full bg-white/10">
+                  {form.category}
+                </span>
+              )}
+
+              {form.brand && (
+                <span className="px-2 py-1 text-xs rounded-full bg-white/10">
+                  {form.brand}
+                </span>
+              )}
+
+              {form.color && (
+                <span className="px-2 py-1 text-xs rounded-full bg-white/10">
+                  {form.color}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </form>
