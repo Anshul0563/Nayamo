@@ -13,6 +13,46 @@ import {
   Sparkles,
 } from "lucide-react";
 
+/* -----------------------------
+   INPUT COMPONENT OUTSIDE
+----------------------------- */
+function Input({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  icon,
+  value,
+  onChange,
+}) {
+  return (
+    <div>
+      <label className="text-sm text-zinc-300 block mb-2">
+        {label}
+      </label>
+
+      <div className="relative">
+        {icon && (
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">
+            {icon}
+          </span>
+        )}
+
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className={`w-full rounded-2xl bg-black/30 border border-white/10 outline-none focus:border-indigo-500 transition py-3 ${
+            icon ? "pl-10 pr-4" : "px-4"
+          }`}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function AddProduct() {
   const token = localStorage.getItem("token");
 
@@ -41,7 +81,6 @@ export default function AddProduct() {
   };
 
   const [form, setForm] = useState(initialForm);
-
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -50,9 +89,6 @@ export default function AddProduct() {
     text: "",
   });
 
-  // -----------------------------
-  // HELPERS
-  // -----------------------------
   const notify = (type, text) => {
     setMessage({ type, text });
 
@@ -81,40 +117,21 @@ export default function AddProduct() {
     }));
   };
 
-  // -----------------------------
-  // VALIDATION
-  // -----------------------------
   const validateForm = () => {
-    if (!form.title.trim()) {
-      return "Product name is required";
-    }
-
-    if (!form.price || Number(form.price) <= 0) {
+    if (!form.title.trim()) return "Product name is required";
+    if (!form.price || Number(form.price) <= 0)
       return "Enter valid price";
-    }
-
-    if (!form.stock || Number(form.stock) < 0) {
+    if (!form.stock || Number(form.stock) < 0)
       return "Enter valid stock";
-    }
-
-    if (!form.category.trim()) {
-      return "Category is required";
-    }
-
-    if (!form.description.trim()) {
+    if (!form.category.trim()) return "Category is required";
+    if (!form.description.trim())
       return "Description is required";
-    }
-
-    if (form.images.length === 0) {
+    if (form.images.length === 0)
       return "Please upload at least 1 image";
-    }
 
     return null;
   };
 
-  // -----------------------------
-  // IMAGE UPLOAD
-  // -----------------------------
   const uploadImages = async (files) => {
     if (!files || files.length === 0) return;
 
@@ -129,11 +146,16 @@ export default function AddProduct() {
         const data = new FormData();
         data.append("image", file);
 
-        const res = await api.post("/products/upload", data, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const res = await api.post(
+          "/products/upload",
+          data,
+          {
+            headers: {
+              "Content-Type":
+                "multipart/form-data",
+            },
+          }
+        );
 
         uploaded.push(res.data.url);
       }
@@ -143,30 +165,15 @@ export default function AddProduct() {
         images: [...prev.images, ...uploaded],
       }));
 
-      notify("success", "Images uploaded successfully");
+      notify("success", "Images uploaded");
     } catch (error) {
       console.log(error.response?.data || error);
-      notify("error", "Image upload failed");
+      notify("error", "Upload failed");
     } finally {
       setUploading(false);
     }
   };
 
-  const fileChangeHandler = (e) => {
-    uploadImages(Array.from(e.target.files));
-  };
-
-  const dropHandler = (e) => {
-    e.preventDefault();
-    setDragging(false);
-
-    const files = Array.from(e.dataTransfer.files);
-    uploadImages(files);
-  };
-
-  // -----------------------------
-  // SUBMIT
-  // -----------------------------
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -199,74 +206,38 @@ export default function AddProduct() {
 
       await api.post("/products", payload);
 
-      notify("success", "Product added successfully 🚀");
+      notify("success", "Product Added 🚀");
       resetForm();
     } catch (error) {
       console.log(error.response?.data || error);
-      notify("error", "Product create failed");
+      notify("error", "Create failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // -----------------------------
-  // UI INPUT COMPONENT
-  // -----------------------------
-  const Input = ({
-    label,
-    name,
-    type = "text",
-    placeholder,
-    icon,
-  }) => (
-    <div>
-      <label className="text-sm text-zinc-300 block mb-2">
-        {label}
-      </label>
-
-      <div className="relative">
-        {icon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">
-            {icon}
-          </span>
-        )}
-
-        <input
-          type={type}
-          name={name}
-          value={form[name]}
-          onChange={changeHandler}
-          placeholder={placeholder}
-          className={`w-full rounded-2xl bg-black/30 border border-white/10 outline-none focus:border-indigo-500 transition py-3 ${
-            icon ? "pl-10 pr-4" : "px-4"
-          }`}
-        />
-      </div>
-    </div>
-  );
-
   return (
     <div className="space-y-6 text-white">
-      {/* Header */}
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-5 md:p-6">
+      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-5">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-2xl bg-indigo-600/20 grid place-items-center">
-            <Sparkles size={22} className="text-indigo-400" />
+            <Sparkles
+              size={22}
+              className="text-indigo-400"
+            />
           </div>
 
           <div>
-            <h1 className="text-2xl md:text-4xl font-bold">
+            <h1 className="text-3xl font-bold">
               Add Product
             </h1>
-
-            <p className="text-zinc-400 mt-1">
-              Create products with premium admin UI.
+            <p className="text-zinc-400">
+              Premium Product Panel
             </p>
           </div>
         </div>
       </div>
 
-      {/* Toast Message */}
       {message.text && (
         <div
           className={`rounded-2xl px-4 py-3 border flex items-center gap-2 ${
@@ -289,12 +260,13 @@ export default function AddProduct() {
         onSubmit={submitHandler}
         className="grid xl:grid-cols-[1fr_360px] gap-6"
       >
-        {/* LEFT SIDE */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 space-y-6">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-6">
           <div className="grid md:grid-cols-2 gap-4">
             <Input
               label="Product Name"
               name="title"
+              value={form.title}
+              onChange={changeHandler}
               placeholder="Gold Earrings"
               icon={<BadgeInfo size={16} />}
             />
@@ -303,6 +275,8 @@ export default function AddProduct() {
               label="Price"
               name="price"
               type="number"
+              value={form.price}
+              onChange={changeHandler}
               placeholder="299"
               icon={<IndianRupee size={16} />}
             />
@@ -311,6 +285,8 @@ export default function AddProduct() {
               label="Stock"
               name="stock"
               type="number"
+              value={form.stock}
+              onChange={changeHandler}
               placeholder="10"
               icon={<Package size={16} />}
             />
@@ -318,35 +294,44 @@ export default function AddProduct() {
             <Input
               label="Category"
               name="category"
+              value={form.category}
+              onChange={changeHandler}
               placeholder="Jewellery"
             />
 
             <Input
               label="Brand"
               name="brand"
+              value={form.brand}
+              onChange={changeHandler}
               placeholder="Nayamo"
             />
 
             <Input
               label="Material"
               name="material"
+              value={form.material}
+              onChange={changeHandler}
               placeholder="Alloy"
             />
 
             <Input
               label="Color"
               name="color"
+              value={form.color}
+              onChange={changeHandler}
               placeholder="Gold"
             />
 
             <Input
               label="Occasion"
               name="occasion"
+              value={form.occasion}
+              onChange={changeHandler}
               placeholder="Party"
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className="text-sm text-zinc-300 block mb-2">
               Description
@@ -358,16 +343,15 @@ export default function AddProduct() {
               value={form.description}
               onChange={changeHandler}
               placeholder="Write product details..."
-              className="w-full px-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none resize-none focus:border-indigo-500 transition"
+              className="w-full px-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none"
             />
           </div>
 
-          {/* Buttons */}
-          <div className="flex flex-wrap gap-3 justify-end">
+          <div className="flex justify-end gap-3">
             <button
               type="button"
               onClick={resetForm}
-              className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5 transition"
+              className="px-5 py-3 rounded-2xl border border-white/10"
             >
               Reset
             </button>
@@ -375,13 +359,10 @@ export default function AddProduct() {
             <button
               type="submit"
               disabled={loading || uploading}
-              className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-semibold flex items-center gap-2 disabled:opacity-60"
+              className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"
             >
               {loading ? (
-                <Loader2
-                  size={18}
-                  className="animate-spin"
-                />
+                <Loader2 className="animate-spin" />
               ) : (
                 <Save size={18} />
               )}
@@ -393,103 +374,54 @@ export default function AddProduct() {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 h-fit sticky top-4">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 h-fit">
           <h2 className="text-lg font-semibold mb-4">
             Product Images
           </h2>
 
-          {/* Upload Box */}
-          <label
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={dropHandler}
-            className={`border-2 border-dashed rounded-2xl p-6 grid place-items-center cursor-pointer transition ${
-              dragging
-                ? "border-indigo-500 bg-indigo-500/10"
-                : "border-white/15 hover:bg-white/5"
-            }`}
-          >
+          <label className="border-2 border-dashed border-white/15 rounded-2xl p-6 grid place-items-center cursor-pointer">
             <input
               type="file"
+              hidden
               multiple
               accept="image/*"
-              hidden
-              onChange={fileChangeHandler}
+              onChange={(e) =>
+                uploadImages(
+                  Array.from(e.target.files)
+                )
+              }
             />
 
-            <div className="text-center">
-              {uploading ? (
-                <Loader2 className="mx-auto animate-spin mb-3" />
-              ) : (
-                <ImagePlus className="mx-auto mb-3" />
-              )}
-
-              <p className="font-medium">
-                {uploading
-                  ? "Uploading..."
-                  : "Click or Drag Images"}
-              </p>
-
-              <p className="text-sm text-zinc-400 mt-1">
-                JPG, PNG, WEBP
-              </p>
-            </div>
+            {uploading ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <ImagePlus />
+            )}
           </label>
 
-          {/* Preview */}
           <div className="grid grid-cols-2 gap-3 mt-4">
             {form.images.map((img, index) => (
               <div
                 key={index}
-                className="relative group overflow-hidden rounded-2xl"
+                className="relative"
               >
                 <img
                   src={img}
                   alt="preview"
-                  className="w-full h-32 object-cover border border-white/10 group-hover:scale-105 transition duration-300"
+                  className="h-32 w-full object-cover rounded-2xl"
                 />
 
                 <button
                   type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-black/70 p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                  onClick={() =>
+                    removeImage(index)
+                  }
+                  className="absolute top-2 right-2 bg-black/70 p-1 rounded-full"
                 >
                   <X size={14} />
                 </button>
               </div>
             ))}
-          </div>
-
-          {/* Live Preview Card */}
-          <div className="mt-5 rounded-2xl bg-black/30 border border-white/10 p-4 space-y-2">
-            {form.images[0] && (
-              <img
-                src={form.images[0]}
-                alt="main"
-                className="w-full h-40 object-cover rounded-xl"
-              />
-            )}
-
-            <h3 className="font-semibold truncate">
-              {form.title || "Product Name"}
-            </h3>
-
-            <p className="text-emerald-400 font-bold">
-              ₹{form.price || 0}
-            </p>
-
-            <p className="text-zinc-400 text-sm">
-              Stock: {form.stock || 0}
-            </p>
-
-            <p className="text-zinc-500 text-xs line-clamp-2">
-              {form.description ||
-                "Your product preview will appear here."}
-            </p>
           </div>
         </div>
       </form>
