@@ -1,52 +1,80 @@
 const orderService = require("../services/orderService");
+const asyncHandler = require("../utils/asyncHandler");
+const mongoose = require("mongoose");
 
-// PLACE
-exports.placeOrder = async (req, res) => {
-  try {
-    const order = await orderService.placeOrder(req.user._id, req.body);
-    res.status(201).json(order);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+// PLACE ORDER
+exports.placeOrder = asyncHandler(async (req, res) => {
+  const { address, phone, paymentMethod, idempotencyKey } = req.body;
+
+  if (!address || !phone) {
+    res.status(400);
+    throw new Error("Address and phone are required");
   }
-};
+
+  // Validate phone format
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(phone)) {
+    res.status(400);
+    throw new Error("Please provide a valid 10-digit phone number");
+  }
+
+  const order = await orderService.placeOrder(req.user._id, {
+    address,
+    phone,
+    paymentMethod,
+    idempotencyKey,
+  });
+
+  res.status(201).json({
+    success: true,
+    message: "Order placed successfully",
+    data: order,
+  });
+});
 
 // USER ORDERS
-exports.getOrders = async (req, res) => {
-  try {
-    const orders = await orderService.getUserOrders(req.user._id);
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.getOrders = asyncHandler(async (req, res) => {
+  const orders = await orderService.getUserOrders(req.user._id);
+
+  res.json({
+    success: true,
+    count: orders.length,
+    data: orders,
+  });
+});
 
 // SINGLE ORDER
-exports.getOrderById = async (req, res) => {
-  try {
-    const order = await orderService.getSingleOrder(
-      req.user._id,
-      req.params.id
-    );
-
-    res.json(order);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
+exports.getOrderById = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error("Invalid order ID format");
   }
-};
 
-// CANCEL
-exports.cancelOrder = async (req, res) => {
-  try {
-    const order = await orderService.cancelOrder(
-      req.user._id,
-      req.params.id
-    );
+  const order = await orderService.getSingleOrder(req.user._id, req.params.id);
 
-    res.json({
-      message: "Order cancelled",
-      order
-    });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
   }
-};
+
+  res.json({
+    success: true,
+    data: order,
+  });
+});
+
+// CANCEL ORDER
+exports.cancelOrder = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error("Invalid order ID format");
+  }
+
+  const order = await orderService.cancelOrder(req.user._id, req.params.id);
+
+  res.json({
+    success: true,
+    message: "Order cancelled successfully",
+    data: order,
+  });
+});

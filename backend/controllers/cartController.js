@@ -1,65 +1,94 @@
 const Cart = require("../models/Cart");
 const cartService = require("../services/cartService");
+const asyncHandler = require("../utils/asyncHandler");
 
 // ADD TO CART
-exports.addToCart = async (req, res) => {
-  try {
-    const cart = await cartService.addToCart(
-      req.user._id,
-      req.body.productId
-    );
+exports.addToCart = asyncHandler(async (req, res) => {
+  const { productId } = req.body;
 
-    res.json(cart);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (!productId) {
+    res.status(400);
+    throw new Error("Product ID is required");
   }
-};
+
+  const cart = await cartService.addToCart(req.user._id, productId);
+
+  res.json({
+    success: true,
+    message: "Item added to cart",
+    data: cart,
+  });
+});
 
 // UPDATE QUANTITY
-exports.updateQuantity = async (req, res) => {
-  try {
-    const cart = await cartService.updateQuantity(
-      req.user._id,
-      req.body.productId,
-      req.body.quantity
-    );
+exports.updateQuantity = asyncHandler(async (req, res) => {
+  const { productId, quantity } = req.body;
 
-    res.json(cart);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (!productId) {
+    res.status(400);
+    throw new Error("Product ID is required");
   }
-};
+
+  if (!quantity || quantity < 1) {
+    res.status(400);
+    throw new Error("Quantity must be at least 1");
+  }
+
+  const cart = await cartService.updateQuantity(
+    req.user._id,
+    productId,
+    Number(quantity)
+  );
+
+  res.json({
+    success: true,
+    message: "Cart updated",
+    data: cart,
+  });
+});
 
 // GET CART
-exports.getCart = async (req, res) => {
-  try {
-    const data = await cartService.getCart(req.user._id);
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+exports.getCart = asyncHandler(async (req, res) => {
+  const data = await cartService.getCart(req.user._id);
+
+  res.json({
+    success: true,
+    data,
+  });
+});
+
+// REMOVE ITEM FROM CART (by product ID in body)
+exports.removeFromCart = asyncHandler(async (req, res) => {
+  const { productId } = req.body;
+
+  if (!productId) {
+    res.status(400);
+    throw new Error("Product ID is required");
   }
-};
 
-// REMOVE ITEM FROM CART
-exports.removeFromCart = async (req, res) => {
-  try {
-    const cart = await Cart.findOne({ user: req.user._id });
+  const cart = await cartService.removeFromCart(req.user._id, productId);
 
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
-    }
+  res.json({
+    success: true,
+    message: "Item removed from cart",
+    data: cart,
+  });
+});
 
-    cart.items = cart.items.filter(
-      (item) => item.product.toString() !== req.params.id
-    );
+// DELETE CART ITEM (by product ID in URL - for DELETE method)
+exports.deleteCartItem = asyncHandler(async (req, res) => {
+  const { productId } = req.params;
 
-    await cart.save();
-
-    res.json({
-      message: "Item removed from cart",
-      cart,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (!productId) {
+    res.status(400);
+    throw new Error("Product ID is required");
   }
-};
+
+  const cart = await cartService.removeFromCart(req.user._id, productId);
+
+  res.json({
+    success: true,
+    message: "Item removed from cart",
+    data: cart,
+  });
+});
