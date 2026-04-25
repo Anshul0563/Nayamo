@@ -1,4 +1,3 @@
-// FILE: models/Order.js
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
@@ -6,7 +5,8 @@ const orderSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: [true, "User is required"],
+      index: true,
     },
 
     items: [
@@ -14,39 +14,57 @@ const orderSchema = new mongoose.Schema(
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
-          required: true,
+          required: [true, "Product is required"],
         },
         quantity: {
           type: Number,
+          required: [true, "Quantity is required"],
+          min: [1, "Quantity must be at least 1"],
           default: 1,
+        },
+        price: {
+          type: Number,
+          required: [true, "Price at time of order is required"],
+          min: [0, "Price cannot be negative"],
         },
       },
     ],
 
     totalPrice: {
       type: Number,
-      required: true,
+      required: [true, "Total price is required"],
+      min: [0, "Total price cannot be negative"],
     },
 
     address: {
       type: String,
-      required: true,
+      required: [true, "Delivery address is required"],
+      trim: true,
+      maxlength: [500, "Address cannot exceed 500 characters"],
     },
 
     phone: {
       type: String,
-      required: true,
+      required: [true, "Phone number is required"],
+      trim: true,
+      match: [/^[0-9]{10}$/, "Please provide a valid 10-digit phone number"],
     },
 
     paymentMethod: {
       type: String,
-      enum: ["cod", "online"],
+      enum: {
+        values: ["cod", "online"],
+        message: "Payment method must be 'cod' or 'online'",
+      },
       default: "cod",
     },
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
+      enum: {
+        values: ["pending", "paid", "failed", "refunded"],
+        message: "Invalid payment status",
+      },
       default: "pending",
     },
 
@@ -59,18 +77,21 @@ const orderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: [
-        "pending",
-        "confirmed",
-        "ready_to_ship",
-        "pickup_requested",
-        "in_transit",
-        "out_for_delivery",
-        "delivered",
-        "cancelled",
-        "returned",
-        "rto",
-      ],
+      enum: {
+        values: [
+          "pending",
+          "confirmed",
+          "ready_to_ship",
+          "pickup_requested",
+          "in_transit",
+          "out_for_delivery",
+          "delivered",
+          "cancelled",
+          "returned",
+          "rto",
+        ],
+        message: "Invalid order status",
+      },
       default: "pending",
     },
 
@@ -97,8 +118,27 @@ const orderSchema = new mongoose.Schema(
     deliveredAt: Date,
     cancelledAt: Date,
     returnedAt: Date,
+
+    // Razorpay payment details
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String,
+
+    // Idempotency key to prevent duplicate orders
+    idempotencyKey: {
+      type: String,
+      index: true,
+    },
   },
   { timestamps: true }
 );
+
+// Indexes for performance
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ status: 1 });
+orderSchema.index({ paymentStatus: 1 });
+orderSchema.index({ "delhivery.waybill": 1 });
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ idempotencyKey: 1 }, { sparse: true });
 
 module.exports = mongoose.model("Order", orderSchema);
