@@ -19,7 +19,6 @@ const wishlistSchema = new mongoose.Schema(
 );
 
 // Indexes for performance
-wishlistSchema.index({ user: 1 });
 wishlistSchema.index({ products: 1 });
 
 // Ensure one wishlist per user

@@ -6,7 +6,6 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "User is required"],
-      index: true,
     },
 
     items: [
@@ -140,6 +139,5 @@ orderSchema.index({ status: 1 });
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ "delhivery.waybill": 1 });
 orderSchema.index({ createdAt: -1 });
-orderSchema.index({ idempotencyKey: 1 }, { sparse: true });
 
 module.exports = mongoose.model("Order", orderSchema);

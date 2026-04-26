@@ -29,7 +29,6 @@ const cartSchema = new mongoose.Schema(
 );
 
 // Indexes for performance
-cartSchema.index({ user: 1 });
 cartSchema.index({ "items.product": 1 });
 cartSchema.index({ updatedAt: -1 });
 
