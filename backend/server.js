@@ -169,7 +169,6 @@ const startServer = async () => {
     const requiredEnvVars = [
       "MONGO_URI",
       "JWT_SECRET",
-      "JWT_REFRESH_SECRET",
       "CLOUDINARY_CLOUD_NAME",
       "CLOUDINARY_API_KEY",
       "CLOUDINARY_API_SECRET",
@@ -180,6 +179,12 @@ const startServer = async () => {
       throw new Error(
         `Missing required environment variables: ${missingVars.join(", ")}`
       );
+    }
+
+    // JWT_REFRESH_SECRET fallback (uses JWT_SECRET if not set - not ideal for production but prevents crash)
+    if (!process.env.JWT_REFRESH_SECRET) {
+      console.warn("⚠️  JWT_REFRESH_SECRET not set, falling back to JWT_SECRET. Set a separate JWT_REFRESH_SECRET for production.");
+      process.env.JWT_REFRESH_SECRET = process.env.JWT_SECRET;
     }
 
     await connectDB();
