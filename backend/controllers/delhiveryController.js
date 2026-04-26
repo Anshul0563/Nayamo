@@ -3,7 +3,9 @@ const asyncHandler = require("../utils/asyncHandler");
 
 // Generate Waybill
 exports.generateWaybill = asyncHandler(async (req, res) => {
-  const response = await api.get("/api/v1/packages/json/?token=" + process.env.DELHIVERY_TOKEN);
+  const response = await api.get("/api/v1/packages/json/", {
+    params: { token: process.env.DELHIVERY_TOKEN }
+  });
   res.json({
     success: true,
     data: response.data,
@@ -18,6 +20,18 @@ exports.createShipment = asyncHandler(async (req, res) => {
   if (!name || !address || !pin || !city || !state || !phone) {
     res.status(400);
     throw new Error("All shipping details are required");
+  }
+
+  // Validate PIN code (6 digits)
+  if (!/^[0-9]{6}$/.test(pin)) {
+    res.status(400);
+    throw new Error("PIN code must be 6 digits");
+  }
+
+  // Validate phone (10 digits)
+  if (!/^[0-9]{10}$/.test(phone)) {
+    res.status(400);
+    throw new Error("Phone must be 10 digits");
   }
 
   const shipmentData = {
@@ -56,7 +70,12 @@ exports.trackShipment = asyncHandler(async (req, res) => {
     throw new Error("Waybill number is required");
   }
 
-  const response = await api.get(`/api/v1/packages/json/?waybill=${waybill}&token=${process.env.DELHIVERY_TOKEN}`);
+  const response = await api.get("/api/v1/packages/json/", {
+    params: {
+      waybill,
+      token: process.env.DELHIVERY_TOKEN
+    }
+  });
   res.json({
     success: true,
     data: response.data,

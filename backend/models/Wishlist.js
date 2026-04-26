@@ -22,9 +22,14 @@ const wishlistSchema = new mongoose.Schema(
 // Indexes for performance
 wishlistSchema.index({ user: 1 });
 wishlistSchema.index({ products: 1 });
-wishlistSchema.index({ user: 1, products: 1 });
 
 // Ensure one wishlist per user
 wishlistSchema.index({ user: 1 }, { unique: true });
+
+// Ensure no duplicate products in wishlist
+wishlistSchema.pre("save", function (next) {
+  this.products = [...new Set(this.products.map((id) => id.toString()))];
+  next();
+});
 
 module.exports = mongoose.model("Wishlist", wishlistSchema);
