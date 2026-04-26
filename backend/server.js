@@ -2,8 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const mongoSanitize = require("express-mongo-sanitize");
-// Custom XSS sanitization (xss-clean is incompatible with Express 5)
 const hpp = require("hpp");
 const morgan = require("morgan");
 const compression = require("compression");
