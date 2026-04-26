@@ -1,7 +1,6 @@
-// FILE: admin/src/pages/Payments.jsx
-
-import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { adminAPI } from "../services/api";
+import { useDebounce } from "../hooks/useApi";
 import {
   IndianRupee,
   Wallet,
@@ -11,101 +10,88 @@ import {
   Search,
   RefreshCcw,
   CreditCard,
+  Loader2,
 } from "lucide-react";
 
 export default function Payments() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const token = localStorage.getItem("token");
+  const debouncedSearch = useDebounce(search, 300);
 
-  const api = axios.create({
-    baseURL: "http://localhost:5050/api/admin",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const loadPayments = async () => {
+  const loadPayments = useCallback(async (currentPage = 1) => {
     try {
       setLoading(true);
+      setError("");
 
-      const res = await api.get("/orders");
-      setOrders(res.data.orders || []);
+      const res = await adminAPI.getOrders({
+        page: currentPage,
+        limit: 20,
+        search: debouncedSearch || undefined,
+      });
+
+      const result = res.data;
+      setOrders(result.data?.orders || result.orders || []);
+      setTotalPages(result.pagination?.totalPages || 1);
+      setPage(result.pagination?.currentPage || 1);
     } catch (error) {
-      console.log("Payments Load Error:", error.response?.data || error);
+      setError(error.response?.data?.message || "Failed to load payments");
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearch]);
 
   useEffect(() => {
-    loadPayments();
-  }, []);
+    loadPayments(1);
+  }, [loadPayments]);
 
   const transactions = useMemo(() => {
     return orders.map((order) => {
-      const isPaid =
-        order.isPaid ||
-        order.paymentStatus === "paid";
-
+      const isPaid = order.isPaid || order.paymentStatus === "paid";
       let status = "pending";
-
       if (isPaid) status = "paid";
-      else if (order.paymentStatus === "failed")
-        status = "failed";
+      else if (order.paymentStatus === "failed") status = "failed";
 
       return {
         id: order._id,
         customer: order.user?.name || "Customer",
-        method:
-          order.paymentMethod === "cod"
-            ? "COD"
-            : "Online",
+        method: order.paymentMethod === "cod" ? "COD" : "Online",
         amount: Number(order.totalPrice || 0),
         status,
-        date: new Date(
-          order.createdAt
-        ).toLocaleDateString(),
+        date: order.createdAt
+          ? new Date(order.createdAt).toLocaleDateString()
+          : "-",
       };
     });
   }, [orders]);
 
   const filtered = useMemo(() => {
+    if (!debouncedSearch) return transactions;
+    const term = debouncedSearch.toLowerCase();
     return transactions.filter(
       (item) =>
-        item.id.toLowerCase().includes(search.toLowerCase()) ||
-        item.customer
-          .toLowerCase()
-          .includes(search.toLowerCase())
+        item.id.toLowerCase().includes(term) ||
+        item.customer.toLowerCase().includes(term)
     );
-  }, [transactions, search]);
+  }, [transactions, debouncedSearch]);
 
   const stats = useMemo(() => {
-    const total = transactions.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
-
+    const total = transactions.reduce((sum, item) => sum + item.amount, 0);
     const received = transactions
       .filter((item) => item.status === "paid")
       .reduce((sum, item) => sum + item.amount, 0);
-
     const pending = transactions
       .filter((item) => item.status === "pending")
       .reduce((sum, item) => sum + item.amount, 0);
-
     const failed = transactions
       .filter((item) => item.status === "failed")
       .reduce((sum, item) => sum + item.amount, 0);
 
-    return {
-      total,
-      received,
-      pending,
-      failed,
-    };
+    return { total, received, pending, failed };
   }, [transactions]);
 
   const Card = ({ title, value, icon: Icon, color }) => (
@@ -114,10 +100,7 @@ export default function Payments() {
         <p className="text-sm text-zinc-400">{title}</p>
         <Icon size={18} className={color} />
       </div>
-
-      <h2 className={`text-2xl md:text-3xl font-bold mt-4 ${color}`}>
-        {value}
-      </h2>
+      <h2 className={`text-2xl md:text-3xl font-bold mt-4 ${color}`}>{value}</h2>
     </div>
   );
 
@@ -130,7 +113,6 @@ export default function Payments() {
         </span>
       );
     }
-
     if (status === "pending") {
       return (
         <span className="px-3 py-1 rounded-full text-xs bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 inline-flex items-center gap-1">
@@ -139,7 +121,6 @@ export default function Payments() {
         </span>
       );
     }
-
     return (
       <span className="px-3 py-1 rounded-full text-xs bg-red-500/10 text-red-400 border border-red-500/20 inline-flex items-center gap-1">
         <AlertCircle size={14} />
@@ -150,32 +131,33 @@ export default function Payments() {
 
   if (loading) {
     return (
-      <div className="h-[70vh] grid place-items-center text-white text-2xl">
-        Loading Payments...
+      <div className="h-[70vh] grid place-items-center text-white">
+        <Loader2 size={40} className="animate-spin text-indigo-500" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6 text-white">
+      {/* Error */}
+      {error && (
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
+          <AlertCircle size={16} />
+          {error}
+          <button onClick={() => loadPayments(1)} className="ml-auto underline">Retry</button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between">
         <div>
-          <h1 className="text-2xl md:text-4xl font-bold">
-            Payments
-          </h1>
-          <p className="text-zinc-400 mt-1">
-            Real-time payment analytics & transactions.
-          </p>
+          <h1 className="text-2xl md:text-4xl font-bold">Payments</h1>
+          <p className="text-zinc-400 mt-1">Real-time payment analytics & transactions.</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
           <div className="relative w-full">
-            <Search
-              size={16}
-              className="absolute left-4 top-4 text-zinc-500"
-            />
-
+            <Search size={16} className="absolute left-4 top-4 text-zinc-500" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -183,9 +165,8 @@ export default function Payments() {
               className="w-full sm:w-72 pl-10 pr-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none"
             />
           </div>
-
           <button
-            onClick={loadPayments}
+            onClick={() => loadPayments(1)}
             className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center gap-2 font-semibold"
           >
             <RefreshCcw size={16} />
@@ -196,52 +177,22 @@ export default function Payments() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <Card
-          title="Gross Revenue"
-          value={`₹${stats.total}`}
-          icon={IndianRupee}
-          color="text-emerald-400"
-        />
-
-        <Card
-          title="Received"
-          value={`₹${stats.received}`}
-          icon={Wallet}
-          color="text-cyan-400"
-        />
-
-        <Card
-          title="Pending"
-          value={`₹${stats.pending}`}
-          icon={Clock3}
-          color="text-yellow-400"
-        />
-
-        <Card
-          title="Failed"
-          value={`₹${stats.failed}`}
-          icon={AlertCircle}
-          color="text-red-400"
-        />
+        <Card title="Gross Revenue" value={`₹${stats.total.toLocaleString()}`} icon={IndianRupee} color="text-emerald-400" />
+        <Card title="Received" value={`₹${stats.received.toLocaleString()}`} icon={Wallet} color="text-cyan-400" />
+        <Card title="Pending" value={`₹${stats.pending.toLocaleString()}`} icon={Clock3} color="text-yellow-400" />
+        <Card title="Failed" value={`₹${stats.failed.toLocaleString()}`} icon={AlertCircle} color="text-red-400" />
       </div>
 
       {/* Transactions */}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg md:text-xl font-semibold">
-            Recent Transactions
-          </h2>
-
-          <span className="text-sm text-zinc-400">
-            {filtered.length} records
-          </span>
+          <h2 className="text-lg md:text-xl font-semibold">Recent Transactions</h2>
+          <span className="text-sm text-zinc-400">{filtered.length} records</span>
         </div>
 
         <div className="space-y-3">
           {filtered.length === 0 ? (
-            <div className="text-center text-zinc-400 py-10">
-              No payments found
-            </div>
+            <div className="text-center text-zinc-400 py-10">No payments found</div>
           ) : (
             filtered.map((item) => (
               <div
@@ -249,24 +200,16 @@ export default function Payments() {
                 className="rounded-2xl bg-black/30 border border-white/5 p-4 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between"
               >
                 <div>
-                  <p className="font-semibold">
-                    {item.customer}
-                  </p>
-
+                  <p className="font-semibold">{item.customer}</p>
                   <p className="text-sm text-zinc-400 break-all">
                     #{item.id.slice(-8)} • {item.date}
                   </p>
                 </div>
-
                 <div className="text-sm text-zinc-400 flex items-center gap-2">
                   <CreditCard size={15} />
                   {item.method}
                 </div>
-
-                <div className="font-bold text-emerald-400">
-                  ₹{item.amount}
-                </div>
-
+                <div className="font-bold text-emerald-400">₹{item.amount}</div>
                 <Status status={item.status} />
               </div>
             ))
@@ -274,15 +217,29 @@ export default function Payments() {
         </div>
       </div>
 
-      {/* Bottom */}
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-indigo-600/20 to-violet-600/20 p-6">
-        <h3 className="text-xl font-bold">
-          Razorpay Ready
-        </h3>
-        <p className="text-zinc-300 mt-2">
-          Real payments automatically appear here after successful checkout.
-        </p>
-      </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button
+            onClick={() => loadPayments(page - 1)}
+            disabled={page <= 1}
+            className="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 disabled:opacity-40"
+          >
+            Prev
+          </button>
+          <span className="text-zinc-400">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => loadPayments(page + 1)}
+            disabled={page >= totalPages}
+            className="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
