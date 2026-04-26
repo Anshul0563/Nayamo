@@ -56,6 +56,24 @@ exports.getCart = asyncHandler(async (req, res) => {
   });
 });
 
+// REMOVE ITEM FROM CART (by product ID in body)
+exports.removeFromCart = asyncHandler(async (req, res) => {
+  const { productId } = req.body;
+
+  if (!productId) {
+    res.status(400);
+    throw new Error("Product ID is required");
+  }
+
+  const cart = await cartService.removeFromCart(req.user._id, productId);
+
+  res.json({
+    success: true,
+    message: "Item removed from cart",
+    data: cart,
+  });
+});
+
 // DELETE CART ITEM (by product ID in URL)
 exports.deleteCartItem = asyncHandler(async (req, res) => {
   const { productId } = req.params;
