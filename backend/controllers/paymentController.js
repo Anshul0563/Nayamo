@@ -93,7 +93,8 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
       throw new Error("Invalid payment signature");
     }
   } else {
-    console.warn("Razorpay not configured - skipping signature verification");
+    res.status(503);
+    throw new Error("Payment verification service unavailable");
   }
 
   // Find and update order using mongoOrderId (Razorpay orderId != MongoDB _id)

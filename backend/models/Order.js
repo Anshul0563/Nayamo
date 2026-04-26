@@ -128,6 +128,8 @@ const orderSchema = new mongoose.Schema(
     idempotencyKey: {
       type: String,
       index: true,
+      unique: true,
+      sparse: true,
     },
   },
   { timestamps: true }
