@@ -37,11 +37,12 @@ exports.getDashboardStats = async () => {
     // Total Products
     Product.countDocuments(),
 
-    // Total Revenue
+    // Total Revenue (only paid orders)
     Order.aggregate([
       {
         $match: {
           status: { $in: deliveredStatuses },
+          paymentStatus: "paid",
         },
       },
       {
@@ -73,24 +74,25 @@ exports.getDashboardStats = async () => {
       stock: 0,
     }),
 
-    // Top Products
+    // Top Products (fixed field names)
     Order.aggregate([
       {
-        $unwind: "$orderItems",
+        $match: {
+          status: { $in: deliveredStatuses },
+        },
+      },
+      {
+        $unwind: "$items",
       },
       {
         $group: {
-          _id: "$orderItems.name",
+          _id: "$items.product",
           sales: {
-            $sum:
-              "$orderItems.qty",
+            $sum: "$items.quantity",
           },
           revenue: {
             $sum: {
-              $multiply: [
-                "$orderItems.qty",
-                "$orderItems.price",
-              ],
+              $multiply: ["$items.quantity", "$items.price"],
             },
           },
         },
@@ -103,14 +105,6 @@ exports.getDashboardStats = async () => {
       {
         $limit: 5,
       },
-      {
-        $project: {
-          _id: 0,
-          name: "$_id",
-          sales: 1,
-          revenue: 1,
-        },
-      },
     ]),
 
     // Monthly Sales (Current Year)
@@ -121,24 +115,18 @@ exports.getDashboardStats = async () => {
             $in: deliveredStatuses,
           },
           createdAt: {
-            $gte: new Date(
-              `${currentYear}-01-01`
-            ),
-            $lte: new Date(
-              `${currentYear}-12-31`
-            ),
+            $gte: new Date(`${currentYear}-01-01`),
+            $lte: new Date(`${currentYear}-12-31`),
           },
         },
       },
       {
         $group: {
           _id: {
-            $month:
-              "$createdAt",
+            $month: "$createdAt",
           },
           sales: {
-            $sum:
-              "$totalPrice",
+            $sum: "$totalPrice",
           },
           orders: {
             $sum: 1,
@@ -154,53 +142,27 @@ exports.getDashboardStats = async () => {
   ]);
 
   // Revenue
-  const totalRevenue =
-    revenueData[0]?.totalRevenue || 0;
+  const totalRevenue = revenueData[0]?.totalRevenue || 0;
 
   // Average Order Value
   const avgOrderValue =
-    totalOrders > 0
-      ? Math.round(
-          totalRevenue /
-            totalOrders
-        )
-      : 0;
+    totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
   // Build 12 months data
   const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
   ];
 
-  const formattedMonthlySales =
-    monthNames.map(
-      (month, index) => {
-        const found =
-          monthlySales.find(
-            (item) =>
-              item._id ===
-              index + 1
-          );
+  const formattedMonthlySales = monthNames.map((month, index) => {
+    const found = monthlySales.find((item) => item._id === index + 1);
 
-        return {
-          month,
-          sales:
-            found?.sales || 0,
-          orders:
-            found?.orders || 0,
-        };
-      }
-    );
+    return {
+      month,
+      sales: found?.sales || 0,
+      orders: found?.orders || 0,
+    };
+  });
 
   return {
     totalOrders,
@@ -209,51 +171,86 @@ exports.getDashboardStats = async () => {
     totalRevenue,
     avgOrderValue,
     outOfStock,
-    lowStock:
-      lowStockProducts.length,
+    lowStock: lowStockProducts.length,
     recentOrders,
     lowStockProducts,
     topProducts,
-    monthlySales:
-      formattedMonthlySales,
+    monthlySales: formattedMonthlySales,
   };
 };
 
-// USERS
-exports.getAllUsers = async () => {
-  return await User.find()
-    .select("-password")
-    .sort({ createdAt: -1 })
-    .lean();
+// USERS with pagination
+exports.getAllUsers = async ({ page = 1, limit = 20, search }) => {
+  const skip = (page - 1) * limit;
+  const query = {};
+
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const [users, totalItems] = await Promise.all([
+    User.find(query)
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    User.countDocuments(query),
+  ]);
+
+  return {
+    users,
+    currentPage: page,
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+    itemsPerPage: limit,
+  };
 };
 
-// PRODUCTS
-exports.getAllProducts = async () => {
-  return await Product.find()
-    .sort({ createdAt: -1 })
-    .lean();
+// PRODUCTS with pagination
+exports.getAllProducts = async ({ page = 1, limit = 20, search, category }) => {
+  const skip = (page - 1) * limit;
+  const query = {};
+
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  if (category) query.category = category;
+
+  const [products, totalItems] = await Promise.all([
+    Product.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Product.countDocuments(query),
+  ]);
+
+  return {
+    products,
+    currentPage: page,
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+    itemsPerPage: limit,
+  };
 };
 
 // UPDATE PRODUCT
-exports.updateProduct = async (
-  id,
-  data
-) => {
-  return await Product.findByIdAndUpdate(
-    id,
-    data,
-    {
-      new: true,
-      runValidators: true,
-    }
-  ).lean();
+exports.updateProduct = async (id, data) => {
+  return await Product.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  }).lean();
 };
 
 // DELETE PRODUCT
-exports.deleteProduct = async (
-  id
-) => {
-  return await Product.findByIdAndDelete(
-    id
-  );
+exports.deleteProduct = async (id) => {
+  return await Product.findByIdAndDelete(id);
 };

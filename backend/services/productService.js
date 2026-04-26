@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const mongoose = require("mongoose");
 
 exports.createProduct = async (data) => {
   return await Product.create(data);
@@ -11,14 +12,20 @@ exports.getProducts = async (queryParams) => {
     min,
     max,
     sort,
-    page = 1
+    page = 1,
   } = queryParams;
 
   const limit = 6;
 
-  let query = {
-    title: { $regex: search, $options: "i" }
-  };
+  let query = {};
+
+  // Search with text index if available, otherwise regex
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
 
   if (category) query.category = category;
 
@@ -31,11 +38,35 @@ exports.getProducts = async (queryParams) => {
   let sortOption = {};
   if (sort === "low") sortOption.price = 1;
   if (sort === "high") sortOption.price = -1;
+  if (sort === "newest") sortOption.createdAt = -1;
+  if (sort === "oldest") sortOption.createdAt = 1;
 
-  const products = await Product.find(query)
-    .sort(sortOption)
-    .skip((page - 1) * limit)
-    .limit(limit);
+  // Only show active products for public
+  query.isActive = true;
 
-  return products;
+  const skip = (Number(page) - 1) * limit;
+
+  const [products, totalItems] = await Promise.all([
+    Product.find(query)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Product.countDocuments(query),
+  ]);
+
+  return {
+    products,
+    currentPage: Number(page),
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+    itemsPerPage: limit,
+  };
+};
+
+exports.getProductById = async (id) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error("Invalid product ID format");
+  }
+  return await Product.findById(id);
 };

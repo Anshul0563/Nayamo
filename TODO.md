@@ -1,46 +1,65 @@
-# Backend Audit - Implementation TODO
+# TODO - Nayamo Backend Security Audit & Hardening
 
-## Phase 1: Security Hardening (Critical)
-- [x] AUDIT_PLAN.md created
-- [ ] 1.1 Update package.json with security dependencies
-- [ ] 1.2 Create asyncHandler utility
-- [ ] 1.3 Create errorMiddleware (centralized error handling)
-- [ ] 1.4 Harden server.js (helmet, rate-limit, mongo-sanitize, xss-clean, hpp, cors, trust proxy, graceful shutdown)
-- [ ] 1.5 Fix uploadMiddleware (file validation, size limits, memoryStorage)
-- [ ] 1.6 Fix authMiddleware (JWT_SECRET check, token expiry handling)
-- [ ] 1.7 Fix adminMiddleware (defense in depth)
-- [ ] 1.8 Protect delhiveryRoutes
-- [ ] 1.9 Fix User model (email validation, password constraints, indexes)
-- [ ] 1.10 Fix Product model (add indexes)
-- [ ] 1.11 Fix Order model (add indexes)
-- [ ] 1.12 Fix Cart model (add indexes)
-- [ ] 1.13 Fix Wishlist model (schema fix + indexes)
+## Phase 1: Critical Security Fixes
+- [x] 1.1 Add security middleware (helmet, rate-limit, mongo-sanitize, xss-clean, hpp)
+- [x] 1.2 Add CORS configuration with whitelist
+- [x] 1.3 Add request logging (morgan)
+- [x] 1.4 Add centralized error handling middleware
+- [x] 1.5 Add input validation middleware (express-validator)
+- [x] 1.6 Add async handler utility
+- [x] 1.7 Add health check endpoint
+- [x] 1.8 Add graceful shutdown handling
+- [x] 1.9 Add environment variable validation
+- [x] 1.10 Fix JWT_SECRET missing check in authMiddleware
+- [x] 1.11 Add defense-in-depth to adminMiddleware
+- [x] 1.12 Harden upload middleware (memoryStorage, fileFilter, size limits)
 
-## Phase 2: Data Integrity & Bug Fixes (Critical)
-- [ ] 2.1 Fix wishlistController/schema mismatch
-- [ ] 2.2 Fix cartController duplicate route bug
-- [ ] 2.3 Add database transactions to orderService.placeOrder
-- [ ] 2.4 Restore stock on order cancellation
-- [ ] 2.5 Fix paymentController (real Razorpay integration)
-- [ ] 2.6 Add idempotency to order creation
-- [ ] 2.7 Fix getSingleOrder to validate ObjectId
+## Phase 2: Data Integrity & Model Fixes
+- [x] 2.1 Fix User model (email regex, password min/max, indexes)
+- [x] 2.2 Fix Product model (enum validation, compound/text indexes, isActive)
+- [x] 2.3 Fix Cart model (unique user index, min quantity validation)
+- [x] 2.4 Fix Order model (expanded status enum, idempotencyKey, razorpay fields, indexes)
+- [x] 2.5 Fix Wishlist model (align to `products` array, unique user index)
 
-## Phase 3: Performance & Scalability (High)
-- [ ] 3.1 Add pagination metadata to productService
-- [ ] 3.2 Add pagination to adminService endpoints
-- [ ] 3.3 Add database indexes to all models
-- [ ] 3.4 Optimize cartService population
+## Phase 3: Controller Hardening
+- [x] 3.1 Harden authController (password strength, bcrypt 12 rounds, standard responses)
+- [x] 3.2 Harden cartController (fix DELETE/:id vs POST/remove conflict, explicit param naming)
+- [x] 3.3 Harden orderController (ObjectId validation, asyncHandler)
+- [x] 3.4 Harden productController (Cloudinary base64 upload from memory buffer, pagination metadata)
+- [x] 3.5 Harden paymentController (Razorpay integration, signature verification, duplicate prevention)
+- [x] 3.6 Harden adminController (ObjectId validation, pagination, standard responses)
+- [x] 3.7 Harden wishlistController (ObjectId validation, duplicate prevention, populate)
+- [x] 3.8 Harden delhiveryController (input validation, standard responses)
 
-## Phase 4: Code Quality & Reliability (Medium)
-- [ ] 4.1 Add request validation middleware (auth, product, order routes)
-- [ ] 4.2 Standardize API response format across all controllers
-- [ ] 4.3 Add input sanitization to all controllers
-- [ ] 4.4 Remove dead code (authService or use it)
-- [ ] 4.5 Fix delhiveryController error handling
+## Phase 4: Service Layer Fixes
+- [x] 4.1 Fix cartService (stock validation, inactive product filtering)
+- [x] 4.2 Fix orderService (MongoDB transactions, idempotency, stock restore on cancel)
+- [x] 4.3 Fix productService (pagination metadata, isActive filter)
+- [x] 4.4 Fix adminService (pagination for users/products, revenue calculation fix)
 
-## Phase 5: Deployment & Production (Medium)
-- [ ] 5.1 Fix package.json scripts (production start)
-- [ ] 5.2 Create .env.example
-- [ ] 5.3 Add startup environment validation
-- [ ] 5.4 Final integration test
+## Phase 5: Route Validation
+- [x] 5.1 Add express-validator to authRoutes
+- [x] 5.2 Add express-validator to cartRoutes
+- [x] 5.3 Add express-validator to orderRoutes
+- [x] 5.4 Add express-validator to paymentRoutes
+- [x] 5.5 Add express-validator to wishlistRoutes
+- [x] 5.6 Add express-validator to adminRoutes
+- [x] 5.7 Add getProductById route to productRoutes
 
+## Phase 6: Dependencies & Config
+- [x] 6.1 Update package.json (add security deps, fix start script)
+- [x] 6.2 Create .env.example
+- [x] 6.3 Update .gitignore to exclude .env
+
+## Phase 7: Testing & Verification
+- [ ] 7.1 Run `npm install` to install new dependencies
+- [ ] 7.2 Run `node backend/server.js` to verify startup
+- [ ] 7.3 Test auth endpoints (register, login, profile)
+- [ ] 7.4 Test product endpoints (CRUD)
+- [ ] 7.5 Test cart endpoints (add, update, remove)
+- [ ] 7.6 Test order endpoints (place, cancel)
+- [ ] 7.7 Test payment endpoints (create, verify)
+- [ ] 7.8 Test admin endpoints (dashboard, orders, users)
+
+## Status: ALL CODE CHANGES COMPLETE ✅
+### Next: Install dependencies and run tests

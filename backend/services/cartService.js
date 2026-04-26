@@ -3,6 +3,15 @@ const Product = require("../models/Product");
 
 // ADD TO CART
 exports.addToCart = async (userId, productId) => {
+  // Validate product exists and is active
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new Error("Product not found");
+  }
+  if (!product.isActive) {
+    throw new Error("Product is not available");
+  }
+
   let cart = await Cart.findOne({ user: userId });
 
   if (!cart) {
@@ -10,12 +19,20 @@ exports.addToCart = async (userId, productId) => {
   }
 
   const itemIndex = cart.items.findIndex(
-    item => item.product.toString() === productId
+    (item) => item.product.toString() === productId
   );
 
   if (itemIndex > -1) {
-    cart.items[itemIndex].quantity += 1;
+    // Check stock before incrementing
+    const newQuantity = cart.items[itemIndex].quantity + 1;
+    if (product.stock < newQuantity) {
+      throw new Error(`Only ${product.stock} items available in stock`);
+    }
+    cart.items[itemIndex].quantity = newQuantity;
   } else {
+    if (product.stock < 1) {
+      throw new Error("Product is out of stock");
+    }
     cart.items.push({ product: productId, quantity: 1 });
   }
 
@@ -25,15 +42,35 @@ exports.addToCart = async (userId, productId) => {
 
 // UPDATE QUANTITY
 exports.updateQuantity = async (userId, productId, quantity) => {
+  if (quantity < 1) {
+    throw new Error("Quantity must be at least 1");
+  }
+
   const cart = await Cart.findOne({ user: userId });
 
+  if (!cart) {
+    throw new Error("Cart not found");
+  }
+
+  // Validate product stock
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  if (product.stock < quantity) {
+    throw new Error(`Only ${product.stock} items available in stock`);
+  }
+
   const item = cart.items.find(
-    item => item.product.toString() === productId
+    (item) => item.product.toString() === productId
   );
 
-  if (item) {
-    item.quantity = quantity;
+  if (!item) {
+    throw new Error("Item not found in cart");
   }
+
+  item.quantity = quantity;
 
   await cart.save();
   return cart;
@@ -43,8 +80,20 @@ exports.updateQuantity = async (userId, productId, quantity) => {
 exports.removeFromCart = async (userId, productId) => {
   const cart = await Cart.findOne({ user: userId });
 
+  if (!cart) {
+    throw new Error("Cart not found");
+  }
+
+  const itemExists = cart.items.some(
+    (item) => item.product.toString() === productId
+  );
+
+  if (!itemExists) {
+    throw new Error("Item not found in cart");
+  }
+
   cart.items = cart.items.filter(
-    item => item.product.toString() !== productId
+    (item) => item.product.toString() !== productId
   );
 
   await cart.save();
@@ -54,15 +103,36 @@ exports.removeFromCart = async (userId, productId) => {
 // GET CART (WITH TOTAL)
 exports.getCart = async (userId) => {
   const cart = await Cart.findOne({ user: userId })
-    .populate("items.product");
+    .populate({
+      path: "items.product",
+      select: "title price images stock category isActive",
+    });
 
-  if (!cart) return null;
+  if (!cart || cart.items.length === 0) {
+    return {
+      cart: { user: userId, items: [] },
+      total: 0,
+      itemCount: 0,
+    };
+  }
 
   let total = 0;
+  let itemCount = 0;
 
-  cart.items.forEach(item => {
+  // Filter out inactive products and calculate totals
+  const validItems = cart.items.filter((item) => {
+    if (!item.product || !item.product.isActive) return false;
     total += item.product.price * item.quantity;
+    itemCount += item.quantity;
+    return true;
   });
 
-  return { cart, total };
+  return {
+    cart: {
+      ...cart.toObject(),
+      items: validItems,
+    },
+    total,
+    itemCount,
+  };
 };

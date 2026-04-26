@@ -1,66 +1,84 @@
 const api = require("../utils/axiosInstance");
+const asyncHandler = require("../utils/asyncHandler");
 
 // Generate Waybill
-exports.generateWaybill = async (req, res) => {
-  try {
-    const response = await api.get("/api/v1/packages/json/?token=" + process.env.DELHIVERY_TOKEN);
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+exports.generateWaybill = asyncHandler(async (req, res) => {
+  const response = await api.get("/api/v1/packages/json/?token=" + process.env.DELHIVERY_TOKEN);
+  res.json({
+    success: true,
+    data: response.data,
+  });
+});
 
 // Create Shipment
-exports.createShipment = async (req, res) => {
-  try {
-    const shipmentData = {
-      shipments: [{
-        name: req.body.name,
-        add: req.body.address,
-        pin: req.body.pin,
-        city: req.body.city,
-        state: req.body.state,
-        country: "India",
-        phone: req.body.phone,
-        order: req.body.orderId,
-        payment_mode: req.body.paymentMode,
-        total_amount: req.body.amount,
-        quantity: "1",
-        weight: "0.5"
-      }],
-      pickup_location: {
-        name: "Nayamo Warehouse"
-      }
-    };
+exports.createShipment = asyncHandler(async (req, res) => {
+  const { name, address, pin, city, state, phone, orderId, paymentMode, amount } = req.body;
 
-    const response = await api.post("/api/cmu/create.json", shipmentData);
-    res.json(response.data);
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  // Validation
+  if (!name || !address || !pin || !city || !state || !phone) {
+    res.status(400);
+    throw new Error("All shipping details are required");
   }
-};
 
-// Track Order
-exports.trackShipment = async (req, res) => {
-  try {
-    const { waybill } = req.params;
-    const response = await api.get(`/api/v1/packages/json/?waybill=${waybill}&token=${process.env.DELHIVERY_TOKEN}`);
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  const shipmentData = {
+    shipments: [{
+      name: name.trim(),
+      add: address.trim(),
+      pin: pin.trim(),
+      city: city.trim(),
+      state: state.trim(),
+      country: "India",
+      phone: phone.trim(),
+      order: orderId,
+      payment_mode: paymentMode || "Prepaid",
+      total_amount: amount,
+      quantity: "1",
+      weight: "0.5"
+    }],
+    pickup_location: {
+      name: "Nayamo Warehouse"
+    }
+  };
 
-// Cancel Order
-exports.cancelShipment = async (req, res) => {
-  try {
-    const response = await api.post("/api/p/edit", {
-      waybill: req.body.waybill,
-      cancellation: true
-    });
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  const response = await api.post("/api/cmu/create.json", shipmentData);
+  res.json({
+    success: true,
+    data: response.data,
+  });
+});
+
+// Track Shipment
+exports.trackShipment = asyncHandler(async (req, res) => {
+  const { waybill } = req.params;
+
+  if (!waybill) {
+    res.status(400);
+    throw new Error("Waybill number is required");
   }
-};
+
+  const response = await api.get(`/api/v1/packages/json/?waybill=${waybill}&token=${process.env.DELHIVERY_TOKEN}`);
+  res.json({
+    success: true,
+    data: response.data,
+  });
+});
+
+// Cancel Shipment
+exports.cancelShipment = asyncHandler(async (req, res) => {
+  const { waybill } = req.body;
+
+  if (!waybill) {
+    res.status(400);
+    throw new Error("Waybill number is required");
+  }
+
+  const response = await api.post("/api/p/edit", {
+    waybill,
+    cancellation: true
+  });
+
+  res.json({
+    success: true,
+    data: response.data,
+  });
+});

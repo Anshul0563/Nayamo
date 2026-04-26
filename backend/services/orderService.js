@@ -1,13 +1,22 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const mongoose = require("mongoose");
 
-// PLACE ORDER
+// PLACE ORDER (with transaction)
 exports.placeOrder = async (userId, data) => {
-  const { address, phone, paymentMethod } = data;
+  const { address, phone, paymentMethod, idempotencyKey } = data;
 
   if (!address || !phone) {
     throw new Error("Address and phone required");
+  }
+
+  // Check for duplicate order using idempotency key
+  if (idempotencyKey) {
+    const existingOrder = await Order.findOne({ idempotencyKey });
+    if (existingOrder) {
+      return existingOrder;
+    }
   }
 
   const cart = await Cart.findOne({ user: userId }).populate("items.product");
@@ -16,86 +25,191 @@ exports.placeOrder = async (userId, data) => {
     throw new Error("Cart is empty");
   }
 
-  let total = 0;
-
+  // Validate all products have sufficient stock before starting transaction
   for (const item of cart.items) {
-    const product = await Product.findById(item.product._id);
-
-    if (!product) {
-      throw new Error("Product not found");
+    if (!item.product) {
+      throw new Error("Product not found in cart");
     }
-
-    if (product.stock < item.quantity) {
-      throw new Error(`${product.title} out of stock`);
+    if (!item.product.isActive) {
+      throw new Error(`${item.product.title} is no longer available`);
     }
-
-    product.stock -= item.quantity;
-    await product.save();
-
-    total += product.price * item.quantity;
+    if (item.product.stock < item.quantity) {
+      throw new Error(`Only ${item.product.stock} units of ${item.product.title} available`);
+    }
   }
 
-  const order = await Order.create({
-    user: userId,
-    items: cart.items,
-    totalPrice: total,
-    address,
-    phone,
-    paymentMethod
-  });
+  // Start MongoDB session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  cart.items = [];
-  await cart.save();
+  try {
+    let total = 0;
+    const orderItems = [];
 
-  return order;
+    // Deduct stock for each item
+    for (const item of cart.items) {
+      const product = await Product.findById(item.product._id).session(session);
+
+      product.stock -= item.quantity;
+      await product.save({ session });
+
+      orderItems.push({
+        product: item.product._id,
+        quantity: item.quantity,
+        price: product.price,
+      });
+
+      total += product.price * item.quantity;
+    }
+
+    // Create order
+    const order = await Order.create(
+      [
+        {
+          user: userId,
+          items: orderItems,
+          totalPrice: total,
+          address: address.trim(),
+          phone,
+          paymentMethod: paymentMethod || "cod",
+          idempotencyKey: idempotencyKey || null,
+        },
+      ],
+      { session }
+    );
+
+    // Clear cart
+    cart.items = [];
+    await cart.save({ session });
+
+    // Commit transaction
+    await session.commitTransaction();
+
+    return order[0]; // create with array returns array
+
+  } catch (error) {
+    // Abort transaction on error
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 
 // USER ORDERS
 exports.getUserOrders = async (userId) => {
   return await Order.find({ user: userId })
     .sort({ createdAt: -1 })
-    .populate("items.product");
+    .populate({
+      path: "items.product",
+      select: "title price images category",
+    });
 };
 
 // GET SINGLE ORDER
 exports.getSingleOrder = async (userId, orderId) => {
   return await Order.findOne({
     _id: orderId,
-    user: userId
-  }).populate("items.product");
+    user: userId,
+  }).populate({
+    path: "items.product",
+    select: "title price images category",
+  });
 };
 
-// CANCEL ORDER
+// CANCEL ORDER (with stock restore)
 exports.cancelOrder = async (userId, orderId) => {
   const order = await Order.findOne({
     _id: orderId,
-    user: userId
+    user: userId,
   });
 
-  if (!order) throw new Error("Order not found");
-
-  if (["shipped", "delivered"].includes(order.status)) {
-    throw new Error("Cannot cancel now");
+  if (!order) {
+    throw new Error("Order not found");
   }
 
-  order.status = "cancelled";
-  await order.save();
+  if (["shipped", "delivered", "cancelled"].includes(order.status)) {
+    throw new Error(`Cannot cancel order with status: ${order.status}`);
+  }
 
-  return order;
+  if (order.isPaid) {
+    throw new Error("Cannot cancel paid order. Please request a refund instead.");
+  }
+
+  // Start transaction to restore stock
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // Restore stock
+    for (const item of order.items) {
+      const product = await Product.findById(item.product).session(session);
+      if (product) {
+        product.stock += item.quantity;
+        await product.save({ session });
+      }
+    }
+
+    order.status = "cancelled";
+    order.cancelledAt = new Date();
+    await order.save({ session });
+
+    await session.commitTransaction();
+
+    return order;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 
-// ADMIN
-exports.getAllOrders = async () => {
-  return await Order.find()
-    .sort({ createdAt: -1 })
-    .populate("user", "name email")
-    .populate("items.product");
+// ADMIN - Get all orders with pagination
+exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
+  const skip = (page - 1) * limit;
+  const query = {};
+
+  if (status) query.status = status;
+  if (search) {
+    query.$or = [
+      { address: { $regex: search, $options: "i" } },
+      { phone: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const [orders, totalItems] = await Promise.all([
+    Order.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("user", "name email")
+      .populate({
+        path: "items.product",
+        select: "title price images",
+      }),
+    Order.countDocuments(query),
+  ]);
+
+  return {
+    orders,
+    currentPage: page,
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+    itemsPerPage: limit,
+  };
 };
 
+// ADMIN - Update order status
 exports.updateOrderStatus = async (orderId, status) => {
-  return await Order.findByIdAndUpdate(
-    orderId,
-    { status },
-    { new: true }
-  );
+  const updateData = { status };
+
+  if (status === "delivered") {
+    updateData.deliveredAt = new Date();
+  }
+
+  return await Order.findByIdAndUpdate(orderId, updateData, {
+    new: true,
+    runValidators: true,
+  });
 };
