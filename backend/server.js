@@ -109,8 +109,35 @@ app.use("/api/v1/payment", paymentLimiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// Data sanitization against NoSQL query injection
-app.use(mongoSanitize());
+// Custom MongoDB sanitization (express-mongo-sanitize v2 is incompatible with Express 5)
+const sanitizeMongo = (obj) => {
+  if (typeof obj === "string") {
+    // Remove MongoDB operators like $gt, $lt, $ne, etc.
+    return obj.replace(/\$[a-zA-Z]+/g, "");
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeMongo);
+  }
+  if (obj && typeof obj === "object") {
+    const clean = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        // Remove keys that start with $ (MongoDB operators)
+        if (!key.startsWith("$")) {
+          clean[key] = sanitizeMongo(obj[key]);
+        }
+      }
+    }
+    return clean;
+  }
+  return obj;
+};
+
+app.use((req, res, next) => {
+  if (req.body) req.body = sanitizeMongo(req.body);
+  if (req.params) req.params = sanitizeMongo(req.params);
+  next();
+});
 
 // Custom XSS sanitization middleware (Express 5 compatible)
 const sanitizeXSS = (obj) => {
