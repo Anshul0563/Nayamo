@@ -5,6 +5,7 @@ const { body } = require("express-validator");
 const {
   addToCart,
   updateQuantity,
+  removeFromCart,
   getCart,
   deleteCartItem,
 } = require("../controllers/cartController");
