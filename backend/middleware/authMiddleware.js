@@ -3,7 +3,7 @@ const User = require("../models/User");
 
 /**
  * Authentication Middleware
- * Verifies JWT token and attaches user to request
+ * Verifies JWT access token and attaches user to request
  */
 const protect = async (req, res, next) => {
   try {
@@ -37,6 +37,14 @@ const protect = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // Ensure this is an access token, not a refresh token
+    if (decoded.type !== "access") {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token type. Use an access token.",
+      });
+    }
+
     // Fetch user from database (excludes password)
     const user = await User.findById(decoded.id).select("-password");
 
@@ -44,6 +52,14 @@ const protect = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "User not found or token is invalid",
+      });
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: "Account is deactivated",
       });
     }
 
