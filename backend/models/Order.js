@@ -127,7 +127,6 @@ const orderSchema = new mongoose.Schema(
     // Idempotency key to prevent duplicate orders
     idempotencyKey: {
       type: String,
-      index: true,
       unique: true,
       sparse: true,
     },
