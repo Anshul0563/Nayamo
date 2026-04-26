@@ -1,6 +1,6 @@
-
-import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { adminAPI } from "../services/api";
+import { useDebounce } from "../hooks/useApi";
 import {
   RefreshCcw,
   Search,
@@ -9,90 +9,94 @@ import {
   PackageCheck,
   XCircle,
   RotateCcw,
+  Loader2,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
+const TABS = [
+  ["pending", "Pending"],
+  ["confirmed", "Confirmed"],
+  ["ready_to_ship", "Ready To Ship"],
+  ["pickup_requested", "Pickup Requested"],
+  ["in_transit", "In Transit"],
+  ["delivered", "Delivered"],
+  ["cancelled", "Cancelled"],
+  ["returned", "Returned"],
+  ["rto", "RTO"],
+];
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
   const [tab, setTab] = useState("pending");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState([]);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const token = localStorage.getItem("token");
+  const debouncedSearch = useDebounce(search, 300);
 
-  const api = axios.create({
-    baseURL: "http://localhost:5050/api/admin",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  const delhiveryApi = axios.create({
-    baseURL: "http://localhost:5000/api/delhivery",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  const tabs = [
-    ["pending", "Pending"],
-    ["confirmed", "Confirmed"],
-    ["ready_to_ship", "Ready To Ship"],
-    ["pickup_requested", "Pickup Requested"],
-    ["in_transit", "In Transit"],
-    ["delivered", "Delivered"],
-    ["cancelled", "Cancelled"],
-    ["returned", "Returned"],
-    ["rto", "RTO"],
-  ];
-
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async (currentPage = 1) => {
     try {
       setLoading(true);
-      const res = await api.get("/orders");
-      setOrders(res.data.orders || []);
+      setError("");
+
+      const res = await adminAPI.getOrders({
+        page: currentPage,
+        limit: 20,
+        status: tab !== "all" ? tab : undefined,
+        search: debouncedSearch || undefined,
+      });
+
+      const result = res.data;
+      setOrders(result.data || result.orders || []);
+      setTotalPages(result.pagination?.totalPages || 1);
+      setPage(result.pagination?.currentPage || 1);
     } catch (error) {
-      console.log(error);
+      setError(error.response?.data?.message || "Failed to load orders");
     } finally {
       setLoading(false);
     }
-  };
+  }, [tab, debouncedSearch]);
 
   useEffect(() => {
-    loadOrders();
-  }, []);
+    loadOrders(1);
+  }, [loadOrders]);
 
   const updateStatus = async (id, status) => {
-    await api.put(`/orders/${id}`, { status });
-    loadOrders();
-  };
-
-  const readyToShip = async (id) => {
-    await delhiveryApi.post(`/ready-to-ship/${id}`);
-    loadOrders();
+    try {
+      setActionLoading(id);
+      await adminAPI.updateOrderStatus(id, status);
+      await loadOrders(page);
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to update status");
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const invoice = (id) => {
-    window.open(`http://localhost:5000/api/orders/${id}/invoice`, "_blank");
-  };
-
-  const label = (waybill) => {
-    window.open(
-      `http://localhost:5000/api/delhivery/label/${waybill}`,
-      "_blank"
-    );
+    window.open(`/api/v1/orders/${id}/invoice`, "_blank");
   };
 
   const filtered = useMemo(() => {
-    return orders
-      .filter((o) => o.status === tab)
-      .filter(
-        (o) =>
-          !search ||
-          o._id.toLowerCase().includes(search.toLowerCase()) ||
-          o.user?.name?.toLowerCase().includes(search.toLowerCase())
+    return orders.filter((o) => {
+      if (!debouncedSearch) return true;
+      const term = debouncedSearch.toLowerCase();
+      return (
+        o._id?.toLowerCase().includes(term) ||
+        o.user?.name?.toLowerCase().includes(term)
       );
-  }, [orders, tab, search]);
+    });
+  }, [orders, debouncedSearch]);
 
   const counts = useMemo(() => {
     const map = {};
-    tabs.forEach(([key]) => {
+    TABS.forEach(([key]) => {
       map[key] = orders.filter((o) => o.status === key).length;
     });
     return map;
@@ -100,34 +104,30 @@ export default function Orders() {
 
   const toggleSelect = (id) => {
     setSelected((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
   if (loading) {
     return (
-      <div className="h-[70vh] grid place-items-center text-white text-2xl">
-        Loading Orders...
+      <div className="h-[70vh] grid place-items-center text-white">
+        <Loader2 size={40} className="animate-spin text-indigo-500" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6 text-white w-full max-w-full overflow-x-hidden">
-      {/* Header */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-2xl md:text-4xl font-bold">
-            Orders Management
-          </h1>
-          <p className="text-zinc-400 mt-1">
-            Manage all orders professionally.
-          </p>
+      {/* Error */}
+      {error && (
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
+          <AlertCircle size={16} />
+          {error}
+          <button onClick={() => setError("")} className="ml-auto underline">Dismiss</button>
         </div>
+      )}
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto min-w-0">
+      {/* Header */}
           <div className="relative w-full min-w-0">
             <Search
               size={16}
