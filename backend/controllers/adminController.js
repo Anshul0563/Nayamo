@@ -1,17 +1,17 @@
 const orderService = require("../services/orderService");
 const adminService = require("../services/adminService");
 const cloudinary = require("../config/cloudinary");
+const Product = require("../models/Product");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 
 const validStatuses = [
   "pending",
   "confirmed",
-  "packed",
   "ready_to_ship",
   "pickup_requested",
   "in_transit",
-  "shipped",
+  "out_for_delivery",
   "delivered",
   "cancelled",
   "returned",
@@ -150,6 +150,20 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     res.status(400);
     throw new Error("Invalid product ID format");
+  }
+
+  const product = await Product.findById(req.params.id);
+
+  // Delete images from Cloudinary
+  if (product && product.images && product.images.length > 0) {
+    for (const url of product.images) {
+      try {
+        const publicId = url.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`nayamo-products/${publicId}`);
+      } catch (err) {
+        console.error("Failed to delete image from Cloudinary:", err.message);
+      }
+    }
   }
 
   await adminService.deleteProduct(req.params.id);

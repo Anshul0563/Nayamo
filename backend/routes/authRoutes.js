@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { body } = require("express-validator");
 
-const { register, login, getProfile } = require("../controllers/authController");
+const { register, login, getProfile, refreshToken } = require("../controllers/authController");
 const protect = require("../middleware/authMiddleware");
 const validate = require("../middleware/validateMiddleware");
 
@@ -24,10 +24,10 @@ const registerValidation = [
   body("password")
     .notEmpty()
     .withMessage("Password is required")
-    .isLength({ min: 6, max: 128 })
-    .withMessage("Password must be 6-128 characters")
-    .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
-    .withMessage("Password must contain at least one letter and one number"),
+    .isLength({ min: 8, max: 128 })
+    .withMessage("Password must be 8-128 characters")
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)
+    .withMessage("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"),
 ];
 
 const loginValidation = [
@@ -41,8 +41,15 @@ const loginValidation = [
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
+const refreshValidation = [
+  body("refreshToken")
+    .notEmpty()
+    .withMessage("Refresh token is required"),
+];
+
 router.post("/register", registerValidation, validate, register);
 router.post("/login", loginValidation, validate, login);
+router.post("/refresh", refreshValidation, validate, refreshToken);
 router.get("/profile", protect, getProfile);
 
 module.exports = router;

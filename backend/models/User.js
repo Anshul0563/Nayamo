@@ -25,9 +25,9 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters"],
+      minlength: [8, "Password must be at least 8 characters"],
       maxlength: [128, "Password cannot exceed 128 characters"],
-      select: false, // Don't include password in queries by default
+      select: false,
     },
 
     role: {
@@ -43,6 +43,14 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
   },
   { timestamps: true }
 );

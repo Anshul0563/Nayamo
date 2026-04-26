@@ -5,10 +5,10 @@ const { body } = require("express-validator");
 const {
   addToCart,
   updateQuantity,
-  removeFromCart,
   getCart,
   deleteCartItem,
 } = require("../controllers/cartController");
+
 
 const protect = require("../middleware/authMiddleware");
 const validate = require("../middleware/validateMiddleware");

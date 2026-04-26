@@ -1,6 +1,10 @@
 const Product = require("../models/Product");
 const mongoose = require("mongoose");
 
+const escapeRegex = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 exports.createProduct = async (data) => {
   return await Product.create(data);
 };
@@ -19,11 +23,12 @@ exports.getProducts = async (queryParams) => {
 
   let query = {};
 
-  // Search with text index if available, otherwise regex
+  // Sanitized search with regex
   if (search) {
+    const safeSearch = escapeRegex(search);
     query.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } },
+      { title: { $regex: safeSearch, $options: "i" } },
+      { description: { $regex: safeSearch, $options: "i" } },
     ];
   }
 

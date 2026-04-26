@@ -11,14 +11,6 @@ exports.placeOrder = async (userId, data) => {
     throw new Error("Address and phone required");
   }
 
-  // Check for duplicate order using idempotency key
-  if (idempotencyKey) {
-    const existingOrder = await Order.findOne({ idempotencyKey });
-    if (existingOrder) {
-      return existingOrder;
-    }
-  }
-
   const cart = await Cart.findOne({ user: userId }).populate("items.product");
 
   if (!cart || cart.items.length === 0) {
@@ -43,6 +35,15 @@ exports.placeOrder = async (userId, data) => {
   session.startTransaction();
 
   try {
+    // Check for duplicate order using idempotency key INSIDE transaction
+    if (idempotencyKey) {
+      const existingOrder = await Order.findOne({ idempotencyKey }).session(session).lean();
+      if (existingOrder) {
+        await session.commitTransaction();
+        return existingOrder;
+      }
+    }
+
     let total = 0;
     const orderItems = [];
 
@@ -96,14 +97,29 @@ exports.placeOrder = async (userId, data) => {
   }
 };
 
-// USER ORDERS
-exports.getUserOrders = async (userId) => {
-  return await Order.find({ user: userId })
-    .sort({ createdAt: -1 })
-    .populate({
-      path: "items.product",
-      select: "title price images category",
-    });
+// USER ORDERS with pagination
+exports.getUserOrders = async (userId, page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+  
+  const [orders, totalItems] = await Promise.all([
+    Order.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "items.product",
+        select: "title price images category",
+      }),
+    Order.countDocuments({ user: userId }),
+  ]);
+
+  return {
+    orders,
+    currentPage: page,
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+    itemsPerPage: limit,
+  };
 };
 
 // GET SINGLE ORDER
@@ -119,28 +135,29 @@ exports.getSingleOrder = async (userId, orderId) => {
 
 // CANCEL ORDER (with stock restore)
 exports.cancelOrder = async (userId, orderId) => {
-  const order = await Order.findOne({
-    _id: orderId,
-    user: userId,
-  });
-
-  if (!order) {
-    throw new Error("Order not found");
-  }
-
-  if (["shipped", "delivered", "cancelled"].includes(order.status)) {
-    throw new Error(`Cannot cancel order with status: ${order.status}`);
-  }
-
-  if (order.isPaid) {
-    throw new Error("Cannot cancel paid order. Please request a refund instead.");
-  }
-
-  // Start transaction to restore stock
+  // Start transaction first
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
+    // Fetch order INSIDE transaction to prevent race conditions
+    const order = await Order.findOne({
+      _id: orderId,
+      user: userId,
+    }).session(session);
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    if (["shipped", "delivered", "cancelled"].includes(order.status)) {
+      throw new Error(`Cannot cancel order with status: ${order.status}`);
+    }
+
+    if (order.isPaid) {
+      throw new Error("Cannot cancel paid order. Please request a refund instead.");
+    }
+
     // Restore stock
     for (const item of order.items) {
       const product = await Product.findById(item.product).session(session);
@@ -172,9 +189,10 @@ exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
 
   if (status) query.status = status;
   if (search) {
+    const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     query.$or = [
-      { address: { $regex: search, $options: "i" } },
-      { phone: { $regex: search, $options: "i" } },
+      { address: { $regex: safeSearch, $options: "i" } },
+      { phone: { $regex: safeSearch, $options: "i" } },
     ];
   }
 
