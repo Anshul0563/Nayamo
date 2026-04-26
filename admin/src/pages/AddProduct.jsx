@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import axios from "axios";
+import { adminAPI } from "../services/api";
 import {
   Save,
   Loader2,
@@ -13,29 +13,16 @@ import {
   Sparkles,
 } from "lucide-react";
 
-/* -----------------------------
-   INPUT COMPONENT OUTSIDE
------------------------------ */
-function Input({
-  label,
-  name,
-  type = "text",
-  placeholder,
-  icon,
-  value,
-  onChange,
-}) {
+function Input({ label, name, type = "text", placeholder, icon, value, onChange }) {
   return (
     <div>
       <label className="text-sm text-zinc-300 block mb-2">{label}</label>
-
       <div className="relative">
         {icon && (
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">
             {icon}
           </span>
         )}
-
         <input
           type={type}
           name={name}
@@ -51,61 +38,40 @@ function Input({
   );
 }
 
+const VALID_CATEGORIES = ["gold", "silver", "diamond"];
+
 export default function AddProduct() {
-  const token = localStorage.getItem("token");
-
-  const api = useMemo(
-    () =>
-      axios.create({
-        baseURL: "http://localhost:5050/api/admin",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-    [token],
-  );
-
-  const initialForm = {
+  const [form, setForm] = useState({
     title: "",
     price: "",
     stock: "",
     description: "",
     category: "",
-    material: "",
-    color: "",
-    occasion: "",
-    brand: "",
     images: [],
-  };
-
-  const [form, setForm] = useState(initialForm);
+  });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const [message, setMessage] = useState({
-    type: "",
-    text: "",
-  });
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   const notify = (type, text) => {
     setMessage({ type, text });
-
-    setTimeout(() => {
-      setMessage({ type: "", text: "" });
-    }, 3000);
+    setTimeout(() => setMessage({ type: "", text: "" }), 4000);
   };
 
   const resetForm = () => {
-    setForm(initialForm);
+    setForm({
+      title: "",
+      price: "",
+      stock: "",
+      description: "",
+      category: "",
+      images: [],
+    });
   };
 
   const changeHandler = (e) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const removeImage = (index) => {
@@ -118,11 +84,13 @@ export default function AddProduct() {
   const validateForm = () => {
     if (!form.title.trim()) return "Product name is required";
     if (!form.price || Number(form.price) <= 0) return "Enter valid price";
-    if (!form.stock || Number(form.stock) < 0) return "Enter valid stock";
+    if (form.stock === "" || Number(form.stock) < 0) return "Enter valid stock";
     if (!form.category.trim()) return "Category is required";
+    if (!VALID_CATEGORIES.includes(form.category.toLowerCase())) {
+      return "Category must be gold, silver, or diamond";
+    }
     if (!form.description.trim()) return "Description is required";
     if (form.images.length === 0) return "Please upload at least 1 image";
-
     return null;
   };
 
@@ -131,7 +99,6 @@ export default function AddProduct() {
 
     try {
       setUploading(true);
-
       const uploaded = [];
 
       for (const file of files) {
@@ -140,12 +107,7 @@ export default function AddProduct() {
         const data = new FormData();
         data.append("image", file);
 
-        const res = await api.post("/products/upload", data, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
+        const res = await adminAPI.uploadImage(data);
         uploaded.push(res.data.url);
       }
 
@@ -154,10 +116,9 @@ export default function AddProduct() {
         images: [...prev.images, ...uploaded],
       }));
 
-      notify("success", "Images uploaded");
+      notify("success", `${uploaded.length} image(s) uploaded`);
     } catch (error) {
-      console.log(error.response?.data || error);
-      notify("error", "Upload failed");
+      notify("error", error.response?.data?.message || "Image upload failed");
     } finally {
       setUploading(false);
     }
@@ -167,7 +128,6 @@ export default function AddProduct() {
     e.preventDefault();
 
     const errorText = validateForm();
-
     if (errorText) {
       notify("error", errorText);
       return;
@@ -177,29 +137,20 @@ export default function AddProduct() {
       setLoading(true);
 
       const payload = {
-        title: form.title,
-        name: form.title,
+        title: form.title.trim(),
         price: Number(form.price),
         stock: Number(form.stock),
-        quantity: Number(form.stock),
-        countInStock: Number(form.stock),
-        description: form.description,
-        category: form.category,
-        material: form.material,
-        color: form.color,
-        occasion: form.occasion,
-        brand: form.brand,
-        image: form.images[0],
+        description: form.description.trim(),
+        category: form.category.toLowerCase(),
         images: form.images,
       };
 
-      await api.post("/products", payload);
+      await adminAPI.createProduct(payload);
 
-      notify("success", "Product Added 🚀");
+      notify("success", "Product added successfully!");
       resetForm();
     } catch (error) {
-      console.log(error.response?.data || error);
-      notify("error", "Create failed");
+      notify("error", error.response?.data?.message || "Failed to create product");
     } finally {
       setLoading(false);
     }
@@ -212,14 +163,14 @@ export default function AddProduct() {
           <div className="h-12 w-12 rounded-2xl bg-indigo-600/20 grid place-items-center">
             <Sparkles size={22} className="text-indigo-400" />
           </div>
-
           <div>
             <h1 className="text-3xl font-bold">Add Product</h1>
-            <p className="text-zinc-400">Premium Product Panel</p>
+            <p className="text-zinc-400">Create new products for your store</p>
           </div>
         </div>
       </div>
 
+      {/* Alert */}
       {message.text && (
         <div
           className={`rounded-2xl px-4 py-3 border flex items-center gap-2 ${
@@ -228,33 +179,24 @@ export default function AddProduct() {
               : "bg-red-500/10 border-red-500/30 text-red-400"
           }`}
         >
-          {message.type === "success" ? (
-            <CheckCircle2 size={18} />
-          ) : (
-            <AlertCircle size={18} />
-          )}
-
+          {message.type === "success" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
           {message.text}
         </div>
       )}
 
-      <form
-        onSubmit={submitHandler}
-        className="grid xl:grid-cols-[1fr_360px] gap-6"
-      >
+      <form onSubmit={submitHandler} className="grid xl:grid-cols-[1fr_360px] gap-6">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-6">
           <div className="grid md:grid-cols-2 gap-4">
             <Input
-              label="Product Name"
+              label="Product Name *"
               name="title"
               value={form.title}
               onChange={changeHandler}
               placeholder="Gold Earrings"
               icon={<BadgeInfo size={16} />}
             />
-
             <Input
-              label="Price"
+              label="Price (₹) *"
               name="price"
               type="number"
               value={form.price}
@@ -262,9 +204,8 @@ export default function AddProduct() {
               placeholder="299"
               icon={<IndianRupee size={16} />}
             />
-
             <Input
-              label="Stock"
+              label="Stock *"
               name="stock"
               type="number"
               value={form.stock}
@@ -272,53 +213,17 @@ export default function AddProduct() {
               placeholder="10"
               icon={<Package size={16} />}
             />
-
             <Input
-              label="Category"
+              label="Category *"
               name="category"
               value={form.category}
               onChange={changeHandler}
-              placeholder="Jewellery"
-            />
-
-            <Input
-              label="Brand"
-              name="brand"
-              value={form.brand}
-              onChange={changeHandler}
-              placeholder="Nayamo"
-            />
-
-            <Input
-              label="Material"
-              name="material"
-              value={form.material}
-              onChange={changeHandler}
-              placeholder="Alloy"
-            />
-
-            <Input
-              label="Color"
-              name="color"
-              value={form.color}
-              onChange={changeHandler}
-              placeholder="Gold"
-            />
-
-            <Input
-              label="Occasion"
-              name="occasion"
-              value={form.occasion}
-              onChange={changeHandler}
-              placeholder="Party"
+              placeholder="gold, silver, or diamond"
             />
           </div>
 
           <div>
-            <label className="text-sm text-zinc-300 block mb-2">
-              Description
-            </label>
-
+            <label className="text-sm text-zinc-300 block mb-2">Description *</label>
             <textarea
               rows="5"
               name="description"
@@ -333,31 +238,25 @@ export default function AddProduct() {
             <button
               type="button"
               onClick={resetForm}
-              className="px-5 py-3 rounded-2xl border border-white/10"
+              className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5 transition"
             >
               Reset
             </button>
-
             <button
               type="submit"
               disabled={loading || uploading}
-              className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"
+              className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50 transition"
             >
-              {loading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <Save size={18} />
-              )}
-
+              {loading ? <Loader2 className="animate-spin" /> : <Save size={18} />}
               {loading ? "Creating..." : "Submit Product"}
             </button>
           </div>
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6 h-fit">
-          <h2 className="text-lg font-semibold mb-4">Product Images</h2>
+          <h2 className="text-lg font-semibold mb-4">Product Images *</h2>
 
-          <label className="border-2 border-dashed border-white/15 rounded-2xl p-6 grid place-items-center cursor-pointer">
+          <label className="border-2 border-dashed border-white/15 rounded-2xl p-6 grid place-items-center cursor-pointer hover:bg-white/5 transition">
             <input
               type="file"
               hidden
@@ -365,70 +264,38 @@ export default function AddProduct() {
               accept="image/*"
               onChange={(e) => uploadImages(Array.from(e.target.files))}
             />
-
             {uploading ? <Loader2 className="animate-spin" /> : <ImagePlus />}
           </label>
 
           <div className="grid grid-cols-2 gap-3 mt-4">
             {form.images.map((img, index) => (
               <div key={index} className="relative">
-                <img
-                  src={img}
-                  alt="preview"
-                  className="h-32 w-full object-cover rounded-2xl"
-                />
-
+                <img src={img} alt="preview" className="h-32 w-full object-cover rounded-2xl" />
                 <button
                   type="button"
                   onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-black/70 p-1 rounded-full"
+                  className="absolute top-2 right-2 bg-black/70 p-1 rounded-full hover:bg-black/90"
                 >
                   <X size={14} />
                 </button>
               </div>
             ))}
           </div>
-          {/* Live Preview Card */}
+
+          {/* Live Preview */}
           <div className="mt-5 rounded-2xl bg-black/30 border border-white/10 p-4 space-y-2">
             {form.images[0] && (
-              <img
-                src={form.images[0]}
-                alt="main"
-                className="w-full h-40 object-cover rounded-xl"
-              />
+              <img src={form.images[0]} alt="main" className="w-full h-40 object-cover rounded-xl" />
             )}
-
-            <h3 className="font-semibold truncate">
-              {form.title || "Product Name"}
-            </h3>
-
-            <p className="text-emerald-400 font-bold text-lg">
-              ₹{form.price || 0}
-            </p>
-
+            <h3 className="font-semibold truncate">{form.title || "Product Name"}</h3>
+            <p className="text-emerald-400 font-bold text-lg">₹{form.price || 0}</p>
             <p className="text-zinc-400 text-sm">Stock: {form.stock || 0}</p>
-
             <p className="text-zinc-500 text-xs line-clamp-2">
               {form.description || "Your product preview will appear here."}
             </p>
-
             <div className="flex flex-wrap gap-2 pt-2">
               {form.category && (
-                <span className="px-2 py-1 text-xs rounded-full bg-white/10">
-                  {form.category}
-                </span>
-              )}
-
-              {form.brand && (
-                <span className="px-2 py-1 text-xs rounded-full bg-white/10">
-                  {form.brand}
-                </span>
-              )}
-
-              {form.color && (
-                <span className="px-2 py-1 text-xs rounded-full bg-white/10">
-                  {form.color}
-                </span>
+                <span className="px-2 py-1 text-xs rounded-full bg-white/10">{form.category}</span>
               )}
             </div>
           </div>
@@ -437,3 +304,4 @@ export default function AddProduct() {
     </div>
   );
 }
+

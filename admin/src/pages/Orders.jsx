@@ -128,12 +128,15 @@ export default function Orders() {
       )}
 
       {/* Header */}
-          <div className="relative w-full min-w-0">
-            <Search
-              size={16}
-              className="absolute left-4 top-4 text-zinc-500"
-            />
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl md:text-4xl font-bold">Orders Management</h1>
+          <p className="text-zinc-400 mt-1">Manage all orders professionally.</p>
+        </div>
 
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto min-w-0">
+          <div className="relative w-full min-w-0">
+            <Search size={16} className="absolute left-4 top-4 text-zinc-500" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -143,7 +146,7 @@ export default function Orders() {
           </div>
 
           <button
-            onClick={loadOrders}
+            onClick={() => loadOrders(page)}
             className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-semibold flex items-center justify-center gap-2 shrink-0"
           >
             <RefreshCcw size={16} />
@@ -154,7 +157,7 @@ export default function Orders() {
 
       {/* Tabs */}
       <div className="flex gap-3 overflow-x-auto pb-2 max-w-full scrollbar-hide">
-        {tabs.map(([key, labelText]) => (
+        {TABS.map(([key, labelText]) => (
           <button
             key={key}
             onClick={() => {
@@ -196,17 +199,14 @@ export default function Orders() {
 
                   <div className="min-w-0">
                     <h3 className="text-xl font-semibold break-all">
-                      #{order._id.slice(-6)}
+                      #{order._id?.slice(-6)}
                     </h3>
-
                     <p className="text-zinc-300 mt-1 truncate">
                       {order.user?.name || "Customer"}
                     </p>
-
                     <p className="text-zinc-500 text-sm mt-2 break-words">
                       {order.address}
                     </p>
-
                     {order.delhivery?.waybill && (
                       <p className="text-green-400 text-sm mt-2 break-all">
                         WB: {order.delhivery.waybill}
@@ -222,43 +222,36 @@ export default function Orders() {
                   </p>
 
                   <span className="inline-block mt-2 px-3 py-1 rounded-full bg-white/10 text-sm capitalize break-words">
-                    {order.status.replaceAll("_", " ")}
+                    {order.status?.replaceAll("_", " ")}
                   </span>
 
                   <div className="flex flex-wrap gap-2 mt-4 xl:justify-end max-w-full">
                     <button
                       onClick={() => invoice(order._id)}
-                      className="px-3 py-2 rounded-xl bg-purple-600 text-sm flex items-center gap-2"
+                      className="px-3 py-2 rounded-xl bg-purple-600 text-sm flex items-center gap-2 hover:bg-purple-700 transition"
                     >
                       <FileText size={15} />
                       Invoice
                     </button>
 
-                    {order.delhivery?.waybill && (
-                      <button
-                        onClick={() => label(order.delhivery.waybill)}
-                        className="px-3 py-2 rounded-xl bg-indigo-600 text-sm"
-                      >
-                        Label
-                      </button>
-                    )}
-
                     {order.status === "pending" && (
                       <>
                         <button
-                          onClick={() =>
-                            updateStatus(order._id, "confirmed")
-                          }
-                          className="px-3 py-2 rounded-xl bg-emerald-600 text-sm"
+                          onClick={() => updateStatus(order._id, "confirmed")}
+                          disabled={actionLoading === order._id}
+                          className="px-3 py-2 rounded-xl bg-emerald-600 text-sm hover:bg-emerald-700 transition disabled:opacity-50"
                         >
-                          Confirm
+                          {actionLoading === order._id ? (
+                            <Loader2 size={15} className="animate-spin" />
+                          ) : (
+                            "Confirm"
+                          )}
                         </button>
 
                         <button
-                          onClick={() =>
-                            updateStatus(order._id, "cancelled")
-                          }
-                          className="px-3 py-2 rounded-xl bg-red-600 text-sm flex items-center gap-2"
+                          onClick={() => updateStatus(order._id, "cancelled")}
+                          disabled={actionLoading === order._id}
+                          className="px-3 py-2 rounded-xl bg-red-600 text-sm flex items-center gap-2 hover:bg-red-700 transition disabled:opacity-50"
                         >
                           <XCircle size={15} />
                           Cancel
@@ -268,10 +261,9 @@ export default function Orders() {
 
                     {order.status === "confirmed" && (
                       <button
-                        onClick={() =>
-                          updateStatus(order._id, "ready_to_ship")
-                        }
-                        className="px-3 py-2 rounded-xl bg-cyan-600 text-sm"
+                        onClick={() => updateStatus(order._id, "ready_to_ship")}
+                        disabled={actionLoading === order._id}
+                        className="px-3 py-2 rounded-xl bg-cyan-600 text-sm hover:bg-cyan-700 transition disabled:opacity-50"
                       >
                         Move Ready
                       </button>
@@ -279,8 +271,9 @@ export default function Orders() {
 
                     {order.status === "ready_to_ship" && (
                       <button
-                        onClick={() => readyToShip(order._id)}
-                        className="px-3 py-2 rounded-xl bg-emerald-600 text-sm flex items-center gap-2"
+                        onClick={() => updateStatus(order._id, "pickup_requested")}
+                        disabled={actionLoading === order._id}
+                        className="px-3 py-2 rounded-xl bg-emerald-600 text-sm flex items-center gap-2 hover:bg-emerald-700 transition disabled:opacity-50"
                       >
                         <Truck size={15} />
                         Pickup Request
@@ -307,6 +300,30 @@ export default function Orders() {
           ))
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button
+            onClick={() => loadOrders(page - 1)}
+            disabled={page <= 1}
+            className="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 disabled:opacity-40 flex items-center gap-1"
+          >
+            <ChevronLeft size={16} /> Prev
+          </button>
+          <span className="text-zinc-400">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => loadOrders(page + 1)}
+            disabled={page >= totalPages}
+            className="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 disabled:opacity-40 flex items-center gap-1"
+          >
+            Next <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+

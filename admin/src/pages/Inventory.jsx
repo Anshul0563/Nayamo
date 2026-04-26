@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { adminAPI } from "../services/api";
+import { useDebounce } from "../hooks/useApi";
 import {
   Search,
   RefreshCcw,
   Package,
   AlertTriangle,
   Ban,
-  IndianRupee,
   Plus,
   Trash2,
   Minus,
@@ -15,22 +15,12 @@ import {
   X,
   ImagePlus,
   Loader2,
-  BadgeInfo,
 } from "lucide-react";
 
-function Field({
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-}) {
+function Field({ label, value, onChange, placeholder, type = "text" }) {
   return (
     <div>
-      <label className="text-sm text-zinc-400 block mb-2">
-        {label}
-      </label>
-
+      <label className="text-sm text-zinc-400 block mb-2">{label}</label>
       <input
         type={type}
         value={value}
@@ -42,25 +32,15 @@ function Field({
   );
 }
 
+const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2327272a'/%3E%3Ctext x='50' y='50' font-size='12' fill='%2371717a' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
+
 export default function Inventory() {
-  const token = localStorage.getItem("token");
-
-  const api = useMemo(
-    () =>
-      axios.create({
-        baseURL: "http://localhost:5050/api/admin",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-    [token]
-  );
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [updatingId, setUpdatingId] = useState(null);
+  const [actionLoading, setActionLoading] = useState(null);
+  const [error, setError] = useState("");
 
   const [editId, setEditId] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
@@ -72,138 +52,88 @@ export default function Inventory() {
     stock: "",
     description: "",
     category: "",
-    material: "",
-    color: "",
-    occasion: "",
-    brand: "",
     images: [],
   });
 
-  const getStock = (p) =>
-    Number(p.stock ?? p.quantity ?? p.countInStock ?? 0);
+  const debouncedSearch = useDebounce(search, 300);
 
-  const getName = (p) =>
-    p.name || p.title || "Untitled Product";
-
-  const getImage = (p) =>
-    p.image ||
-    p.images?.[0] ||
-    "https://via.placeholder.com/100";
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
 
-      const res = await api.get("/products");
-
-      let list = [];
-
-      if (Array.isArray(res.data)) list = res.data;
-      else if (Array.isArray(res.data.products))
-        list = res.data.products;
-      else if (Array.isArray(res.data.data))
-        list = res.data.data;
-
+      const res = await adminAPI.getProducts({ limit: 100 });
+      const list = res.data.data?.products || res.data.products || [];
       setProducts(list);
     } catch (error) {
-      console.log(error.response?.data || error);
+      setError(error.response?.data?.message || "Failed to load products");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [loadProducts]);
 
-  const updateStock = async (product, newStock) => {
+  const updateStock = async (product, delta) => {
     try {
-      setUpdatingId(product._id);
+      setActionLoading(product._id);
+      const newStock = Math.max(0, (product.stock || 0) + delta);
 
-      const stock = Math.max(0, Number(newStock));
-
-      await api.put(`/products/${product._id}`, {
-        stock,
-        quantity: stock,
-        countInStock: stock,
-      });
+      await adminAPI.updateProduct(product._id, { stock: newStock });
 
       setProducts((prev) =>
         prev.map((item) =>
-          item._id === product._id
-            ? {
-                ...item,
-                stock,
-                quantity: stock,
-                countInStock: stock,
-              }
-            : item
+          item._id === product._id ? { ...item, stock: newStock } : item
         )
       );
     } catch (error) {
-      alert("Stock update failed");
+      setError(error.response?.data?.message || "Stock update failed");
     } finally {
-      setUpdatingId(null);
+      setActionLoading(null);
     }
   };
 
   const deleteProduct = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this product? This action cannot be undone."))
+      return;
 
     try {
-      await api.delete(`/products/${id}`);
-
-      setProducts((prev) =>
-        prev.filter((item) => item._id !== id)
-      );
+      setActionLoading(id);
+      await adminAPI.deleteProduct(id);
+      setProducts((prev) => prev.filter((item) => item._id !== id));
     } catch (error) {
-      alert("Delete failed");
+      setError(error.response?.data?.message || "Delete failed");
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const openEdit = (product) => {
     setEditId(product._id);
-
     setEditForm({
-      title: getName(product),
+      title: product.title || "",
       price: product.price || "",
-      stock: getStock(product),
+      stock: product.stock || "",
       description: product.description || "",
       category: product.category || "",
-      material: product.material || "",
-      color: product.color || "",
-      occasion: product.occasion || "",
-      brand: product.brand || "",
-      images:
-        product.images?.length > 0
-          ? product.images
-          : product.image
-          ? [product.image]
-          : [],
+      images: product.images?.length > 0 ? [...product.images] : [],
     });
+    setError("");
   };
 
   const uploadImages = async (files) => {
     try {
       setUploading(true);
-
       const uploaded = [];
 
       for (const file of files) {
+        if (!file.type.startsWith("image/")) continue;
         const data = new FormData();
         data.append("image", file);
 
-        const res = await api.post(
-          "/products/upload",
-          data,
-          {
-            headers: {
-              "Content-Type":
-                "multipart/form-data",
-            },
-          }
-        );
-
+        const res = await adminAPI.uploadImage(data);
         uploaded.push(res.data.url);
       }
 
@@ -212,7 +142,7 @@ export default function Inventory() {
         images: [...prev.images, ...uploaded],
       }));
     } catch (error) {
-      alert("Upload failed");
+      setError(error.response?.data?.message || "Image upload failed");
     } finally {
       setUploading(false);
     }
@@ -221,46 +151,33 @@ export default function Inventory() {
   const removeImage = (index) => {
     setEditForm((prev) => ({
       ...prev,
-      images: prev.images.filter(
-        (_, i) => i !== index
-      ),
+      images: prev.images.filter((_, i) => i !== index),
     }));
   };
 
   const saveEdit = async () => {
     try {
       setSavingEdit(true);
+      setError("");
 
       const payload = {
         title: editForm.title,
-        name: editForm.title,
         price: Number(editForm.price),
         stock: Number(editForm.stock),
-        quantity: Number(editForm.stock),
-        countInStock: Number(editForm.stock),
         description: editForm.description,
         category: editForm.category,
-        material: editForm.material,
-        color: editForm.color,
-        occasion: editForm.occasion,
-        brand: editForm.brand,
-        image: editForm.images[0] || "",
         images: editForm.images,
       };
 
-      await api.put(`/products/${editId}`, payload);
+      await adminAPI.updateProduct(editId, payload);
 
       setProducts((prev) =>
-        prev.map((item) =>
-          item._id === editId
-            ? { ...item, ...payload }
-            : item
-        )
+        prev.map((item) => (item._id === editId ? { ...item, ...payload } : item))
       );
 
       setEditId(null);
     } catch (error) {
-      alert("Update failed");
+      setError(error.response?.data?.message || "Update failed");
     } finally {
       setSavingEdit(false);
     }
@@ -268,61 +185,75 @@ export default function Inventory() {
 
   const filtered = useMemo(() => {
     return products
-      .filter((p) =>
-        getName(p)
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      )
       .filter((p) => {
-        const stock = getStock(p);
-
+        const name = (p.title || p.name || "").toLowerCase();
+        if (!debouncedSearch) return true;
+        return name.includes(debouncedSearch.toLowerCase());
+      })
+      .filter((p) => {
+        const stock = Number(p.stock ?? 0);
         if (filter === "all") return true;
         if (filter === "in_stock") return stock > 5;
-        if (filter === "low_stock")
-          return stock > 0 && stock <= 5;
-        if (filter === "out_stock")
-          return stock === 0;
-
+        if (filter === "low_stock") return stock > 0 && stock <= 5;
+        if (filter === "out_stock") return stock === 0;
         return true;
       });
-  }, [products, search, filter]);
+  }, [products, debouncedSearch, filter]);
+
+  const getStockStatus = (stock) => {
+    if (stock === 0) return { label: "Out of Stock", color: "text-red-400" };
+    if (stock <= 5) return { label: "Low Stock", color: "text-yellow-400" };
+    return { label: "In Stock", color: "text-emerald-400" };
+  };
 
   if (loading) {
     return (
       <div className="h-[70vh] grid place-items-center text-white">
-        Loading...
+        <Loader2 size={40} className="animate-spin text-indigo-500" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6 text-white">
+      {/* Error */}
+      {error && (
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
+          <AlertTriangle size={16} />
+          {error}
+          <button onClick={() => setError("")} className="ml-auto underline">Dismiss</button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-        <h1 className="text-3xl font-bold">
-          Inventory
-        </h1>
+        <h1 className="text-3xl font-bold">Inventory</h1>
 
         <div className="flex gap-3 flex-col sm:flex-row">
           <div className="relative">
-            <Search
-              size={16}
-              className="absolute left-4 top-4 text-zinc-500"
-            />
-
+            <Search size={16} className="absolute left-4 top-4 text-zinc-500" />
             <input
               value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              placeholder="Search..."
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products..."
               className="pl-10 pr-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none"
             />
           </div>
 
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="px-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none"
+          >
+            <option value="all">All Stock</option>
+            <option value="in_stock">In Stock ({'>'}5)</option>
+            <option value="low_stock">Low Stock (1-5)</option>
+            <option value="out_stock">Out of Stock</option>
+          </select>
+
           <button
             onClick={loadProducts}
-            className="px-5 py-3 rounded-2xl bg-indigo-600"
+            className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center"
           >
             <RefreshCcw size={16} />
           </button>
@@ -331,78 +262,77 @@ export default function Inventory() {
 
       {/* Products */}
       <div className="grid gap-4">
-        {filtered.map((product) => (
-          <div
-            key={product._id}
-            className="rounded-3xl border border-white/10 bg-white/5 p-5 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between"
-          >
-            <div className="flex gap-4">
-              <img
-                src={getImage(product)}
-                alt=""
-                className="w-20 h-20 rounded-2xl object-cover"
-              />
-
-              <div>
-                <h3 className="text-xl font-semibold">
-                  {getName(product)}
-                </h3>
-
-                <p className="text-zinc-400">
-                  ₹{product.price}
-                </p>
-
-                <p className="text-sm mt-1">
-                  Stock: {getStock(product)}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={() =>
-                  updateStock(
-                    product,
-                    getStock(product) - 1
-                  )
-                }
-                className="px-3 py-2 rounded-xl bg-white/10"
-              >
-                <Minus size={16} />
-              </button>
-
-              <button
-                onClick={() =>
-                  updateStock(
-                    product,
-                    getStock(product) + 1
-                  )
-                }
-                className="px-3 py-2 rounded-xl bg-white/10"
-              >
-                <Plus size={16} />
-              </button>
-
-              <button
-                onClick={() => openEdit(product)}
-                className="px-4 py-2 rounded-xl bg-blue-600 flex items-center gap-2"
-              >
-                <Pencil size={16} />
-                Edit
-              </button>
-
-              <button
-                onClick={() =>
-                  deleteProduct(product._id)
-                }
-                className="px-4 py-2 rounded-xl bg-red-600 flex items-center gap-2"
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </div>
+        {filtered.length === 0 ? (
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-zinc-400">
+            No products found
           </div>
-        ))}
+        ) : (
+          filtered.map((product) => {
+            const stock = Number(product.stock ?? 0);
+            const status = getStockStatus(stock);
+
+            return (
+              <div
+                key={product._id}
+                className="rounded-3xl border border-white/10 bg-white/5 p-5 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between"
+              >
+                <div className="flex gap-4">
+                  <img
+                    src={product.images?.[0] || PLACEHOLDER_IMAGE}
+                    alt={product.title || "Product"}
+                    className="w-20 h-20 rounded-2xl object-cover bg-zinc-800"
+                    onError={(e) => {
+                      e.target.src = PLACEHOLDER_IMAGE;
+                    }}
+                  />
+
+                  <div>
+                    <h3 className="text-xl font-semibold">{product.title || "Untitled"}</h3>
+                    <p className="text-zinc-400">₹{product.price}</p>
+                    <p className={`text-sm mt-1 ${status.color}`}>
+                      {status.label}: {stock}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => updateStock(product, -1)}
+                    disabled={actionLoading === product._id || stock <= 0}
+                    className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-40"
+                  >
+                    <Minus size={16} />
+                  </button>
+
+                  <button
+                    onClick={() => updateStock(product, 1)}
+                    disabled={actionLoading === product._id}
+                    className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-40"
+                  >
+                    <Plus size={16} />
+                  </button>
+
+                  <button
+                    onClick={() => openEdit(product)}
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 flex items-center gap-2 transition"
+                  >
+                    <Pencil size={16} />
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => deleteProduct(product._id)}
+                    disabled={actionLoading === product._id}
+                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 flex items-center gap-2 transition disabled:opacity-50"
+                  >
+                    <Trash2 size={16} />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* EDIT MODAL */}
@@ -412,14 +342,8 @@ export default function Inventory() {
             {/* Left */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">
-                  Edit Product
-                </h2>
-
-                <button
-                  onClick={() => setEditId(null)}
-                  className="p-2 rounded-xl bg-white/10"
-                >
+                <h2 className="text-2xl font-bold">Edit Product</h2>
+                <button onClick={() => setEditId(null)} className="p-2 rounded-xl bg-white/10 hover:bg-white/20">
                   <X size={18} />
                 </button>
               </div>
@@ -428,109 +352,19 @@ export default function Inventory() {
                 <Field
                   label="Product Name"
                   value={editForm.title}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      title: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                 />
-
-                <Field
-                  label="Price"
-                  type="number"
-                  value={editForm.price}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      price: e.target.value,
-                    })
-                  }
-                />
-
-                <Field
-                  label="Stock"
-                  type="number"
-                  value={editForm.stock}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      stock: e.target.value,
-                    })
-                  }
-                />
-
-                <Field
-                  label="Category"
-                  value={editForm.category}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      category: e.target.value,
-                    })
-                  }
-                />
-
-                <Field
-                  label="Brand"
-                  value={editForm.brand}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      brand: e.target.value,
-                    })
-                  }
-                />
-
-                <Field
-                  label="Material"
-                  value={editForm.material}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      material: e.target.value,
-                    })
-                  }
-                />
-
-                <Field
-                  label="Color"
-                  value={editForm.color}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      color: e.target.value,
-                    })
-                  }
-                />
-
-                <Field
-                  label="Occasion"
-                  value={editForm.occasion}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      occasion: e.target.value,
-                    })
-                  }
-                />
+                <Field label="Price" type="number" value={editForm.price} onChange={(e) => setEditForm({ ...editForm, price: e.target.value })} />
+                <Field label="Stock" type="number" value={editForm.stock} onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })} />
+                <Field label="Category" value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} />
               </div>
 
               <div>
-                <label className="text-sm text-zinc-400 block mb-2">
-                  Description
-                </label>
-
+                <label className="text-sm text-zinc-400 block mb-2">Description</label>
                 <textarea
                   rows="5"
                   value={editForm.description}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      description:
-                        e.target.value,
-                    })
-                  }
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                   className="w-full px-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none"
                 />
               </div>
@@ -538,23 +372,16 @@ export default function Inventory() {
               <button
                 onClick={saveEdit}
                 disabled={savingEdit}
-                className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-semibold flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {savingEdit ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <Save size={16} />
-                )}
-
+                {savingEdit ? <Loader2 className="animate-spin" /> : <Save size={16} />}
                 Save Changes
               </button>
             </div>
 
             {/* Right */}
             <div>
-              <h3 className="font-semibold mb-4">
-                Product Images
-              </h3>
+              <h3 className="font-semibold mb-4">Product Images</h3>
 
               <label className="border-2 border-dashed border-white/15 rounded-2xl p-6 grid place-items-center cursor-pointer hover:bg-white/5 transition">
                 <input
@@ -562,76 +389,32 @@ export default function Inventory() {
                   hidden
                   multiple
                   accept="image/*"
-                  onChange={(e) =>
-                    uploadImages(
-                      Array.from(
-                        e.target.files
-                      )
-                    )
-                  }
+                  onChange={(e) => uploadImages(Array.from(e.target.files))}
                 />
-
-                {uploading ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <ImagePlus />
-                )}
+                {uploading ? <Loader2 className="animate-spin" /> : <ImagePlus />}
               </label>
 
               <div className="grid grid-cols-2 gap-3 mt-4">
-                {editForm.images.map(
-                  (img, index) => (
-                    <div
-                      key={index}
-                      className="relative"
+                {editForm.images.map((img, index) => (
+                  <div key={index} className="relative">
+                    <img src={img} alt="" className="w-full h-28 object-cover rounded-2xl" />
+                    <button
+                      onClick={() => removeImage(index)}
+                      className="absolute top-2 right-2 bg-black/70 p-1 rounded-full hover:bg-black/90"
                     >
-                      <img
-                        src={img}
-                        alt=""
-                        className="w-full h-28 object-cover rounded-2xl"
-                      />
-
-                      <button
-                        onClick={() =>
-                          removeImage(index)
-                        }
-                        className="absolute top-2 right-2 bg-black/70 p-1 rounded-full"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  )
-                )}
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
               </div>
 
-              {/* Live Preview */}
               <div className="mt-5 rounded-2xl bg-black/30 border border-white/10 p-4 space-y-2">
                 {editForm.images[0] && (
-                  <img
-                    src={editForm.images[0]}
-                    alt=""
-                    className="w-full h-40 object-cover rounded-xl"
-                  />
+                  <img src={editForm.images[0]} alt="" className="w-full h-40 object-cover rounded-xl" />
                 )}
-
-                <h3 className="font-semibold truncate">
-                  {editForm.title ||
-                    "Product Name"}
-                </h3>
-
-                <p className="text-emerald-400 font-bold">
-                  ₹{editForm.price || 0}
-                </p>
-
-                <p className="text-zinc-400 text-sm">
-                  Stock:{" "}
-                  {editForm.stock || 0}
-                </p>
-
-                <p className="text-zinc-500 text-xs line-clamp-2">
-                  {editForm.description ||
-                    "Preview here"}
-                </p>
+                <h3 className="font-semibold truncate">{editForm.title || "Product Name"}</h3>
+                <p className="text-emerald-400 font-bold">₹{editForm.price || 0}</p>
+                <p className="text-zinc-400 text-sm">Stock: {editForm.stock || 0}</p>
               </div>
             </div>
           </div>
@@ -640,3 +423,4 @@ export default function Inventory() {
     </div>
   );
 }
+
