@@ -3,7 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
-const xssClean = require("xss-clean");
+// Custom XSS sanitization (xss-clean is incompatible with Express 5)
 const hpp = require("hpp");
 const morgan = require("morgan");
 const compression = require("compression");
@@ -112,8 +112,33 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
 
-// Data sanitization against XSS
-app.use(xssClean());
+// Custom XSS sanitization middleware (Express 5 compatible)
+const sanitizeXSS = (obj) => {
+  if (typeof obj === "string") {
+    return obj
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+      .replace(/<\/?[^>]+(>|$)/g, "");
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeXSS);
+  }
+  if (obj && typeof obj === "object") {
+    const clean = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        clean[key] = sanitizeXSS(obj[key]);
+      }
+    }
+    return clean;
+  }
+  return obj;
+};
+
+app.use((req, res, next) => {
+  if (req.body) req.body = sanitizeXSS(req.body);
+  if (req.params) req.params = sanitizeXSS(req.params);
+  next();
+});
 
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
