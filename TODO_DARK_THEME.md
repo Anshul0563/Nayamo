@@ -38,4 +38,4 @@
 - Accents: Gold `#D4A853`, Rose Gold `#D4A5A5`
 - Text: White primary, `#E8E8E8` secondary, `#9CA3AF` muted
 - Components: `nayamo-btn-primary`, `nayamo-card`, `nayamo-input`, `nayamo-glass`
-- Effects: Glassmorphism, glow, shimmer, smooth animations
+- Effects: Glassmorphism, glow, shimmer, smooth animation
