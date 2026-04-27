@@ -1,36 +1,39 @@
 {
   "name": "nayamo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Nayamo E-Commerce Platform - Full Stack",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "client",
+    "admin"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:client\" \"npm run dev:admin\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:client": "cd client && npm start",
+    "dev:admin": "cd admin && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../client && npm install && cd ../admin && npm install",
+    "build:client": "cd client && npm run build",
+    "build:admin": "cd admin && npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Anshul0563/Nayamo.git"
   },
-  "keywords": [],
+  "keywords": [
+    "ecommerce",
+    "earrings",
+    "jewellery",
+    "mern-stack"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/Anshul0563/Nayamo/issues"
   },
   "homepage": "https://github.com/Anshul0563/Nayamo#readme",
-  "dependencies": {
-    "axios": "^1.15.0",
-    "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.9.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.1",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.4.1",
-    "multer": "^2.1.1",
-    "react-router-dom": "^7.14.0"
-  },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "concurrently": "^8.2.2"
   }
 }
