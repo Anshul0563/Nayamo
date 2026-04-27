@@ -31,6 +31,7 @@
     "cloudinary": "^2.9.0",
     "compression": "^1.8.1",
     "cors": "^2.8.6",
+    "dompurify": "^3.2.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-mongo-sanitize": "^2.2.0",
@@ -38,16 +39,20 @@
     "express-validator": "^7.2.1",
     "helmet": "^8.0.0",
     "hpp": "^0.2.3",
+    "ioredis": "^5.4.1",
+    "jsdom": "^26.0.0",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.1.1",
     "mongoose": "^9.4.1",
     "morgan": "^1.10.0",
     "multer": "^2.1.1",
     "razorpay": "^2.9.6",
-    "xss-clean": "^0.1.4"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.1.0"
   },
   "engines": {
     "node": ">=18.0.0"
