@@ -5,7 +5,7 @@ import Footer from "./Footer";
 
 export default function ClientLayout() {
   return (
-    <div className="min-h-screen flex flex-col bg-nayamo-bg-primary">
+    <div className="min-h-screen flex flex-col bg-[#0A0A0A] text-[#E8E8E8]">
       <Navbar />
       <main className="flex-1">
         <Outlet />
@@ -14,4 +14,3 @@ export default function ClientLayout() {
     </div>
   );
 }
-
