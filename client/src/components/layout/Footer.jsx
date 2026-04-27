@@ -100,26 +100,26 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-stone-400">
               <li>
                 <Link
-                  to="/shop?category=gold"
+                  to="/shop?category=party"
                   className="hover:text-[#D4A853] transition-colors"
                 >
-                  Gold Earrings
+                  Party Wear
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/shop?category=silver"
+                  to="/shop?category=daily"
                   className="hover:text-[#D4A853] transition-colors"
                 >
-                  Silver Earrings
+                  Daily Wear
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/shop?category=diamond"
+                  to="/shop?category=traditional"
                   className="hover:text-[#D4A853] transition-colors"
                 >
-                  Diamond Earrings
+                  Traditional Earrings
                 </Link>
               </li>
               <li>

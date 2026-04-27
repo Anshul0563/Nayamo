@@ -149,11 +149,11 @@ export default function ProductDetails() {
             <div className="grid grid-cols-3 gap-4 text-center mb-8">
               <div>
                 <Shield className="w-5 h-5 text-stone-400 mx-auto mb-1" />
-                <p className="text-xs text-stone-500">Hypoallergenic</p>
+                <p className="text-xs text-stone-500">Skin Friendly</p>
               </div>
               <div>
                 <CheckCircle className="w-5 h-5 text-stone-400 mx-auto mb-1" />
-                <p className="text-xs text-stone-500">925 Sterling</p>
+                <p className="text-xs text-stone-500">Premium Finish</p>
               </div>
               <div>
                 <RotateCcw className="w-5 h-5 text-stone-400 mx-auto mb-1" />
