@@ -7,14 +7,19 @@
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
-    background-color: #FDF8F0;
-    color: #1A1A1A;
+    background-color: #FFFAF7;
+    color: #2C2C2C;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
+  }
+
+  ::selection {
+    background-color: #D4A853;
+    color: white;
   }
 }
 
@@ -24,27 +29,43 @@
   }
 
   .nayamo-btn-primary {
-    @apply bg-amber-500 hover:bg-amber-600 text-white font-medium px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98];
+    @apply bg-[#D4A853] hover:bg-[#C49A48] text-white font-medium px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg;
   }
 
   .nayamo-btn-secondary {
-    @apply border border-amber-500 text-amber-600 hover:bg-amber-50 font-medium px-6 py-3 rounded-xl transition-all duration-300;
+    @apply border border-[#D4A853] text-[#D4A853] hover:bg-[#FFF8F0] font-medium px-6 py-3 rounded-2xl transition-all duration-300;
+  }
+
+  .nayamo-btn-rose {
+    @apply bg-[#D4A5A5] hover:bg-[#C99494] text-white font-medium px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg;
   }
 
   .nayamo-card {
-    @apply bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 border border-stone-100;
+    @apply bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-[#F0E6E0];
+  }
+
+  .nayamo-card-soft {
+    @apply bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300 border border-white/50;
   }
 
   .nayamo-input {
-    @apply w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 bg-white;
+    @apply w-full px-4 py-3 rounded-xl border border-[#E8DDD6] focus:border-[#D4A853] focus:ring-2 focus:ring-[#D4A853]/20 outline-none transition-all duration-200 bg-white;
   }
 
   .nayamo-section-title {
-    @apply text-3xl md:text-4xl font-semibold text-stone-900 mb-2;
+    @apply text-3xl md:text-4xl lg:text-5xl font-semibold text-[#2C2C2C] mb-3 tracking-tight;
   }
 
   .nayamo-section-subtitle {
-    @apply text-stone-500 text-base md:text-lg;
+    @apply text-[#8C7B73] text-base md:text-lg;
+  }
+
+  .nayamo-gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#D4A853] to-[#D4A5A5];
+  }
+
+  .nayamo-glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/40;
   }
 }
 
@@ -57,6 +78,33 @@
   }
   .border-gold {
     border-color: #D4A853;
+  }
+  .text-rose-gold {
+    color: #D4A5A5;
+  }
+  .bg-rose-gold {
+    background-color: #D4A5A5;
+  }
+  .bg-ivory {
+    background-color: #FFFAF7;
+  }
+  .bg-blush {
+    background-color: #FFF0F3;
+  }
+  .bg-champagne {
+    background-color: #F7E7CE;
+  }
+
+  /* Shimmer loading animation */
+  .shimmer {
+    background: linear-gradient(90deg, #f0e6e0 25%, #faf5f2 50%, #f0e6e0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 }
 

@@ -43,7 +43,7 @@ export default function Dashboard() {
       ]);
 
       setStats(dashRes.data.data || {});
-      setOrders(orderRes.data.data?.orders || orderRes.data.orders || []);
+            setOrders(orderRes.data.data || []);
     } catch (error) {
       const message = error.response?.data?.message || "Failed to load dashboard";
       setError(message);
