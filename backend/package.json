@@ -54,6 +54,22 @@
     "nodemon": "^3.1.14",
     "supertest": "^7.1.0"
   },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": ["./jest.setup.js"],
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "controllers/**/*.js",
+      "services/**/*.js",
+      "middleware/**/*.js",
+      "models/**/*.js",
+      "utils/**/*.js",
+      "!**/node_modules/**"
+    ],
+    "testMatch": ["**/__tests__/**/*.test.js"],
+    "verbose": true,
+    "forceExit": true
+  },
   "engines": {
     "node": ">=18.0.0"
   }

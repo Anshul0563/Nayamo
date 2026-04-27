@@ -3,13 +3,14 @@ const Product = require("../models/Product");
 
 // ADD TO CART
 exports.addToCart = async (userId, productId) => {
-  // Validate product exists and is active
-  const product = await Product.findById(productId);
-  if (!product) {
-    throw new Error("Product not found");
+  if (!productId) {
+    throw new Error("Product ID is required");
   }
-  if (!product.isActive) {
-    throw new Error("Product is not available");
+
+  // Validate product exists and is active
+  const product = await Product.findOne({ _id: productId, isActive: true });
+  if (!product) {
+    throw new Error("Product not found or not available");
   }
 
   let cart = await Cart.findOne({ user: userId });
@@ -42,7 +43,11 @@ exports.addToCart = async (userId, productId) => {
 
 // UPDATE QUANTITY
 exports.updateQuantity = async (userId, productId, quantity) => {
-  if (quantity < 1) {
+  if (!productId) {
+    throw new Error("Product ID is required");
+  }
+
+  if (!quantity || quantity < 1) {
     throw new Error("Quantity must be at least 1");
   }
 
@@ -53,9 +58,9 @@ exports.updateQuantity = async (userId, productId, quantity) => {
   }
 
   // Validate product stock
-  const product = await Product.findById(productId);
+  const product = await Product.findOne({ _id: productId, isActive: true });
   if (!product) {
-    throw new Error("Product not found");
+    throw new Error("Product not found or not available");
   }
 
   if (product.stock < quantity) {
@@ -78,6 +83,10 @@ exports.updateQuantity = async (userId, productId, quantity) => {
 
 // REMOVE ITEM
 exports.removeFromCart = async (userId, productId) => {
+  if (!productId) {
+    throw new Error("Product ID is required");
+  }
+
   const cart = await Cart.findOne({ user: userId });
 
   if (!cart) {
