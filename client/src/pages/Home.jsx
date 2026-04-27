@@ -56,26 +56,27 @@ export default function Home() {
                 New Earring Collection 2025
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold leading-[1.1] mb-6 text-[#2C2C2C]">
-                Elegant <br />
-                <span className="text-[#D4A853]">Artificial</span> <br />
+                Trendy <br />
+                <span className="text-[#D4A853]">Fashion</span> <br />
                 <span className="text-[#D4A5A5]">Jewellery</span>
               </h1>
               <p className="text-[#8C7B73] text-lg md:text-xl mb-8 max-w-lg leading-relaxed">
-                Discover handcrafted artificial jewellery designed for the modern woman. Exquisite earrings that elevate your style without breaking the bank.
+                Discover stylish artificial jewellery designed for every occasion. 
+                From statement earrings to daily wear — elevate your style affordably.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/shop" className="nayamo-btn-primary inline-flex items-center gap-2">
                   Shop Now <ArrowRight className="w-4 h-4" />
                 </Link>
-                <Link to="/shop?category=gold" className="nayamo-btn-secondary inline-flex">
-                  Gold Collection
+                <Link to="/shop?category=party" className="nayamo-btn-secondary inline-flex">
+                  Party Collection
                 </Link>
               </div>
               <div className="flex flex-wrap gap-6 mt-10">
                 {[
                   { icon: Truck, text: "Free Shipping" },
                   { icon: Shield, text: "Secure Payments" },
-                  { icon: Heart, text: "Handcrafted" },
+                  { icon: Heart, text: "Trendy Designs" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-[#8C7B73]">
                     <item.icon className="w-5 h-5 text-[#D4A853]" />
@@ -87,12 +88,12 @@ export default function Home() {
 
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
               <div className="relative aspect-[4/5] max-w-lg mx-auto rounded-3xl overflow-hidden shadow-2xl">
-                <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=750&fit=crop&q=80" alt="Beautiful gold earrings" className="w-full h-full object-cover" />
+                <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=750&fit=crop&q=80" alt="Fashion earrings collection" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/30 to-transparent" />
               </div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.5 }} className="absolute bottom-8 left-8 bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 shadow-lg">
                 <p className="text-xs text-[#8C7B73] uppercase tracking-wider">Starting from</p>
-                <p className="text-xl font-bold text-[#D4A853]">Rs 299</p>
+                <p className="text-xl font-bold text-[#D4A853]">Rs 199</p>
               </motion.div>
             </motion.div>
           </div>
@@ -104,9 +105,9 @@ export default function Home() {
         <div className="nayamo-container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { icon: Shield, title: "Premium Quality", desc: "Crafted with care" },
+              { icon: Shield, title: "Quality Finish", desc: "Premium look & feel" },
               { icon: Sparkles, title: "Trendy Designs", desc: "Latest styles" },
-              { icon: Heart, title: "Hypoallergenic", desc: "Skin-safe materials" },
+              { icon: Heart, title: "Lightweight", desc: "Comfortable all day" },
               { icon: Truck, title: "Fast Delivery", desc: "Ships in 24 hours" },
             ].map((badge, i) => (
               <motion.div key={i} {...fadeInUp} transition={{ duration: 0.5, delay: i * 0.1 }} className="flex items-center gap-3">
@@ -128,22 +129,22 @@ export default function Home() {
         <div className="nayamo-container">
           <motion.div {...fadeInUp} className="text-center mb-14">
             <span className="text-[#D4A5A5] text-sm font-semibold uppercase tracking-widest">Collections</span>
-            <h2 className="nayamo-section-title mt-2">Shop by Collection</h2>
-            <p className="nayamo-section-subtitle">Find your perfect pair of earrings</p>
+            <h2 className="nayamo-section-title mt-2">Shop by Style</h2>
+            <p className="nayamo-section-subtitle">Find earrings for every occasion</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { name: "Gold", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500&h=600&fit=crop&q=80", desc: "Timeless elegance" },
-              { name: "Silver", image: "https://images.unsplash.com/photo-1610694955371-d4a3e0ce4b52?w=500&h=600&fit=crop&q=80", desc: "Modern sophistication" },
-              { name: "Diamond", image: "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=500&h=600&fit=crop&q=80", desc: "Sparkling brilliance" },
+              { name: "Party Wear", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500&h=600&fit=crop&q=80", desc: "Glamorous & bold" },
+              { name: "Daily Wear", image: "https://images.unsplash.com/photo-1610694955371-d4a3e0ce4b52?w=500&h=600&fit=crop&q=80", desc: "Simple & elegant" },
+              { name: "Traditional", image: "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=500&h=600&fit=crop&q=80", desc: "Ethnic & festive" },
             ].map((cat, i) => (
               <motion.div key={cat.name} {...fadeInUp} transition={{ duration: 0.5, delay: i * 0.15 }}>
-                <Link to={`/shop?category=${cat.name.toLowerCase()}`} className="group relative block aspect-[3/4] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500">
+                <Link to={`/shop?category=${cat.name.toLowerCase().replace(" ", "-")}`} className="group relative block aspect-[3/4] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500">
                   <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/70 via-[#2C2C2C]/20 to-transparent" />
                   <div className="absolute inset-0 flex flex-col items-center justify-end pb-10 text-white">
                     <Gem className="w-8 h-8 mb-3 text-[#D4A853]" />
-                    <h3 className="text-2xl font-serif font-semibold">{cat.name} Earrings</h3>
+                    <h3 className="text-2xl font-serif font-semibold">{cat.name}</h3>
                     <p className="text-sm text-white/70 mt-1">{cat.desc}</p>
                   </div>
                 </Link>
@@ -226,13 +227,13 @@ export default function Home() {
           <motion.div {...fadeInUp} className="text-center mb-14">
             <span className="text-[#D4A5A5] text-sm font-semibold uppercase tracking-widest">Testimonials</span>
             <h2 className="text-3xl md:text-4xl font-serif font-semibold mt-2">What Our Customers Say</h2>
-            <p className="text-[#A09088] mt-2">Real stories from jewellery lovers</p>
+            <p className="text-[#A09088] mt-2">Real stories from fashion jewellery lovers</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { name: "Priya Sharma", text: "The gold hoop earrings are absolutely stunning. Lightweight and so comfortable - I wear them every day!", rating: 5 },
-              { name: "Ananya Patel", text: "Best online jewellery shopping experience. The silver studs are so elegant and perfect for daily wear.", rating: 5 },
-              { name: "Meera Gupta", text: "I gifted diamond drop earrings to my sister and she was overjoyed. The craftsmanship is beautiful. Thank you Nayamo!", rating: 5 },
+              { name: "Priya Sharma", text: "These earrings look so premium! Everyone asks where I got them. Such great quality for the price.", rating: 5 },
+              { name: "Ananya Patel", text: "Best fashion jewellery store online. The daily wear collection is perfect for office and college.", rating: 5 },
+              { name: "Meera Gupta", text: "I gifted statement earrings to my sister and she loved them! Beautiful designs at affordable prices.", rating: 5 },
             ].map((t, i) => (
               <motion.div key={i} {...fadeInUp} transition={{ duration: 0.5, delay: i * 0.1 }} className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm hover:bg-white/10 transition-colors">
                 <div className="flex gap-1 mb-4">
