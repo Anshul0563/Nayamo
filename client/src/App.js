@@ -14,11 +14,11 @@ import Wishlist from "./pages/Wishlist";
 
 function NotFound() {
   return (
-    <div className="min-h-screen bg-[#FDF8F0] flex items-center justify-center">
+    <div className="min-h-screen bg-nayamo-bg-primary flex items-center justify-center">
       <div className="text-center">
-        <h1 className="text-6xl font-serif font-bold text-stone-300 mb-4">404</h1>
-        <h2 className="text-2xl font-semibold text-stone-800 mb-2">Page Not Found</h2>
-        <p className="text-stone-500 mb-6">The page you are looking for does not exist.</p>
+        <h1 className="text-6xl font-serif font-bold text-nayamo-bg-elevated mb-4">404</h1>
+        <h2 className="text-2xl font-semibold text-nayamo-text-secondary mb-2">Page Not Found</h2>
+        <p className="text-nayamo-text-muted mb-6">The page you are looking for does not exist.</p>
         <a href="/" className="nayamo-btn-primary inline-block">Go Home</a>
       </div>
     </div>

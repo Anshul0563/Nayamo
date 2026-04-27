@@ -1,115 +1,78 @@
 import React from "react";
+import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Heart, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart } = useCart();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
-  const liked = isInWishlist(product._id);
-  const imageUrl = product.images?.[0]?.url || product.images?.[0] || "https://placehold.co/400x400/FFFAF7/D4A853?text=Nayamo";
-
-  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
-  const discountPercent = hasDiscount
+  const inWishlist = isInWishlist(product._id);
+  const discount = product.originalPrice && product.originalPrice > product.price
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  const handleWishlist = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (liked) {
-      removeFromWishlist(product._id);
-    } else {
-      addToWishlist(product._id);
-    }
-  };
-
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addToCart(product._id);
-  };
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
-      className="group nayamo-card overflow-hidden hover:-translate-y-1"
     >
-      <Link to={`/product/${product._id}`} className="block relative aspect-square overflow-hidden rounded-t-2xl bg-[#FAF5F2]">
-        <img
-          src={imageUrl}
-          alt={product.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-          loading="lazy"
-        />
-
-        {/* Discount Badge */}
-        {hasDiscount && (
-          <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#D4A5A5] text-white text-[11px] font-bold rounded-lg shadow-sm">
-            {discountPercent}% OFF
+      <div className="group nayamo-card">
+        <div className="relative aspect-[3/4] overflow-hidden bg-[#141414]">
+          <Link to={`/product/${product._id}`}>
+            <img
+              src={product.images?.[0] || product.image || "/placeholder.jpg"}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              loading="lazy"
+            />
+          </Link>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {discount > 0 && (
+            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-[#0A0A0A] shadow-lg">
+              {discount}% OFF
+            </div>
+          )}
+          <div className="absolute top-3 right-3 flex flex-col gap-2 translate-x-12 group-hover:translate-x-0 transition-transform duration-500">
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product); }}
+              className={inWishlist
+                ? "w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-[#D4A5A5] to-[#C48888] shadow-lg"
+                : "w-9 h-9 rounded-full flex items-center justify-center bg-[#1A1A1C]/80 backdrop-blur-md hover:bg-[#D4A5A5]/20"}
+            >
+              <Heart className={inWishlist ? "w-4 h-4 text-white fill-white" : "w-4 h-4 text-white"} />
+            </button>
+            <Link to={`/product/${product._id}`} className="w-9 h-9 rounded-full bg-[#1A1A1C]/80 backdrop-blur-md flex items-center justify-center hover:bg-[#D4A853]/20 transition-all duration-300">
+              <Eye className="w-4 h-4 text-white" />
+            </Link>
           </div>
-        )}
-
-        {/* Wishlist Button */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button
-            onClick={handleWishlist}
-            className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110 ${
-              liked ? "bg-[#D4A5A5] text-white" : "bg-white text-[#8C7B73] hover:text-[#D4A5A5]"
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${liked ? "fill-white" : ""}`} />
-          </button>
-        </div>
-
-        {/* Add to Cart Button */}
-        <div className="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
-          <button
-            onClick={handleAddToCart}
-            className="w-full bg-[#D4A853] hover:bg-[#C49A48] text-white font-medium py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg backdrop-blur-sm bg-opacity-95"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            Add to Cart
-          </button>
-        </div>
-
-        {/* Category Badge */}
-        <div className="absolute bottom-3 left-3">
-          <span className="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium rounded-lg capitalize text-[#5C4F48] shadow-sm">
-            {product.category} Earrings
-          </span>
-        </div>
-      </Link>
-
-      <div className="p-4">
-        <Link to={`/product/${product._id}`}>
-          <h3 className="font-medium text-[#2C2C2C] truncate hover:text-[#D4A853] transition-colors duration-200">
-            {product.title}
+          <div className="absolute bottom-4 left-4 right-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-500">
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); }}
+              className="w-full py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-[#0A0A0A] shadow-lg flex items-center justify-center gap-2"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              Quick Add
+            </button>
+          </div>
+        <div className="p-4">
+          <h3 className="text-sm font-medium text-white group-hover:text-[#D4A853] transition-colors line-clamp-1 mb-1">
+            <Link to={`/product/${product._id}`}>{product.name}</Link>
           </h3>
-        </Link>
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-[#D4A853]">
-              Rs {product.price?.toLocaleString("en-IN")}
-            </span>
-            {hasDiscount && (
-              <span className="text-sm text-[#B8A99A] line-through">
-                Rs {product.originalPrice?.toLocaleString("en-IN")}
-              </span>
+          {product.category && (
+            <p className="text-[11px] text-[#6B7280] uppercase tracking-wider mb-2">{product.category}</p>
+          )}
+          <div className="flex items-center gap-2.5">
+            <span className="text-base font-bold text-white">Rs {product.price?.toLocaleString("en-IN")}</span>
+            {discount > 0 && (
+              <span className="text-sm text-[#6B7280] line-through">Rs {product.originalPrice?.toLocaleString("en-IN")}</span>
             )}
           </div>
-          {product.stock === 0 && (
-            <span className="text-xs text-[#D4A5A5] font-medium">Out of Stock</span>
-          )}
-        </div>
       </div>
     </motion.div>
   );
 }
-
