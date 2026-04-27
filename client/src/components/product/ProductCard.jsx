@@ -60,9 +60,8 @@ export default function ProductCard({ product }) {
         </div>
         {/* Category Badge */}
         <div className="absolute top-3 left-3">
-          <span className="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium rounded-lg capitalize text-stone-700 shadow-sm">
-            {product.category}
-          </span>
+<span className="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium rounded-lg capitalize text-stone-700 shadow-sm">
+            {product.category} Earr
         </div>
       </Link>
 

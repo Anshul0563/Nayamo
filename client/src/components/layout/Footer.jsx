@@ -5,7 +5,6 @@ import { Instagram, Facebook, Twitter, Mail, MapPin, Phone, CreditCard, Truck, S
 export default function Footer() {
   return (
     <footer className="bg-[#1A1A1A] text-white">
-      {/* Trust Badges */}
       <div className="border-b border-white/10">
         <div className="nayamo-container py-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -13,14 +12,14 @@ export default function Footer() {
               <Truck className="w-6 h-6 text-[#D4A853]" />
               <div>
                 <p className="font-medium text-sm">Free Shipping</p>
-                <p className="text-xs text-stone-400">On orders above ₹999</p>
+                <p className="text-xs text-stone-400">On orders above Rs 999</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Shield className="w-6 h-6 text-[#D4A853]" />
               <div>
-                <p className="font-medium text-sm">Secure Payment</p>
-                <p className="text-xs text-stone-400">100% secure checkout</p>
+                <p className="font-medium text-sm">Hypoallergenic</p>
+                <p className="text-xs text-stone-400">Skin-safe materials</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -41,10 +40,8 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Main Footer */}
       <div className="nayamo-container py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-[#D4A853] flex items-center justify-center">
@@ -53,7 +50,7 @@ export default function Footer() {
               <span className="text-xl font-serif font-semibold">Nayamo</span>
             </div>
             <p className="text-stone-400 text-sm leading-relaxed mb-4">
-              Premium handcrafted jewellery designed for the modern woman. Each piece tells a story of elegance and timeless beauty.
+              Indias finest destination for handcrafted earrings. From delicate studs to statement danglers, each pair is designed to make you shine.
             </p>
             <div className="flex gap-3">
               <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#D4A853] transition-colors">
@@ -68,19 +65,17 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h4 className="font-medium mb-4 text-sm uppercase tracking-wider">Collections</h4>
             <ul className="space-y-2 text-sm text-stone-400">
               <li><Link to="/shop?category=gold" className="hover:text-[#D4A853] transition-colors">Gold Earrings</Link></li>
-              <li><Link to="/shop?category=silver" className="hover:text-[#D4A853] transition-colors">Silver Collection</Link></li>
-              <li><Link to="/shop?category=diamond" className="hover:text-[#D4A853] transition-colors">Diamond Jewellery</Link></li>
+              <li><Link to="/shop?category=silver" className="hover:text-[#D4A853] transition-colors">Silver Earrings</Link></li>
+              <li><Link to="/shop?category=diamond" className="hover:text-[#D4A853] transition-colors">Diamond Earrings</Link></li>
               <li><Link to="/shop" className="hover:text-[#D4A853] transition-colors">New Arrivals</Link></li>
               <li><Link to="/shop" className="hover:text-[#D4A853] transition-colors">Best Sellers</Link></li>
             </ul>
           </div>
 
-          {/* Support */}
           <div>
             <h4 className="font-medium mb-4 text-sm uppercase tracking-wider">Support</h4>
             <ul className="space-y-2 text-sm text-stone-400">
@@ -92,13 +87,12 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
             <h4 className="font-medium mb-4 text-sm uppercase tracking-wider">Contact Us</h4>
             <ul className="space-y-3 text-sm text-stone-400">
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 text-[#D4A853]" />
-                <span>Nayamo Jewellery, Mumbai, India</span>
+                <span>Nayamo Earrings, Mumbai, India</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#D4A853]" />
@@ -113,10 +107,9 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-white/10">
         <div className="nayamo-container py-4 flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-stone-500">© 2025 Nayamo. All rights reserved.</p>
+          <p className="text-xs text-stone-500">2025 Nayamo. All rights reserved.</p>
           <div className="flex gap-4 text-xs text-stone-500">
             <Link to="/" className="hover:text-white transition-colors">Privacy Policy</Link>
             <Link to="/" className="hover:text-white transition-colors">Terms of Service</Link>
@@ -126,4 +119,3 @@ export default function Footer() {
     </footer>
   );
 }
-
