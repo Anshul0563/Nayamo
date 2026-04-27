@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/common/Loader";
 
@@ -46,96 +47,115 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center py-12 px-4 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4A853]/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#D4A5A5]/5 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#070708] flex items-center justify-center py-12 px-4 relative overflow-hidden">
+      {/* Background glows */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#D4A853]/4 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#D4A5A5]/4 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D4A853] to-[#C9963B] flex items-center justify-center mx-auto mb-4 shadow-[0_4px_20px_rgba(212,168,83,0.3)]">
-            <Sparkles className="w-6 h-6 text-[#0A0A0A]" />
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md relative z-10"
+      >
+        <div className="text-center mb-10">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D4A853] to-[#C9963B] flex items-center justify-center mx-auto mb-5 shadow-[0_8px_32px_rgba(212,168,83,0.3)]">
+            <Sparkles className="w-7 h-7 text-[#070708]" />
           </div>
           <h1 className="text-3xl font-serif font-bold text-white mb-2">
             {isRegister ? "Create Account" : "Welcome Back"}
           </h1>
-          <p className="text-[#9CA3AF]">
-            {isRegister ? "Join Nayamo for exclusive jewellery" : "Sign in to your Nayamo account"}
+          <p className="text-[#A1A1AA]">
+            {isRegister
+              ? "Join Nayamo for exclusive jewellery"
+              : "Sign in to your Nayamo account"}
           </p>
         </div>
 
-        <div className="nayamo-card p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="nayamo-card p-8 md:p-10 border border-white/[0.05]">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {isRegister && (
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
                 <input
                   name="name"
                   type="text"
                   placeholder="Full Name"
                   value={form.name}
                   onChange={handleChange}
-                  className="nayamo-input pl-10"
+                  className="nayamo-input pl-11"
                   required
                 />
               </div>
             )}
 
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
               <input
                 name="email"
                 type="email"
                 placeholder="Email address"
                 value={form.email}
                 onChange={handleChange}
-                className="nayamo-input pl-10"
+                className="nayamo-input pl-11"
                 required
               />
             </div>
 
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
               <input
                 name="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
-                className="nayamo-input pl-10 pr-10"
+                className="nayamo-input pl-11 pr-11"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-white transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white transition-colors"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full nayamo-btn-primary disabled:opacity-50"
+              className="w-full nayamo-btn-primary disabled:opacity-40 mt-2"
             >
-              {loading ? <Loader size={20} /> : isRegister ? "Create Account" : "Sign In"}
+              {loading ? (
+                <Loader size={20} />
+              ) : isRegister ? (
+                "Create Account"
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-[#9CA3AF]">
-              {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
+          <div className="mt-8 text-center">
+            <p className="text-sm text-[#A1A1AA]">
+              {isRegister
+                ? "Already have an account?"
+                : "Don't have an account?"}{" "}
               <button
                 onClick={() => setIsRegister(!isRegister)}
-                className="text-[#D4A853] font-medium hover:underline"
+                className="text-[#D4A853] font-semibold hover:text-[#F0D78C] transition-colors"
               >
                 {isRegister ? "Sign In" : "Create Account"}
               </button>
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
