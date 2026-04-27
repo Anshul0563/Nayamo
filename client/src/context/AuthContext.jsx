@@ -68,7 +68,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(async () => {
-    // Backend has no logout endpoint - just clear local state
+    try {
+      await authAPI.logout();
+    } catch (err) {
+      // Ignore errors - still clear local state
+    }
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");

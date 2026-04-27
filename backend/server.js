@@ -159,8 +159,17 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/delhivery", delhiveryRoutes);
 
+// Webhook rate limiter
+const webhookLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  message: { success: false, message: "Too many webhook requests" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Razorpay webhook (must be raw body for signature verification)
-app.post("/webhook/razorpay", express.raw({ type: "application/json" }), (req, res) => {
+app.post("/webhook/razorpay", webhookLimiter, express.raw({ type: "application/json" }), (req, res) => {
   const crypto = require("crypto");
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
@@ -215,6 +224,7 @@ const startServer = async () => {
       "CLOUDINARY_CLOUD_NAME",
       "CLOUDINARY_API_KEY",
       "CLOUDINARY_API_SECRET",
+      "RAZORPAY_WEBHOOK_SECRET",
     ];
 
     const missingVars = requiredEnvVars.filter((v) => !process.env[v]);
