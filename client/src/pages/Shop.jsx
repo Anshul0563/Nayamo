@@ -61,13 +61,13 @@ export default function Shop() {
     : "All Earrings";
 
   return (
-    <div className="min-h-screen bg-[#FDF8F0]">
-      <div className="bg-white border-b border-stone-100">
+    <div className="min-h-screen bg-[#0A0A0A]">
+      <div className="bg-[#0F0F0F] border-b border-white/[0.06]">
         <div className="nayamo-container py-8">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-stone-900 mb-2">
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">
             {pageTitle}
           </h1>
-          <p className="text-stone-500">
+          <p className="text-[#9CA3AF]">
             {category
               ? `Exquisite ${category} earrings crafted to perfection`
               : "Discover handcrafted earrings for every occasion"}
@@ -85,15 +85,15 @@ export default function Shop() {
               onChange={(e) => setSearch(e.target.value)}
               className="nayamo-input pl-10"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
           </form>
           <div className="flex gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`px-4 py-2.5 rounded-xl border font-medium text-sm flex items-center gap-2 transition-colors ${
                 showFilters
-                  ? "border-[#D4A853] text-[#D4A853] bg-amber-50"
-                  : "border-stone-200 text-stone-600 bg-white"
+                  ? "border-[#D4A853] text-[#D4A853] bg-[#D4A853]/10"
+                  : "border-white/[0.08] text-[#9CA3AF] bg-[#1A1A1C] hover:bg-[#1E1E22]"
               }`}
             >
               <SlidersHorizontal className="w-4 h-4" /> Filters
@@ -102,30 +102,30 @@ export default function Shop() {
               <select
                 value={sort}
                 onChange={(e) => updateParam("sort", e.target.value)}
-                className="appearance-none px-4 py-2.5 pr-10 rounded-xl border border-stone-200 bg-white text-sm font-medium text-stone-700 focus:border-[#D4A853] outline-none"
+                className="appearance-none px-4 py-2.5 pr-10 rounded-xl border border-white/[0.08] bg-[#1A1A1C] text-sm font-medium text-[#E8E8E8] focus:border-[#D4A853]/40 outline-none"
               >
                 <option value="">Sort By</option>
                 <option value="newest">Newest</option>
                 <option value="low">Price: Low to High</option>
                 <option value="high">Price: High to Low</option>
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280] pointer-events-none" />
             </div>
           </div>
         </div>
 
         {showFilters && (
-          <div className="bg-white rounded-2xl p-5 border border-stone-100 mb-6">
+          <div className="nayamo-card p-5 mb-6">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-stone-700">Category:</span>
+              <span className="text-sm font-medium text-[#E8E8E8]">Category:</span>
               {["party", "daily", "traditional", "western", "statement", "bridal"].map((c) => (
                 <button
                   key={c}
                   onClick={() => updateParam("category", category === c ? "" : c)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     category === c
-                      ? "bg-[#D4A853] text-white"
-                      : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                      ? "bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-[#0A0A0A]"
+                      : "bg-[#1A1A1C] text-[#9CA3AF] hover:bg-[#242428] border border-white/[0.06]"
                   }`}
                 >
                   {c.charAt(0).toUpperCase() + c.slice(1)}
@@ -134,7 +134,7 @@ export default function Shop() {
               {(category || search) && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 ml-auto"
+                  className="flex items-center gap-1 text-sm text-[#D4A5A5] hover:text-[#E8C4C4] ml-auto"
                 >
                   <X className="w-3 h-3" /> Clear All
                 </button>
@@ -166,17 +166,17 @@ export default function Shop() {
                 <button
                   onClick={() => updateParam("page", String(page - 1))}
                   disabled={page <= 1}
-                  className="p-2 rounded-lg border border-stone-200 bg-white disabled:opacity-40 hover:bg-stone-50"
+                  className="p-2 rounded-lg border border-white/[0.08] bg-[#1A1A1C] disabled:opacity-40 hover:bg-[#242428] text-white"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-sm text-stone-600 font-medium px-3">
+                <span className="text-sm text-[#9CA3AF] font-medium px-3">
                   Page {pagination.currentPage} of {pagination.totalPages}
                 </span>
                 <button
                   onClick={() => updateParam("page", String(page + 1))}
                   disabled={page >= pagination.totalPages}
-                  className="p-2 rounded-lg border border-stone-200 bg-white disabled:opacity-40 hover:bg-stone-50"
+                  className="p-2 rounded-lg border border-white/[0.08] bg-[#1A1A1C] disabled:opacity-40 hover:bg-[#242428] text-white"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
