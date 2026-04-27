@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Twitter, Mail, MapPin, Phone, CreditCard, Truck, Shield, RotateCcw } from "lucide-react";
+import { Instagram, Facebook, MessageCircle, Mail, MapPin, Phone, CreditCard, Truck, Shield, RotateCcw } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -60,7 +60,7 @@ export default function Footer() {
                 <Facebook className="w-4 h-4" />
               </a>
               <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#D4A853] transition-colors">
-                <Twitter className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4" />
               </a>
             </div>
           </div>
