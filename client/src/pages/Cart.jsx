@@ -77,7 +77,8 @@ export default function Cart() {
                         <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(product._id, item.quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center hover:bg-stone-50 text-sm"
+                          disabled={item.quantity >= product.stock}
+                          className="w-8 h-8 flex items-center justify-center hover:bg-stone-50 text-sm disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           +
                         </button>
