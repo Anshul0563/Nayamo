@@ -1,8 +1,8 @@
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const asyncHandler = require("../utils/asyncHandler");
+const logger = require("../config/logger");
 
 // 🔐 Generate Access Token (short-lived)
 const generateAccessToken = (user) => {
@@ -17,14 +17,17 @@ const generateAccessToken = (user) => {
 const generateRefreshToken = (user) => {
   return jwt.sign(
     { id: user._id, type: "refresh" },
-    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+    process.env.JWT_REFRESH_SECRET,
     { expiresIn: "7d" }
   );
 };
 
+// Hash token for storage
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
+
 // Password validation - strong requirements
 const isPasswordStrong = (password) => {
-  // Min 8 chars, at least 1 uppercase, 1 lowercase, 1 number, 1 special char
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return regex.test(password);
 };
@@ -33,7 +36,6 @@ const isPasswordStrong = (password) => {
 exports.register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
-  // Validation
   if (!name || !email || !password) {
     res.status(400);
     throw new Error("All fields are required");
@@ -51,29 +53,33 @@ exports.register = asyncHandler(async (req, res) => {
     );
   }
 
-  // Check user exists
   const userExist = await User.findOne({ email: email.toLowerCase() });
   if (userExist) {
     res.status(400);
     throw new Error("User already exists");
   }
 
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 12);
-
-  // Create user with email verification token
   const verificationToken = crypto.randomBytes(32).toString("hex");
-  
+
   const user = await User.create({
     name: name.trim(),
     email: email.toLowerCase().trim(),
-    password: hashedPassword,
+    password,
     emailVerificationToken: crypto.createHash("sha256").update(verificationToken).digest("hex"),
-    emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+    emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
   });
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
+  const tokenHash = hashToken(refreshToken);
+
+  user.refreshTokens.push({
+    tokenHash,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+  await user.save();
+
+  logger.info(`User registered: ${user.email}`);
 
   res.status(201).json({
     success: true,
@@ -94,13 +100,11 @@ exports.register = asyncHandler(async (req, res) => {
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Validation
   if (!email || !password) {
     res.status(400);
     throw new Error("Email and password are required");
   }
 
-  // Find user (include password for comparison)
   const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
 
   if (!user) {
@@ -108,14 +112,15 @@ exports.login = asyncHandler(async (req, res) => {
     throw new Error("Invalid email or password");
   }
 
-  // Check if user is active
   if (!user.isActive) {
     res.status(401);
     throw new Error("Account is deactivated");
   }
 
-  // Check password
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await user.comparePassword
+    ? await user.comparePassword(password)
+    : require("bcryptjs").compare(password, user.password);
+
   if (!isMatch) {
     res.status(401);
     throw new Error("Invalid email or password");
@@ -123,6 +128,19 @@ exports.login = asyncHandler(async (req, res) => {
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
+  const tokenHash = hashToken(refreshToken);
+
+  // Limit stored refresh tokens to 5 per user
+  if (user.refreshTokens.length >= 5) {
+    user.refreshTokens = user.refreshTokens.slice(-4);
+  }
+  user.refreshTokens.push({
+    tokenHash,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+  await user.save();
+
+  logger.info(`User logged in: ${user.email}`);
 
   res.json({
     success: true,
@@ -149,8 +167,8 @@ exports.refreshToken = asyncHandler(async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
-    
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
     if (decoded.type !== "refresh") {
       res.status(401);
       throw new Error("Invalid token type");
@@ -162,8 +180,32 @@ exports.refreshToken = asyncHandler(async (req, res) => {
       throw new Error("User not found or inactive");
     }
 
+    // Verify token exists in user's stored tokens
+    const tokenHash = hashToken(refreshToken);
+    const tokenExists = user.refreshTokens.some(
+      (t) => t.tokenHash === tokenHash && t.expiresAt > new Date()
+    );
+
+    if (!tokenExists) {
+      res.status(401);
+      throw new Error("Refresh token revoked or expired");
+    }
+
+    // Remove old token and issue new one (rotation)
+    user.refreshTokens = user.refreshTokens.filter((t) => t.tokenHash !== tokenHash);
+
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
+    const newTokenHash = hashToken(newRefreshToken);
+
+    if (user.refreshTokens.length >= 5) {
+      user.refreshTokens = user.refreshTokens.slice(-4);
+    }
+    user.refreshTokens.push({
+      tokenHash: newTokenHash,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+    await user.save();
 
     res.json({
       success: true,
@@ -176,9 +218,42 @@ exports.refreshToken = asyncHandler(async (req, res) => {
   }
 });
 
+// 🚪 LOGOUT
+exports.logout = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+  const user = await User.findById(req.user._id);
+
+  if (refreshToken) {
+    const tokenHash = hashToken(refreshToken);
+    user.refreshTokens = user.refreshTokens.filter((t) => t.tokenHash !== tokenHash);
+    await user.save();
+  }
+
+  logger.info(`User logged out: ${user.email}`);
+
+  res.json({
+    success: true,
+    message: "Logged out successfully",
+  });
+});
+
+// 🚪 LOGOUT ALL DEVICES
+exports.logoutAll = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  user.refreshTokens = [];
+  await user.save();
+
+  logger.info(`User logged out all devices: ${user.email}`);
+
+  res.json({
+    success: true,
+    message: "Logged out from all devices successfully",
+  });
+});
+
 // 👤 GET PROFILE
 exports.getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
+  const user = await User.findById(req.user._id).select("-password -refreshTokens");
 
   if (!user) {
     res.status(404);
