@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { body } = require("express-validator");
 
-const { register, login, getProfile, refreshToken } = require("../controllers/authController");
+const { register, login, getProfile, refreshToken, logout, logoutAll } = require("../controllers/authController");
 const protect = require("../middleware/authMiddleware");
 const validate = require("../middleware/validateMiddleware");
 
@@ -47,9 +47,18 @@ const refreshValidation = [
     .withMessage("Refresh token is required"),
 ];
 
+const logoutValidation = [
+  body("refreshToken")
+    .optional()
+    .notEmpty()
+    .withMessage("Refresh token cannot be empty"),
+];
+
 router.post("/register", registerValidation, validate, register);
 router.post("/login", loginValidation, validate, login);
 router.post("/refresh", refreshValidation, validate, refreshToken);
+router.post("/logout", protect, logoutValidation, validate, logout);
+router.post("/logout-all", protect, logoutAll);
 router.get("/profile", protect, getProfile);
 
 module.exports = router;

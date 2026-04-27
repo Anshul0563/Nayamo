@@ -2,6 +2,7 @@ const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const mongoose = require("mongoose");
+const logger = require("../config/logger");
 
 // PLACE ORDER (with transaction)
 exports.placeOrder = async (userId, data) => {
@@ -35,15 +36,6 @@ exports.placeOrder = async (userId, data) => {
   session.startTransaction();
 
   try {
-    // Check for duplicate order using idempotency key INSIDE transaction
-    if (idempotencyKey) {
-      const existingOrder = await Order.findOne({ idempotencyKey }).session(session).lean();
-      if (existingOrder) {
-        await session.commitTransaction();
-        return existingOrder;
-      }
-    }
-
     let total = 0;
     const orderItems = [];
 
@@ -63,21 +55,33 @@ exports.placeOrder = async (userId, data) => {
       total += product.price * item.quantity;
     }
 
-    // Create order
-    const order = await Order.create(
-      [
-        {
-          user: userId,
-          items: orderItems,
-          totalPrice: total,
-          address: address.trim(),
-          phone,
-          paymentMethod: paymentMethod || "cod",
-          idempotencyKey: idempotencyKey || null,
-        },
-      ],
-      { session }
-    );
+    // Create order with idempotency key (unique index handles race conditions)
+    let order;
+    try {
+      [order] = await Order.create(
+        [
+          {
+            user: userId,
+            items: orderItems,
+            totalPrice: total,
+            address: address.trim(),
+            phone,
+            paymentMethod: paymentMethod || "cod",
+            idempotencyKey: idempotencyKey || null,
+          },
+        ],
+        { session }
+      );
+    } catch (err) {
+      if (err.code === 11000 && err.keyPattern?.idempotencyKey) {
+        // Duplicate idempotency key - return existing order
+        await session.abortTransaction();
+        session.endSession();
+        logger.info(`Duplicate order prevented for idempotencyKey: ${idempotencyKey}`);
+        return Order.findOne({ idempotencyKey }).lean();
+      }
+      throw err;
+    }
 
     // Clear cart
     cart.items = [];
@@ -86,10 +90,10 @@ exports.placeOrder = async (userId, data) => {
     // Commit transaction
     await session.commitTransaction();
 
-    return order[0]; // create with array returns array
+    logger.info(`Order placed: ${order._id} by user ${userId}`);
 
+    return order;
   } catch (error) {
-    // Abort transaction on error
     await session.abortTransaction();
     throw error;
   } finally {
@@ -100,7 +104,7 @@ exports.placeOrder = async (userId, data) => {
 // USER ORDERS with pagination
 exports.getUserOrders = async (userId, page = 1, limit = 10) => {
   const skip = (page - 1) * limit;
-  
+
   const [orders, totalItems] = await Promise.all([
     Order.find({ user: userId })
       .sort({ createdAt: -1 })
@@ -109,7 +113,8 @@ exports.getUserOrders = async (userId, page = 1, limit = 10) => {
       .populate({
         path: "items.product",
         select: "title price images category",
-      }),
+      })
+      .lean(),
     Order.countDocuments({ user: userId }),
   ]);
 
@@ -135,12 +140,10 @@ exports.getSingleOrder = async (userId, orderId) => {
 
 // CANCEL ORDER (with stock restore)
 exports.cancelOrder = async (userId, orderId) => {
-  // Start transaction first
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    // Fetch order INSIDE transaction to prevent race conditions
     const order = await Order.findOne({
       _id: orderId,
       user: userId,
@@ -173,6 +176,8 @@ exports.cancelOrder = async (userId, orderId) => {
 
     await session.commitTransaction();
 
+    logger.info(`Order cancelled: ${order._id} by user ${userId}`);
+
     return order;
   } catch (error) {
     await session.abortTransaction();
@@ -189,7 +194,8 @@ exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
 
   if (status) query.status = status;
   if (search) {
-    const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapeRegex = require("../utils/escapeRegex");
+    const safeSearch = escapeRegex(search);
     query.$or = [
       { address: { $regex: safeSearch, $options: "i" } },
       { phone: { $regex: safeSearch, $options: "i" } },
@@ -205,7 +211,8 @@ exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
       .populate({
         path: "items.product",
         select: "title price images",
-      }),
+      })
+      .lean(),
     Order.countDocuments(query),
   ]);
 

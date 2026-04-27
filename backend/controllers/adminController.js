@@ -1,9 +1,11 @@
 const orderService = require("../services/orderService");
 const adminService = require("../services/adminService");
+const productService = require("../services/productService");
 const cloudinary = require("../config/cloudinary");
 const Product = require("../models/Product");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
+const logger = require("../config/logger");
 
 const validStatuses = [
   "pending",
@@ -61,6 +63,8 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Order not found");
   }
+
+  logger.info(`Order ${req.params.id} status updated to ${status}`);
 
   res.json({
     success: true,
@@ -138,6 +142,11 @@ exports.updateProduct = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
+  // Invalidate cache
+  await productService.invalidateProductCache();
+
+  logger.info(`Product updated: ${req.params.id}`);
+
   res.json({
     success: true,
     message: "Product updated",
@@ -154,19 +163,31 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
 
   const product = await Product.findById(req.params.id);
 
-  // Delete images from Cloudinary
-  if (product && product.images && product.images.length > 0) {
-    for (const url of product.images) {
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  // Delete images from Cloudinary using stored publicIds
+  if (product.images && product.images.length > 0) {
+    for (const img of product.images) {
       try {
-        const publicId = url.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(`nayamo-products/${publicId}`);
+        if (img.publicId) {
+          await cloudinary.uploader.destroy(img.publicId);
+          logger.info(`Deleted image from Cloudinary: ${img.publicId}`);
+        }
       } catch (err) {
-        console.error("Failed to delete image from Cloudinary:", err.message);
+        logger.error("Failed to delete image from Cloudinary:", err.message);
       }
     }
   }
 
   await adminService.deleteProduct(req.params.id);
+
+  // Invalidate cache
+  await productService.invalidateProductCache();
+
+  logger.info(`Product deleted: ${req.params.id}`);
 
   res.json({
     success: true,
@@ -194,5 +215,6 @@ exports.uploadProductImage = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     url: result.secure_url,
+    publicId: result.public_id,
   });
 });

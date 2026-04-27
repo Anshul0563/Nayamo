@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const Order = require("../models/Order");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
+const logger = require("../config/logger");
 
 // Initialize Razorpay if keys are available
 let razorpay;
@@ -12,9 +13,10 @@ try {
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
+    logger.info("Razorpay initialized");
   }
 } catch (err) {
-  console.warn("Razorpay not initialized:", err.message);
+  logger.warn("Razorpay not initialized:", err.message);
 }
 
 // CREATE PAYMENT ORDER
@@ -57,7 +59,7 @@ exports.createPaymentOrder = asyncHandler(async (req, res) => {
   }
 
   // Fallback: mock order for development (NO REAL PAYMENT)
-  console.warn("Razorpay not configured - returning mock order");
+  logger.warn("Razorpay not configured - returning mock order");
   const fakeOrderId = "order_" + Date.now();
 
   res.json({
@@ -71,7 +73,7 @@ exports.createPaymentOrder = asyncHandler(async (req, res) => {
   });
 });
 
-// VERIFY PAYMENT
+// VERIFY PAYMENT (Client-side callback - additional server-side webhook at /webhook/razorpay)
 exports.verifyPayment = asyncHandler(async (req, res) => {
   const { orderId, razorpayPaymentId, razorpaySignature, mongoOrderId } = req.body;
 
@@ -127,6 +129,8 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
   order.razorpaySignature = razorpaySignature;
 
   await order.save();
+
+  logger.info(`Payment verified for order: ${order._id}`);
 
   res.json({
     success: true,

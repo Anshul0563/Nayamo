@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
 const hpp = require("hpp");
 const morgan = require("morgan");
 const compression = require("compression");
@@ -9,6 +10,8 @@ require("dotenv").config();
 
 const connectDB = require("./config/db");
 const mongoose = require("mongoose");
+const logger = require("./config/logger");
+const redis = require("./config/redis");
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 
 // Route imports
@@ -74,6 +77,7 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.path === "/health", // Skip rate limit for health checks
 });
 app.use(limiter);
 
@@ -107,82 +111,33 @@ app.use("/api/v1/payment", paymentLimiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// Custom MongoDB sanitization (express-mongo-sanitize v2 is incompatible with Express 5)
-const sanitizeMongo = (obj) => {
-  if (typeof obj === "string") {
-    // Remove MongoDB operators like $gt, $lt, $ne, etc.
-    return obj.replace(/\$[a-zA-Z]+/g, "");
-  }
-  if (Array.isArray(obj)) {
-    return obj.map(sanitizeMongo);
-  }
-  if (obj && typeof obj === "object") {
-    const clean = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        // Remove keys that start with $ (MongoDB operators)
-        if (!key.startsWith("$")) {
-          clean[key] = sanitizeMongo(obj[key]);
-        }
-      }
-    }
-    return clean;
-  }
-  return obj;
-};
-
-app.use((req, res, next) => {
-  if (req.body) req.body = sanitizeMongo(req.body);
-  if (req.params) req.params = sanitizeMongo(req.params);
-  next();
-});
-
-// Custom XSS sanitization middleware (Express 5 compatible)
-const sanitizeXSS = (obj) => {
-  if (typeof obj === "string") {
-    return obj
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-      .replace(/<\/?[^>]+(>|$)/g, "");
-  }
-  if (Array.isArray(obj)) {
-    return obj.map(sanitizeXSS);
-  }
-  if (obj && typeof obj === "object") {
-    const clean = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        clean[key] = sanitizeXSS(obj[key]);
-      }
-    }
-    return clean;
-  }
-  return obj;
-};
-
-app.use((req, res, next) => {
-  if (req.body) req.body = sanitizeXSS(req.body);
-  if (req.params) req.params = sanitizeXSS(req.params);
-  next();
-});
+// Data sanitization against NoSQL query injection (production-grade)
+app.use(mongoSanitize());
 
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
 
 // Request logging
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev", {
+  stream: {
+    write: (message) => logger.info(message.trim()),
+  },
+}));
 
 // ============================================
 // HEALTH CHECK
 // ============================================
 app.get("/health", async (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
-  
+  const redisStatus = redis.status === "ready" ? "connected" : "disconnected";
+
   res.status(200).json({
     success: true,
     message: "Nayamo API is healthy",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
     database: dbStatus,
+    redis: redisStatus,
     uptime: process.uptime(),
   });
 });
@@ -204,6 +159,43 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/delhivery", delhiveryRoutes);
 
+// Razorpay webhook (must be raw body for signature verification)
+app.post("/webhook/razorpay", express.raw({ type: "application/json" }), (req, res) => {
+  const crypto = require("crypto");
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+  if (!secret) {
+    logger.error("Razorpay webhook secret not configured");
+    return res.status(500).send("Webhook secret not configured");
+  }
+
+  const shasum = crypto.createHmac("sha256", secret);
+  shasum.update(req.body);
+  const digest = shasum.digest("hex");
+
+  if (digest !== req.headers["x-razorpay-signature"]) {
+    logger.warn("Invalid Razorpay webhook signature");
+    return res.status(400).send("Invalid signature");
+  }
+
+  const event = JSON.parse(req.body);
+  logger.info(`Razorpay webhook received: ${event.event}`);
+
+  // Handle payment captured event
+  if (event.event === "payment.captured") {
+    const payment = event.payload.payment.entity;
+    // Update order status asynchronously
+    const Order = require("./models/Order");
+    Order.findOneAndUpdate(
+      { razorpayOrderId: payment.order_id },
+      { paymentStatus: "paid", isPaid: true, paidAt: new Date(), razorpayPaymentId: payment.id },
+      { new: true }
+    ).catch((err) => logger.error("Webhook order update failed:", err.message));
+  }
+
+  res.status(200).send("OK");
+});
+
 // ============================================
 // ERROR HANDLING (Must be last)
 // ============================================
@@ -219,6 +211,7 @@ const startServer = async () => {
     const requiredEnvVars = [
       "MONGO_URI",
       "JWT_SECRET",
+      "JWT_REFRESH_SECRET",
       "CLOUDINARY_CLOUD_NAME",
       "CLOUDINARY_API_KEY",
       "CLOUDINARY_API_SECRET",
@@ -231,36 +224,32 @@ const startServer = async () => {
       );
     }
 
-    // JWT_REFRESH_SECRET fallback (uses JWT_SECRET if not set - not ideal for production but prevents crash)
-    if (!process.env.JWT_REFRESH_SECRET) {
-      console.warn("⚠️  JWT_REFRESH_SECRET not set, falling back to JWT_SECRET. Set a separate JWT_REFRESH_SECRET for production.");
-      process.env.JWT_REFRESH_SECRET = process.env.JWT_SECRET;
-    }
-
     await connectDB();
 
     const server = app.listen(PORT, () => {
-      console.log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
+      logger.info(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
     });
 
     // Graceful shutdown handling
     const gracefulShutdown = (signal) => {
-      console.log(`\n${signal} received. Shutting down gracefully...`);
+      logger.info(`${signal} received. Shutting down gracefully...`);
       server.close(async () => {
-        console.log("HTTP server closed.");
+        logger.info("HTTP server closed.");
         try {
           await mongoose.connection.close(false);
-          console.log("MongoDB connection closed.");
+          logger.info("MongoDB connection closed.");
+          await redis.quit();
+          logger.info("Redis connection closed.");
           process.exit(0);
         } catch (err) {
-          console.error("Error during shutdown:", err);
+          logger.error("Error during shutdown:", err);
           process.exit(1);
         }
       });
 
       // Force shutdown after 10 seconds
       setTimeout(() => {
-        console.error("Forced shutdown after timeout.");
+        logger.error("Forced shutdown after timeout.");
         process.exit(1);
       }, 10000);
     };
@@ -270,22 +259,22 @@ const startServer = async () => {
 
     // Handle uncaught exceptions
     process.on("uncaughtException", (err) => {
-      console.error("UNCAUGHT EXCEPTION! Shutting down...");
-      console.error(err.name, err.message);
+      logger.error("UNCAUGHT EXCEPTION! Shutting down...");
+      logger.error(err.name, err.message);
       process.exit(1);
     });
 
     // Handle unhandled promise rejections
     process.on("unhandledRejection", (err) => {
-      console.error("UNHANDLED REJECTION! Shutting down...");
-      console.error(err.name, err.message);
+      logger.error("UNHANDLED REJECTION! Shutting down...");
+      logger.error(err.name, err.message);
       server.close(() => {
         process.exit(1);
       });
     });
 
   } catch (error) {
-    console.error("Server Start Error:", error.message);
+    logger.error("Server Start Error:", error.message);
     process.exit(1);
   }
 };

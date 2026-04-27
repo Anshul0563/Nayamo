@@ -1,5 +1,6 @@
 const api = require("../utils/axiosInstance");
 const asyncHandler = require("../utils/asyncHandler");
+const logger = require("../config/logger");
 
 // Generate Waybill
 exports.generateWaybill = asyncHandler(async (req, res) => {
@@ -34,6 +35,13 @@ exports.createShipment = asyncHandler(async (req, res) => {
     throw new Error("Phone must be 10 digits");
   }
 
+  // Validate amount
+  const totalAmount = Number(amount);
+  if (isNaN(totalAmount) || totalAmount < 0) {
+    res.status(400);
+    throw new Error("Invalid amount");
+  }
+
   const shipmentData = {
     shipments: [{
       name: name.trim(),
@@ -45,7 +53,7 @@ exports.createShipment = asyncHandler(async (req, res) => {
       phone: phone.trim(),
       order: orderId,
       payment_mode: paymentMode || "Prepaid",
-      total_amount: amount,
+      total_amount: totalAmount,
       quantity: "1",
       weight: "0.5"
     }],
@@ -55,6 +63,9 @@ exports.createShipment = asyncHandler(async (req, res) => {
   };
 
   const response = await api.post("/api/cmu/create.json", shipmentData);
+  
+  logger.info(`Shipment created for order: ${orderId}`);
+
   res.json({
     success: true,
     data: response.data,
@@ -95,6 +106,8 @@ exports.cancelShipment = asyncHandler(async (req, res) => {
     waybill,
     cancellation: true
   });
+
+  logger.info(`Shipment cancelled: ${waybill}`);
 
   res.json({
     success: true,

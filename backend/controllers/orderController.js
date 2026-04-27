@@ -34,12 +34,23 @@ exports.placeOrder = asyncHandler(async (req, res) => {
 
 // USER ORDERS
 exports.getOrders = asyncHandler(async (req, res) => {
-  const orders = await orderService.getUserOrders(req.user._id);
+  const { page = 1, limit = 10 } = req.query;
+
+  const result = await orderService.getUserOrders(
+    req.user._id,
+    Number(page),
+    Number(limit)
+  );
 
   res.json({
     success: true,
-    count: orders.length,
-    data: orders,
+    data: result.orders,
+    pagination: {
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      totalItems: result.totalItems,
+      itemsPerPage: result.itemsPerPage,
+    },
   });
 });
 

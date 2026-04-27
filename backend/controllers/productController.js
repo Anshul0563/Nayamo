@@ -1,6 +1,7 @@
 const productService = require("../services/productService");
 const cloudinary = require("../config/cloudinary");
 const asyncHandler = require("../utils/asyncHandler");
+const logger = require("../config/logger");
 
 // ADD PRODUCT
 exports.createProduct = asyncHandler(async (req, res) => {
@@ -35,7 +36,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
           { quality: "auto", fetch_format: "auto" },
         ],
       });
-      images.push(result.secure_url);
+      images.push({ url: result.secure_url, publicId: result.public_id });
     }
   }
 
@@ -47,6 +48,8 @@ exports.createProduct = asyncHandler(async (req, res) => {
     stock: stock ? Number(stock) : 0,
     images,
   });
+
+  logger.info(`Product created: ${product._id}`);
 
   res.status(201).json({
     success: true,

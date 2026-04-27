@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const logger = require("../config/logger");
 
 /**
  * Authentication Middleware
@@ -9,7 +10,7 @@ const protect = async (req, res, next) => {
   try {
     // Validate JWT_SECRET exists
     if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET is not defined in environment variables");
+      logger.error("JWT_SECRET is not defined in environment variables");
       return res.status(500).json({
         success: false,
         message: "Server configuration error",
@@ -45,8 +46,8 @@ const protect = async (req, res, next) => {
       });
     }
 
-    // Fetch user from database (excludes password)
-    const user = await User.findById(decoded.id).select("-password");
+    // Fetch user from database (excludes password and refresh tokens)
+    const user = await User.findById(decoded.id).select("-password -refreshTokens");
 
     if (!user) {
       return res.status(401).json({
@@ -60,6 +61,14 @@ const protect = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Account is deactivated",
+      });
+    }
+
+    // Check if password was changed after token was issued
+    if (user.passwordChangedAt && decoded.iat * 1000 < user.passwordChangedAt.getTime()) {
+      return res.status(401).json({
+        success: false,
+        message: "Password recently changed. Please login again.",
       });
     }
 
@@ -81,6 +90,7 @@ const protect = async (req, res, next) => {
       });
     }
 
+    logger.error("Auth middleware error:", error.message);
     return res.status(401).json({
       success: false,
       message: "Not authorized, token failed",
