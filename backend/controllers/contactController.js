@@ -90,3 +90,11 @@ const sendContactMessage = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Your message has been sent successfully. We will get back to you soon!",
+  });
+});
+
+module.exports = {
+  sendContactMessage,
+};
+

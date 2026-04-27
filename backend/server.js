@@ -23,6 +23,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const delhiveryRoutes = require("./routes/delhiveryRoutes");
+const contactRoutes = require("./routes/contactRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -158,6 +159,20 @@ app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/delhivery", delhiveryRoutes);
+
+// Stricter rate limiting for contact form
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: {
+    success: false,
+    message: "Too many contact form submissions. Please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api/v1/contact", contactLimiter);
+app.use("/api/v1/contact", contactRoutes);
 
 // Webhook rate limiter
 const webhookLimiter = rateLimit({

@@ -136,5 +136,10 @@ export const paymentAPI = {
   verifyPayment: (data) => apiClient.post("/payment/verify", data),
 };
 
+// Contact APIs
+export const contactAPI = {
+  sendMessage: (data) => apiClient.post("/contact", data),
+};
+
 export default apiClient;
 
