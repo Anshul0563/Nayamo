@@ -162,7 +162,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   /* Rose gold text gradient */
   .nayamo-text-rose {
     background: linear-gradient(135deg, var(--rose-gold-bright) 0%, var(--rose-gold) 100%);
