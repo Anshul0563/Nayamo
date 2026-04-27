@@ -2,109 +2,222 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Dark Theme Color System */
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #0F0F0F;
+  --bg-tertiary: #141414;
+  --bg-elevated: #1A1A1C;
+  --bg-card: #1E1E22;
+  --bg-card-hover: #242428;
+  
+  --gold: #D4A853;
+  --gold-bright: #E8C878;
+  --gold-soft: rgba(212, 168, 83, 0.15);
+  --gold-glow: rgba(212, 168, 83, 0.3);
+  
+  --rose-gold: #D4A5A5;
+  --rose-gold-bright: #E8C4C4;
+  --rose-gold-soft: rgba(212, 165, 165, 0.15);
+  
+  --text-primary: #FFFFFF;
+  --text-secondary: #E8E8E8;
+  --text-muted: #9CA3AF;
+  --text-tertiary: #6B7280;
+  
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-light: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-gold: rgba(212, 168, 83, 0.25);
+}
 
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
-    background-color: #FFFAF7;
-    color: #2C2C2C;
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
+  
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
-  }
-
-  ::selection {
-    background-color: #D4A853;
-    color: white;
+    color: var(--text-primary);
   }
 }
 
 @layer components {
   .nayamo-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
+  /* Primary CTA — Gold filled with glow */
   .nayamo-btn-primary {
-    @apply bg-[#D4A853] hover:bg-[#C49A48] text-white font-medium px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg;
+    @apply px-8 py-3.5 rounded-full font-medium text-sm tracking-wide transition-all duration-300;
+    background: linear-gradient(135deg, var(--gold) 0%, #C9963B 100%);
+    color: #0A0A0A;
+    box-shadow: 0 4px 20px rgba(212, 168, 83, 0.25), 0 0 0 1px rgba(212, 168, 83, 0.3);
+  }
+  .nayamo-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(212, 168, 83, 0.35), 0 0 0 1px rgba(212, 168, 83, 0.4);
+  }
+  .nayamo-btn-primary:active {
+    transform: translateY(0);
   }
 
+  /* Secondary CTA — Dark with gold border */
   .nayamo-btn-secondary {
-    @apply border border-[#D4A853] text-[#D4A853] hover:bg-[#FFF8F0] font-medium px-6 py-3 rounded-2xl transition-all duration-300;
+    @apply px-8 py-3.5 rounded-full font-medium text-sm tracking-wide transition-all duration-300;
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--border-gold);
+    box-shadow: inset 0 0 20px rgba(212, 168, 83, 0.05);
+  }
+  .nayamo-btn-secondary:hover {
+    background: var(--gold-soft);
+    border-color: var(--gold);
+    box-shadow: inset 0 0 30px rgba(212, 168, 83, 0.1), 0 4px 20px rgba(212, 168, 83, 0.15);
+    transform: translateY(-2px);
   }
 
+  /* Rose gold CTA */
   .nayamo-btn-rose {
-    @apply bg-[#D4A5A5] hover:bg-[#C99494] text-white font-medium px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg;
+    @apply px-8 py-3.5 rounded-full font-medium text-sm tracking-wide transition-all duration-300;
+    background: linear-gradient(135deg, var(--rose-gold) 0%, #C48888 100%);
+    color: #0A0A0A;
+    box-shadow: 0 4px 20px rgba(212, 165, 165, 0.25);
+  }
+  .nayamo-btn-rose:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(212, 165, 165, 0.35);
   }
 
-  .nayamo-card {
-    @apply bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-[#F0E6E0];
+  /* Ghost button */
+  .nayamo-btn-ghost {
+    @apply px-6 py-3 rounded-full font-medium text-sm transition-all duration-300;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+  }
+  .nayamo-btn-ghost:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-medium);
+    color: var(--text-primary);
   }
 
-  .nayamo-card-soft {
-    @apply bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300 border border-white/50;
-  }
-
+  /* Inputs */
   .nayamo-input {
-    @apply w-full px-4 py-3 rounded-xl border border-[#E8DDD6] focus:border-[#D4A853] focus:ring-2 focus:ring-[#D4A853]/20 outline-none transition-all duration-200 bg-white;
+    @apply w-full px-5 py-3.5 rounded-xl text-sm outline-none transition-all duration-300;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+  }
+  .nayamo-input::placeholder {
+    color: var(--text-tertiary);
+  }
+  .nayamo-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.1), 0 0 20px rgba(212, 168, 83, 0.05);
   }
 
-  .nayamo-section-title {
-    @apply text-3xl md:text-4xl lg:text-5xl font-semibold text-[#2C2C2C] mb-3 tracking-tight;
+  /* Cards */
+  .nayamo-card {
+    @apply rounded-2xl overflow-hidden transition-all duration-500;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+  .nayamo-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-light);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 168, 83, 0.08);
+    transform: translateY(-4px);
   }
 
-  .nayamo-section-subtitle {
-    @apply text-[#8C7B73] text-base md:text-lg;
-  }
-
-  .nayamo-gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#D4A853] to-[#D4A5A5];
-  }
-
+  /* Glass card */
   .nayamo-glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/40;
-  }
-}
-
-@layer utilities {
-  .text-gold {
-    color: #D4A853;
-  }
-  .bg-gold {
-    background-color: #D4A853;
-  }
-  .border-gold {
-    border-color: #D4A853;
-  }
-  .text-rose-gold {
-    color: #D4A5A5;
-  }
-  .bg-rose-gold {
-    background-color: #D4A5A5;
-  }
-  .bg-ivory {
-    background-color: #FFFAF7;
-  }
-  .bg-blush {
-    background-color: #FFF0F3;
-  }
-  .bg-champagne {
-    background-color: #F7E7CE;
+    background: rgba(30, 30, 34, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-light);
   }
 
-  /* Shimmer loading animation */
-  .shimmer {
-    background: linear-gradient(90deg, #f0e6e0 25%, #faf5f2 50%, #f0e6e0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+  /* Section titles */
+  .nayamo-section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+    color: var(--text-primary);
+  }
+  .nayamo-section-subtitle {
+    @apply text-base md:text-lg mt-3 max-w-xl;
+    color: var(--text-muted);
   }
 
+  /* Gold text gradient */
+  .nayamo-text-gold {
+    background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 50%, #C9963B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Rose gold text gradient */
+  .nayamo-text-rose {
+    background: linear-gradient(135deg, var(--rose-gold-bright) 0%, var(--rose-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Shimmer effect */
   @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .nayamo-shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(212,168,83,0.08) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  /* Glow pulse */
+  @keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(212,168,83,0.15); }
+    50% { box-shadow: 0 0 40px rgba(212,168,83,0.3); }
+  }
+  .nayamo-glow-pulse {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  /* Fade up animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .nayamo-animate-fade-up {
+    animation: fadeUp 0.8s ease-out forwards;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-medium);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(212, 168, 83, 0.3);
+    color: var(--text-primary);
   }
 }
-
