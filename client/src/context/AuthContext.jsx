@@ -10,13 +10,22 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try { setUser(JSON.parse(savedUser)); } catch { /* ignore */ }
+    }
     if (token) {
       authAPI
         .getProfile()
-        .then((res) => setUser(res.data.data))
+        .then((res) => {
+          setUser(res.data?.data);
+          localStorage.setItem("user", JSON.stringify(res.data?.data));
+        })
         .catch(() => {
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
+          localStorage.removeItem("user");
+          setUser(null);
         })
         .finally(() => setLoading(false));
     } else {
@@ -59,11 +68,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(async () => {
-    try {
-      await authAPI.logout();
-    } catch (e) {
-      // ignore
-    }
+    // Backend has no logout endpoint - just clear local state
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
