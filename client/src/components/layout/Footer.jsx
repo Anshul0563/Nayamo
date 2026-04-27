@@ -139,13 +139,13 @@ export default function Footer() {
                 <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
                   <MapPin className="w-3.5 h-3.5 text-[#D4A853]" />
                 </div>
-                <span className="leading-relaxed">Nayamo Earrings, Mumbai, India</span>
+                <span className="leading-relaxed">Nayamo Earrings, Delhi, India</span>
               </li>
               <li className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center flex-shrink-0">
                   <Phone className="w-3.5 h-3.5 text-[#D4A853]" />
                 </div>
-                <span>+91 98765 43210</span>
+                <span>+91 9718176159</span>
               </li>
               <li className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center flex-shrink-0">
