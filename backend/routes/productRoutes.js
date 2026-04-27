@@ -33,8 +33,8 @@ const productValidation = [
   body("category")
     .notEmpty()
     .withMessage("Category is required")
-    .isIn(["gold", "silver", "diamond"])
-    .withMessage("Category must be gold, silver, or diamond"),
+    .isIn(["party", "daily", "traditional", "western", "statement", "bridal"])
+    .withMessage("Category must be party, daily, traditional, western, statement, or bridal"),
   body("stock")
     .optional()
     .isInt({ min: 0 })

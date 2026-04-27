@@ -32,9 +32,53 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Category is required"],
       enum: {
-        values: ["gold", "silver", "diamond"],
-        message: "Category must be gold, silver, or diamond",
+        values: ["party", "daily", "traditional", "western", "statement", "bridal"],
+        message: "Category must be party, daily, traditional, western, statement, or bridal",
       },
+    },
+
+    jewelleryType: {
+      type: String,
+      default: "earrings",
+      enum: {
+        values: ["earrings", "necklaces", "rings", "bracelets", "bangles", "sets", "other"],
+        message: "Invalid jewellery type",
+      },
+    },
+
+    originalPrice: {
+      type: Number,
+      min: [0, "Original price cannot be negative"],
+    },
+
+    material: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Material cannot exceed 100 characters"],
+    },
+
+    color: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Color cannot exceed 100 characters"],
+    },
+
+    finish: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Finish cannot exceed 100 characters"],
+    },
+
+    occasion: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Occasion cannot exceed 100 characters"],
+    },
+
+    style: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Style cannot exceed 100 characters"],
     },
 
     stock: {
