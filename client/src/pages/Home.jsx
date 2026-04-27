@@ -83,8 +83,10 @@ export default function Home() {
                   <p className="font-medium text-sm text-stone-800">{badge.title}</p>
                   <p className="text-xs text-stone-500">{badge.desc}</p>
                 </div>
+              </div>
             ))}
           </div>
+        </div>
       </section>
 
       {/* Categories */}

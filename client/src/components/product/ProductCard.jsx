@@ -76,6 +76,7 @@ export default function ProductCard({ product }) {
             <span className="text-xs text-red-500 font-medium">Out of Stock</span>
           )}
         </div>
+      </div>
     </div>
   );
 }
