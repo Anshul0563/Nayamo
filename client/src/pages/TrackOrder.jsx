@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import { Search, Package, MapPin } from "lucide-react";
+import { Search, Package, Truck, CheckCircle, MapPin, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { orderAPI } from "../services/api";
 import Loader from "../components/common/Loader";
 
-const statusSteps = [
-  { key: "pending", label: "Order Placed" },
-  { key: "confirmed", label: "Confirmed" },
-  { key: "ready_to_ship", label: "Ready to Ship" },
-  { key: "pickup_requested", label: "Pickup Requested" },
-  { key: "in_transit", label: "In Transit" },
-  { key: "out_for_delivery", label: "Out for Delivery" },
-  { key: "delivered", label: "Delivered" },
+const trackingSteps = [
+  { status: "pending", label: "Order Placed", icon: Clock },
+  { status: "confirmed", label: "Confirmed", icon: CheckCircle },
+  { status: "ready_to_ship", label: "Ready to Ship", icon: Package },
+  { status: "pickup_requested", label: "Pickup Requested", icon: Truck },
+  { status: "in_transit", label: "In Transit", icon: Truck },
+  { status: "out_for_delivery", label: "Out for Delivery", icon: MapPin },
+  { status: "delivered", label: "Delivered", icon: CheckCircle },
 ];
 
 export default function TrackOrder() {
@@ -22,131 +23,153 @@ export default function TrackOrder() {
   const handleTrack = async (e) => {
     e.preventDefault();
     if (!orderId.trim()) return;
-
     setLoading(true);
     setError("");
     setOrder(null);
 
     try {
       const res = await orderAPI.getOrderById(orderId.trim());
-      setOrder(res.data?.data);
+      if (res.data?.data) {
+        setOrder(res.data.data);
+      } else {
+        setError("Order not found. Please check the Order ID.");
+      }
     } catch (err) {
-      setError("Order not found. Please check the order ID.");
+      setError("Order not found. Please check the Order ID.");
     } finally {
       setLoading(false);
     }
   };
 
-  const currentStepIndex = order
-    ? statusSteps.findIndex((s) => s.key === order.status)
-    : -1;
+  const getStepIndex = (status) => {
+    return trackingSteps.findIndex((s) => s.status === status);
+  };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
-      <div className="nayamo-container py-8 max-w-2xl mx-auto">
-        <h1 className="text-3xl font-serif font-bold text-white mb-2 text-center">Track Your Order</h1>
-        <p className="text-[#9CA3AF] text-center mb-8">Enter your order ID to check delivery status</p>
+    <div className="min-h-screen bg-[#070708]">
+      <div className="nayamo-container py-10">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-10"
+        >
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">
+            Track Order
+          </h1>
+          <p className="text-[#A1A1AA]">
+            Enter your Order ID to check delivery status
+          </p>
+        </motion.div>
 
-        <form onSubmit={handleTrack} className="flex gap-3 mb-10">
-          <div className="flex-1 relative">
-            <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="nayamo-card p-8 max-w-xl border border-white/[0.04] mb-10"
+        >
+          <form onSubmit={handleTrack} className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#71717A]" />
             <input
               type="text"
-              placeholder="Enter Order ID"
+              placeholder="Enter Order ID (e.g. 64a1b2c3...)"
               value={orderId}
               onChange={(e) => setOrderId(e.target.value)}
-              className="nayamo-input pl-10"
+              className="nayamo-input pl-12 pr-32 py-4"
             />
-          </div>
-          <button type="submit" disabled={loading} className="nayamo-btn-primary px-6 disabled:opacity-50">
-            {loading ? <Loader size={16} /> : <><Search className="w-4 h-4 inline mr-1" /> Track</>}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="absolute right-2 top-1/2 -translate-y-1/2 nayamo-btn-primary text-xs px-5 py-2.5 disabled:opacity-40"
+            >
+              {loading ? <Loader size={16} /> : "Track"}
+            </button>
+          </form>
+          {error && (
+            <p className="mt-4 text-sm text-red-400">{error}</p>
+          )}
+        </motion.div>
 
-        {error && (
-          <div className="nayamo-card p-6 text-center text-[#D4A5A5] mb-6">{error}</div>
-        )}
-
-        {order && (
-          <div className="nayamo-card p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <p className="text-sm text-[#9CA3AF]">Order ID</p>
-                <p className="font-mono font-medium text-white">{order._id?.slice(-8).toUpperCase()}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-[#9CA3AF]">Status</p>
-                <span className="inline-block px-3 py-1 bg-[#D4A853]/10 text-[#D4A853] text-xs font-medium rounded-full capitalize border border-[#D4A853]/20">
-                  {order.status?.replace(/_/g, " ")}
-                </span>
-              </div>
-            </div>
-
-            {/* Progress */}
-            <div className="relative mb-8 overflow-x-auto pb-4">
-              <div className="flex justify-between items-center min-w-[500px]">
-                {statusSteps.map((step, idx) => {
-                  const isActive = idx <= currentStepIndex;
-                  const isCurrent = idx === currentStepIndex;
-                  return (
-                    <div key={step.key} className="flex flex-col items-center relative z-10">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium border-2 transition-colors ${
-                          isActive
-                            ? "bg-gradient-to-r from-[#D4A853] to-[#C9963B] border-[#D4A853] text-[#0A0A0A]"
-                            : "bg-[#1A1A1C] border-white/[0.08] text-[#6B7280]"
-                        } ${isCurrent ? "ring-4 ring-[#D4A853]/20" : ""}`}
-                      >
-                        {idx + 1}
-                      </div>
-                      <span className={`text-[10px] mt-1 text-center w-16 leading-tight ${isActive ? "text-white" : "text-[#6B7280]"}`}>
-                        {step.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="absolute top-4 left-0 right-0 h-0.5 bg-[#1A1A1C] -z-0 mx-4">
-                <div
-                  className="h-full bg-gradient-to-r from-[#D4A853] to-[#C9963B] transition-all"
-                  style={{ width: `${Math.max(0, (currentStepIndex / (statusSteps.length - 1)) * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Details */}
-            <div className="space-y-3 border-t border-white/[0.06] pt-4 text-sm">
-              <div className="flex justify-between">
-                <span className="text-[#9CA3AF]">Order Date</span>
-                <span className="font-medium text-white">{new Date(order.createdAt).toLocaleDateString("en-IN")}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#9CA3AF]">Total Amount</span>
-                <span className="font-semibold text-[#D4A853]">₹{order.totalPrice?.toLocaleString("en-IN")}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#9CA3AF]">Payment Method</span>
-                <span className="font-medium text-white capitalize">{order.paymentMethod}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#9CA3AF]">Payment Status</span>
-                <span className={`font-medium ${order.isPaid ? "text-green-400" : "text-amber-400"}`}>
-                  {order.isPaid ? "Paid" : "Pending"}
-                </span>
-              </div>
-              {order.delhivery?.waybill && (
-                <div className="flex justify-between">
-                  <span className="text-[#9CA3AF]">Tracking Number</span>
-                  <span className="font-mono font-medium text-white">{order.delhivery.waybill}</span>
+        <AnimatePresence>
+          {order && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="nayamo-card p-8 md:p-10 border border-white/[0.04]"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+                <div>
+                  <p className="text-xs text-[#71717A] uppercase tracking-wider mb-1">
+                    Order ID
+                  </p>
+                  <p className="font-mono font-semibold text-white text-lg">
+                    {order._id?.slice(-8).toUpperCase()}
+                  </p>
                 </div>
-              )}
-              <div className="flex items-start gap-2 pt-2">
-                <MapPin className="w-4 h-4 text-[#6B7280] mt-0.5 flex-shrink-0" />
-                <span className="text-[#9CA3AF]">{order.address}</span>
+                <div>
+                  <p className="text-xs text-[#71717A] uppercase tracking-wider mb-1">
+                    Status
+                  </p>
+                  <p className="font-semibold text-white capitalize">
+                    {order.status?.replace(/_/g, " ")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#71717A] uppercase tracking-wider mb-1">
+                    Total
+                  </p>
+                  <p className="font-bold nayamo-text-gold text-lg">
+                    ₹{order.totalPrice?.toLocaleString("en-IN")}
+                  </p>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+
+              {/* Tracking Timeline */}
+              <div className="relative">
+                <div className="absolute left-[19px] top-4 bottom-4 w-[2px] bg-white/[0.06]" />
+                <div className="space-y-6">
+                  {trackingSteps.map((step, i) => {
+                    const currentStepIndex = getStepIndex(order.status);
+                    const isCompleted = i <= currentStepIndex;
+                    const isCurrent = i === currentStepIndex;
+
+                    return (
+                      <div key={step.status} className="flex items-center gap-5 relative">
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 z-10 transition-all ${
+                            isCompleted
+                              ? "bg-gradient-to-br from-[#D4A853] to-[#C9963B] shadow-[0_4px_16px_rgba(212,168,83,0.3)]"
+                              : "bg-[#131316] border border-white/[0.08]"
+                          }`}
+                        >
+                          <step.icon
+                            className={`w-4 h-4 ${
+                              isCompleted ? "text-[#070708]" : "text-[#52525B]"
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <p
+                            className={`font-medium ${
+                              isCompleted ? "text-white" : "text-[#52525B]"
+                            }`}
+                          >
+                            {step.label}
+                          </p>
+                          {isCurrent && (
+                            <p className="text-xs text-[#D4A853] mt-0.5">
+                              Current Status
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
