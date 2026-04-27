@@ -8,7 +8,10 @@ import {
   Sparkles,
   MessageSquare,
   Clock,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
+import { contactAPI } from "../services/api";
 
 const contactInfo = [
   {
@@ -56,23 +59,41 @@ export default function Contact() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError("");
 
-    setTimeout(() => {
-      setSubmitted(false);
-      setForm({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-      });
-    }, 3000);
+    try {
+      const res = await contactAPI.sendMessage(form);
+      if (res.data.success) {
+        setSubmitted(true);
+        setForm({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        "Something went wrong. Please try again later.";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setSubmitted(false);
+    setError("");
   };
 
   return (
@@ -178,9 +199,27 @@ export default function Contact() {
                     Thank you for reaching out. We&apos;ll get back to you within
                     24 hours.
                   </p>
+
+                  <button
+                    onClick={resetForm}
+                    className="mt-6 text-sm text-[#D4A853] hover:text-[#E0B86A] transition-colors"
+                  >
+                    Send another message
+                  </button>
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+                    >
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      {error}
+                    </motion.div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <input
                       name="name"
@@ -189,7 +228,8 @@ export default function Contact() {
                       value={form.name}
                       onChange={handleChange}
                       required
-                      className="nayamo-input"
+                      disabled={loading}
+                      className="nayamo-input disabled:opacity-50"
                     />
 
                     <input
@@ -199,7 +239,8 @@ export default function Contact() {
                       value={form.email}
                       onChange={handleChange}
                       required
-                      className="nayamo-input"
+                      disabled={loading}
+                      className="nayamo-input disabled:opacity-50"
                     />
                   </div>
 
@@ -210,7 +251,8 @@ export default function Contact() {
                     value={form.subject}
                     onChange={handleChange}
                     required
-                    className="nayamo-input"
+                    disabled={loading}
+                    className="nayamo-input disabled:opacity-50"
                   />
 
                   <textarea
@@ -220,14 +262,25 @@ export default function Contact() {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className="nayamo-input resize-none"
+                    disabled={loading}
+                    className="nayamo-input resize-none disabled:opacity-50"
                   />
 
                   <button
                     type="submit"
-                    className="nayamo-btn-primary inline-flex items-center gap-2"
+                    disabled={loading}
+                    className="nayamo-btn-primary inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Send Message <Send className="w-4 h-4" />
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        Send Message <Send className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
                 </form>
               )}
@@ -284,3 +337,4 @@ export default function Contact() {
     </div>
   );
 }
+
