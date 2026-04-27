@@ -218,7 +218,7 @@ export default function AddProduct() {
               name="category"
               value={form.category}
               onChange={changeHandler}
-              placeholder="gold, silver, or diamond"
+placeholder="party, daily, traditional, western, statement, or bridal"
             />
           </div>
 
