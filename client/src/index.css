@@ -1,3 +1,62 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #FDF8F0;
+    color: #1A1A1A;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .nayamo-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .nayamo-btn-primary {
+    @apply bg-amber-500 hover:bg-amber-600 text-white font-medium px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .nayamo-btn-secondary {
+    @apply border border-amber-500 text-amber-600 hover:bg-amber-50 font-medium px-6 py-3 rounded-xl transition-all duration-300;
+  }
+
+  .nayamo-card {
+    @apply bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 border border-stone-100;
+  }
+
+  .nayamo-input {
+    @apply w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 bg-white;
+  }
+
+  .nayamo-section-title {
+    @apply text-3xl md:text-4xl font-semibold text-stone-900 mb-2;
+  }
+
+  .nayamo-section-subtitle {
+    @apply text-stone-500 text-base md:text-lg;
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    color: #D4A853;
+  }
+  .bg-gold {
+    background-color: #D4A853;
+  }
+  .border-gold {
+    border-color: #D4A853;
+  }
+}
+
