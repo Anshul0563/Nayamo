@@ -12,9 +12,9 @@ export default function Loader({ size = 32, className = "" }) {
 export function SkeletonCard() {
   return (
     <div className="nayamo-card p-3 animate-pulse">
-      <div className="aspect-square bg-stone-200 rounded-xl mb-3" />
-      <div className="h-4 bg-stone-200 rounded w-3/4 mb-2" />
-      <div className="h-4 bg-stone-200 rounded w-1/2" />
+      <div className="aspect-square bg-[#1A1A1C] rounded-xl mb-3" />
+      <div className="h-4 bg-[#1A1A1C] rounded w-3/4 mb-2" />
+      <div className="h-4 bg-[#1A1A1C] rounded w-1/2" />
     </div>
   );
 }
