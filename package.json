@@ -11,6 +11,8 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:client\" \"npm run dev:admin\"",
     "dev:backend": "cd backend && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "dev:admin": "cd admin && npm run dev",
     "dev:client": "cd client && npm start",
     "dev:admin": "cd admin && npm start",
     "install:all": "npm install && cd backend && npm install && cd ../client && npm install && cd ../admin && npm install",
