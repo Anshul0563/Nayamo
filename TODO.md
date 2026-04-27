@@ -1,44 +1,55 @@
-# Backend Production Readiness - Fix Tracker
+# Nayamo Full-Stack Rebuild Progress
 
-## Phase 1: Cleanup & Dependencies
-- [x] Delete duplicate `backend/backend/` directory
-- [x] Update `backend/package.json` with production dependencies
-- [x] Install new packages
+## Phase 1: Client Frontend Foundation
+- [x] Plan created
+- [ ] Update client package.json with required deps
+- [ ] Create API service with auth interceptors
+- [ ] Create AuthContext
+- [ ] Create CartContext
+- [ ] Create WishlistContext
+- [ ] Update index.css with Nayamo brand styles
+- [ ] Create App.js with router
 
-## Phase 2: Security & Core Fixes
-- [x] Fix `seedAdmin.js` - remove hardcoded credentials
-- [x] Update `User.js` model - add refresh token tracking
-- [x] Update `Product.js` model - add publicId for images
-- [x] Fix `server.js` - enforce JWT_REFRESH_SECRET, better sanitization
-- [x] Fix `authController.js` - token revocation, rotation
-- [x] Fix `authMiddleware.js` - check token blacklist
-- [x] Update `cloudinary.js` config - error handling
+## Phase 2: Client Frontend Pages & Components
+- [ ] Navbar component
+- [ ] Footer component
+- [ ] ClientLayout wrapper
+- [ ] Home page (Hero, Featured, New Arrivals, Categories, Testimonials, Trust, Newsletter)
+- [ ] Shop page (Filters, Sort, Search, Grid, Pagination)
+- [ ] ProductDetail page (Gallery, Variants, Reviews, Related)
+- [ ] Cart page (Items, Summary, Checkout CTA)
+- [ ] Checkout page (Address, Payment, Summary)
+- [ ] Login/Register pages
+- [ ] Profile page
+- [ ] MyOrders page
+- [ ] TrackOrder page
+- [ ] Wishlist page
+- [ ] Reusable components (ProductCard, Loader, EmptyState, Toast)
 
-## Phase 3: Business Logic Fixes
-- [x] Fix `orderService.js` - idempotency race condition
-- [x] Fix `cartService.js` - edge cases
-- [x] Fix `productService.js` - isActive filter, pagination
-- [x] Fix `adminController.js` - Cloudinary deletion with publicId
-- [x] Fix `paymentController.js` - add webhook endpoint
-- [x] Fix `delhiveryController.js` - amount validation
-- [x] Fix `wishlistController.js` & model - remove broken pre-save
+## Phase 3: Admin Panel
+- [ ] Fix Login integration
+- [ ] Dashboard with real stats
+- [ ] Orders page with CRUD
+- [ ] Inventory page
+- [ ] Add/Edit Product with image upload
+- [ ] Analytics page
+- [ ] Payments page
+- [ ] Returns page
+- [ ] Settings page
+- [ ] Sidebar/Header layout fixes
 
-## Phase 4: Validation & Routes
-- [x] Fix `adminRoutes.js` - status enum alignment, product update validation
-- [x] Fix `orderRoutes.js` - pagination params
-- [x] Fix `uploadMiddleware.js` - file signature validation
-- [x] Fix `productRoutes.js` - consistency
+## Phase 4: Backend Integration Fixes
+- [ ] Update CORS for client/admin origins
+- [ ] Verify all API responses match frontend expectations
+- [ ] Add any missing endpoints
+- [ ] Ensure auth flow works end-to-end
 
-## Phase 5: Infrastructure & Monitoring
-- [x] Add `winston.js` logger
-- [x] Add `pm2.config.js`
-- [x] Add `Dockerfile` & `docker-compose.yml`
-- [x] Add `.env.example`
-- [x] Add `jest` test setup
-- [x] Add Redis caching layer
-- [x] Add rate limit whitelist for health checks
+## Phase 5: Testing & Polish
+- [ ] Fix console errors
+- [ ] Test auth flow
+- [ ] Test product browsing
+- [ ] Test cart/checkout
+- [ ] Test admin CRUD
+- [ ] Responsive check
+- [ ] Build verification
 
-## Phase 6: Final Verification
-- [x] Run security audit
-- [x] Check all imports
-- [x] Verify no stale code remains
