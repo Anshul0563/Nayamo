@@ -136,9 +136,9 @@ export default function Navbar() {
           </form>
           <Link to="/" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Home</Link>
           <Link to="/shop" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Shop</Link>
-          <Link to="/shop?category=gold" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Gold Collection</Link>
-          <Link to="/shop?category=silver" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Silver Collection</Link>
-          <Link to="/shop?category=diamond" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Diamond Collection</Link>
+          <Link to="/shop?category=party" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Party Wear</Link>
+          <Link to="/shop?category=daily" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Daily Wear</Link>
+          <Link to="/shop?category=traditional" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Traditional</Link>
           <Link to="/cart" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Cart ({cartCount})</Link>
           <Link to="/wishlist" onClick={() => setMobileOpen(false)} className="block py-2 text-stone-700 font-medium">Wishlist ({wishlistCount})</Link>
           {isAuthenticated ? (

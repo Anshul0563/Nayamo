@@ -118,7 +118,7 @@ export default function Shop() {
           <div className="bg-white rounded-2xl p-5 border border-stone-100 mb-6">
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm font-medium text-stone-700">Category:</span>
-              {["gold", "silver", "diamond"].map((c) => (
+              {["party", "daily", "traditional", "western", "statement", "bridal"].map((c) => (
                 <button
                   key={c}
                   onClick={() => updateParam("category", category === c ? "" : c)}

@@ -38,7 +38,7 @@ function Input({ label, name, type = "text", placeholder, icon, value, onChange 
   );
 }
 
-const VALID_CATEGORIES = ["gold", "silver", "diamond"];
+const VALID_CATEGORIES = ["party", "daily", "traditional", "western", "statement", "bridal"];
 
 export default function AddProduct() {
   const [form, setForm] = useState({
