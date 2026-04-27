@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Package, Truck, CheckCircle, XCircle, Clock } from "lucide-react";
+import { motion } from "framer-motion";
 import { orderAPI } from "../services/api";
 import Loader from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
@@ -38,7 +39,7 @@ export default function MyOrders() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#070708] flex items-center justify-center">
         <Loader size={40} />
       </div>
     );
@@ -46,8 +47,10 @@ export default function MyOrders() {
 
   if (orders.length === 0) {
     return (
-      <div className="nayamo-container py-16">
-        <h1 className="text-3xl font-serif font-bold text-white mb-8">My Orders</h1>
+      <div className="nayamo-container py-20">
+        <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-10">
+          My Orders
+        </h1>
         <EmptyState
           type="orders"
           title="No orders yet"
@@ -60,79 +63,128 @@ export default function MyOrders() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
-      <div className="nayamo-container py-8">
-        <h1 className="text-3xl font-serif font-bold text-white mb-8">My Orders</h1>
+    <div className="min-h-screen bg-[#070708]">
+      <div className="nayamo-container py-10">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-10"
+        >
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">
+            My Orders
+          </h1>
+          <p className="text-[#A1A1AA]">
+            {orders.length} {orders.length === 1 ? "order" : "orders"} placed
+          </p>
+        </motion.div>
 
-        <div className="space-y-4">
-          {orders.map((order) => {
+        <div className="space-y-5">
+          {orders.map((order, i) => {
             const config = statusConfig[order.status] || statusConfig.pending;
             const StatusIcon = config.icon;
             const firstItem = order.items?.[0];
             const itemCount = order.items?.length || 0;
 
             return (
-              <div key={order._id} className="nayamo-card p-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                  <div>
-                    <p className="text-sm text-[#9CA3AF]">Order ID</p>
-                    <p className="font-mono font-medium text-white">{order._id?.slice(-8).toUpperCase()}</p>
+              <motion.div
+                key={order._id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                className="nayamo-card p-6 md:p-8 border border-white/[0.04]"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-5 flex-1">
+                    <div>
+                      <p className="text-xs text-[#71717A] uppercase tracking-wider mb-1">
+                        Order ID
+                      </p>
+                      <p className="font-mono font-semibold text-white">
+                        {order._id?.slice(-8).toUpperCase()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-[#71717A] uppercase tracking-wider mb-1">
+                        Date
+                      </p>
+                      <p className="font-semibold text-white">
+                        {new Date(order.createdAt).toLocaleDateString("en-IN")}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-[#71717A] uppercase tracking-wider mb-1">
+                        Total
+                      </p>
+                      <p className="font-bold nayamo-text-gold">
+                        ₹{order.totalPrice?.toLocaleString("en-IN")}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-[#9CA3AF]">Date</p>
-                    <p className="font-medium text-white">
-                      {new Date(order.createdAt).toLocaleDateString("en-IN")}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-[#9CA3AF]">Total</p>
-                    <p className="font-semibold text-[#D4A853]">₹{order.totalPrice?.toLocaleString("en-IN")}</p>
-                  </div>
-                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${config.bg} border ${config.border}`}>
+                  <div
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${config.bg} border ${config.border}`}
+                  >
                     <StatusIcon className={`w-4 h-4 ${config.color}`} />
-                    <span className={`text-sm font-medium ${config.color}`}>{config.label}</span>
+                    <span className={`text-sm font-semibold ${config.color}`}>
+                      {config.label}
+                    </span>
                   </div>
                 </div>
 
-                <div className="border-t border-white/[0.06] pt-4">
+                <div className="border-t border-white/[0.05] pt-5">
                   <div className="flex items-center gap-4">
                     {firstItem?.product?.images?.[0] && (
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-[#141414] border border-white/[0.06] flex-shrink-0">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#0E0E10] border border-white/[0.05] flex-shrink-0">
                         <img
-                          src={firstItem.product.images[0]?.url || firstItem.product.images[0]}
+                          src={
+                            firstItem.product.images[0]?.url ||
+                            firstItem.product.images[0]
+                          }
                           alt=""
                           className="w-full h-full object-cover"
                         />
                       </div>
                     )}
                     <div className="flex-1">
-                      <p className="font-medium text-white">
+                      <p className="font-semibold text-white">
                         {firstItem?.product?.title}
-                        {itemCount > 1 && <span className="text-[#9CA3AF] text-sm"> +{itemCount - 1} more</span>}
+                        {itemCount > 1 && (
+                          <span className="text-[#A1A1AA] text-sm font-normal">
+                            {" "}
+                            +{itemCount - 1} more
+                          </span>
+                        )}
                       </p>
-                      <p className="text-sm text-[#9CA3AF]">{order.address}</p>
+                      <p className="text-sm text-[#71717A] mt-0.5">
+                        {order.address}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {order.status === "pending" && (
-                  <div className="mt-4 pt-4 border-t border-white/[0.06] flex justify-end">
+                  <div className="mt-5 pt-5 border-t border-white/[0.05] flex justify-end">
                     <button
                       onClick={async () => {
                         try {
                           await orderAPI.cancelOrder(order._id);
-                          setOrders(orders.map((o) => (o._id === order._id ? { ...o, status: "cancelled" } : o)));
+                          setOrders(
+                            orders.map((o) =>
+                              o._id === order._id
+                                ? { ...o, status: "cancelled" }
+                                : o
+                            )
+                          );
                         } catch (err) {
                           console.error("Cancel failed:", err);
                         }
                       }}
-                      className="text-sm text-[#D4A5A5] hover:text-[#E8C4C4] font-medium"
+                      className="text-sm text-[#D4A5A5] hover:text-[#ECC5C5] font-medium transition-colors"
                     >
                       Cancel Order
                     </button>
                   </div>
                 )}
-              </div>
+              </motion.div>
             );
           })}
         </div>
