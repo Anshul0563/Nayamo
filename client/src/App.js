@@ -11,6 +11,8 @@ import Profile from "./pages/Profile";
 import MyOrders from "./pages/MyOrders";
 import TrackOrder from "./pages/TrackOrder";
 import Wishlist from "./pages/Wishlist";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
 function NotFound() {
   return (
@@ -39,6 +41,8 @@ function App() {
         <Route path="/orders" element={<MyOrders />} />
         <Route path="/track-order" element={<TrackOrder />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
