@@ -8,9 +8,9 @@ import {
   X,
   User,
   LogOut,
-  Sparkles,
   ChevronRight,
 } from "lucide-react";
+import Logo from "../common/Logo";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
@@ -86,13 +86,8 @@ export default function Navbar() {
         <div className="nayamo-container">
           <div className="flex items-center justify-between h-18 md:h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group z-10">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4A853] to-[#C9963B] flex items-center justify-center shadow-[0_4px_20px_rgba(212,168,83,0.3)] group-hover:shadow-[0_6px_28px_rgba(212,168,83,0.45)] transition-shadow duration-300">
-                <Sparkles className="w-4 h-4 text-[#070708]" />
-              </div>
-              <span className="text-xl font-bold tracking-tight text-white font-serif">
-                Nayamo
-              </span>
+            <Link to="/" className="z-10">
+              <Logo size="sm" showText={true} />
             </Link>
 
             {/* Desktop Nav */}
@@ -107,7 +102,9 @@ export default function Navbar() {
                     key={link.label}
                     to={link.to}
                     className={`relative text-sm font-medium transition-colors duration-300 py-2 group ${
-                      isActive ? "text-white" : "text-[#A1A1AA] hover:text-white"
+                      isActive
+                        ? "text-white"
+                        : "text-[#A1A1AA] hover:text-white"
                     }`}
                   >
                     {link.label}
@@ -365,4 +362,3 @@ export default function Navbar() {
     </>
   );
 }
-
