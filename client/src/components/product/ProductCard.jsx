@@ -53,12 +53,13 @@ export default function ProductCard({ product, index = 0 }) {
           <div className="absolute bottom-4 left-4 right-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-500">
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product, 1); }}
-              className="w-full py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-[#0A0A0A] shadow-lg flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-[#0A0A0A] shadow-lg flex items-center justify-center gap-2 hover:shadow-[0_8px_30px_rgba(212,168,83,0.4)] transition-shadow duration-300"
             >
               <ShoppingBag className="w-4 h-4" />
               Quick Add
             </button>
           </div>
+        </div>
         <div className="p-4">
           <h3 className="text-sm font-medium text-white group-hover:text-[#D4A853] transition-colors line-clamp-1 mb-1">
             <Link to={`/product/${product._id}`}>{product.name}</Link>
@@ -72,6 +73,7 @@ export default function ProductCard({ product, index = 0 }) {
               <span className="text-sm text-[#6B7280] line-through">Rs {product.originalPrice?.toLocaleString("en-IN")}</span>
             )}
           </div>
+        </div>
       </div>
     </motion.div>
   );
