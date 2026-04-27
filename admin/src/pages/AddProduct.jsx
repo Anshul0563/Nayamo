@@ -87,7 +87,7 @@ export default function AddProduct() {
     if (form.stock === "" || Number(form.stock) < 0) return "Enter valid stock";
     if (!form.category.trim()) return "Category is required";
     if (!VALID_CATEGORIES.includes(form.category.toLowerCase())) {
-      return "Category must be gold, silver, or diamond";
+      return "Category must be party, daily, traditional, western, statement, or bridal";
     }
     if (!form.description.trim()) return "Description is required";
     if (form.images.length === 0) return "Please upload at least 1 image";
