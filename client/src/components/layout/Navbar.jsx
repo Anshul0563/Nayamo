@@ -55,14 +55,14 @@ export default function Navbar() {
             <Link to="/shop" className="text-stone-600 hover:text-[#D4A853] font-medium transition-colors">
               Shop
             </Link>
-            <Link to="/shop?category=gold" className="text-stone-600 hover:text-[#D4A853] font-medium transition-colors">
-              Gold
+            <Link to="/shop?category=party" className="text-stone-600 hover:text-[#D4A853] font-medium transition-colors">
+              Party Wear
             </Link>
-            <Link to="/shop?category=silver" className="text-stone-600 hover:text-[#D4A853] font-medium transition-colors">
-              Silver
+            <Link to="/shop?category=daily" className="text-stone-600 hover:text-[#D4A853] font-medium transition-colors">
+              Daily Wear
             </Link>
-            <Link to="/shop?category=diamond" className="text-stone-600 hover:text-[#D4A853] font-medium transition-colors">
-              Diamond
+            <Link to="/shop?category=traditional" className="text-stone-600 hover:text-[#D4A853] font-medium transition-colors">
+              Traditional
             </Link>
           </nav>
 
