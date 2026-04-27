@@ -1,10 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import { SkeletonGrid } from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
+
+const categories = [
+  { value: "party", label: "Party Wear" },
+  { value: "daily", label: "Daily Wear" },
+  { value: "traditional", label: "Traditional" },
+  { value: "western", label: "Western" },
+  { value: "statement", label: "Statement" },
+  { value: "bridal", label: "Bridal" },
+];
+
+const sortOptions = [
+  { value: "", label: "Sort By" },
+  { value: "newest", label: "Newest" },
+  { value: "low", label: "Price: Low to High" },
+  { value: "high", label: "Price: High to Low" },
+];
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -60,91 +77,156 @@ export default function Shop() {
     ? `${category.charAt(0).toUpperCase() + category.slice(1)} Earrings`
     : "All Earrings";
 
+  const activeFiltersCount = (category ? 1 : 0) + (search ? 1 : 0) + (sort ? 1 : 0);
+
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
-      <div className="bg-[#0F0F0F] border-b border-white/[0.06]">
-        <div className="nayamo-container py-8">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">
-            {pageTitle}
-          </h1>
-          <p className="text-[#9CA3AF]">
-            {category
-              ? `Exquisite ${category} earrings crafted to perfection`
-              : "Discover handcrafted earrings for every occasion"}
-          </p>
+    <div className="min-h-screen bg-[#070708]">
+      {/* Header */}
+      <div className="bg-[#0A0A0C] border-b border-white/[0.04]">
+        <div className="nayamo-container py-10 md:py-14">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-3">
+              {pageTitle}
+            </h1>
+            <p className="text-[#A1A1AA] max-w-lg">
+              {category
+                ? `Exquisite ${category} earrings crafted to perfection`
+                : "Discover handcrafted earrings for every occasion"}
+            </p>
+          </motion.div>
         </div>
       </div>
 
-      <div className="nayamo-container py-6">
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="nayamo-container py-8">
+        {/* Search & Controls */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
           <form onSubmit={handleSearch} className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
             <input
               type="text"
               placeholder="Search earrings..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="nayamo-input pl-10"
+              className="nayamo-input pl-11 pr-4 py-3.5"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
           </form>
           <div className="flex gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2.5 rounded-xl border font-medium text-sm flex items-center gap-2 transition-colors ${
+              className={`px-5 py-3 rounded-xl border font-medium text-sm flex items-center gap-2.5 transition-all ${
                 showFilters
-                  ? "border-[#D4A853] text-[#D4A853] bg-[#D4A853]/10"
-                  : "border-white/[0.08] text-[#9CA3AF] bg-[#1A1A1C] hover:bg-[#1E1E22]"
+                  ? "border-[#D4A853] text-[#D4A853] bg-[#D4A853]/8"
+                  : "border-white/[0.07] text-[#A1A1AA] bg-[#131316] hover:bg-[#18181C]"
               }`}
             >
-              <SlidersHorizontal className="w-4 h-4" /> Filters
+              <SlidersHorizontal className="w-4 h-4" />
+              Filters
+              {activeFiltersCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-[#D4A853] text-[#070708] text-[10px] font-bold flex items-center justify-center">
+                  {activeFiltersCount}
+                </span>
+              )}
             </button>
             <div className="relative">
               <select
                 value={sort}
                 onChange={(e) => updateParam("sort", e.target.value)}
-                className="appearance-none px-4 py-2.5 pr-10 rounded-xl border border-white/[0.08] bg-[#1A1A1C] text-sm font-medium text-[#E8E8E8] focus:border-[#D4A853]/40 outline-none"
+                className="appearance-none px-5 py-3 pr-12 rounded-xl border border-white/[0.07] bg-[#131316] text-sm font-medium text-[#E4E4E7] focus:border-[#D4A853]/40 outline-none cursor-pointer hover:bg-[#18181C] transition-colors"
               >
-                <option value="">Sort By</option>
-                <option value="newest">Newest</option>
-                <option value="low">Price: Low to High</option>
-                <option value="high">Price: High to Low</option>
+                {sortOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280] pointer-events-none" />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A] pointer-events-none" />
             </div>
           </div>
         </div>
 
-        {showFilters && (
-          <div className="nayamo-card p-5 mb-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-[#E8E8E8]">Category:</span>
-              {["party", "daily", "traditional", "western", "statement", "bridal"].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => updateParam("category", category === c ? "" : c)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    category === c
-                      ? "bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-[#0A0A0A]"
-                      : "bg-[#1A1A1C] text-[#9CA3AF] hover:bg-[#242428] border border-white/[0.06]"
-                  }`}
-                >
-                  {c.charAt(0).toUpperCase() + c.slice(1)}
+        {/* Active Filters */}
+        {(category || search || sort) && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="flex flex-wrap items-center gap-2 mb-6"
+          >
+            {category && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#D4A853]/10 text-[#D4A853] border border-[#D4A853]/20">
+                {categories.find((c) => c.value === category)?.label || category}
+                <button onClick={() => updateParam("category", "")}>
+                  <X className="w-3 h-3 hover:text-white transition-colors" />
                 </button>
-              ))}
-              {(category || search) && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1 text-sm text-[#D4A5A5] hover:text-[#E8C4C4] ml-auto"
-                >
-                  <X className="w-3 h-3" /> Clear All
+              </span>
+            )}
+            {search && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#D4A5A5]/10 text-[#D4A5A5] border border-[#D4A5A5]/20">
+                &ldquo;{search}&rdquo;
+                <button onClick={() => { setSearch(""); updateParam("search", ""); }}>
+                  <X className="w-3 h-3 hover:text-white transition-colors" />
                 </button>
-              )}
-            </div>
-          </div>
+              </span>
+            )}
+            {sort && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-[#A1A1AA] border border-white/[0.08]">
+                {sortOptions.find((s) => s.value === sort)?.label}
+                <button onClick={() => updateParam("sort", "")}>
+                  <X className="w-3 h-3 hover:text-white transition-colors" />
+                </button>
+              </span>
+            )}
+            <button
+              onClick={clearFilters}
+              className="text-xs text-[#71717A] hover:text-[#D4A5A5] transition-colors ml-1"
+            >
+              Clear all
+            </button>
+          </motion.div>
         )}
 
+        {/* Filter Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="nayamo-card p-6 mb-8 border border-white/[0.04]">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-sm font-medium text-[#E4E4E7] mr-2">
+                    Category:
+                  </span>
+                  {categories.map((c) => (
+                    <button
+                      key={c.value}
+                      onClick={() =>
+                        updateParam("category", category === c.value ? "" : c.value)
+                      }
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        category === c.value
+                          ? "bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-[#070708] shadow-[0_4px_16px_rgba(212,168,83,0.25)]"
+                          : "bg-[#131316] text-[#A1A1AA] hover:bg-[#18181C] border border-white/[0.06]"
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Results */}
         {loading ? (
-          <SkeletonGrid count={6} />
+          <SkeletonGrid count={8} />
         ) : products.length === 0 ? (
           <EmptyState
             type="search"
@@ -155,28 +237,40 @@ export default function Shop() {
           />
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-              {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7 mb-12">
+              {products.map((product, i) => (
+                <ProductCard key={product._id} product={product} index={i % 4} />
               ))}
             </div>
 
             {pagination.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-3">
                 <button
                   onClick={() => updateParam("page", String(page - 1))}
                   disabled={page <= 1}
-                  className="p-2 rounded-lg border border-white/[0.08] bg-[#1A1A1C] disabled:opacity-40 hover:bg-[#242428] text-white"
+                  className="p-2.5 rounded-xl border border-white/[0.07] bg-[#131316] disabled:opacity-30 hover:bg-[#18181C] text-white transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-sm text-[#9CA3AF] font-medium px-3">
-                  Page {pagination.currentPage} of {pagination.totalPages}
-                </span>
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
+                  (p) => (
+                    <button
+                      key={p}
+                      onClick={() => updateParam("page", String(p))}
+                      className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${
+                        p === page
+                          ? "bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-[#070708] shadow-[0_4px_16px_rgba(212,168,83,0.25)]"
+                          : "border border-white/[0.07] bg-[#131316] text-[#A1A1AA] hover:bg-[#18181C] hover:text-white"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
                 <button
                   onClick={() => updateParam("page", String(page + 1))}
                   disabled={page >= pagination.totalPages}
-                  className="p-2 rounded-lg border border-white/[0.08] bg-[#1A1A1C] disabled:opacity-40 hover:bg-[#242428] text-white"
+                  className="p-2.5 rounded-xl border border-white/[0.07] bg-[#131316] disabled:opacity-30 hover:bg-[#18181C] text-white transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
