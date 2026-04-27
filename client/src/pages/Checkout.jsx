@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, CreditCard, Truck, CheckCircle } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { orderAPI, paymentAPI } from "../services/api";
 import EmptyState from "../components/common/EmptyState";
 import Loader from "../components/common/Loader";
@@ -9,9 +10,18 @@ import toast from "react-hot-toast";
 
 export default function Checkout() {
   const { cart, cartTotal, clearCart, refreshCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
+
+  // Auth guard - redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please login to checkout");
+      navigate("/login", { state: { from: "/checkout" } });
+    }
+  }, [user, navigate]);
 
   const [form, setForm] = useState({
     name: "",
