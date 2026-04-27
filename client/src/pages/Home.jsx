@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Truck, Shield, Gem, Heart } from "lucide-react";
+import { ArrowRight, Star, Truck, Shield, Gem, Heart, Sparkles } from "lucide-react";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import Loader, { SkeletonGrid } from "../components/common/Loader";
@@ -45,21 +45,21 @@ export default function Home() {
               transition={{ duration: 0.6 }}
             >
               <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#D4A853] text-sm font-medium mb-6">
-                New Collection 2025
+                New Earring Collection 2025
               </span>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold leading-tight mb-6">
-                Elevate Your <br />
-                <span className="text-[#D4A853]">Elegance</span>
+                Handcrafted <br />
+                <span className="text-[#D4A853]">Earrings</span>
               </h1>
               <p className="text-stone-300 text-lg md:text-xl mb-8 max-w-lg">
-                Discover handcrafted premium jewellery that complements your unique style. Each piece is designed to make you shine.
+                Discover exquisite handcrafted earrings designed to elevate your style. From delicate studs to statement danglers, each pair is made with love.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/shop" className="nayamo-btn-primary inline-flex items-center gap-2">
-                  Shop Now <ArrowRight className="w-4 h-4" />
+                  Shop Earrings <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link to="/shop?category=gold" className="nayamo-btn-secondary inline-flex">
-                  Gold Collection
+                  Gold Earrings
                 </Link>
               </div>
             </motion.div>
@@ -67,12 +67,32 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Trust Badges */}
+      <section className="py-10 bg-white border-b border-stone-100">
+        <div className="nayamo-container">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { icon: Shield, title: "Hypoallergenic", desc: "Skin-safe materials" },
+              { icon: Sparkles, title: "925 Sterling Silver", desc: "Premium quality" },
+              { icon: Heart, title: "Nickel-Free", desc: "No irritation" },
+              { icon: Truck, title: "Free Shipping", desc: "On orders above Rs 999" },
+            ].map((badge, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <badge.icon className="w-6 h-6 text-[#D4A853] flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm text-stone-800">{badge.title}</p>
+                  <p className="text-xs text-stone-500">{badge.desc}</p>
+                </div>
+            ))}
+          </div>
+      </section>
+
       {/* Categories */}
       <section className="py-16 bg-white">
         <div className="nayamo-container">
           <div className="text-center mb-12">
             <h2 className="nayamo-section-title">Shop by Collection</h2>
-            <p className="nayamo-section-subtitle">Explore our curated collections</p>
+            <p className="nayamo-section-subtitle">Find your perfect pair</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -92,7 +112,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
                     <Gem className="w-8 h-8 mb-3 text-[#D4A853]" />
-                    <h3 className="text-2xl font-serif font-semibold">{cat.name}</h3>
+                    <h3 className="text-2xl font-serif font-semibold">{cat.name} Earrings</h3>
                     <p className="text-sm text-white/80 mt-1">{cat.desc}</p>
                   </div>
                 </Link>
@@ -107,7 +127,7 @@ export default function Home() {
         <div className="nayamo-container">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="nayamo-section-title">Featured Pieces</h2>
+              <h2 className="nayamo-section-title">Featured Earrings</h2>
               <p className="nayamo-section-subtitle">Handpicked favourites just for you</p>
             </div>
             <Link to="/shop" className="hidden md:inline-flex items-center gap-1 text-[#D4A853] font-medium hover:underline">
@@ -132,7 +152,7 @@ export default function Home() {
           <div className="flex items-end justify-between mb-10">
             <div>
               <h2 className="nayamo-section-title">New Arrivals</h2>
-              <p className="nayamo-section-subtitle">The latest additions to our collection</p>
+              <p className="nayamo-section-subtitle">Latest earring designs</p>
             </div>
             <Link to="/shop?sort=newest" className="hidden md:inline-flex items-center gap-1 text-[#D4A853] font-medium hover:underline">
               View All <ArrowRight className="w-4 h-4" />
@@ -155,23 +175,23 @@ export default function Home() {
         <div className="nayamo-container">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-2">What Our Customers Say</h2>
-            <p className="text-stone-400">Real stories from our happy customers</p>
+            <p className="text-stone-400">Real stories from earring lovers</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 name: "Priya Sharma",
-                text: "The gold earrings I ordered are absolutely stunning. The craftsmanship is exceptional and they arrived beautifully packaged.",
+                text: "The gold hoop earrings I ordered are absolutely stunning. They are so lightweight and comfortable, I wear them every day!",
                 rating: 5,
               },
               {
                 name: "Ananya Patel",
-                text: "Best online jewellery shopping experience. The silver collection is so elegant. Will definitely be ordering more!",
+                text: "Best online earring shopping experience. The silver studs are so elegant and hypoallergenic - no irritation at all!",
                 rating: 5,
               },
               {
                 name: "Meera Gupta",
-                text: "I gifted a diamond pendant to my mother and she was overjoyed. The quality exceeded my expectations. Thank you Nayamo!",
+                text: "I gifted diamond drop earrings to my sister and she was overjoyed. The craftsmanship is exceptional. Thank you Nayamo!",
                 rating: 5,
               },
             ].map((t, i) => (
@@ -201,9 +221,9 @@ export default function Home() {
         <div className="nayamo-container">
           <div className="bg-white rounded-3xl p-8 md:p-12 text-center shadow-sm border border-stone-100">
             <Heart className="w-10 h-10 text-[#D4A853] mx-auto mb-4" />
-            <h2 className="text-2xl md:text-3xl font-serif font-semibold mb-3">Join the Nayamo Family</h2>
+            <h2 className="text-2xl md:text-3xl font-serif font-semibold mb-3">Join the Nayamo Earring Club</h2>
             <p className="text-stone-500 max-w-md mx-auto mb-6">
-              Subscribe to get exclusive offers, early access to new collections, and styling tips.
+              Subscribe for exclusive earring collections, styling tips, and special offers.
             </p>
             <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => { e.preventDefault(); }}>
               <input
