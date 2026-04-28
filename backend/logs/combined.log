@@ -198,3 +198,4 @@
 {"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 22:46:39"}
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:46:39"}
 {"level":"error","message":"UNCAUGHT EXCEPTION! Shutting down...","service":"nayamo-api","timestamp":"2026-04-28 22:46:41"}
+{"level":"info","message":"\u001b[0mGET /health \u001b[32m200\u001b[0m 2.404 ms - 182\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:47:29"}
