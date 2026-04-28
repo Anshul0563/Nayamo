@@ -23,6 +23,9 @@ const navLinks = [
   { to: "/contact", label: "Contact" },
 ];
 
+const actionButtonClass =
+  "relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.025] text-[#B9B9C2] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#D4A853]/30 hover:bg-white/[0.07] hover:text-white hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]/45";
+
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const { cartCount } = useCart();
@@ -71,6 +74,14 @@ export default function Navbar() {
     }
   };
 
+  const handleSearchToggle = () => {
+    if (window.innerWidth < 768) {
+      setMobileOpen(true);
+      return;
+    }
+    setSearchOpen((open) => !open);
+  };
+
   return (
     <>
       <motion.header
@@ -79,19 +90,24 @@ export default function Navbar() {
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-[#070708]/85 backdrop-blur-2xl border-b border-white/[0.05] shadow-[0_8px_40px_rgba(0,0,0,0.6)]"
-            : "bg-transparent"
+            ? "bg-[#070708]/88 backdrop-blur-2xl border-b border-white/[0.08] shadow-[0_14px_45px_rgba(0,0,0,0.48)]"
+            : "bg-gradient-to-b from-[#070708]/78 via-[#070708]/35 to-transparent"
         }`}
       >
         <div className="nayamo-container">
-          <div className="flex items-center justify-between h-18 md:h-20">
+          <div className="grid h-20 grid-cols-[auto_1fr_auto] items-center gap-4 md:h-24 md:gap-8">
             {/* Logo */}
-            <Link to="/" className="z-10">
-              <Logo size="lg" showText={true} glow={true} />
+            <Link
+              to="/"
+              aria-label="Nayamo home"
+              className="z-10 -ml-2 inline-flex min-w-0 items-center rounded-2xl px-2 py-1 transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]/45"
+            >
+              <Logo size="nav" showText={false} glow={false} />
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-10">
+            <nav className="hidden items-center justify-center md:flex">
+              <div className="flex items-center gap-1 rounded-full border border-white/[0.06] bg-white/[0.025] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
               {navLinks.map((link) => {
                 const isActive =
                   link.to === "/"
@@ -101,36 +117,37 @@ export default function Navbar() {
                   <Link
                     key={link.label}
                     to={link.to}
-                    className={`relative text-sm font-medium transition-colors duration-300 py-2 group ${
+                    className={`relative rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 group ${
                       isActive
-                        ? "text-white"
-                        : "text-[#A1A1AA] hover:text-white"
+                        ? "bg-white/[0.08] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
+                        : "text-[#B5B5BE] hover:bg-white/[0.045] hover:text-white"
                     }`}
                   >
                     {link.label}
                     <span
-                      className={`absolute bottom-0 left-0 h-[1.5px] bg-gradient-to-r from-[#D4A853] to-[#D4A5A5] transition-all duration-300 ${
-                        isActive ? "w-full" : "w-0 group-hover:w-full"
+                      className={`absolute bottom-1.5 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-gradient-to-r from-[#D4A853] to-[#D4A5A5] transition-all duration-300 ${
+                        isActive ? "w-6" : "w-0 group-hover:w-6"
                       }`}
                     />
                   </Link>
                 );
               })}
+              </div>
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-1.5 md:gap-2">
+            <div className="flex items-center justify-end gap-2 md:gap-2.5">
               {/* Search */}
               <div className="relative" ref={searchRef}>
                 <AnimatePresence>
                   {searchOpen && (
                     <motion.form
                       initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: 240, opacity: 1 }}
+                      animate={{ width: 280, opacity: 1 }}
                       exit={{ width: 0, opacity: 0 }}
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                       onSubmit={handleSearch}
-                      className="absolute right-10 top-1/2 -translate-y-1/2 overflow-hidden"
+                      className="absolute right-12 top-1/2 hidden -translate-y-1/2 overflow-hidden md:block"
                     >
                       <input
                         type="text"
@@ -138,19 +155,20 @@ export default function Navbar() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search..."
                         autoFocus
-                        className="w-full pl-4 pr-4 py-2 rounded-full text-sm bg-[#131316] border border-white/[0.08] text-white placeholder-[#71717A] outline-none focus:border-[#D4A853]/40 transition-all"
+                        className="w-full rounded-full border border-white/[0.09] bg-[#101012]/95 py-3 pl-5 pr-4 text-sm text-white shadow-[0_16px_34px_rgba(0,0,0,0.34)] outline-none transition-all placeholder:text-[#71717A] focus:border-[#D4A853]/45"
                       />
                     </motion.form>
                   )}
                 </AnimatePresence>
                 <button
-                  onClick={() => setSearchOpen(!searchOpen)}
-                  className="p-2.5 rounded-full hover:bg-white/[0.05] transition-colors group"
+                  onClick={handleSearchToggle}
+                  aria-label={searchOpen ? "Close search" : "Open search"}
+                  className={actionButtonClass}
                 >
                   {searchOpen ? (
-                    <X className="w-[18px] h-[18px] text-[#A1A1AA] group-hover:text-white transition-colors" />
+                    <X className="h-5 w-5" />
                   ) : (
-                    <Search className="w-[18px] h-[18px] text-[#A1A1AA] group-hover:text-white transition-colors" />
+                    <Search className="h-5 w-5" />
                   )}
                 </button>
               </div>
@@ -158,11 +176,12 @@ export default function Navbar() {
               {/* Wishlist */}
               <Link
                 to="/wishlist"
-                className="relative p-2.5 rounded-full hover:bg-white/[0.05] transition-colors group"
+                aria-label="Wishlist"
+                className={`${actionButtonClass} hover:text-[#D4A5A5]`}
               >
-                <Heart className="w-[18px] h-[18px] text-[#A1A1AA] group-hover:text-[#D4A5A5] transition-colors" />
+                <Heart className="h-5 w-5" />
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-gradient-to-br from-[#D4A5A5] to-[#C48888] text-[10px] font-bold text-[#070708] flex items-center justify-center shadow-lg px-1">
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gradient-to-br from-[#D4A5A5] to-[#C48888] px-1 text-[10px] font-bold text-[#070708] shadow-lg ring-2 ring-[#070708]">
                     {wishlistCount}
                   </span>
                 )}
@@ -171,11 +190,12 @@ export default function Navbar() {
               {/* Cart */}
               <Link
                 to="/cart"
-                className="relative p-2.5 rounded-full hover:bg-white/[0.05] transition-colors group"
+                aria-label="Cart"
+                className={`${actionButtonClass} hover:text-[#D4A853]`}
               >
-                <ShoppingBag className="w-[18px] h-[18px] text-[#A1A1AA] group-hover:text-[#D4A853] transition-colors" />
+                <ShoppingBag className="h-5 w-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-gradient-to-br from-[#D4A853] to-[#C9963B] text-[10px] font-bold text-[#070708] flex items-center justify-center shadow-lg px-1">
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gradient-to-br from-[#D4A853] to-[#C9963B] px-1 text-[10px] font-bold text-[#070708] shadow-lg ring-2 ring-[#070708]">
                     {cartCount}
                   </span>
                 )}
@@ -186,9 +206,10 @@ export default function Navbar() {
                 <div className="hidden md:block relative" ref={userMenuRef}>
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="p-2.5 rounded-full hover:bg-white/[0.05] transition-colors group"
+                    aria-label="Open account menu"
+                    className={actionButtonClass}
                   >
-                    <User className="w-[18px] h-[18px] text-[#A1A1AA] group-hover:text-white transition-colors" />
+                    <User className="h-5 w-5" />
                   </button>
                   <AnimatePresence>
                     {userMenuOpen && (
@@ -197,7 +218,7 @@ export default function Navbar() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.96 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute right-0 top-full mt-3 w-52 nayamo-glass rounded-2xl p-2 shadow-2xl border border-white/[0.08]"
+                        className="nayamo-glass absolute right-0 top-full mt-4 w-56 rounded-2xl border border-white/[0.08] p-2 shadow-2xl"
                       >
                         <div className="px-3 py-2 mb-1 border-b border-white/[0.06]">
                           <p className="text-sm font-medium text-white truncate">
@@ -243,7 +264,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="hidden md:inline-flex nayamo-btn-primary text-xs px-5 py-2"
+                  className="nayamo-btn-primary hidden px-5 py-2.5 text-xs md:inline-flex"
                 >
                   Sign In
                 </Link>
@@ -252,12 +273,13 @@ export default function Navbar() {
               {/* Mobile toggle */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-white/[0.05] transition-colors"
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] text-white transition-all duration-300 hover:bg-white/[0.08] md:hidden"
               >
                 {mobileOpen ? (
-                  <X className="w-5 h-5 text-white" />
+                  <X className="h-5 w-5" />
                 ) : (
-                  <Menu className="w-5 h-5 text-white" />
+                  <Menu className="h-5 w-5" />
                 )}
               </button>
             </div>
@@ -284,55 +306,104 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="absolute right-0 top-0 bottom-0 w-[300px] bg-[#0A0A0C] border-l border-white/[0.06] p-6 pt-24 shadow-2xl"
+              className="absolute bottom-0 right-0 top-0 flex w-[min(88vw,360px)] flex-col border-l border-white/[0.08] bg-[#0A0A0C]/96 p-6 shadow-2xl backdrop-blur-2xl"
             >
-              <form onSubmit={handleSearch} className="relative mb-8">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
+              <div className="mb-8 flex items-center justify-between">
+                <Link
+                  to="/"
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Nayamo home"
+                  className="-ml-2 inline-flex rounded-2xl px-2 py-1"
+                >
+                  <Logo size="nav" showText={false} glow={false} />
+                </Link>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Close menu"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.045] text-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSearch} className="relative mb-7">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8B8B94]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search earrings..."
-                  className="w-full pl-10 pr-4 py-3 rounded-xl text-sm bg-[#131316] border border-white/[0.08] text-white placeholder-[#71717A] outline-none focus:border-[#D4A853]/40 transition-all"
+                  className="w-full rounded-2xl border border-white/[0.09] bg-[#131316] py-3.5 pl-11 pr-4 text-sm text-white outline-none transition-all placeholder:text-[#71717A] focus:border-[#D4A853]/45 focus:shadow-[0_0_0_3px_rgba(212,168,83,0.08)]"
                 />
               </form>
 
-              <nav className="flex flex-col gap-1">
-                {navLinks.map((item, i) => (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.06 + 0.1 }}
-                  >
-                    <Link
-                      to={item.to}
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center justify-between px-4 py-3.5 rounded-xl text-[#A1A1AA] hover:text-white hover:bg-white/[0.04] font-medium transition-all"
+              <nav className="flex flex-col gap-2">
+                {navLinks.map((item, i) => {
+                  const isActive =
+                    item.to === "/"
+                      ? location.pathname === "/"
+                      : location.pathname.startsWith(item.to);
+
+                  return (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06 + 0.1 }}
                     >
-                      {item.label}
-                      <ChevronRight className="w-4 h-4 opacity-50" />
-                    </Link>
-                  </motion.div>
-                ))}
+                      <Link
+                        to={item.to}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center justify-between rounded-2xl px-4 py-4 font-medium transition-all ${
+                          isActive
+                            ? "border border-[#D4A853]/20 bg-[#D4A853]/10 text-white"
+                            : "text-[#B5B5BE] hover:bg-white/[0.05] hover:text-white"
+                        }`}
+                      >
+                        {item.label}
+                        <ChevronRight
+                          className={`h-4 w-4 ${isActive ? "text-[#D4A853]" : "text-[#71717A]"}`}
+                        />
+                      </Link>
+                    </motion.div>
+                  );
+                })}
               </nav>
 
-              <div className="mt-8 pt-6 border-t border-white/[0.06] flex flex-col gap-2">
+              <div className="mt-auto flex flex-col gap-2 border-t border-white/[0.08] pt-6">
+                <div className="mb-3 grid grid-cols-2 gap-3">
+                  <Link
+                    to="/wishlist"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-2xl border border-white/[0.08] bg-white/[0.035] px-3 py-3 text-sm font-medium text-[#E4E4E7]"
+                  >
+                    <Heart className="h-4 w-4 text-[#D4A5A5]" />
+                    Wishlist
+                  </Link>
+                  <Link
+                    to="/cart"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-2xl border border-white/[0.08] bg-white/[0.035] px-3 py-3 text-sm font-medium text-[#E4E4E7]"
+                  >
+                    <ShoppingBag className="h-4 w-4 text-[#D4A853]" />
+                    Cart
+                  </Link>
+                </div>
                 {isAuthenticated ? (
                   <>
                     <Link
                       to="/profile"
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#A1A1AA] hover:text-white hover:bg-white/[0.04] font-medium transition-all"
+                      className="flex items-center gap-3 rounded-2xl px-4 py-3 text-[#B5B5BE] transition-all hover:bg-white/[0.05] hover:text-white"
                     >
-                      <User className="w-4 h-4" /> My Account
+                      <User className="h-4 w-4" /> My Account
                     </Link>
                     <Link
                       to="/orders"
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#A1A1AA] hover:text-white hover:bg-white/[0.04] font-medium transition-all"
+                      className="flex items-center gap-3 rounded-2xl px-4 py-3 text-[#B5B5BE] transition-all hover:bg-white/[0.05] hover:text-white"
                     >
-                      <ShoppingBag className="w-4 h-4" /> My Orders
+                      <ShoppingBag className="h-4 w-4" /> My Orders
                     </Link>
                     <button
                       onClick={() => {
@@ -340,9 +411,9 @@ export default function Navbar() {
                         navigate("/");
                         setMobileOpen(false);
                       }}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#D4A5A5] hover:text-[#ECC5C5] hover:bg-[#D4A5A5]/10 font-medium text-left transition-all"
+                      className="flex items-center gap-3 rounded-2xl px-4 py-3 text-left font-medium text-[#D4A5A5] transition-all hover:bg-[#D4A5A5]/10 hover:text-[#ECC5C5]"
                     >
-                      <LogOut className="w-4 h-4" /> Sign Out
+                      <LogOut className="h-4 w-4" /> Sign Out
                     </button>
                   </>
                 ) : (
