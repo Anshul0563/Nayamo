@@ -54,13 +54,16 @@ const userSchema = new mongoose.Schema(
     emailVerificationExpires: Date,
 
     // Token revocation tracking
-    refreshTokens: [
-      {
-        tokenHash: { type: String, required: true },
-        issuedAt: { type: Date, default: Date.now },
-        expiresAt: { type: Date, required: true },
-      },
-    ],
+    refreshTokens: {
+      type: [
+        {
+          tokenHash: { type: String, required: true },
+          issuedAt: { type: Date, default: Date.now },
+          expiresAt: { type: Date, required: true },
+        },
+      ],
+      default: [],
+    },
 
     // Last password change for forced re-login
     passwordChangedAt: Date,

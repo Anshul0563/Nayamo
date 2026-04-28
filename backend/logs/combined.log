@@ -171,3 +171,7 @@
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 364.211 ms - 575\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:29:08"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m401\u001b[0m 129.788 ms - 268\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:29:55"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m401\u001b[0m 45.677 ms - 268\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:30:57"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 22:33:29"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:33:29"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:33:34"}
+{"level":"warn","message":"⚠️ Server started WITHOUT database connection. Login and other DB-dependent routes will return 503 until MongoDB is available.","service":"nayamo-api","timestamp":"2026-04-28 22:33:34"}
