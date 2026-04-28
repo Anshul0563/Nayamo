@@ -78,8 +78,14 @@ export default function Navbar() {
       <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#090909]/85 backdrop-blur-xl border-b border-white/10 shadow-2xl" : "bg-transparent"}`}>
         <div className="nayamo-container">
           <div className="flex h-20 items-center justify-between gap-4">
-            <Link to="/" className="shrink-0 hover:scale-105 transition-transform duration-300">
-              <Logo size="nav" showText={false} glow />
+            <Link to="/" className="shrink-0 group flex items-center gap-3 rounded-2xl px-2 py-1.5 hover:bg-white/5 transition-all duration-300">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D4A853] via-[#f0cf88] to-[#8a6424] shadow-[0_10px_30px_rgba(212,168,83,0.28)] ring-1 ring-white/10 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+                <Logo size="nav" showText={false} glow={false} />
+              </div>
+              <div className="hidden sm:block leading-tight">
+                <p className="text-white font-semibold tracking-[0.22em] text-sm">NAYAMO</p>
+                <p className="text-[10px] uppercase tracking-[0.35em] text-[#D4A853]">Luxury Jewellery</p>
+              </div>
             </Link>
 
             <nav className="hidden lg:flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-2 backdrop-blur-xl">
@@ -107,16 +113,16 @@ export default function Navbar() {
                     <motion.form
                       onSubmit={submitSearch}
                       initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: 220 }}
+                      animate={{ opacity: 1, width: 180 }}
                       exit={{ opacity: 0, width: 0 }}
-                      className="absolute right-12 top-1/2 -translate-y-1/2 overflow-hidden max-w-[calc(100vw-12rem)]"
+                      className="absolute right-12 top-1/2 -translate-y-1/2 overflow-hidden max-w-[160px] md:max-w-[180px] lg:max-w-[220px]"
                     >
                       <input
                         autoFocus
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search..."
-                        className="w-full h-11 rounded-full border border-white/10 bg-[#111]/95 px-4 text-sm text-white outline-none focus:border-[#D4A853]/40"
+                        className="w-full min-w-0 h-11 rounded-full border border-white/10 bg-[#111]/95 px-4 text-sm text-white outline-none focus:border-[#D4A853]/40"
                       />
                     </motion.form>
                   )}
@@ -194,7 +200,7 @@ export default function Navbar() {
               className="absolute right-0 top-0 h-full w-[88vw] max-w-sm bg-[#0d0d0f] border-l border-white/10 p-5 flex flex-col"
             >
               <div className="flex items-center justify-between mb-6">
-                <Logo size="nav" showText={false} glow />
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D4A853] via-[#f0cf88] to-[#8a6424] shadow-[0_10px_30px_rgba(212,168,83,0.22)] ring-1 ring-white/10 overflow-hidden"><Logo size="nav" showText={false} glow={false} /></div>
                 <button className="h-10 w-10 rounded-full border border-white/10" onClick={() => setMobileOpen(false)}><X className="mx-auto" size={18} /></button>
               </div>
 
