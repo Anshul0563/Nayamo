@@ -220,3 +220,8 @@
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:51:34"}
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:51:34"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 411.526 ms - 574\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:51:51"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 22:52:30"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:52:30"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:52:31"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-04-28 22:52:35"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 410.505 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:52:35"}
