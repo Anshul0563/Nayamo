@@ -1,31 +1,48 @@
 const mongoose = require("mongoose");
 
+let isConnected = false;
+
 const connectDB = async () => {
   try {
     if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI missing in .env");
+      console.error("❌ MONGO_URI missing in .env");
+      return false;
     }
 
     mongoose.set("strictQuery", true);
 
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000, // 5 sec max wait
+      serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
 
-    console.log(`MongoDB Connected 💎 : ${conn.connection.host}`);
+    isConnected = true;
+    console.log(`✅ MongoDB Connected 💎 : ${conn.connection.host}`);
 
     mongoose.connection.on("error", (err) => {
-      console.log("Mongo Runtime Error ❌:", err.message);
+      console.error("Mongo Runtime Error ❌:", err.message);
     });
 
     mongoose.connection.on("disconnected", () => {
-      console.log("MongoDB Disconnected ⚠️");
+      isConnected = false;
+      console.warn("⚠️ MongoDB Disconnected");
     });
+
+    mongoose.connection.on("connected", () => {
+      isConnected = true;
+      console.log("✅ MongoDB Reconnected");
+    });
+
+    return true;
   } catch (error) {
-    console.log("DB Error ❌:", error.message);
-    process.exit(1);
+    isConnected = false;
+    console.error("❌ DB Connection Failed:", error.message);
+    console.error("👉 Fix: Whitelist your IP in MongoDB Atlas, or check MONGO_URI in .env");
+    return false;
   }
 };
 
+const checkDB = () => isConnected;
+
 module.exports = connectDB;
+module.exports.checkDB = checkDB;
