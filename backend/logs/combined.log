@@ -130,3 +130,6 @@
 {"level":"info","message":"\u001b[0mGET /health \u001b[32m200\u001b[0m 1.572 ms - 183\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 17:01:49"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m401\u001b[0m 372.356 ms - 184\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 17:01:50"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m400\u001b[0m 0.544 ms - 219\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 17:01:50"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 311.312 ms - 575\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 17:05:51"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 388.152 ms - 575\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 17:05:52"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 271.606 ms - 575\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 17:06:01"}
