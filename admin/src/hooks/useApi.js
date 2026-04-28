@@ -101,6 +101,8 @@ export function usePaginatedData(fetchFn, initialParams = {}) {
           setData(result.orders);
         } else if (result.products) {
           setData(result.products);
+        } else if (result.users) {
+          setData(result.users);
         } else if (Array.isArray(result)) {
           setData(result);
         }
@@ -122,4 +124,64 @@ export function usePaginatedData(fetchFn, initialParams = {}) {
   );
 
   return { data, pagination, loading, error, fetch, setData };
+}
+
+/**
+ * Animated counter hook for stat cards
+ */
+export function useAnimatedCounter(endValue, duration = 1500, startOnMount = true) {
+  const [count, setCount] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const frameRef = useRef(null);
+  const startTimeRef = useRef(null);
+
+  const animate = useCallback((timestamp) => {
+    if (!startTimeRef.current) startTimeRef.current = timestamp;
+    const elapsed = timestamp - startTimeRef.current;
+    const progress = Math.min(elapsed / duration, 1);
+
+    // Ease out cubic
+    const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+    setCount(Math.floor(easeOutCubic * endValue));
+
+    if (progress < 1) {
+      frameRef.current = requestAnimationFrame(animate);
+    } else {
+      setCount(endValue);
+      setIsRunning(false);
+    }
+  }, [endValue, duration]);
+
+  const start = useCallback(() => {
+    if (isRunning) return;
+    setIsRunning(true);
+    startTimeRef.current = null;
+    frameRef.current = requestAnimationFrame(animate);
+  }, [isRunning, animate]);
+
+  const reset = useCallback(() => {
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    setCount(0);
+    setIsRunning(false);
+    startTimeRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (startOnMount) {
+      const timer = setTimeout(start, 300);
+      return () => {
+        clearTimeout(timer);
+        if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      };
+    }
+  }, [startOnMount, start]);
+
+  // Update when endValue changes
+  useEffect(() => {
+    reset();
+    const timer = setTimeout(start, 100);
+    return () => clearTimeout(timer);
+  }, [endValue]);
+
+  return { count, start, reset, isRunning };
 }

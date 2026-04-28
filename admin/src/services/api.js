@@ -138,3 +138,4 @@ export const publicAPI = {
   getProductById: (id) => apiClient.get(`/products/${id}`),
 };
 
+export default apiClient;
