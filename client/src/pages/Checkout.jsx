@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { MapPin, CreditCard, Truck, CheckCircle, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
@@ -17,17 +17,16 @@ const steps = [
 
 export default function Checkout() {
   const { cart, cartTotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       toast.error("Please login to checkout");
-      navigate("/login", { state: { from: "/checkout" } });
     }
-  }, [user, navigate]);
+  }, [authLoading, user]);
 
   const [form, setForm] = useState({
     name: "",
@@ -40,6 +39,18 @@ export default function Checkout() {
   });
 
   const items = cart?.items || [];
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#070708] flex items-center justify-center">
+        <Loader size={40} />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace state={{ from: { pathname: "/checkout" } }} />;
+  }
+
   if (items.length === 0) {
     return (
       <div className="nayamo-container py-20">
@@ -470,4 +481,3 @@ export default function Checkout() {
     </div>
   );
 }
-

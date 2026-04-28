@@ -17,12 +17,12 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Visit Us",
-    lines: ["Nayamo Earrings", "Mumbai, Maharashtra", "India - 400001"],
+    lines: ["Nayamo Earrings", "Najafgarh, Delhi", "India - 110043"],
   },
   {
     icon: Phone,
     title: "Call Us",
-    lines: ["+91 98765 43210", "Mon - Sat, 10am - 7pm"],
+    lines: ["+91 9718176159", "Mon - Sat, 10am - 7pm"],
   },
   {
     icon: Mail,

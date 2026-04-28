@@ -162,10 +162,10 @@ export default function Footer() {
             &copy; 2025 Nayamo. All rights reserved.
           </p>
           <div className="flex gap-6 text-xs text-[#52525B]">
-            <Link to="#" className="hover:text-[#A1A1AA] transition-colors">
+            <Link to="/contact" className="hover:text-[#A1A1AA] transition-colors">
               Privacy Policy
             </Link>
-            <Link to="#" className="hover:text-[#A1A1AA] transition-colors">
+            <Link to="/contact" className="hover:text-[#A1A1AA] transition-colors">
               Terms of Service
             </Link>
           </div>
