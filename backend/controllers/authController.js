@@ -73,6 +73,7 @@ exports.register = asyncHandler(async (req, res) => {
   const refreshToken = generateRefreshToken(user);
   const tokenHash = hashToken(refreshToken);
 
+  if (!Array.isArray(user.refreshTokens)) user.refreshTokens = [];
   user.refreshTokens.push({
     tokenHash,
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -131,6 +132,7 @@ exports.login = asyncHandler(async (req, res) => {
   const tokenHash = hashToken(refreshToken);
 
   // Limit stored refresh tokens to 5 per user
+  if (!Array.isArray(user.refreshTokens)) user.refreshTokens = [];
   if (user.refreshTokens.length >= 5) {
     user.refreshTokens = user.refreshTokens.slice(-4);
   }

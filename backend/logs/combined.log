@@ -175,3 +175,11 @@
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:33:29"}
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:33:34"}
 {"level":"warn","message":"⚠️ Server started WITHOUT database connection. Login and other DB-dependent routes will return 503 until MongoDB is available.","service":"nayamo-api","timestamp":"2026-04-28 22:33:34"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 22:34:13"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:34:13"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:34:18"}
+{"level":"warn","message":"⚠️ Server started WITHOUT database connection. Login and other DB-dependent routes will return 503 until MongoDB is available.","service":"nayamo-api","timestamp":"2026-04-28 22:34:18"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 22:35:15"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:35:15"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:35:20"}
+{"level":"warn","message":"⚠️ Server started WITHOUT database connection. Login and other DB-dependent routes will return 503 until MongoDB is available.","service":"nayamo-api","timestamp":"2026-04-28 22:35:20"}
