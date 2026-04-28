@@ -190,7 +190,7 @@ app.post("/webhook/razorpay", webhookLimiter, express.raw({ type: "application/j
 
   if (!secret) {
     logger.error("Razorpay webhook secret not configured");
-    return res.status(500).send("Webhook secret not configured");
+    return res.status(503).send("Webhook not configured");
   }
 
   const shasum = crypto.createHmac("sha256", secret);
@@ -239,14 +239,21 @@ const startServer = async () => {
       "CLOUDINARY_CLOUD_NAME",
       "CLOUDINARY_API_KEY",
       "CLOUDINARY_API_SECRET",
-      "RAZORPAY_WEBHOOK_SECRET",
     ];
+
+    if (process.env.NODE_ENV === "production") {
+      requiredEnvVars.push("RAZORPAY_WEBHOOK_SECRET");
+    }
 
     const missingVars = requiredEnvVars.filter((v) => !process.env[v]);
     if (missingVars.length > 0) {
       throw new Error(
         `Missing required environment variables: ${missingVars.join(", ")}`
       );
+    }
+
+    if (!process.env.RAZORPAY_WEBHOOK_SECRET) {
+      logger.warn("RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.");
     }
 
     await connectDB();
@@ -299,7 +306,7 @@ const startServer = async () => {
     });
 
   } catch (error) {
-    logger.error("Server Start Error:", error.message);
+    logger.error("Server Start Error: %s", error.message);
     process.exit(1);
   }
 };
