@@ -18,36 +18,47 @@
     "node": ">=18"
   },
   "dependencies": {
-    "axios": "*",
-    "bcryptjs": "*",
-    "cloudinary": "*",
-    "compression": "*",
-    "cors": "*",
-    "dompurify": "*",
-    "dotenv": "*",
-    "express": "*",
-    "express-mongo-sanitize": "*",
-    "express-rate-limit": "*",
-    "express-validator": "*",
-    "helmet": "*",
-    "hpp": "*",
-    "ioredis": "*",
-    "jsdom": "*",
-    "jsonwebtoken": "*",
+    "axios": "^1.15.2",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.6",
+    "dompurify": "^3.4.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.4.1",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
+    "ioredis": "^5.10.1",
+    "jsdom": "^29.1.0",
+    "jsonwebtoken": "^9.0.3",
     "mongodb": "*",
-    "mongoose": "*",
-    "morgan": "*",
-    "multer": "*",
-    "nodemailer": "*",
-    "razorpay": "*",
-    "winston": "*"
+    "mongoose": "^9.5.0",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.7",
+    "razorpay": "^2.9.6",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
-    "jest": "*",
-    "nodemon": "*",
-    "supertest": "*"
+    "jest": "^30.3.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   },
   "jest": {
     "testEnvironment": "node"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anshul0563/Nayamo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anshul0563/Nayamo/issues"
+  },
+  "homepage": "https://github.com/Anshul0563/Nayamo#readme"
 }
