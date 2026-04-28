@@ -4,15 +4,45 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#09090B" />
+    <meta name="theme-color" content="#0a0a0a" />
     <meta name="description" content="Nayamo Admin — Premium jewellery business management panel." />
     <meta name="author" content="Nayamo" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Preload Critical Fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" as="style" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" />
+    
     <title>Nayamo Admin</title>
+    
+    <style>
+      /* Critical CSS for initial load */
+      html { background-color: #0a0a0a; }
+      body { margin: 0; background-color: #0a0a0a; color: #e5e5e5; }
+      #root { min-height: 100vh; }
+      /* Prevent FOUC */
+      .loading-screen {
+        position: fixed; inset: 0; background: #0a0a0a;
+        display: flex; align-items: center; justify-content: center; z-index: 99999;
+      }
+      .loading-screen::after {
+        content: ''; width: 40px; height: 40px;
+        border: 2px solid rgba(212,150,42,0.2); border-top-color: #d4962a;
+        border-radius: 50%; animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="loading-screen"></div>
+    </div>
   </body>
 </html>
+
