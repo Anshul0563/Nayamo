@@ -68,7 +68,19 @@ export default function Login() {
         }
       }, 500);
     } catch (err) {
-      const message = err.response?.data?.message || "Login failed. Please try again.";
+      let message = "Login failed. Please try again.";
+
+      if (err.response) {
+        // Server responded with an error status
+        message = err.response.data?.message || `Server error: ${err.response.status}`;
+      } else if (err.request) {
+        // Request was made but no response received (network / CORS issue)
+        message = "Cannot reach server. Please check your network or CORS settings.";
+      } else {
+        // Something else happened
+        message = err.message || message;
+      }
+
       setError(message);
     } finally {
       setLoading(false);

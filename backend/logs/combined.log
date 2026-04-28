@@ -19,3 +19,8 @@
 {"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 13:51:21"}
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 13:51:21"}
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 13:51:22"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 14:32:53"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 14:32:53"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 14:32:54"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 14:32:54"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 14:32:55"}
