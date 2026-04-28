@@ -10,6 +10,7 @@ module.exports = {
     ecmaVersion: "latest",
   },
   rules: {
+    "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     "no-console": "off",
   },
 };

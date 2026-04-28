@@ -1,5 +1,4 @@
 const multer = require("multer");
-const path = require("path");
 
 // Allowed file types
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
