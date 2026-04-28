@@ -71,13 +71,16 @@ export default function Login() {
       let message = "Login failed. Please try again.";
 
       if (err.response) {
-        // Server responded with an error status
-        message = err.response.data?.message || `Server error: ${err.response.status}`;
+        const status = err.response.status;
+        const data = err.response.data || {};
+        if (status === 503 && data.code === "DB_UNAVAILABLE") {
+          message = "Database unavailable. Ask admin to whitelist your IP on MongoDB Atlas, or check MONGO_URI in backend .env.";
+        } else {
+          message = data.message || `Server error: ${status}`;
+        }
       } else if (err.request) {
-        // Request was made but no response received (network / CORS issue)
-        message = "Cannot reach server. Please check your network or CORS settings.";
+        message = "Cannot reach server. Please check backend is running on port 5000.";
       } else {
-        // Something else happened
         message = err.message || message;
       }
 
