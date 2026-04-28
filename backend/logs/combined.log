@@ -65,3 +65,5 @@
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m401\u001b[0m 45.802 ms - 268\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 15:53:31"}
 {"level":"info","message":"\u001b[0mGET /health \u001b[32m200\u001b[0m 0.994 ms - 182\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 15:54:10"}
 {"level":"info","message":"\u001b[0mGET /health \u001b[32m200\u001b[0m 1.189 ms - 183\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 15:54:51"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m401\u001b[0m 52.894 ms - 268\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 15:59:50"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m400\u001b[0m 3.818 ms - 219\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 15:59:50"}
