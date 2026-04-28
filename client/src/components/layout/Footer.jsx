@@ -159,7 +159,7 @@ export default function Footer() {
       <div className="border-t border-white/[0.05]">
         <div className="nayamo-container py-5 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-xs text-[#52525B]">
-            &copy; 2025 Nayamo. All rights reserved.
+            &copy; 2026 Nayamo. All rights reserved.
           </p>
           <div className="flex gap-6 text-xs text-[#52525B]">
             <Link to="/privacy-policy" className="hover:text-[#A1A1AA] transition-colors">

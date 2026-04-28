@@ -77,7 +77,7 @@ export default function Home() {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#D4A853]/8 border border-[#D4A853]/15 text-[#D4A853] text-sm font-medium mb-8">
                 <Sparkles className="w-4 h-4" />
-                New Collection 2025
+                New Collection 2026
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold leading-[1.05] mb-7 text-white">
                 Trendy <br />
