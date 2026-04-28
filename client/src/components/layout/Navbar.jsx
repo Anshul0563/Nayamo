@@ -108,30 +108,30 @@ export default function Navbar() {
             {/* Desktop Nav */}
             <nav className="hidden items-center justify-center md:flex">
               <div className="flex items-center gap-1 rounded-full border border-white/[0.06] bg-white/[0.025] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-              {navLinks.map((link) => {
-                const isActive =
-                  link.to === "/"
-                    ? location.pathname === "/"
-                    : location.pathname.startsWith(link.to);
-                return (
-                  <Link
-                    key={link.label}
-                    to={link.to}
-                    className={`relative rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 group ${
-                      isActive
-                        ? "bg-white/[0.08] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
-                        : "text-[#B5B5BE] hover:bg-white/[0.045] hover:text-white"
-                    }`}
-                  >
-                    {link.label}
-                    <span
-                      className={`absolute bottom-1.5 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-gradient-to-r from-[#D4A853] to-[#D4A5A5] transition-all duration-300 ${
-                        isActive ? "w-6" : "w-0 group-hover:w-6"
+                {navLinks.map((link) => {
+                  const isActive =
+                    link.to === "/"
+                      ? location.pathname === "/"
+                      : location.pathname.startsWith(link.to);
+                  return (
+                    <Link
+                      key={link.label}
+                      to={link.to}
+                      className={`relative rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-300 group ${
+                        isActive
+                          ? "bg-white/[0.08] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]"
+                          : "text-[#B5B5BE] hover:bg-white/[0.045] hover:text-white"
                       }`}
-                    />
-                  </Link>
-                );
-              })}
+                    >
+                      {link.label}
+                      <span
+                        className={`absolute bottom-1.5 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-gradient-to-r from-[#D4A853] to-[#D4A5A5] transition-all duration-300 ${
+                          isActive ? "w-6" : "w-0 group-hover:w-6"
+                        }`}
+                      />
+                    </Link>
+                  );
+                })}
               </div>
             </nav>
 
@@ -306,7 +306,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="absolute bottom-0 right-0 top-0 flex w-[min(88vw,360px)] flex-col border-l border-white/[0.08] bg-[#0A0A0C]/96 p-6 shadow-2xl backdrop-blur-2xl"
+              className="absolute bottom-0 right-0 top-0 flex w-[min(88vw,360px)] flex-col overflow-y-auto border-l border-white/[0.08] bg-[#0A0A0C]/96 p-6 shadow-2xl backdrop-blur-2xl"
             >
               <div className="mb-8 flex items-center justify-between">
                 <Link
