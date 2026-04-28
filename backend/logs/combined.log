@@ -225,3 +225,25 @@
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:52:31"}
 {"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-04-28 22:52:35"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 410.505 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:52:35"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-04-28 22:53:16"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 434.774 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:16"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 69.380 ms - 259\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 67.117 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=100 \u001b[32m200\u001b[0m 83.344 ms - 106\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=100 \u001b[36m304\u001b[0m 82.762 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/dashboard \u001b[32m200\u001b[0m 342.350 ms - 655\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/dashboard \u001b[36m304\u001b[0m 322.271 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=pending \u001b[32m200\u001b[0m 74.363 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:25"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=pending \u001b[36m304\u001b[0m 69.770 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:25"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/products?limit=100 \u001b[32m200\u001b[0m 92.034 ms - 106\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:26"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/products?limit=100 \u001b[36m304\u001b[0m 70.793 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:26"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20 \u001b[32m200\u001b[0m 73.836 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:29"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20 \u001b[36m304\u001b[0m 69.770 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:29"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/dashboard \u001b[36m304\u001b[0m 291.716 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:31"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/dashboard \u001b[36m304\u001b[0m 139.537 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:31"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?status=returned&limit=100 \u001b[32m200\u001b[0m 73.144 ms - 106\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:32"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?status=returned&limit=100 \u001b[36m304\u001b[0m 69.753 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:32"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=100 \u001b[36m304\u001b[0m 61.366 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:38"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=100 \u001b[36m304\u001b[0m 83.864 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:38"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/dashboard \u001b[36m304\u001b[0m 515.428 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:38"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/dashboard \u001b[36m304\u001b[0m 297.488 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:53:39"}
