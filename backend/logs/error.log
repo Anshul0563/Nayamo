@@ -4,3 +4,4 @@
 {"level":"error","message":"UNCAUGHT EXCEPTION! Shutting down...","service":"nayamo-api","timestamp":"2026-04-28 16:19:38"}
 {"level":"error","message":"UNCAUGHT EXCEPTION! Shutting down...","service":"nayamo-api","timestamp":"2026-04-28 16:39:38"}
 {"level":"error","message":"UNCAUGHT EXCEPTION! Shutting down...","service":"nayamo-api","timestamp":"2026-04-28 22:45:55"}
+{"level":"error","message":"UNCAUGHT EXCEPTION! Shutting down...","service":"nayamo-api","timestamp":"2026-04-28 22:46:41"}
