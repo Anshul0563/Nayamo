@@ -28,6 +28,15 @@ module.exports = {
           muted: "#a1a1aa",
           dim: "#71717a",
         },
+        chart: {
+          gold: "#d4962a",
+          goldLight: "#f5e0b3",
+          emerald: "#10b981",
+          cyan: "#06b6d4",
+          violet: "#8b5cf6",
+          rose: "#f43f5e",
+          orange: "#f97316",
+        },
       },
       fontFamily: {
         display: ['"Playfair Display"', "Georgia", "serif"],
@@ -37,12 +46,17 @@ module.exports = {
         "fade-in": "fadeIn 0.5s ease-out forwards",
         "fade-in-up": "fadeInUp 0.6s ease-out forwards",
         "slide-in-right": "slideInRight 0.4s ease-out forwards",
+        "slide-in-left": "slideInLeft 0.4s ease-out forwards",
         "scale-in": "scaleIn 0.3s ease-out forwards",
         "shimmer": "shimmer 2s infinite linear",
         "float": "float 6s ease-in-out infinite",
         "pulse-gold": "pulseGold 2s ease-in-out infinite",
         "spin-slow": "spin 3s linear infinite",
         "counter": "counter 1s ease-out forwards",
+        "page-enter": "pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "toast-enter": "toastEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "toast-exit": "toastExit 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "gold-pulse": "goldPulse 2s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
@@ -55,6 +69,10 @@ module.exports = {
         },
         slideInRight: {
           "0%": { opacity: "0", transform: "translateX(-20px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        slideInLeft: {
+          "0%": { opacity: "0", transform: "translateX(20px)" },
           "100%": { opacity: "1", transform: "translateX(0)" },
         },
         scaleIn: {
@@ -73,23 +91,53 @@ module.exports = {
           "0%, 100%": { boxShadow: "0 0 0 0 rgba(212,150,42,0.4)" },
           "50%": { boxShadow: "0 0 20px 5px rgba(212,150,42,0.1)" },
         },
+        pageEnter: {
+          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        toastEnter: {
+          "0%": { opacity: "0", transform: "translateX(100%) scale(0.9)" },
+          "100%": { opacity: "1", transform: "translateX(0) scale(1)" },
+        },
+        toastExit: {
+          "0%": { opacity: "1", transform: "translateX(0) scale(1)" },
+          "100%": { opacity: "0", transform: "translateX(100%) scale(0.9)" },
+        },
+        goldPulse: {
+          "0%": { boxShadow: "0 0 0 0 rgba(212,150,42,0.4)" },
+          "70%": { boxShadow: "0 0 0 10px rgba(212,150,42,0)" },
+          "100%": { boxShadow: "0 0 0 0 rgba(212,150,42,0)" },
+        },
       },
       backgroundImage: {
         "gold-gradient": "linear-gradient(135deg, #d4962a 0%, #f5e0b3 50%, #d4962a 100%)",
         "gold-gradient-soft": "linear-gradient(135deg, rgba(212,150,42,0.15) 0%, rgba(245,224,179,0.08) 50%, rgba(212,150,42,0.15) 100%)",
+        "gold-gradient-radial": "radial-gradient(circle, rgba(212,150,42,0.15) 0%, transparent 70%)",
         "dark-gradient": "linear-gradient(180deg, #0a0a0a 0%, #111111 100%)",
         "card-gradient": "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)",
+        "luxury-gradient": "linear-gradient(180deg, #0a0a0a 0%, #111111 50%, #0a0a0a 100%)",
       },
       boxShadow: {
         "gold-sm": "0 0 10px rgba(212,150,42,0.15)",
         "gold-md": "0 0 20px rgba(212,150,42,0.2)",
         "gold-lg": "0 0 40px rgba(212,150,42,0.15)",
+        "gold-xl": "0 0 60px rgba(212,150,42,0.2)",
         "glass": "0 8px 32px rgba(0,0,0,0.3)",
         "card": "0 4px 24px rgba(0,0,0,0.2)",
         "inner-gold": "inset 0 0 20px rgba(212,150,42,0.05)",
+        "elevated": "0 20px 60px rgba(0,0,0,0.4)",
       },
       backdropBlur: {
         glass: "16px",
+        xs: "2px",
+      },
+      transitionTimingFunction: {
+        "luxury": "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
+      transitionDuration: {
+        "400": "400ms",
+        "600": "600ms",
+        "800": "800ms",
       },
     },
   },
