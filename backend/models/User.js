@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/,
         "Please provide a valid email address",
       ],
     },
@@ -33,10 +33,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: {
-        values: ["user", "admin"],
-        message: "Role must be either 'user' or 'admin'",
-      },
+      enum: ["user", "admin"],
       default: "user",
     },
 
@@ -53,7 +50,6 @@ const userSchema = new mongoose.Schema(
     emailVerificationToken: String,
     emailVerificationExpires: Date,
 
-    // Token revocation tracking
     refreshTokens: {
       type: [
         {
@@ -65,25 +61,28 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
 
-    // Last password change for forced re-login
     passwordChangedAt: Date,
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-// Hash password before saving
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
+  try {
+    if (!this.isModified("password")) return next();
+
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
-// Compare password method
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Indexes for performance
 userSchema.index({ role: 1 });
 userSchema.index({ createdAt: -1 });
 userSchema.index({ "refreshTokens.tokenHash": 1 });

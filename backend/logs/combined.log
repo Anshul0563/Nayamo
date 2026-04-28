@@ -208,3 +208,15 @@
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:49:46"}
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:49:46"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 394.760 ms - 575\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:50:36"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 22:51:28"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:51:28"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 22:51:28"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:51:29"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"nayamo-api","timestamp":"2026-04-28 22:51:31"}
+{"level":"info","message":"HTTP server closed.","service":"nayamo-api","timestamp":"2026-04-28 22:51:31"}
+{"level":"info","message":"MongoDB connection closed.","service":"nayamo-api","timestamp":"2026-04-28 22:51:31"}
+{"level":"info","message":"Redis connection closed.","service":"nayamo-api","timestamp":"2026-04-28 22:51:31"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 22:51:34"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-28 22:51:34"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-28 22:51:34"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 411.526 ms - 574\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:51:51"}
