@@ -169,3 +169,4 @@
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 550.799 ms - 575\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:22:12"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m401\u001b[0m 33.760 ms - 268\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:28:44"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[31m500\u001b[0m 364.211 ms - 575\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:29:08"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[33m401\u001b[0m 129.788 ms - 268\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 22:29:55"}
