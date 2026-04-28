@@ -113,16 +113,16 @@ export default function Navbar() {
                     <motion.form
                       onSubmit={submitSearch}
                       initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: 180 }}
+                      animate={{ opacity: 1, width: 150 }}
                       exit={{ opacity: 0, width: 0 }}
-                      className="absolute right-12 top-1/2 -translate-y-1/2 overflow-hidden max-w-[160px] md:max-w-[180px] lg:max-w-[220px]"
+                      className="absolute right-12 top-1/2 -translate-y-1/2 overflow-hidden w-[150px]"
                     >
                       <input
                         autoFocus
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search..."
-                        className="w-full min-w-0 h-11 rounded-full border border-white/10 bg-[#111]/95 px-4 text-sm text-white outline-none focus:border-[#D4A853]/40"
+                        className="w-full min-w-0 h-11 rounded-full border border-white/10 bg-[#111]/95 px-3 text-sm text-white outline-none focus:border-[#D4A853]/40"
                       />
                     </motion.form>
                   )}
