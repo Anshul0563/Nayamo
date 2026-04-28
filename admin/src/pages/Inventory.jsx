@@ -4,9 +4,7 @@ import { useDebounce } from "../hooks/useApi";
 import {
   Search,
   RefreshCcw,
-  Package,
   AlertTriangle,
-  Ban,
   Plus,
   Trash2,
   Minus,
@@ -423,4 +421,3 @@ export default function Inventory() {
     </div>
   );
 }
-

@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import apiClient from "../services/api";
 
 /**
  * Custom hook for API calls with loading, error, and cancellation support
@@ -10,7 +9,7 @@ export function useApi() {
   const abortControllerRef = useRef(null);
 
   const execute = useCallback(async (apiCall, options = {}) => {
-    const { onSuccess, onError, silent = false } = options;
+    const { onSuccess, onError } = options;
 
     // Cancel previous request
     if (abortControllerRef.current) {
@@ -124,4 +123,3 @@ export function usePaginatedData(fetchFn, initialParams = {}) {
 
   return { data, pagination, loading, error, fetch, setData };
 }
-

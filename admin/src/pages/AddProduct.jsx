@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { adminAPI } from "../services/api";
 import {
   Save,
@@ -304,4 +304,3 @@ export default function AddProduct() {
     </div>
   );
 }
-
