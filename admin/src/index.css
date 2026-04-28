@@ -1,3 +1,248 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-luxury-border;
+  }
+
+  body {
+    @apply bg-luxury-black text-luxury-text font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: rgba(212, 150, 42, 0.3);
+    color: #f5e0b3;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(212, 150, 42, 0.2);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 150, 42, 0.4);
+  }
+
+  /* Firefox Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 150, 42, 0.2) transparent;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  /* Glass Card */
+  .glass-card {
+    @apply bg-luxury-card/80 backdrop-blur-glass border border-luxury-border rounded-2xl;
+    background-image: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-500;
+  }
+
+  .glass-card-hover:hover {
+    @apply border-luxury-borderHover shadow-gold-sm;
+    transform: translateY(-2px);
+  }
+
+  /* Gold Text Gradient */
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #d4962a 0%, #f5e0b3 50%, #d4962a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-glow-gold {
+    text-shadow: 0 0 20px rgba(212, 150, 42, 0.3), 0 0 40px rgba(212, 150, 42, 0.1);
+  }
+
+  /* Gold Border Glow */
+  .border-glow-gold {
+    box-shadow: 0 0 0 1px rgba(212, 150, 42, 0.1), 0 0 20px rgba(212, 150, 42, 0.08);
+  }
+
+  /* Shimmer Loading */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.04) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  /* Luxury Input */
+  .luxury-input {
+    @apply w-full bg-black/40 border border-luxury-border rounded-xl px-4 py-3 text-sm text-luxury-text placeholder:text-luxury-dim outline-none transition-all duration-300;
+  }
+
+  .luxury-input:focus {
+    @apply border-gold-500/50 shadow-gold-sm;
+  }
+
+  /* Luxury Button */
+  .luxury-btn {
+    @apply px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2;
+  }
+
+  .luxury-btn-primary {
+    @apply luxury-btn bg-gold-gradient text-black font-semibold;
+  }
+
+  .luxury-btn-primary:hover {
+    @apply shadow-gold-md;
+    transform: scale(1.02);
+  }
+
+  .luxury-btn-secondary {
+    @apply luxury-btn bg-white/5 text-luxury-text border border-luxury-border hover:bg-white/10 hover:border-luxury-borderHover;
+  }
+
+  .luxury-btn-danger {
+    @apply luxury-btn bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20;
+  }
+
+  /* Nav Link */
+  .nav-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-luxury-muted transition-all duration-300;
+  }
+
+  .nav-link:hover {
+    @apply text-luxury-text bg-white/5;
+  }
+
+  .nav-link-active {
+    @apply text-gold-400 bg-gold-500/10 border border-gold-500/20 font-medium;
+  }
+
+  /* Status Badge Base */
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  /* Page Container */
+  .page-container {
+    @apply space-y-6 animate-fade-in;
+  }
+
+  /* Section Card */
+  .section-card {
+    @apply glass-card p-6;
+  }
+
+  /* Data Table Row */
+  .table-row {
+    @apply transition-colors duration-200 hover:bg-white/[0.02];
+  }
+
+  /* Toast Styles */
+  .toast-enter {
+    animation: toastEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .toast-exit {
+    animation: toastExit 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .animate-delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .animate-delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .animate-delay-400 {
+    animation-delay: 0.4s;
+  }
+
+  .animate-delay-500 {
+    animation-delay: 0.5s;
+  }
+}
+
+/* Toast Animations */
+@keyframes toastEnter {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastExit {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+}
+
+/* Skeleton Shimmer */
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Number Counter Animation */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+

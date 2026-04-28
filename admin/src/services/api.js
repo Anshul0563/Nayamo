@@ -41,15 +41,13 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Skip token refresh for auth endpoints (login/register) so 401 errors propagate correctly
+    // Skip token refresh for auth endpoints (login/register)
     const isAuthEndpoint =
       originalRequest.url?.includes("/auth/login") ||
       originalRequest.url?.includes("/auth/register");
 
-    // If 401 and not already retrying and not an auth endpoint
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       if (isRefreshing) {
-        // Wait for refresh to complete
         return new Promise((resolve) => {
           addRefreshSubscriber((newToken) => {
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -82,7 +80,6 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed - clear auth and redirect
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("role");
@@ -118,6 +115,11 @@ export const adminAPI = {
 
   // Users
   getUsers: (params = {}) => apiClient.get("/admin/users", { params }),
+  updateUser: (id, data) => apiClient.put(`/admin/users/${id}`, data),
+  deleteUser: (id) => apiClient.delete(`/admin/users/${id}`),
+
+  // Payments
+  getPayments: (params = {}) => apiClient.get("/admin/payments", { params }),
 };
 
 // Auth API endpoints
@@ -125,6 +127,7 @@ export const authAPI = {
   login: (credentials) => apiClient.post("/auth/login", credentials),
   register: (data) => apiClient.post("/auth/register", data),
   getProfile: () => apiClient.get("/auth/profile"),
+  updateProfile: (data) => apiClient.put("/auth/profile", data),
   refresh: (refreshToken) =>
     axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken }),
 };
@@ -134,6 +137,4 @@ export const publicAPI = {
   getProducts: (params = {}) => apiClient.get("/products", { params }),
   getProductById: (id) => apiClient.get(`/products/${id}`),
 };
-
-export default apiClient;
 
