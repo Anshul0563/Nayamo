@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import Logo from "../components/common/Logo";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/common/Loader";
@@ -59,8 +60,8 @@ export default function Login() {
         className="w-full max-w-md relative z-10"
       >
         <div className="text-center mb-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D4A853] to-[#C9963B] flex items-center justify-center mx-auto mb-5 shadow-[0_8px_32px_rgba(212,168,83,0.3)]">
-            <Sparkles className="w-7 h-7 text-[#070708]" />
+          <div className="mx-auto mb-5">
+            <Logo size="2xl" showText={false} glow={true} className="justify-center" />
           </div>
           <h1 className="text-3xl font-serif font-bold text-white mb-2">
             {isRegister ? "Create Account" : "Welcome Back"}

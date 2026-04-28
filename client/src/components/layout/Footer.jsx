@@ -8,10 +8,10 @@ import {
   Truck,
   Shield,
   RotateCcw,
-  Sparkles,
   ArrowUpRight,
 } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
+import Logo from "../common/Logo";
 
 export default function Footer() {
   return (
@@ -45,13 +45,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand & Social */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2.5 mb-5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4A853] to-[#C9963B] flex items-center justify-center shadow-[0_4px_16px_rgba(212,168,83,0.25)]">
-                <Sparkles className="w-4 h-4 text-[#070708]" />
-              </div>
-              <span className="text-xl font-serif font-bold text-white tracking-tight">
-                Nayamo
-              </span>
+            <div className="mb-5">
+              <Logo size="sm" showText={true} glow={true} />
             </div>
             <p className="text-[#A1A1AA] text-sm leading-relaxed mb-6 max-w-xs">
               India's finest destination for handcrafted earrings. From delicate
