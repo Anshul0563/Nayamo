@@ -9,6 +9,7 @@ const compression = require("compression");
 require("dotenv").config();
 
 const connectDB = require("./config/db");
+const { checkDB } = require("./config/db");
 const mongoose = require("mongoose");
 const logger = require("./config/logger");
 const redis = require("./config/redis");
@@ -78,7 +79,7 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.path === "/health", // Skip rate limit for health checks
+  skip: (req) => req.path === "/health",
 });
 app.use(limiter);
 
@@ -112,7 +113,7 @@ app.use("/api/v1/payment", paymentLimiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// Data sanitization against NoSQL query injection (production-grade)
+// Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
 
 // Prevent HTTP Parameter Pollution
@@ -126,15 +127,29 @@ app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev", {
 }));
 
 // ============================================
+// DB DEPENDENCY CHECK MIDDLEWARE
+// ============================================
+const requireDB = (req, res, next) => {
+  if (!checkDB()) {
+    return res.status(503).json({
+      success: false,
+      message: "Database unavailable. Please whitelist your IP on MongoDB Atlas, or check your MONGO_URI configuration.",
+      code: "DB_UNAVAILABLE",
+    });
+  }
+  next();
+};
+
+// ============================================
 // HEALTH CHECK
 // ============================================
 app.get("/health", async (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
   const redisStatus = redis.status === "ready" ? "connected" : "disconnected";
 
-  res.status(200).json({
-    success: true,
-    message: "Nayamo API is healthy",
+  res.status(dbStatus === "connected" ? 200 : 503).json({
+    success: dbStatus === "connected",
+    message: dbStatus === "connected" ? "Nayamo API is healthy" : "Database unavailable",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
     database: dbStatus,
@@ -149,20 +164,20 @@ app.get("/", (req, res) => {
 });
 
 // ============================================
-// API ROUTES (Versioned)
+// API ROUTES (Versioned - with DB check)
 // ============================================
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/admin", adminRoutes);
-app.use("/api/v1/cart", cartRoutes);
-app.use("/api/v1/wishlist", wishlistRoutes);
-app.use("/api/v1/orders", orderRoutes);
-app.use("/api/v1/products", productRoutes);
-app.use("/api/v1/payment", paymentRoutes);
-app.use("/api/v1/delhivery", delhiveryRoutes);
+app.use("/api/v1/auth", requireDB, authRoutes);
+app.use("/api/v1/admin", requireDB, adminRoutes);
+app.use("/api/v1/cart", requireDB, cartRoutes);
+app.use("/api/v1/wishlist", requireDB, wishlistRoutes);
+app.use("/api/v1/orders", requireDB, orderRoutes);
+app.use("/api/v1/products", requireDB, productRoutes);
+app.use("/api/v1/payment", requireDB, paymentRoutes);
+app.use("/api/v1/delhivery", requireDB, delhiveryRoutes);
 
 // Stricter rate limiting for contact form
 const contactLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 5,
   message: {
     success: false,
@@ -172,7 +187,7 @@ const contactLimiter = rateLimit({
   legacyHeaders: false,
 });
 app.use("/api/v1/contact", contactLimiter);
-app.use("/api/v1/contact", contactRoutes);
+app.use("/api/v1/contact", requireDB, contactRoutes);
 
 // Webhook rate limiter
 const webhookLimiter = rateLimit({
@@ -205,10 +220,8 @@ app.post("/webhook/razorpay", webhookLimiter, express.raw({ type: "application/j
   const event = JSON.parse(req.body);
   logger.info(`Razorpay webhook received: ${event.event}`);
 
-  // Handle payment captured event
   if (event.event === "payment.captured") {
     const payment = event.payload.payment.entity;
-    // Update order status asynchronously
     const Order = require("./models/Order");
     Order.findOneAndUpdate(
       { razorpayOrderId: payment.order_id },
@@ -231,7 +244,6 @@ app.use(errorHandler);
 // ============================================
 const startServer = async () => {
   try {
-    // Validate critical environment variables
     const requiredEnvVars = [
       "MONGO_URI",
       "JWT_SECRET",
@@ -256,13 +268,17 @@ const startServer = async () => {
       logger.warn("RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.");
     }
 
-    await connectDB();
+    // Try to connect DB but don't block server start
+    const dbConnected = await connectDB();
 
     const server = app.listen(PORT, () => {
       logger.info(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
+      if (!dbConnected) {
+        logger.warn("⚠️ Server started WITHOUT database connection. Login and other DB-dependent routes will return 503 until MongoDB is available.");
+      }
     });
 
-    // Graceful shutdown handling
+    // Graceful shutdown
     const gracefulShutdown = (signal) => {
       logger.info(`${signal} received. Shutting down gracefully...`);
       server.close(async () => {
@@ -279,7 +295,6 @@ const startServer = async () => {
         }
       });
 
-      // Force shutdown after 10 seconds
       setTimeout(() => {
         logger.error("Forced shutdown after timeout.");
         process.exit(1);
@@ -289,14 +304,12 @@ const startServer = async () => {
     process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
     process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
-    // Handle uncaught exceptions
     process.on("uncaughtException", (err) => {
       logger.error("UNCAUGHT EXCEPTION! Shutting down...");
       logger.error(err.name, err.message);
       process.exit(1);
     });
 
-    // Handle unhandled promise rejections
     process.on("unhandledRejection", (err) => {
       logger.error("UNHANDLED REJECTION! Shutting down...");
       logger.error(err.name, err.message);
