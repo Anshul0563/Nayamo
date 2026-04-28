@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Mail, LogOut, Package, Heart, MapPin, Sparkles, ChevronRight } from "lucide-react";
+import { User, Mail, LogOut, Package, Heart, MapPin, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/common/Loader";
@@ -52,7 +52,7 @@ export default function Profile() {
           >
             <div className="nayamo-card p-8 text-center border border-white/[0.04]">
               <div className="w-24 h-24 bg-gradient-to-br from-[#D4A853] to-[#C9963B] rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_12px_40px_rgba(212,168,83,0.3)]">
-                <Sparkles className="w-12 h-12 text-[#070708]" />
+                <User className="w-12 h-12 text-[#070708]" />
               </div>
               <h2 className="text-xl font-semibold text-white">{user.name}</h2>
               <div className="flex items-center justify-center gap-2 mt-2 text-[#A1A1AA]">
