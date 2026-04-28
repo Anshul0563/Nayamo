@@ -184,7 +184,8 @@ exports.refreshToken = asyncHandler(async (req, res) => {
 
     // Verify token exists in user's stored tokens
     const tokenHash = hashToken(refreshToken);
-    const tokenExists = user.refreshTokens.some(
+    const tokens = Array.isArray(user.refreshTokens) ? user.refreshTokens : [];
+    const tokenExists = tokens.some(
       (t) => t.tokenHash === tokenHash && t.expiresAt > new Date()
     );
 
@@ -194,7 +195,7 @@ exports.refreshToken = asyncHandler(async (req, res) => {
     }
 
     // Remove old token and issue new one (rotation)
-    user.refreshTokens = user.refreshTokens.filter((t) => t.tokenHash !== tokenHash);
+    user.refreshTokens = tokens.filter((t) => t.tokenHash !== tokenHash);
 
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
@@ -227,7 +228,8 @@ exports.logout = asyncHandler(async (req, res) => {
 
   if (refreshToken) {
     const tokenHash = hashToken(refreshToken);
-    user.refreshTokens = user.refreshTokens.filter((t) => t.tokenHash !== tokenHash);
+    const tokens = Array.isArray(user.refreshTokens) ? user.refreshTokens : [];
+    user.refreshTokens = tokens.filter((t) => t.tokenHash !== tokenHash);
     await user.save();
   }
 
