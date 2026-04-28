@@ -95,7 +95,7 @@ export default function Navbar() {
         }`}
       >
         <div className="nayamo-container">
-          <div className="grid h-20 grid-cols-[auto_1fr_auto] items-center gap-4 md:h-24 md:gap-8">
+          <div className="grid h-24 grid-cols-[auto_1fr_auto] items-center gap-4 md:h-28 md:gap-8">
             {/* Logo */}
             <Link
               to="/"

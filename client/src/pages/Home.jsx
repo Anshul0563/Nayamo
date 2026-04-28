@@ -9,12 +9,11 @@ import {
   Gem,
   Heart,
   Sparkles,
-  ChevronRight,
   ArrowUpRight,
 } from "lucide-react";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
-import Loader, { SkeletonGrid } from "../components/common/Loader";
+import { SkeletonGrid } from "../components/common/Loader";
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
@@ -509,4 +508,3 @@ export default function Home() {
     </div>
   );
 }
-

@@ -12,7 +12,6 @@ import {
   Lock,
   CheckCircle,
   Star,
-  ArrowRight,
   Minus,
   Plus,
 } from "lucide-react";
@@ -338,4 +337,3 @@ export default function ProductDetails() {
     </div>
   );
 }
-

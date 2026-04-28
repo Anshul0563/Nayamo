@@ -8,7 +8,7 @@ export default function Logo({ size = "sm", showText = true, glow = false, class
     lg: "h-14 md:h-16",
     xl: "h-16 md:h-20",
     "2xl": "h-20 md:h-24",
-    nav: "h-14 sm:h-16 md:h-[74px]",
+    nav: "h-20 sm:h-24 md:h-28",
   }[size] || "h-8";
 
   return (

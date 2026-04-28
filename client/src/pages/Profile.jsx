@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { User, Mail, LogOut, Package, Heart, MapPin, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
@@ -24,8 +24,7 @@ export default function Profile() {
   }
 
   if (!user) {
-    navigate("/login");
-    return null;
+    return <Navigate to="/login" replace state={{ from: { pathname: "/profile" } }} />;
   }
 
   return (
@@ -108,4 +107,3 @@ export default function Profile() {
     </div>
   );
 }
-

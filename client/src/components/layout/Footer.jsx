@@ -55,14 +55,16 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               {[
-                { icon: FaInstagram, label: "Instagram" },
-                { icon: FaFacebookF, label: "Facebook" },
-                { icon: FaWhatsapp, label: "WhatsApp" },
+                { icon: FaInstagram, label: "Instagram", href: "https://www.instagram.com/" },
+                { icon: FaFacebookF, label: "Facebook", href: "https://www.facebook.com/" },
+                { icon: FaWhatsapp, label: "WhatsApp", href: "https://wa.me/919718176159" },
               ].map((social) => (
                 <a
                   key={social.label}
-                  href="#"
+                  href={social.href}
                   aria-label={social.label}
+                  target="_blank"
+                  rel="noreferrer"
                   className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center hover:bg-[#D4A853] hover:border-[#D4A853] hover:text-[#070708] transition-all duration-300 group"
                 >
                   <social.icon className="w-4 h-4 text-[#A1A1AA] group-hover:text-[#070708] transition-colors" />
@@ -172,4 +174,3 @@ export default function Footer() {
     </footer>
   );
 }
-

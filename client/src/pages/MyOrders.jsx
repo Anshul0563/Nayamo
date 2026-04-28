@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { Package, Truck, CheckCircle, XCircle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { orderAPI } from "../services/api";
@@ -192,4 +191,3 @@ export default function MyOrders() {
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, ShoppingBag, ArrowRight, Minus, Plus, Sparkles } from "lucide-react";
+import { Trash2, ArrowRight, Minus, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/common/Loader";
@@ -178,4 +178,3 @@ export default function Cart() {
     </div>
   );
 }
-

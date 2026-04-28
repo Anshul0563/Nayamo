@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import Logo from "../components/common/Logo";
 import { motion } from "framer-motion";
@@ -17,8 +17,7 @@ export default function Login() {
 
   if (user) {
     const from = location.state?.from?.pathname || "/";
-    navigate(from, { replace: true });
-    return null;
+    return <Navigate to={from} replace />;
   }
 
   const handleChange = (e) => {
@@ -160,4 +159,3 @@ export default function Login() {
     </div>
   );
 }
-
