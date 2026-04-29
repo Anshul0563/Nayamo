@@ -353,3 +353,8 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=100 \u001b[33m401\u001b[0m 0.701 ms - 60\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 23:19:57"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/dashboard \u001b[33m401\u001b[0m 0.481 ms - 60\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 23:19:57"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=100 \u001b[33m401\u001b[0m 0.606 ms - 60\u001b[0m","service":"nayamo-api","timestamp":"2026-04-28 23:19:57"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-28 23:26:32"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-29 07:56:08"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-29 07:56:08"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-29 07:56:13"}
+{"level":"warn","message":"⚠️ Server started WITHOUT database connection. Login and other DB-dependent routes will return 503 until MongoDB is available.","service":"nayamo-api","timestamp":"2026-04-29 07:56:13"}

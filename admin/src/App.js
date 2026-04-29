@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastProvider } from "./components/ui/ToastProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/layout/AdminLayout";
 
@@ -14,31 +15,33 @@ import Settings from "./pages/Settings";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public */}
-        <Route path="/login" element={<Login />} />
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public */}
+          <Route path="/login" element={<Login />} />
 
-        {/* Protected Admin Layout */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="add-product" element={<AddProduct />} />
-          <Route path="payments" element={<Payments />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="returns" element={<Returns />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          {/* Protected Admin Layout */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="add-product" element={<AddProduct />} />
+            <Route path="payments" element={<Payments />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="returns" element={<Returns />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
   );
 }
 
