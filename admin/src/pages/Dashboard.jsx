@@ -51,7 +51,13 @@ export default function Dashboard() {
     
     // Refresh every 30 seconds
     const interval = setInterval(fetchDashboardData, 30000);
-    return () => clearInterval(interval);
+    window.addEventListener("refresh-dashboard", fetchDashboardData);
+    window.addEventListener("admin:refresh", fetchDashboardData);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("refresh-dashboard", fetchDashboardData);
+      window.removeEventListener("admin:refresh", fetchDashboardData);
+    };
   }, [fetchDashboardData]);
 
   if (loading) {

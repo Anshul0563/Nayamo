@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, Filter, ChevronLeft, ChevronRight, Loader2, Download } from 'lucide-react';
+import React, { useState, useCallback, useRef } from 'react';
+import { Search, Filter, Loader2, Download } from 'lucide-react';
 import { SkeletonRow } from './ui/Skeleton';
 
 const DataTable = ({

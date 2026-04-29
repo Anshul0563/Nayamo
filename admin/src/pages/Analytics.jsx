@@ -6,15 +6,12 @@ import SalesHeatmap from '../components/analytics/SalesHeatmap';
 import StatCard from '../components/ui/StatCard';
 import DateRangePicker from '../components/DateRangePicker';
 import ExportButton from '../components/ExportButton';
-import { SkeletonChart } from '../components/ui/Skeleton';
 import { adminAPI } from '../services/api';
 import { 
   BarChart3, 
   TrendingUp, 
   Activity, 
-  CalendarDays, 
-  Download,
-  Filter 
+  CalendarDays
 } from 'lucide-react';
 
 
@@ -39,10 +36,11 @@ export default function Analytics() {
         adminAPI.getConversionData?.() || Promise.resolve({ data: {} }),
       ]);
       
+      const analytics = analyticsRes.data.data || analyticsRes.data || {};
       setData({
-        ...analyticsRes.data,
-        revenue: revenueRes.data,
-        conversion: conversionRes.data,
+        ...analytics,
+        revenue: revenueRes.data.data || analytics.revenue || [],
+        conversion: conversionRes.data.data || analytics.funnel || [],
       });
     } catch (error) {
       console.error('Analytics error:', error);
@@ -70,24 +68,26 @@ export default function Analytics() {
       case 'revenue':
         return (
           <div className="space-y-6">
-            <RevenueFunnel />
-            <GrowthComparison />
+            <RevenueFunnel data={data.funnel || data.conversion || []} />
+            <GrowthComparison data={[
+              { period: 'Today', current: data.todayRevenue || 0, previous: 0, change: data.growthRate || 0, trend: (data.growthRate || 0) >= 0 ? 'up' : 'down', color: 'emerald' },
+              { period: 'This Week', current: data.weeklyRevenue || 0, previous: 0, change: data.growthRate || 0, trend: (data.growthRate || 0) >= 0 ? 'up' : 'down', color: 'blue' },
+              { period: 'This Month', current: data.monthlyRevenue || 0, previous: 0, change: data.growthRate || 0, trend: (data.growthRate || 0) >= 0 ? 'up' : 'down', color: 'gold' },
+            ]} />
           </div>
         );
 
       case 'acquisition':
         return (
           <div className="space-y-6">
-            <ConversionChart />
-            {/* Add acquisition charts */}
+            <ConversionChart data={data.conversion || []} />
           </div>
         );
 
       case 'behavior':
         return (
           <div className="space-y-6">
-            <SalesHeatmap />
-            {/* Add retention cohorts */}
+            <SalesHeatmap data={data.heatmap || []} />
           </div>
         );
 
@@ -168,4 +168,3 @@ export default function Analytics() {
     </div>
   );
 }
-

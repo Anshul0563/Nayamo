@@ -1,33 +1,6 @@
 import React, { useMemo } from "react";
 import { Calendar, TrendingUp, Zap } from "lucide-react";
 
-const HEATMAP_DATA = [
-  { hour: 0, orders: 12 },
-  { hour: 1, orders: 8 },
-  { hour: 2, orders: 5 },
-  { hour: 3, orders: 3 },
-  { hour: 4, orders: 4 },
-  { hour: 5, orders: 6 },
-  { hour: 6, orders: 15 },
-  { hour: 7, orders: 28 },
-  { hour: 8, orders: 45 },
-  { hour: 9, orders: 67 },
-  { hour: 10, orders: 89 },
-  { hour: 11, orders: 102 },
-  { hour: 12, orders: 95 },
-  { hour: 13, orders: 88 },
-  { hour: 14, orders: 76 },
-  { hour: 15, orders: 92 },
-  { hour: 16, orders: 108 },
-  { hour: 17, orders: 124 },
-  { hour: 18, orders: 115 },
-  { hour: 19, orders: 98 },
-  { hour: 20, orders: 72 },
-  { hour: 21, orders: 58 },
-  { hour: 22, orders: 34 },
-  { hour: 23, orders: 22 },
-];
-
 const getHeatColor = (orders) => {
   if (orders >= 100) {
     return "bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.25)]";
@@ -50,16 +23,25 @@ const formatHour = (hour) => {
   return `${formatted} ${suffix}`;
 };
 
-export default function SalesHeatmap({ data = HEATMAP_DATA }) {
+export default function SalesHeatmap({ data = [] }) {
+  const normalizedData = useMemo(() => {
+    const byHour = new Map();
+    data.forEach((item) => {
+      const hour = item.hour ?? item._id?.hour ?? 0;
+      byHour.set(hour, (byHour.get(hour) || 0) + Number(item.orders || 0));
+    });
+    return Array.from({ length: 24 }, (_, hour) => ({ hour, orders: byHour.get(hour) || 0 }));
+  }, [data]);
+
   const stats = useMemo(() => {
-    const peakHour = data.reduce((max, item) =>
+    const peakHour = normalizedData.reduce((max, item) =>
       item.orders > max.orders ? item : max
     );
 
-    const total = data.reduce((sum, item) => sum + item.orders, 0);
-    const average = total / data.length;
+    const total = normalizedData.reduce((sum, item) => sum + item.orders, 0);
+    const average = total / normalizedData.length;
 
-    const highTraffic = data.filter((item) => item.orders >= 70).length;
+    const highTraffic = normalizedData.filter((item) => item.orders >= 70).length;
 
     return {
       peakHour,
@@ -67,7 +49,7 @@ export default function SalesHeatmap({ data = HEATMAP_DATA }) {
       average,
       highTraffic,
     };
-  }, [data]);
+  }, [normalizedData]);
 
   return (
     <div className="glass-card rounded-2xl p-6 space-y-6 border-gold-animated">
@@ -106,7 +88,7 @@ export default function SalesHeatmap({ data = HEATMAP_DATA }) {
 
       {/* Heatmap Grid */}
       <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-12 gap-2">
-        {data.map((item, index) => (
+        {normalizedData.map((item, index) => (
           <div
             key={item.hour}
             className="group relative aspect-square rounded-xl border border-white/10 bg-white/[0.02] p-1.5 overflow-hidden transition-all duration-300 hover:scale-110 hover:-translate-y-1 hover:z-10"

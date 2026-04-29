@@ -36,9 +36,7 @@ function App() {
       console.log('Real-time notification received:', e.detail);
     };
 
-    const handleRefreshDashboard = () => {
-      window.location.reload(); // Simple refresh for now
-    };
+    const handleRefreshDashboard = () => {};
 
     window.addEventListener('realtime-notification', handleRealtimeNotification);
     window.addEventListener('refresh-dashboard', handleRefreshDashboard);
@@ -83,4 +81,3 @@ function App() {
 }
 
 export default App;
-
