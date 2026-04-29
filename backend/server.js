@@ -275,7 +275,8 @@ const socketAuth = (socket, next) => {
 };
 
 // Admin Namespace - Isolated for security
-const adminNamespace = io.of('/admin', socketAuth);
+const adminNamespace = io.of('/admin');
+adminNamespace.use(socketAuth);
 
 // Handle admin connections
 adminNamespace.on('connection', (socket) => {
