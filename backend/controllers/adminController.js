@@ -6,6 +6,10 @@ const Product = require("../models/Product");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
+const Notification = require("../models/Notification");
+const mongoosePaginate = require('mongoose-paginate-v2'); // Add pagination support
+
+Notification.paginate = mongoosePaginate.paginate;
 
 const validStatuses = [
   "pending",
@@ -73,13 +77,57 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
   });
 });
 
-// DASHBOARD
+// DASHBOARD STATS - Real MongoDB aggregation
 exports.getDashboardStats = asyncHandler(async (req, res) => {
-  const data = await adminService.getDashboardStats();
+  const { 
+    days = 30, 
+    dateFrom = new Date(Date.now() - days * 24 * 60 * 60 * 1000),
+    dateTo = new Date()
+  } = req.query;
+
+  const [
+    stats,
+    chartData,
+    recentOrders,
+    topProducts,
+    funnelData
+  ] = await Promise.all([
+    adminService.getDashboardStats({ dateFrom, dateTo }),
+    adminService.getRevenueChartData({ days }),
+    adminService.getRecentOrders(5),
+    adminService.getTopProducts(5),
+    adminService.getConversionFunnel()
+  ]);
 
   res.json({
     success: true,
-    data,
+    stats,
+    chartData,
+    recentOrders,
+    topProducts,
+    funnelData
+  });
+});
+
+// NOTIFICATIONS
+exports.getNotifications = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, read = null, type } = req.query;
+  
+  const match = { adminId: req.user._id };
+  if (read !== null) match.isRead = read === 'true';
+  if (type) match.type = type;
+
+  const notifications = await Notification.paginate(match, {
+    page: parseInt(page),
+    limit: parseInt(limit),
+    sort: { createdAt: -1 },
+    populate: false
+  });
+
+  res.json({
+    success: true,
+    data: notifications.docs,
+    pagination: notifications.pagination
   });
 });
 

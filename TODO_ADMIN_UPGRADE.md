@@ -1,44 +1,47 @@
-# Nayamo Admin Panel — Luxury Upgrade Tracker
+# Nayamo Admin Panel - Enterprise Real-Time Upgrade
+🚀 **Status: IN PROGRESS** | **Phase: 1/3** 
 
-## Phase 1: Core Layout & UX Foundation ⏳
-- [ ] Update `admin/public/index.html` — Font preloads, meta tags
-- [ ] Enhance `admin/src/index.css` — More luxury utilities, animations
-- [ ] Enhance `admin/tailwind.config.js` — Extended tokens
-- [ ] Create `admin/src/components/layout/Sidebar.jsx` — Luxury animated sidebar
-- [ ] Create `admin/src/components/layout/Header.jsx` — Premium topbar
-- [ ] Update `admin/src/components/layout/AdminLayout.jsx` — Integrate new layout
-- [ ] Update `admin/src/App.js` — ToastProvider wrap, global loading
+## 📋 Implementation Steps (Sequential)
 
-## Phase 2: Dashboard — Hero Experience ⏳
-- [ ] Update `admin/src/pages/Dashboard.jsx` — Animated stats, charts, activity feed
+### **PHASE 1: Backend Real-Time Foundation** ⏳ **CURRENT**
+- [x] 1.1 Install Socket.IO dependencies (backend)
+- [x] 1.2 Update backend/server.js (add Socket.IO server + auth)
+- [ ] 1.3 Create backend/models/Notification.js
+- [ ] 1.4 Enhance backend/controllers/adminController.js (/admin/stats, /admin/dashboard)
+- [ ] 1.5 Add admin routes for stats/analytics
+- [ ] 1.6 Create services/notificationService.js + emitters
+- [ ] 1.7 Test backend APIs + socket connection
 
-## Phase 3: Product Management Suite ⏳
-- [ ] Update `admin/src/pages/Inventory.jsx` — Premium grid, stock badges, bulk actions
-- [ ] Update `admin/src/pages/AddProduct.jsx` — Multi-step form, drag-drop uploader
+### **PHASE 2: Frontend Socket.IO + Notifications** 🔄
+- [ ] 2.1 Install socket.io-client (admin)
+- [ ] 2.2 Create admin/src/services/socket.js
+- [ ] 2.3 Update admin/src/App.js (Socket provider)
+- [ ] 2.4 Add notification bell (Header.jsx) + Toast connection
+- [ ] 2.5 Convert Dashboard.jsx (remove ALL static data)
+- [ ] 2.6 Live charts (SalesChart.jsx, RevenueFunnel.jsx)
+- [ ] 2.7 Test real-time notifications
 
-## Phase 4: Orders & Operations ⏳
-- [ ] Update `admin/src/pages/Orders.jsx` — Timeline view, workflow automation
-- [ ] Update `admin/src/pages/Returns.jsx` — Return analytics, refund workflows
+### **PHASE 3: Complete Dynamic Pages** ✅
+- [ ] 3.1 Orders.jsx (live table + status updates)
+- [ ] 3.2 Inventory.jsx (low stock alerts)
+- [ ] 3.3 Users.jsx (live metrics)
+- [ ] 3.4 Analytics.jsx (date-range charts)
+- [ ] 3.5 Payments/Returns/Settings (full CRUD)
+- [ ] 3.6 Mobile responsive + perf optimization
+- [ ] 3.7 Production build + deployment test
 
-## Phase 5: Analytics & Insights ⏳
-- [ ] Update `admin/src/pages/Analytics.jsx` — Interactive charts, heatmaps
-- [ ] Update `admin/src/pages/Payments.jsx` — Gateway analytics, breakdowns
+## 🧪 **Testing Checklist**
+- [ ] Dashboard auto-refreshes every 30s
+- [ ] Real-time order notifications (sound + toast)
+- [ ] Charts use MongoDB data (no static arrays)
+- [ ] Low stock → instant alert
+- [ ] Mobile sidebar works perfectly
 
-## Phase 6: Premium UX Components ⏳
-- [ ] Create `admin/src/components/ui/NotificationDropdown.jsx`
-- [ ] Create `admin/src/components/ui/QuickSearch.jsx`
-- [ ] Create `admin/src/components/ui/StatCard.jsx`
-- [ ] Create `admin/src/components/ui/DataTable.jsx`
-- [ ] Create `admin/src/components/ui/ConfirmModal.jsx`
-- [ ] Create `admin/src/components/ui/EmptyState.jsx`
+## 🚀 **Final Commands**
+```
+cd backend && npm install && npm run dev
+cd admin && npm install && npm start
+```
 
-## Phase 7: Settings & Admin Tools ⏳
-- [ ] Update `admin/src/pages/Settings.jsx` — Brand customization, API keys
-- [ ] Update `admin/src/pages/Login.jsx` — Luxury login experience
-
-## Phase 8: Polish & Testing ⏳
-- [ ] Responsive testing (mobile/tablet/desktop)
-- [ ] Performance audit
-- [ ] Build verification
-- [ ] Lighthouse audit
+**Completed Steps: 0/28** | **Est. Time: 4-6 hours**
 

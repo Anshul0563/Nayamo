@@ -239,6 +239,80 @@ app.post("/webhook/razorpay", webhookLimiter, express.raw({ type: "application/j
 app.use(notFound);
 app.use(errorHandler);
 
+// Socket.IO Real-time Server (logger already imported)
+const { Server } = require('socket.io');
+const jwt = require('jsonwebtoken');
+const Notification = require('./models/Notification');
+
+// Create HTTP server for Socket.IO
+const httpServer = require('http').createServer(app);
+
+// Initialize Socket.IO with CORS matching Express
+const io = new Server(httpServer, {
+  cors: {
+    origin: corsOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true
+  },
+  pingTimeout: 60000,
+  pingInterval: 25000
+});
+
+// Socket.IO Auth Middleware
+const socketAuth = (socket, next) => {
+  const token = socket.handshake.auth.token || socket.handshake.headers['authorization']?.replace('Bearer ', '');
+  
+  if (!token) return next(new Error('Authentication required'));
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.role !== 'admin') return next(new Error('Admin access required'));
+    socket.user = decoded;
+    next();
+  } catch (err) {
+    next(new Error('Invalid token'));
+  }
+};
+
+// Admin Namespace - Isolated for security
+const adminNamespace = io.of('/admin', socketAuth);
+
+// Handle admin connections
+adminNamespace.on('connection', (socket) => {
+  logger.info(`Admin ${socket.user.id} connected via Socket.IO`);
+  
+  // Join admin room
+  socket.join(`admin_${socket.user.id}`);
+  
+  // Send existing unread notifications
+  Notification.find({ adminId: socket.user.id, isRead: false })
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .then(notifs => {
+      socket.emit('notifications', notifs);
+    });
+  
+  // Listen for ack
+  socket.on('notification:read', async (notificationId) => {
+    await Notification.findByIdAndUpdate(notificationId, { isRead: true });
+    socket.emit('notification:read:ack', notificationId);
+  });
+  
+  // Connection cleanup
+  socket.on('disconnect', () => {
+    logger.info(`Admin ${socket.user.id} disconnected`);
+  });
+});
+
+// Global event emitters for other services
+const emitToAdmins = (event, data) => {
+  adminNamespace.emit(event, data);
+};
+
+// Make emitters globally available
+global.emitToAdmins = emitToAdmins;
+global.io = io;
+
 // ============================================
 // SERVER START
 // ============================================
@@ -271,7 +345,7 @@ const startServer = async () => {
     // Try to connect DB but don't block server start
     const dbConnected = await connectDB();
 
-    const server = app.listen(PORT, () => {
+    const server = httpServer.listen(PORT, () => {
       logger.info(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
       if (!dbConnected) {
         logger.warn("⚠️ Server started WITHOUT database connection. Login and other DB-dependent routes will return 503 until MongoDB is available.");

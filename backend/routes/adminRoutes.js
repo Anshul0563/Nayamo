@@ -4,6 +4,7 @@ const { body, param } = require("express-validator");
 
 const {
   getDashboardStats,
+  getNotifications,
   getAllOrders,
   updateOrderStatus,
   getAllUsers,
@@ -68,7 +69,8 @@ const productUpdateValidation = [
     .withMessage("isActive must be a boolean"),
 ];
 
-router.get("/dashboard", protect, admin, getDashboardStats);
+router.get("/stats", protect, admin, getDashboardStats);
+router.get("/notifications", protect, admin, getNotifications);
 
 router.get("/orders", protect, admin, getAllOrders);
 router.put("/orders/:id", protect, admin, statusValidation, validate, updateOrderStatus);

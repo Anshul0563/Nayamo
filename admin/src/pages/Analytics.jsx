@@ -1,238 +1,169 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { adminAPI } from "../services/api";
-import {
-  IndianRupee,
-  ShoppingCart,
-  Package,
-  Users,
-  TrendingUp,
-  RefreshCcw,
-  AlertTriangle,
-  Ban,
-  CalendarDays,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  CartesianGrid,
-  Tooltip,
-  XAxis,
-  YAxis,
-  BarChart,
-  Bar,
-} from "recharts";
+import React, { useEffect, useState, useCallback } from 'react';
+import RevenueFunnel from '../components/analytics/RevenueFunnel';
+import ConversionChart from '../components/analytics/ConversionChart';
+import GrowthComparison from '../components/analytics/GrowthComparison';
+import SalesHeatmap from '../components/analytics/SalesHeatmap';
+import StatCard from '../components/ui/StatCard';
+import DateRangePicker from '../components/DateRangePicker';
+import ExportButton from '../components/ExportButton';
+import { SkeletonChart } from '../components/ui/Skeleton';
+import { adminAPI } from '../services/api';
+import { 
+  BarChart3, 
+  TrendingUp, 
+  Activity, 
+  CalendarDays, 
+  Download,
+  Filter 
+} from 'lucide-react';
 
-function Card({ title, value, icon: Icon, color, sub }) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-zinc-400">{title}</p>
-        <div className="h-10 w-10 rounded-2xl bg-black/30 grid place-items-center">
-          <Icon size={18} className={color} />
-        </div>
-      </div>
-      <h2 className="text-2xl md:text-3xl font-bold mt-4">{value}</h2>
-      {sub && <p className="text-xs text-zinc-500 mt-2">{sub}</p>}
-    </div>
-  );
-}
+
+const TABS = [
+  { id: 'overview', label: 'Overview', icon: BarChart3 },
+  { id: 'revenue', label: 'Revenue', icon: TrendingUp },
+  { id: 'acquisition', label: 'Acquisition', icon: Activity },
+  { id: 'behavior', label: 'Behavior', icon: CalendarDays },
+];
 
 export default function Analytics() {
+  const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState("");
+  const [data, setData] = useState({});
 
-  const [data, setData] = useState({
-    totalRevenue: 0,
-    totalOrders: 0,
-    totalProducts: 0,
-    totalUsers: 0,
-    avgOrderValue: 0,
-    lowStock: 0,
-    outOfStock: 0,
-    monthlySales: [],
-    topProducts: [],
-    recentOrders: [],
-    lowStockProducts: [],
-  });
-
-  const loadData = useCallback(async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
-
-      const res = await adminAPI.getDashboard();
-      setData(res.data.data || {});
+      const [analyticsRes, revenueRes, conversionRes] = await Promise.all([
+        adminAPI.getAnalytics?.() || Promise.resolve({ data: {} }),
+        adminAPI.getRevenueData?.() || Promise.resolve({ data: {} }),
+        adminAPI.getConversionData?.() || Promise.resolve({ data: {} }),
+      ]);
+      
+      setData({
+        ...analyticsRes.data,
+        revenue: revenueRes.data,
+        conversion: conversionRes.data,
+      });
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to load analytics");
+      console.error('Analytics error:', error);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadAnalytics();
+  }, [loadAnalytics]);
 
-  const refresh = async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+            <StatCard title="Total Revenue" value={data.totalRevenue || 0} prefix="₹" color="gold" />
+            <StatCard title="Conversion Rate" value={data.conversionRate || 0} suffix="%" color="emerald" />
+            <StatCard title="Avg Order Value" value={data.avgOrderValue || 0} prefix="₹" color="blue" />
+            <StatCard title="Customer Lifetime Value" value={data.clv || 0} prefix="₹" color="purple" />
+          </div>
+        );
+
+      case 'revenue':
+        return (
+          <div className="space-y-6">
+            <RevenueFunnel />
+            <GrowthComparison />
+          </div>
+        );
+
+      case 'acquisition':
+        return (
+          <div className="space-y-6">
+            <ConversionChart />
+            {/* Add acquisition charts */}
+          </div>
+        );
+
+      case 'behavior':
+        return (
+          <div className="space-y-6">
+            <SalesHeatmap />
+            {/* Add retention cohorts */}
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
-
-  const bestMonth = useMemo(() => {
-    if (!data.monthlySales?.length) return "-";
-    return [...data.monthlySales].sort((a, b) => b.sales - a.sales)[0]?.month;
-  }, [data]);
-
-  const topProductsWithNames = useMemo(() => {
-    return (data.topProducts || []).map((p, i) => ({
-      ...p,
-      name: p.name || p.title || `Product ${i + 1}`,
-    }));
-  }, [data.topProducts]);
 
   if (loading) {
     return (
-      <div className="h-[70vh] grid place-items-center text-white">
-        <Loader2 size={40} className="animate-spin text-indigo-500" />
+      <div className="space-y-6">
+        <div className="glass-card p-6 rounded-3xl">
+          <div className="shimmer h-8 w-64 rounded bg-white/5" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="glass-card p-6 rounded-2xl animate-pulse">
+              <div className="shimmer h-4 w-24 rounded bg-white/5 mb-4" />
+              <div className="shimmer h-10 w-20 rounded bg-white/5" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 text-white">
-      {/* Error */}
-      {error && (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
-          <AlertCircle size={16} />
-          {error}
-          <button onClick={loadData} className="ml-auto underline">Retry</button>
-        </div>
-      )}
-
+    <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl md:text-4xl font-bold">Analytics</h1>
-          <p className="text-zinc-400 mt-1">Real-time business insights & growth tracking.</p>
-        </div>
-
-        <div className="flex gap-3">
-          <button className="px-4 py-3 rounded-2xl bg-black/30 border border-white/10 flex items-center gap-2">
-            <CalendarDays size={16} />
-            This Year
-          </button>
-          <button
-            onClick={refresh}
-            disabled={refreshing}
-            className="px-4 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50"
-          >
-            <RefreshCcw size={16} className={refreshing ? "animate-spin" : ""} />
-            Refresh
-          </button>
-        </div>
-      </div>
-
-      {/* Top Cards */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <Card title="Revenue" value={`₹${data.totalRevenue?.toLocaleString() || 0}`} icon={IndianRupee} color="text-emerald-400" sub="Total earnings" />
-        <Card title="Orders" value={data.totalOrders} icon={ShoppingCart} color="text-cyan-400" sub="All orders" />
-        <Card title="Products" value={data.totalProducts} icon={Package} color="text-yellow-400" sub="Listed products" />
-        <Card title="Users" value={data.totalUsers} icon={Users} color="text-pink-400" sub="Registered users" />
-      </div>
-
-      {/* Second Row */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <Card title="Avg Order Value" value={`₹${data.avgOrderValue}`} icon={TrendingUp} color="text-indigo-400" />
-        <Card title="Low Stock" value={data.lowStock} icon={AlertTriangle} color="text-yellow-400" />
-        <Card title="Out of Stock" value={data.outOfStock} icon={Ban} color="text-red-400" />
-        <Card title="Best Month" value={bestMonth} icon={CalendarDays} color="text-cyan-400" />
-      </div>
-
-      {/* Charts */}
-      <div className="grid xl:grid-cols-3 gap-6">
-        {/* Revenue Chart */}
-        <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-white/5 p-5">
-          <h2 className="text-xl font-semibold mb-5">Monthly Revenue</h2>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.monthlySales || []}>
-                <defs>
-                  <linearGradient id="fillSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="month" stroke="#71717a" />
-                <YAxis stroke="#71717a" />
-                <Tooltip />
-                <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fill="url(#fillSales)" />
-              </AreaChart>
-            </ResponsiveContainer>
+      <div className="glass-card p-6 md:p-8 rounded-3xl">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-luxury-text">
+              Analytics Dashboard
+            </h1>
+            <p className="text-lg text-luxury-dim mt-2">
+              Deep insights into your Nayamo jewellery business performance
+            </p>
           </div>
-        </div>
-
-        {/* Recent Orders */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-          <h2 className="text-xl font-semibold mb-5">Recent Orders</h2>
-          <div className="space-y-3">
-            {(data.recentOrders || []).length === 0 ? (
-              <p className="text-zinc-400">No orders found</p>
-            ) : (
-              data.recentOrders.map((order) => (
-                <div key={order._id} className="rounded-2xl bg-black/30 p-3">
-                  <p className="font-medium truncate">{order.user?.name || "User"}</p>
-                  <p className="text-sm text-zinc-400">₹{order.totalPrice}</p>
-                  <p className="text-xs text-zinc-500 mt-1 uppercase">{order.status}</p>
-                </div>
-              ))
-            )}
+          
+          <div className="flex items-center gap-3">
+            <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
+              {TABS.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all group relative ${
+                      activeTab === tab.id
+                        ? 'bg-gold-gradient text-black shadow-gold-sm font-semibold'
+                        : 'text-luxury-dim hover:text-luxury-text hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    {activeTab === tab.id && (
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-400 rounded-full shadow-lg" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <DateRangePicker />
+            
+            <div className="flex gap-2">
+              <ExportButton data={data.revenue || []} />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Row */}
-      <div className="grid xl:grid-cols-2 gap-6">
-        {/* Top Products */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-          <h2 className="text-xl font-semibold mb-5">Top Products</h2>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topProductsWithNames}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="name" stroke="#71717a" />
-                <YAxis stroke="#71717a" />
-                <Tooltip />
-                <Bar dataKey="sales" fill="#10b981" radius={[10, 10, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Low Stock Products */}
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-          <h2 className="text-xl font-semibold mb-5">Low Stock Products</h2>
-          <div className="space-y-3">
-            {(data.lowStockProducts || []).length === 0 ? (
-              <p className="text-zinc-400">No low stock items</p>
-            ) : (
-              data.lowStockProducts.map((item) => (
-                <div key={item._id} className="rounded-2xl bg-black/30 p-3 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-medium truncate">{item.name || item.title}</p>
-                    <p className="text-xs text-zinc-500">₹{item.price}</p>
-                  </div>
-                  <span className="text-yellow-400 font-semibold">{item.stock}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+      {/* Tab Content */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+        {renderContent()}
       </div>
     </div>
   );

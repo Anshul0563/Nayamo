@@ -24,6 +24,7 @@ const menuItems = [
   { name: "Add Product", path: "/add-product", icon: PlusSquare },
   { name: "Payments", path: "/payments", icon: Wallet },
   { name: "Analytics", path: "/analytics", icon: BarChart3 },
+  { name: "Users", path: "/users", icon: Users },
   { name: "Returns", path: "/returns", icon: RotateCcw },
   { name: "Settings", path: "/settings", icon: Settings },
 ];

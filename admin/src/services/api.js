@@ -96,8 +96,16 @@ apiClient.interceptors.response.use(
 
 // Admin API endpoints
 export const adminAPI = {
-  // Dashboard
+  // Dashboard - NEW luxury endpoints
   getDashboard: () => apiClient.get("/admin/dashboard"),
+  getStats: () => apiClient.get("/admin/stats"),
+  getNotifications: (params = {}) => apiClient.get("/admin/notifications", { params }),
+  getRecentActivity: (params = {}) => apiClient.get("/admin/recent-activity", { params }),
+  getTopProducts: (params = {}) => apiClient.get("/admin/top-products", { params }),
+  // Analytics endpoints
+  getAnalytics: (params = {}) => apiClient.get("/admin/analytics", { params }),
+  getRevenueData: (params = {}) => apiClient.get("/admin/revenue", { params }),
+  getConversionData: (params = {}) => apiClient.get("/admin/conversion", { params }),
 
   // Orders
   getOrders: (params = {}) => apiClient.get("/admin/orders", { params }),
@@ -121,6 +129,7 @@ export const adminAPI = {
   // Payments
   getPayments: (params = {}) => apiClient.get("/admin/payments", { params }),
 };
+
 
 // Auth API endpoints
 export const authAPI = {

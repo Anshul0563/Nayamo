@@ -10,16 +10,16 @@ import {
   BadgeInfo,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
+  Crown,
 } from "lucide-react";
 
 function Input({ label, name, type = "text", placeholder, icon, value, onChange }) {
   return (
     <div>
-      <label className="text-sm text-zinc-300 block mb-2">{label}</label>
+      <label className="text-sm text-luxury-dim block mb-2">{label}</label>
       <div className="relative">
         {icon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-400">
             {icon}
           </span>
         )}
@@ -29,9 +29,7 @@ function Input({ label, name, type = "text", placeholder, icon, value, onChange 
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className={`w-full rounded-2xl bg-black/30 border border-white/10 outline-none focus:border-indigo-500 transition py-3 ${
-            icon ? "pl-10 pr-4" : "px-4"
-          }`}
+          className="luxury-input focus:shadow-gold-sm focus:border-gold-400/50 pl-10 pr-4 h-12"
         />
       </div>
     </div>
@@ -116,7 +114,7 @@ export default function AddProduct() {
         images: [...prev.images, ...uploaded],
       }));
 
-      notify("success", `${uploaded.length} image(s) uploaded`);
+      notify("success", `${uploaded.length} image(s) uploaded successfully ✨`);
     } catch (error) {
       notify("error", error.response?.data?.message || "Image upload failed");
     } finally {
@@ -147,7 +145,7 @@ export default function AddProduct() {
 
       await adminAPI.createProduct(payload);
 
-      notify("success", "Product added successfully!");
+      notify("success", "Product created successfully! ✨ Ready for Nayamo luxury collection.");
       resetForm();
     } catch (error) {
       notify("error", error.response?.data?.message || "Failed to create product");
@@ -157,150 +155,202 @@ export default function AddProduct() {
   };
 
   return (
-    <div className="space-y-6 text-white">
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-5">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-indigo-600/20 grid place-items-center">
-            <Sparkles size={22} className="text-indigo-400" />
+    <div className="page-container">
+      <div className="glass-card p-8 rounded-3xl border-gold-animated">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-gold-lg border-gold-animated">
+            <Crown size={24} className="text-black font-bold" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Add Product</h1>
-            <p className="text-zinc-400">Create new products for your store</p>
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-luxury-text">
+              Add Luxury Product
+            </h1>
+            <p className="text-lg text-luxury-dim mt-1">Create exquisite jewelry pieces for Nayamo collection</p>
           </div>
         </div>
-      </div>
 
-      {/* Alert */}
-      {message.text && (
-        <div
-          className={`rounded-2xl px-4 py-3 border flex items-center gap-2 ${
+        {/* Alert */}
+        {message.text && (
+          <div className={`glass-card p-4 rounded-2xl border flex items-center gap-3 mb-6 ${
             message.type === "success"
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-              : "bg-red-500/10 border-red-500/30 text-red-400"
-          }`}
-        >
-          {message.type === "success" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-          {message.text}
-        </div>
-      )}
-
-      <form onSubmit={submitHandler} className="grid xl:grid-cols-[1fr_360px] gap-6">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-6">
-          <div className="grid md:grid-cols-2 gap-4">
-            <Input
-              label="Product Name *"
-              name="title"
-              value={form.title}
-              onChange={changeHandler}
-              placeholder="Gold Earrings"
-              icon={<BadgeInfo size={16} />}
-            />
-            <Input
-              label="Price (₹) *"
-              name="price"
-              type="number"
-              value={form.price}
-              onChange={changeHandler}
-              placeholder="299"
-              icon={<IndianRupee size={16} />}
-            />
-            <Input
-              label="Stock *"
-              name="stock"
-              type="number"
-              value={form.stock}
-              onChange={changeHandler}
-              placeholder="10"
-              icon={<Package size={16} />}
-            />
-            <Input
-              label="Category *"
-              name="category"
-              value={form.category}
-              onChange={changeHandler}
-              placeholder="party, daily, traditional, western, statement, or bridal"
-            />
+              ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
+              : "border-rose-500/30 bg-rose-500/5 text-rose-300"
+          }`}>
+            {message.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+            {message.text}
           </div>
+        )}
 
-          <div>
-            <label className="text-sm text-zinc-300 block mb-2">Description *</label>
-            <textarea
-              rows="5"
-              name="description"
-              value={form.description}
-              onChange={changeHandler}
-              placeholder="Write product details..."
-              className="w-full px-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none"
-            />
-          </div>
+        <form onSubmit={submitHandler} className="grid xl:grid-cols-[1fr_380px] gap-8">
+          {/* Main Form */}
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <Input
+                label="Product Title *"
+                name="title"
+                value={form.title}
+                onChange={changeHandler}
+                placeholder="18K Gold Diamond Necklace"
+                icon={<BadgeInfo size={16} />}
+              />
+              <Input
+                label="Price (₹) *"
+                name="price"
+                type="number"
+                value={form.price}
+                onChange={changeHandler}
+                placeholder="125000"
+                icon={<IndianRupee size={16} />}
+              />
+              <Input
+                label="Stock Quantity *"
+                name="stock"
+                type="number"
+                value={form.stock}
+                onChange={changeHandler}
+                placeholder="15"
+                icon={<Package size={16} />}
+              />
+              <Input
+                label="Category *"
+                name="category"
+                value={form.category}
+                onChange={changeHandler}
+                placeholder="party | daily | traditional | western | statement | bridal"
+              />
+            </div>
 
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={resetForm}
-              className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5 transition"
-            >
-              Reset
-            </button>
-            <button
-              type="submit"
-              disabled={loading || uploading}
-              className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50 transition"
-            >
-              {loading ? <Loader2 className="animate-spin" /> : <Save size={18} />}
-              {loading ? "Creating..." : "Submit Product"}
-            </button>
-          </div>
-        </div>
+            <div>
+              <label className="text-sm text-luxury-dim block mb-3 font-medium">
+                Product Description *
+              </label>
+              <textarea
+                rows="6"
+                name="description"
+                value={form.description}
+                onChange={changeHandler}
+                placeholder="Describe the luxury craftsmanship, materials (18K gold, VS diamonds), dimensions, and unique features of this exquisite piece..."
+                className="luxury-input resize-none focus:shadow-gold-md h-40"
+              />
+            </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 h-fit">
-          <h2 className="text-lg font-semibold mb-4">Product Images *</h2>
-
-          <label className="border-2 border-dashed border-white/15 rounded-2xl p-6 grid place-items-center cursor-pointer hover:bg-white/5 transition">
-            <input
-              type="file"
-              hidden
-              multiple
-              accept="image/*"
-              onChange={(e) => uploadImages(Array.from(e.target.files))}
-            />
-            {uploading ? <Loader2 className="animate-spin" /> : <ImagePlus />}
-          </label>
-
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            {form.images.map((img, index) => (
-              <div key={index} className="relative">
-                <img src={img} alt="preview" className="h-32 w-full object-cover rounded-2xl" />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-black/70 p-1 rounded-full hover:bg-black/90"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Live Preview */}
-          <div className="mt-5 rounded-2xl bg-black/30 border border-white/10 p-4 space-y-2">
-            {form.images[0] && (
-              <img src={form.images[0]} alt="main" className="w-full h-40 object-cover rounded-xl" />
-            )}
-            <h3 className="font-semibold truncate">{form.title || "Product Name"}</h3>
-            <p className="text-emerald-400 font-bold text-lg">₹{form.price || 0}</p>
-            <p className="text-zinc-400 text-sm">Stock: {form.stock || 0}</p>
-            <p className="text-zinc-500 text-xs line-clamp-2">
-              {form.description || "Your product preview will appear here."}
-            </p>
-            <div className="flex flex-wrap gap-2 pt-2">
-              {form.category && (
-                <span className="px-2 py-1 text-xs rounded-full bg-white/10">{form.category}</span>
-              )}
+            <div className="flex gap-4 pt-2">
+              <button
+                type="button"
+                onClick={resetForm}
+                className="luxury-btn luxury-btn-secondary px-8 py-3 flex-1"
+              >
+                Reset Form
+              </button>
+              <button
+                type="submit"
+                disabled={loading || uploading}
+                className="luxury-btn luxury-btn-primary px-8 py-3 flex-1 shadow-gold-lg hover:shadow-gold-xl font-semibold flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} />
+                    Add to Collection
+                  </>
+                )}
+              </button>
             </div>
           </div>
-        </div>
-      </form>
+
+          {/* Images & Preview */}
+          <div className="space-y-6 xl:pl-8">
+            <div className="glass-card p-6 rounded-2xl">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <ImagePlus size={20} />
+                Luxury Product Images *
+              </h3>
+              <label className="glass-card p-8 rounded-2xl border-2 border-dashed border-gold-500/30 hover:border-gold-400/50 cursor-pointer transition-all hover:shadow-gold-sm group">
+                <input
+                  type="file"
+                  hidden
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => uploadImages(Array.from(e.target.files))}
+                />
+                <div className="text-center">
+                  {uploading ? (
+                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-gold-400" />
+                  ) : (
+                    <>
+                      <ImagePlus size={40} className="mx-auto mb-3 text-gold-400 group-hover:animate-sparkle" />
+                      <p className="text-luxury-text font-medium mb-1">Upload Images</p>
+                      <p className="text-sm text-luxury-dim">High-res jewelry photos (JPG, PNG, up to 10MB)</p>
+                    </>
+                  )}
+                </div>
+              </label>
+
+              {form.images.length > 0 && (
+                <div className="grid grid-cols-2 gap-3 mt-6">
+                  {form.images.map((img, index) => (
+                    <div key={index} className="relative group">
+                      <img 
+                        src={img} 
+                        alt="preview" 
+                        className="h-32 w-full object-cover rounded-2xl hover:scale-105 transition-transform duration-300" 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-rose-500/90 hover:bg-rose-600 p-1.5 rounded-xl text-white transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Live Preview Card */}
+            <div className="glass-card p-6 rounded-2xl border-gold-animated hover:shadow-gold-lg transition-all">
+              <h4 className="font-semibold mb-4 text-gold-gradient">Live Preview</h4>
+              {form.images[0] ? (
+                <img 
+                  src={form.images[0]} 
+                  alt="main preview" 
+                  className="w-full h-48 object-cover rounded-2xl mb-4 shadow-gold-sm hover:shadow-gold-md transition-all" 
+                />
+              ) : (
+                <div className="w-full h-48 bg-luxury-surface/50 rounded-2xl flex items-center justify-center mb-4">
+                  <Crown size={32} className="text-gold-400/50" />
+                </div>
+              )}
+              <div className="space-y-1">
+                <h3 className="font-display font-bold text-xl truncate">{form.title || "Nayamo Masterpiece"}</h3>
+                <p className="text-2xl font-bold text-gold-gradient">₹{form.price || '0'}</p>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    Number(form.stock) === 0 
+                      ? 'bg-rose-500/20 text-rose-400' 
+                      : 'bg-emerald-500/20 text-emerald-400'
+                  }`}>
+                    Stock: {form.stock || 0}
+                  </span>
+                  {form.category && (
+                    <span className="px-2 py-1 rounded-full text-xs bg-white/10 text-luxury-dim">
+                      {form.category}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-luxury-dim line-clamp-2 leading-relaxed mt-2">
+                  {form.description || "Crafted with unparalleled luxury for the modern connoisseur..."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

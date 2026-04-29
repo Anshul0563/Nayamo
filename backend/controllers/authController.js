@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
+const { emitUserNotification, emitNotification } = require("../services/notificationService");
 
 // 🔐 Generate Access Token (short-lived)
 const generateAccessToken = (user) => {
@@ -81,6 +82,9 @@ exports.register = asyncHandler(async (req, res) => {
   await user.save();
 
   logger.info(`User registered: ${user.email}`);
+  emitUserNotification(user, "new_registration").catch((err) =>
+    logger.error("Registration notification failed:", err.message)
+  );
 
   res.status(201).json({
     success: true,
@@ -123,6 +127,10 @@ exports.login = asyncHandler(async (req, res) => {
     : require("bcryptjs").compare(password, user.password);
 
   if (!isMatch) {
+    emitNotification(null, "Failed Admin Login Attempt", `Failed login attempt for ${email}`, "security", "error", {
+      email,
+      path: "/settings"
+    }).catch((err) => logger.error("Security notification failed:", err.message));
     res.status(401);
     throw new Error("Invalid email or password");
   }

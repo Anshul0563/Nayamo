@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+import DataTable from "../components/DataTable.jsx";
 import { adminAPI } from "../services/api";
 import { useDebounce } from "../hooks/useApi";
 import {
@@ -83,16 +84,7 @@ export default function Orders() {
     window.open(`/api/v1/orders/${id}/invoice`, "_blank");
   };
 
-  const filtered = useMemo(() => {
-    return orders.filter((o) => {
-      if (!debouncedSearch) return true;
-      const term = debouncedSearch.toLowerCase();
-      return (
-        o._id?.toLowerCase().includes(term) ||
-        o.user?.name?.toLowerCase().includes(term)
-      );
-    });
-  }, [orders, debouncedSearch]);
+  // Remove filtered - DataTable handles it
 
   const counts = useMemo(() => {
     const map = {};
@@ -176,130 +168,29 @@ export default function Orders() {
       </div>
 
       {/* Orders */}
-      <div className="grid gap-4 w-full">
-        {filtered.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center text-zinc-400">
-            No orders found
-          </div>
-        ) : (
-          filtered.map((order) => (
-            <div
-              key={order._id}
-              className="rounded-3xl border border-white/10 bg-white/5 p-5 w-full overflow-hidden"
-            >
-              <div className="flex flex-col xl:flex-row gap-5 xl:items-center xl:justify-between min-w-0">
-                {/* Left */}
-                <div className="flex gap-4 min-w-0 flex-1">
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(order._id)}
-                    onChange={() => toggleSelect(order._id)}
-                    className="w-5 h-5 mt-1 shrink-0"
-                  />
-
-                  <div className="min-w-0">
-                    <h3 className="text-xl font-semibold break-all">
-                      #{order._id?.slice(-6)}
-                    </h3>
-                    <p className="text-zinc-300 mt-1 truncate">
-                      {order.user?.name || "Customer"}
-                    </p>
-                    <p className="text-zinc-500 text-sm mt-2 break-words">
-                      {order.address}
-                    </p>
-                    {order.delhivery?.waybill && (
-                      <p className="text-green-400 text-sm mt-2 break-all">
-                        WB: {order.delhivery.waybill}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right */}
-                <div className="xl:text-right min-w-0 xl:max-w-[50%]">
-                  <p className="text-2xl font-bold text-emerald-400">
-                    ₹{order.totalPrice}
-                  </p>
-
-                  <span className="inline-block mt-2 px-3 py-1 rounded-full bg-white/10 text-sm capitalize break-words">
-                    {order.status?.replaceAll("_", " ")}
-                  </span>
-
-                  <div className="flex flex-wrap gap-2 mt-4 xl:justify-end max-w-full">
-                    <button
-                      onClick={() => invoice(order._id)}
-                      className="px-3 py-2 rounded-xl bg-purple-600 text-sm flex items-center gap-2 hover:bg-purple-700 transition"
-                    >
-                      <FileText size={15} />
-                      Invoice
-                    </button>
-
-                    {order.status === "pending" && (
-                      <>
-                        <button
-                          onClick={() => updateStatus(order._id, "confirmed")}
-                          disabled={actionLoading === order._id}
-                          className="px-3 py-2 rounded-xl bg-emerald-600 text-sm hover:bg-emerald-700 transition disabled:opacity-50"
-                        >
-                          {actionLoading === order._id ? (
-                            <Loader2 size={15} className="animate-spin" />
-                          ) : (
-                            "Confirm"
-                          )}
-                        </button>
-
-                        <button
-                          onClick={() => updateStatus(order._id, "cancelled")}
-                          disabled={actionLoading === order._id}
-                          className="px-3 py-2 rounded-xl bg-red-600 text-sm flex items-center gap-2 hover:bg-red-700 transition disabled:opacity-50"
-                        >
-                          <XCircle size={15} />
-                          Cancel
-                        </button>
-                      </>
-                    )}
-
-                    {order.status === "confirmed" && (
-                      <button
-                        onClick={() => updateStatus(order._id, "ready_to_ship")}
-                        disabled={actionLoading === order._id}
-                        className="px-3 py-2 rounded-xl bg-cyan-600 text-sm hover:bg-cyan-700 transition disabled:opacity-50"
-                      >
-                        Move Ready
-                      </button>
-                    )}
-
-                    {order.status === "ready_to_ship" && (
-                      <button
-                        onClick={() => updateStatus(order._id, "pickup_requested")}
-                        disabled={actionLoading === order._id}
-                        className="px-3 py-2 rounded-xl bg-emerald-600 text-sm flex items-center gap-2 hover:bg-emerald-700 transition disabled:opacity-50"
-                      >
-                        <Truck size={15} />
-                        Pickup Request
-                      </button>
-                    )}
-
-                    {order.status === "pickup_requested" && (
-                      <button className="px-3 py-2 rounded-xl bg-orange-600 text-sm flex items-center gap-2">
-                        <PackageCheck size={15} />
-                        Await Pickup
-                      </button>
-                    )}
-
-                    {order.status === "returned" && (
-                      <button className="px-3 py-2 rounded-xl bg-yellow-600 text-sm flex items-center gap-2">
-                        <RotateCcw size={15} />
-                        Refund / Exchange
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      <DataTable
+        columns={[
+          { key: '_id', label: 'Order ID', render: (id) => `#${id.slice(-6)}` },
+          { key: 'user.name', label: 'Customer' },
+          { key: 'totalPrice', label: 'Amount', render: (price) => `₹${price}` },
+          { key: 'status', label: 'Status', render: (status) => (
+            <span className={`px-3 py-1 rounded-full text-xs capitalize bg-white/10`}>
+              {status.replaceAll('_', ' ')}
+            </span>
+          )},
+          { key: 'actions', label: 'Actions' }
+        ]}
+        data={orders}
+        loadMore={() => loadOrders(page + 1)}
+        hasMore={page < totalPages}
+        loading={loading}
+        total={orders.length}
+        enableSelection={true}
+        selected={selected}
+        onSelect={toggleSelect}
+        exportData={() => {/* CSV export */}}
+        className="min-h-[400px]"
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (

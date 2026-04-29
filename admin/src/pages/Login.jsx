@@ -5,10 +5,11 @@ import {
   Lock,
   Eye,
   EyeOff,
-  ShieldCheck,
+  Crown,
   Loader2,
   AlertCircle,
   CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function Login() {
@@ -51,14 +52,12 @@ export default function Login() {
         throw new Error("Invalid server response");
       }
 
-      // Store tokens
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("role", userData?.role || "user");
 
       setSuccess("Login successful! Redirecting...");
 
-      // Redirect based on role
       setTimeout(() => {
         if (userData?.role === "admin") {
           window.location.href = "/";
@@ -66,20 +65,23 @@ export default function Login() {
           setError("Access denied. Admin privileges required.");
           localStorage.clear();
         }
-      }, 500);
+      }, 700);
     } catch (err) {
       let message = "Login failed. Please try again.";
 
       if (err.response) {
         const status = err.response.status;
         const data = err.response.data || {};
+
         if (status === 503 && data.code === "DB_UNAVAILABLE") {
-          message = "Database unavailable. Ask admin to whitelist your IP on MongoDB Atlas, or check MONGO_URI in backend .env.";
+          message =
+            "Database unavailable. Check MongoDB Atlas IP access or MONGO_URI.";
         } else {
           message = data.message || `Server error: ${status}`;
         }
       } else if (err.request) {
-        message = "Cannot reach server. Please check backend is running on port 5000.";
+        message =
+          "Cannot reach server. Please check backend is running on port 5000.";
       } else {
         message = err.message || message;
       }
@@ -91,25 +93,32 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-zinc-950 text-white flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Glow Background */}
-      <div className="absolute w-72 h-72 bg-indigo-600/20 blur-3xl rounded-full top-10 left-10 animate-pulse" />
-      <div className="absolute w-72 h-72 bg-fuchsia-600/20 blur-3xl rounded-full bottom-10 right-10 animate-pulse" />
+    <div className="min-h-screen bg-luxury-gradient text-white flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute top-10 left-10 w-80 h-80 rounded-full bg-gold-gradient-radial blur-3xl opacity-30 animate-pulse" />
+      <div className="absolute bottom-10 right-10 w-72 h-72 rounded-full bg-gold-gradient-soft blur-3xl opacity-30 gold-pulse" />
 
-      {/* Card */}
-      <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl p-6 md:p-8">
+      {/* Login Card */}
+      <div className="relative z-10 w-full max-w-md rounded-3xl border-gold-animated bg-luxury-card/90 backdrop-blur-glass shadow-gold-xl p-6 md:p-8">
         {/* Logo */}
         <div className="flex items-center justify-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg">
-            <ShieldCheck size={28} />
+          <div className="w-16 h-16 rounded-2xl bg-gold-gradient flex items-center justify-center shadow-gold-lg">
+            <Crown size={28} className="text-black" />
           </div>
         </div>
 
         {/* Heading */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold">Welcome Back</h1>
+          <p className="text-xs uppercase tracking-[0.35em] text-gold-400 mb-2">
+            Nayamo Luxury
+          </p>
+
+          <h1 className="text-3xl font-bold text-gold-gradient text-glow-gold">
+            Welcome Back
+          </h1>
+
           <p className="text-zinc-400 mt-2 text-sm">
-            Login to access Nayamo Admin Panel
+            Login to access premium admin dashboard
           </p>
         </div>
 
@@ -132,21 +141,23 @@ export default function Login() {
         <form onSubmit={handleLogin} className="space-y-4">
           {/* Email */}
           <div>
-            <label className="text-sm text-zinc-400 mb-2 block">
+            <label className="mb-2 block text-sm text-zinc-400">
               Email Address
             </label>
+
             <div className="relative">
               <Mail
                 size={18}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"
               />
+
               <input
                 type="email"
                 placeholder="admin@nayamo.com"
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-12 pl-11 pr-4 rounded-2xl bg-black/30 border border-white/10 outline-none focus:border-indigo-500 transition"
+                className="luxury-input h-12 pl-11 pr-4"
                 disabled={loading}
               />
             </div>
@@ -154,27 +165,30 @@ export default function Login() {
 
           {/* Password */}
           <div>
-            <label className="text-sm text-zinc-400 mb-2 block">
+            <label className="mb-2 block text-sm text-zinc-400">
               Password
             </label>
+
             <div className="relative">
               <Lock
                 size={18}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"
               />
+
               <input
                 type={showPass ? "text" : "password"}
                 placeholder="Enter your password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 pl-11 pr-12 rounded-2xl bg-black/30 border border-white/10 outline-none focus:border-indigo-500 transition"
+                className="luxury-input h-12 pl-11 pr-12"
                 disabled={loading}
               />
+
               <button
                 type="button"
                 onClick={() => setShowPass((prev) => !prev)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-gold-400 transition"
                 disabled={loading}
               >
                 {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -183,16 +197,20 @@ export default function Login() {
           </div>
 
           {/* Info */}
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-500">Secure JWT Login</span>
-            <span className="text-zinc-500">Admin Only</span>
+          <div className="flex items-center justify-between text-sm text-zinc-500">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-gold-400" />
+              Secure JWT Login
+            </div>
+
+            <span>Admin Only</span>
           </div>
 
           {/* Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:opacity-90 disabled:opacity-60 font-semibold flex items-center justify-center gap-2 transition"
+            className="luxury-btn-primary w-full h-12 rounded-2xl"
           >
             {loading ? (
               <>
@@ -200,17 +218,19 @@ export default function Login() {
                 Logging in...
               </>
             ) : (
-              "Login"
+              <>
+                <Crown size={18} />
+                Access Dashboard
+              </>
             )}
           </button>
         </form>
 
         {/* Footer */}
-        <div className="mt-6 text-center text-xs text-zinc-500">
+        <div className="mt-6 pt-5 border-t border-white/10 text-center text-xs text-zinc-500">
           © {new Date().getFullYear()} Nayamo • Premium Admin Access
         </div>
       </div>
     </div>
   );
 }
-

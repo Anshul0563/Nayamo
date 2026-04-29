@@ -3,6 +3,7 @@ const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
+const { emitOrderNotification, emitInventoryNotification } = require("./notificationService");
 
 // PLACE ORDER (with transaction)
 exports.placeOrder = async (userId, data) => {
@@ -91,6 +92,9 @@ exports.placeOrder = async (userId, data) => {
     await session.commitTransaction();
 
     logger.info(`Order placed: ${order._id} by user ${userId}`);
+    emitOrderNotification(order, "new").catch((err) =>
+      logger.error("Order notification failed:", err.message)
+    );
 
     return order;
   } catch (error) {
@@ -177,6 +181,9 @@ exports.cancelOrder = async (userId, orderId) => {
     await session.commitTransaction();
 
     logger.info(`Order cancelled: ${order._id} by user ${userId}`);
+    emitOrderNotification(order, "cancelled").catch((err) =>
+      logger.error("Order cancel notification failed:", err.message)
+    );
 
     return order;
   } catch (error) {
@@ -233,8 +240,31 @@ exports.updateOrderStatus = async (orderId, status) => {
     updateData.deliveredAt = new Date();
   }
 
-  return await Order.findByIdAndUpdate(orderId, updateData, {
+  const order = await Order.findByIdAndUpdate(orderId, updateData, {
     new: true,
     runValidators: true,
-  });
+  }).populate("items.product", "title stock");
+
+  if (order) {
+    const eventType = status === "in_transit" ? "shipped" : status;
+    emitOrderNotification(order, eventType).catch((err) =>
+      logger.error("Order status notification failed:", err.message)
+    );
+
+    for (const item of order.items || []) {
+      const product = item.product;
+      if (!product) continue;
+      if (Number(product.stock) === 0) {
+        emitInventoryNotification(product, "out_of_stock").catch((err) =>
+          logger.error("Inventory notification failed:", err.message)
+        );
+      } else if (Number(product.stock) <= 5) {
+        emitInventoryNotification(product, "low_stock").catch((err) =>
+          logger.error("Inventory notification failed:", err.message)
+        );
+      }
+    }
+  }
+
+  return order;
 };
