@@ -1,57 +1,8 @@
 import React from 'react';
 import { Star, ShoppingBag, Crown } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+const imageUrl = (image) => (typeof image === "string" ? image : image?.url);
 
-// Mock data - replace with real top products API
-const TOP_PRODUCTS = [
-  {
-    id: 'DP001',
-    name: 'Diamond Eternity Necklace',
-    image: 'https://images.unsplash.com/photo-1615796157755-9f75c3b12a1f?w=400&h=400&fit=crop&crop=center',
-    price: 125000,
-    sales: 28,
-    rating: 4.9,
-    soldIn: '7 days'
-  },
-  {
-    id: 'RG002',
-    name: 'Rose Gold Bracelet 18K',
-    image: 'https://images.unsplash.com/photo-1588403073877-051e9487a34b?w=400&h=400&fit=crop&crop=center',
-    price: 45000,
-    sales: 19,
-    rating: 4.8,
-    soldIn: '7 days'
-  },
-  {
-    id: 'PL003',
-    name: 'Platinum Solitaire Ring',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center',
-    price: 285000,
-    sales: 12,
-    rating: 5.0,
-    soldIn: '7 days'
-  },
-  {
-    id: 'GD004',
-    name: 'Gold Mangalsutra Set',
-    image: 'https://images.unsplash.com/photo-1608043152266-0397796f1d15?w=400&h=400&fit=crop&crop=center',
-    price: 98000,
-    sales: 35,
-    rating: 4.7,
-    soldIn: '7 days'
-  },
-  {
-    id: 'EM005',
-    name: 'Emerald Earrings',
-    image: 'https://images.unsplash.com/photo-1609992531185-6e746117f69e?w=400&h=400&fit=crop&crop=center',
-    price: 75000,
-    sales: 22,
-    rating: 4.9,
-    soldIn: '7 days'
-  }
-];
-
-export default function TopProducts({ products = TOP_PRODUCTS, loading = false }) {
+export default function TopProducts({ products = [], loading = false }) {
   if (loading) {
     return (
       <div className="glass-card p-6 rounded-2xl">
@@ -87,29 +38,33 @@ export default function TopProducts({ products = TOP_PRODUCTS, loading = false }
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
-        {products.map((product, index) => (
+        {products.length === 0 ? (
+          <div className="w-full rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-luxury-dim">
+            No product sales yet
+          </div>
+        ) : products.map((product, index) => (
           <div 
-            key={product.id} 
+            key={product._id || product.id || index} 
             className="w-48 flex-shrink-0 group cursor-pointer transition-all duration-500 hover:scale-105 hover:shadow-gold-lg rounded-2xl p-4 border border-transparent hover:border-gold-500/30 bg-gradient-to-br from-white/[0.02] to-transparent"
           >
             {/* Product Image */}
             <div className="relative overflow-hidden rounded-xl mb-4 aspect-video bg-luxury-surface/50 group-hover:shadow-gold-sm">
               <img 
-                src={product.image}
+                src={imageUrl(product.image) || imageUrl(product.product?.images?.[0]) || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='180'%3E%3Crect width='300' height='180' fill='%23171717'/%3E%3C/svg%3E"}
                 alt={product.name}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
               {/* Sales Badge */}
               <div className="absolute top-2 right-2 bg-gold-500/90 backdrop-blur-sm border border-gold-500/50 px-2 py-1 rounded-full text-black text-xs font-bold flex items-center gap-1 shadow-gold-sm">
                 <ShoppingBag size={12} />
-                {product.sales} sold
+                {Number(product.sales || 0).toLocaleString()} sold
               </div>
             </div>
 
             {/* Product Info */}
             <div className="space-y-2">
               <h4 className="font-semibold text-luxury-text line-clamp-1 group-hover:text-gold-400 transition-colors">
-                {product.name}
+                  {product.name || product.product?.title || "Product"}
               </h4>
               
               <div className="flex items-center gap-1 text-gold-400">
@@ -117,19 +72,19 @@ export default function TopProducts({ products = TOP_PRODUCTS, loading = false }
                   <Star 
                     key={i} 
                     size={14} 
-                    fill={i < Math.floor(product.rating) ? '#f5e0b3' : 'none'}
+                    fill={i < Math.floor(product.rating || 0) ? '#f5e0b3' : 'none'}
                     className="text-gold-400" 
                   />
                 ))}
-                <span className="text-xs text-luxury-dim ml-1">({product.rating})</span>
+                <span className="text-xs text-luxury-dim ml-1">({Number(product.rating || 0).toFixed(1)})</span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-display font-bold text-gold-gradient">
-                  ₹{product.price.toLocaleString()}
+                  ₹{Number(product.revenue || product.product?.price || product.price || 0).toLocaleString("en-IN")}
                 </span>
                 <span className="text-xs text-luxury-dim px-2 py-1 bg-white/5 rounded-full">
-                  {product.soldIn}
+                  Live
                 </span>
               </div>
             </div>
@@ -139,4 +94,3 @@ export default function TopProducts({ products = TOP_PRODUCTS, loading = false }
     </div>
   );
 }
-

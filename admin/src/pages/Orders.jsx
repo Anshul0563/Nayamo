@@ -178,7 +178,27 @@ export default function Orders() {
               {status.replaceAll('_', ' ')}
             </span>
           )},
-          { key: 'actions', label: 'Actions' }
+          { key: 'actions', label: 'Actions', render: (_, row) => (
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={row.status}
+                disabled={actionLoading === row._id}
+                onChange={(event) => updateStatus(row._id, event.target.value)}
+                className="px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs outline-none"
+              >
+                {TABS.map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => invoice(row._id)}
+                className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
+              >
+                <FileText size={14} />
+                Invoice
+              </button>
+            </div>
+          ) }
         ]}
         data={orders}
         loadMore={() => loadOrders(page + 1)}
@@ -217,4 +237,3 @@ export default function Orders() {
     </div>
   );
 }
-

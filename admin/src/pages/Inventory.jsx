@@ -32,6 +32,8 @@ function Field({ label, value, onChange, placeholder, type = "text" }) {
 
 const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2327272a'/%3E%3Ctext x='50' y='50' font-size='12' fill='%2371717a' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
 
+const imageUrl = (image) => (typeof image === "string" ? image : image?.url);
+
 export default function Inventory() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +63,7 @@ export default function Inventory() {
       setError("");
 
       const res = await adminAPI.getProducts({ limit: 100 });
-      const list = res.data.data?.products || res.data.products || [];
+      const list = Array.isArray(res.data.data) ? res.data.data : (res.data.data?.products || res.data.products || []);
       setProducts(list);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to load products");
@@ -132,7 +134,7 @@ export default function Inventory() {
         data.append("image", file);
 
         const res = await adminAPI.uploadImage(data);
-        uploaded.push(res.data.url);
+        uploaded.push({ url: res.data.url, publicId: res.data.publicId });
       }
 
       setEditForm((prev) => ({
@@ -276,7 +278,7 @@ export default function Inventory() {
               >
                 <div className="flex gap-4">
                   <img
-                    src={product.images?.[0] || PLACEHOLDER_IMAGE}
+                    src={imageUrl(product.images?.[0]) || PLACEHOLDER_IMAGE}
                     alt={product.title || "Product"}
                     className="w-20 h-20 rounded-2xl object-cover bg-zinc-800"
                     onError={(e) => {
@@ -395,7 +397,7 @@ export default function Inventory() {
               <div className="grid grid-cols-2 gap-3 mt-4">
                 {editForm.images.map((img, index) => (
                   <div key={index} className="relative">
-                    <img src={img} alt="" className="w-full h-28 object-cover rounded-2xl" />
+                    <img src={imageUrl(img)} alt="" className="w-full h-28 object-cover rounded-2xl" />
                     <button
                       onClick={() => removeImage(index)}
                       className="absolute top-2 right-2 bg-black/70 p-1 rounded-full hover:bg-black/90"
@@ -408,7 +410,7 @@ export default function Inventory() {
 
               <div className="mt-5 rounded-2xl bg-black/30 border border-white/10 p-4 space-y-2">
                 {editForm.images[0] && (
-                  <img src={editForm.images[0]} alt="" className="w-full h-40 object-cover rounded-xl" />
+                  <img src={imageUrl(editForm.images[0])} alt="" className="w-full h-40 object-cover rounded-xl" />
                 )}
                 <h3 className="font-semibold truncate">{editForm.title || "Product Name"}</h3>
                 <p className="text-emerald-400 font-bold">₹{editForm.price || 0}</p>

@@ -7,15 +7,18 @@ import {
   Users 
 } from 'lucide-react';
 
-const CONVERSION_DATA = [
-  { stage: 'Visitors', value: 12500, rate: '100%', icon: Users, color: 'text-blue-400' },
-  { stage: 'Product Views', value: 8560, rate: '68.5%', icon: ShoppingCart, color: 'text-indigo-400' },
-  { stage: 'Add to Cart', value: 3240, rate: '25.9%', icon: ShoppingCart, color: 'text-purple-400' },
-  { stage: 'Initiate Checkout', value: 1560, rate: '12.5%', icon: CreditCard, color: 'text-orange-400' },
-  { stage: 'Purchase Complete', value: 847, rate: '6.8%', icon: CheckCircle, color: 'text-emerald-400' },
-];
+const icons = [Users, ShoppingCart, CreditCard, CheckCircle];
+const colors = ['text-blue-400', 'text-indigo-400', 'text-orange-400', 'text-emerald-400'];
 
-export default function ConversionChart({ data = CONVERSION_DATA }) {
+export default function ConversionChart({ data = [] }) {
+  const firstValue = data[0]?.value || 1;
+  const normalized = data.map((item, index) => ({
+    ...item,
+    rate: item.rate || `${((Number(item.value || 0) / firstValue) * 100).toFixed(1)}%`,
+    icon: item.icon || icons[index % icons.length],
+    color: item.color || colors[index % colors.length],
+  }));
+
   return (
     <div className="glass-card p-6 rounded-2xl">
       <div className="flex items-center gap-3 mb-6">
@@ -29,7 +32,9 @@ export default function ConversionChart({ data = CONVERSION_DATA }) {
       </div>
 
       <div className="space-y-4">
-        {data.map((item, index) => (
+        {normalized.length === 0 ? (
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 text-center text-luxury-dim">No conversion data yet</div>
+        ) : normalized.map((item, index) => (
           <div key={item.stage} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
             {/* Icon */}
             <div className={`p-2 rounded-xl bg-white/5 border border-white/10 ${item.color}`}>
@@ -62,11 +67,10 @@ export default function ConversionChart({ data = CONVERSION_DATA }) {
         <div className="flex items-center justify-between">
           <span className="text-sm text-luxury-dim">Overall Conversion Rate</span>
           <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-500 bg-clip-text text-transparent">
-            {data[data.length - 1]?.rate}
+            {normalized[normalized.length - 1]?.rate || "0%"}
           </span>
         </div>
       </div>
     </div>
   );
 }
-

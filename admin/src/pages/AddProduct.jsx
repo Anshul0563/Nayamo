@@ -37,6 +37,7 @@ function Input({ label, name, type = "text", placeholder, icon, value, onChange 
 }
 
 const VALID_CATEGORIES = ["party", "daily", "traditional", "western", "statement", "bridal"];
+const imageUrl = (image) => (typeof image === "string" ? image : image?.url);
 
 export default function AddProduct() {
   const [form, setForm] = useState({
@@ -106,7 +107,7 @@ export default function AddProduct() {
         data.append("image", file);
 
         const res = await adminAPI.uploadImage(data);
-        uploaded.push(res.data.url);
+        uploaded.push({ url: res.data.url, publicId: res.data.publicId });
       }
 
       setForm((prev) => ({
@@ -295,7 +296,7 @@ export default function AddProduct() {
                   {form.images.map((img, index) => (
                     <div key={index} className="relative group">
                       <img 
-                        src={img} 
+                        src={imageUrl(img)} 
                         alt="preview" 
                         className="h-32 w-full object-cover rounded-2xl hover:scale-105 transition-transform duration-300" 
                       />
@@ -317,7 +318,7 @@ export default function AddProduct() {
               <h4 className="font-semibold mb-4 text-gold-gradient">Live Preview</h4>
               {form.images[0] ? (
                 <img 
-                  src={form.images[0]} 
+                src={imageUrl(form.images[0])} 
                   alt="main preview" 
                   className="w-full h-48 object-cover rounded-2xl mb-4 shadow-gold-sm hover:shadow-gold-md transition-all" 
                 />

@@ -1,14 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Calendar, BarChart3 } from 'lucide-react';
 
-const GROWTH_DATA = [
-  { period: 'Today', current: 847, previous: 723, change: 17.1, trend: 'up', color: 'emerald' },
-  { period: 'This Week', current: 5240, previous: 4560, change: 14.9, trend: 'up', color: 'blue' },
-  { period: 'This Month', current: 24500, previous: 19800, change: 23.7, trend: 'up', color: 'gold' },
-  { period: 'This Year', current: 289000, previous: 234000, change: 23.5, trend: 'up', color: 'purple' },
-];
-
-export default function GrowthComparison({ data = GROWTH_DATA }) {
+export default function GrowthComparison({ data = [] }) {
   return (
     <div className="glass-card p-6 rounded-2xl">
       <div className="flex items-center gap-3 mb-6">
@@ -22,7 +15,9 @@ export default function GrowthComparison({ data = GROWTH_DATA }) {
       </div>
 
       <div className="space-y-4">
-        {data.map((item) => {
+        {data.length === 0 ? (
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 text-center text-luxury-dim">No growth data yet</div>
+        ) : data.map((item) => {
           const Icon = item.trend === 'up' ? TrendingUp : TrendingDown;
           const trendColor = item.trend === 'up' ? 'emerald' : 'rose';
           
@@ -51,4 +46,3 @@ export default function GrowthComparison({ data = GROWTH_DATA }) {
     </div>
   );
 }
-

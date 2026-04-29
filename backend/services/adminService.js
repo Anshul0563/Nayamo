@@ -1,46 +1,122 @@
 const Order = require("../models/Order");
 const User = require("../models/User");
 const Product = require("../models/Product");
+const escapeRegex = require("../utils/escapeRegex");
+
+const revenueStatuses = ["delivered", "confirmed", "ready_to_ship", "pickup_requested", "in_transit", "out_for_delivery"];
+const lowStockThreshold = Number(process.env.LOW_STOCK_THRESHOLD) || 5;
+
+const percentChange = (current, previous) => {
+  if (!previous && !current) return 0;
+  if (!previous) return 100;
+  return Number((((current - previous) / previous) * 100).toFixed(1));
+};
+
+const toDate = (date, fallback) => (date ? new Date(date) : fallback);
 
 // LIVE Dashboard Stats with date range support
 exports.getDashboardStats = async ({ dateFrom, dateTo }) => {
+  const end = toDate(dateTo, new Date());
+  const start = toDate(dateFrom, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - 6);
+  weekStart.setHours(0, 0, 0, 0);
+  const monthStart = new Date(end.getFullYear(), end.getMonth(), 1);
+  const previousStart = new Date(start.getTime() - (end.getTime() - start.getTime()));
+
   const match = {
     createdAt: {
-      $gte: new Date(dateFrom),
-      $lte: new Date(dateTo)
+      $gte: start,
+      $lte: end
     }
   };
 
-  const deliveredStatuses = ['delivered', 'confirmed'];
-  
-  const [totalOrders, totalUsers, totalProducts, totalRevenueAgg, statusBreakdown] = await Promise.all([
+  const paidRevenueMatch = { status: { $in: revenueStatuses }, paymentStatus: "paid" };
+
+  const [
+    totalOrders,
+    totalSales,
+    totalUsers,
+    totalProducts,
+    totalRevenueAgg,
+    todayRevenueAgg,
+    weeklyRevenueAgg,
+    monthlyRevenueAgg,
+    previousRevenueAgg,
+    statusBreakdown,
+    activeUsers,
+    returningCustomers,
+    lowStockProducts,
+    outOfStockProducts,
+    paidOrders,
+  ] = await Promise.all([
     Order.countDocuments(match),
-    User.countDocuments({ createdAt: match.createdAt }),
+    Order.countDocuments({ ...match, paymentStatus: "paid" }),
+    User.countDocuments(match),
     Product.countDocuments({ isActive: true }),
     Order.aggregate([
-      { 
-        $match: { 
-          ...match, 
-          status: { $in: deliveredStatuses }, 
-          paymentStatus: 'paid' 
-        } 
-      },
-      { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+      { $match: { ...match, ...paidRevenueMatch } },
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+    ]),
+    Order.aggregate([
+      { $match: { createdAt: { $gte: todayStart, $lte: end }, ...paidRevenueMatch } },
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+    ]),
+    Order.aggregate([
+      { $match: { createdAt: { $gte: weekStart, $lte: end }, ...paidRevenueMatch } },
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+    ]),
+    Order.aggregate([
+      { $match: { createdAt: { $gte: monthStart, $lte: end }, ...paidRevenueMatch } },
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+    ]),
+    Order.aggregate([
+      { $match: { createdAt: { $gte: previousStart, $lt: start }, ...paidRevenueMatch } },
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } }
     ]),
     Order.aggregate([
       { $match: match },
-      { $group: { _id: '$status', count: { $sum: 1 } } }
-    ])
+      { $group: { _id: "$status", count: { $sum: 1 } } }
+    ]),
+    User.countDocuments({ isActive: true }),
+    Order.aggregate([
+      { $group: { _id: "$user", orders: { $sum: 1 } } },
+      { $match: { orders: { $gt: 1 } } },
+      { $count: "count" }
+    ]),
+    Product.countDocuments({ isActive: true, stock: { $gt: 0, $lte: lowStockThreshold } }),
+    Product.countDocuments({ isActive: true, stock: 0 }),
+    Order.countDocuments({ paymentStatus: "paid" }),
   ]);
+
+  const totalRevenue = totalRevenueAgg[0]?.total || 0;
+  const previousRevenue = previousRevenueAgg[0]?.total || 0;
+  const ordersByStatus = statusBreakdown.reduce((acc, item) => ({ ...acc, [item._id || "unknown"]: item.count }), {});
+  const conversionRate = totalOrders > 0 ? Number(((paidOrders / totalOrders) * 100).toFixed(1)) : 0;
 
   return {
     totalOrders,
+    totalSales,
     totalUsers,
     totalProducts,
-    totalRevenue: totalRevenueAgg[0]?.total || 0,
-    avgOrderValue: totalOrders > 0 ? Math.round(totalRevenueAgg[0]?.total / totalOrders) : 0,
+    totalRevenue,
+    todayRevenue: todayRevenueAgg[0]?.total || 0,
+    weeklyRevenue: weeklyRevenueAgg[0]?.total || 0,
+    monthlyRevenue: monthlyRevenueAgg[0]?.total || 0,
+    avgOrderValue: paidOrders > 0 ? Math.round(totalRevenue / paidOrders) : 0,
+    pendingOrders: ordersByStatus.pending || 0,
+    cancelledOrders: ordersByStatus.cancelled || 0,
+    deliveredOrders: ordersByStatus.delivered || 0,
+    activeUsers,
+    returningCustomers: returningCustomers[0]?.count || 0,
+    conversionRate,
+    lowStockProducts,
+    outOfStockProducts,
+    growthRate: percentChange(totalRevenue, previousRevenue),
     statusBreakdown,
-    ordersByStatus: statusBreakdown.reduce((acc, item) => ({ ...acc, [item._id]: item.count }), {})
+    ordersByStatus
   };
 };
 
@@ -52,8 +128,8 @@ exports.getRevenueChartData = async ({ days = 30 }) => {
   const revenueData = await Order.aggregate([
     {
       $match: {
-        status: { $in: ['delivered', 'confirmed'] },
-        paymentStatus: 'paid',
+        status: { $in: revenueStatuses },
+        paymentStatus: "paid",
         createdAt: { $gte: startDate, $lte: endDate }
       }
     },
@@ -64,7 +140,7 @@ exports.getRevenueChartData = async ({ days = 30 }) => {
           month: { $month: '$createdAt' },
           day: { $dayOfMonth: '$createdAt' }
         },
-        revenue: { $sum: '$totalPrice' },
+        revenue: { $sum: "$totalPrice" },
         orders: { $sum: 1 }
       }
     },
@@ -73,7 +149,7 @@ exports.getRevenueChartData = async ({ days = 30 }) => {
   ]);
 
   return revenueData.map(item => ({
-    date: `${item._id.month.toString().padStart(2, '0')}/${item._id.day.toString().padStart(2, '0')}`,
+    date: `${item._id.month.toString().padStart(2, "0")}/${item._id.day.toString().padStart(2, "0")}`,
     revenue: item.revenue,
     orders: item.orders
   }));
@@ -85,70 +161,112 @@ exports.getRecentOrders = async (limit = 5) => {
     .sort({ createdAt: -1 })
     .limit(limit)
     .populate('user', 'name email phone')
-    .select('-items')
+    .populate({ path: 'items.product', select: 'title images' })
     .lean();
 };
 
 // Top products
 exports.getTopProducts = async (limit = 5) => {
   return await Order.aggregate([
-    { $unwind: '$items' },
+    { $unwind: "$items" },
     {
       $group: {
-        _id: '$items.product',
-        name: { $first: '$items.name' },
-        sales: { $sum: '$items.quantity' },
-        revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } }
+        _id: "$items.product",
+        sales: { $sum: "$items.quantity" },
+        revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } }
       }
     },
     { $sort: { sales: -1 } },
     { $limit: limit },
     {
       $lookup: {
-        from: 'products',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'product',
+        from: "products",
+        localField: "_id",
+        foreignField: "_id",
+        as: "product",
         pipeline: [{ $project: { title: 1, images: 1, price: 1 } }]
       }
     },
-    { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } }
+    { $unwind: { path: "$product", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        name: { $ifNull: ["$product.title", "Deleted product"] },
+        image: { $arrayElemAt: ["$product.images", 0] },
+        sales: 1,
+        revenue: 1,
+        product: 1
+      }
+    }
   ]);
 };
 
 // Conversion funnel
 exports.getConversionFunnel = async () => {
-  const paidOrders = await Order.countDocuments({ paymentStatus: 'paid' });
+  const [users, carts, checkoutStarted, paidOrders] = await Promise.all([
+    User.countDocuments(),
+    require("../models/Cart").countDocuments({ "items.0": { $exists: true } }),
+    Order.countDocuments(),
+    Order.countDocuments({ paymentStatus: "paid" })
+  ]);
+
   return [
-    { stage: 'Visitors', value: 12500 },
-    { stage: 'Added to Cart', value: 3240 },
-    { stage: 'Checkout', value: 1560 },
-    { stage: 'Purchased', value: paidOrders }
+    { stage: "Registered Users", value: users },
+    { stage: "Active Carts", value: carts },
+    { stage: "Checkout Orders", value: checkoutStarted },
+    { stage: "Purchased", value: paidOrders }
   ];
 };
 
 // Users list with search/pagination
-exports.getAllUsers = async ({ page = 1, limit = 20, search }) => {
+exports.getAllUsers = async ({ page = 1, limit = 20, search, role, status }) => {
   const skip = (page - 1) * limit;
-  const query = search ? {
-    $or: [
-      { name: { $regex: search, $options: "i" } },
-      { email: { $regex: search, $options: "i" } }
-    ]
-  } : {};
+  const query = {};
+  if (search) {
+    const safeSearch = escapeRegex(search);
+    query.$or = [
+      { name: { $regex: safeSearch, $options: "i" } },
+      { email: { $regex: safeSearch, $options: "i" } }
+    ];
+  }
+  if (role) query.role = role === "customer" ? "user" : role;
+  if (status) query.isActive = status === "active";
 
-  const [users, totalItems] = await Promise.all([
+  const [users, totalItems, orderStats] = await Promise.all([
     User.find(query)
-      .select("-password")
+      .select("-password -refreshTokens")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean(),
-    User.countDocuments(query)
+    User.countDocuments(query),
+    Order.aggregate([
+      {
+        $group: {
+          _id: "$user",
+          orderCount: { $sum: 1 },
+          lifetimeValue: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "paid"] }, "$totalPrice", 0]
+            }
+          },
+          lastOrderAt: { $max: "$createdAt" }
+        }
+      }
+    ])
   ]);
 
+  const statsByUser = new Map(orderStats.map((item) => [String(item._id), item]));
+  const enrichedUsers = users.map((user) => ({
+    ...user,
+    status: user.isActive ? "active" : "banned",
+    role: user.role === "user" ? "customer" : user.role,
+    orderCount: statsByUser.get(String(user._id))?.orderCount || 0,
+    lifetimeValue: statsByUser.get(String(user._id))?.lifetimeValue || 0,
+    lastActive: statsByUser.get(String(user._id))?.lastOrderAt || user.updatedAt || user.createdAt
+  }));
+
   return {
-    users,
+    users: enrichedUsers,
     currentPage: Number(page),
     totalPages: Math.ceil(totalItems / limit),
     totalItems,
@@ -161,9 +279,11 @@ exports.getAllProducts = async ({ page = 1, limit = 20, search, category }) => {
   const skip = (page - 1) * limit;
   const query = {};
   if (search) {
+    const safeSearch = escapeRegex(search);
     query.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } }
+      { title: { $regex: safeSearch, $options: "i" } },
+      { description: { $regex: safeSearch, $options: "i" } },
+      { material: { $regex: safeSearch, $options: "i" } }
     ];
   }
   if (category) query.category = category;
@@ -199,3 +319,93 @@ exports.deleteProduct = async (id) => {
   return await Product.findByIdAndDelete(id);
 };
 
+exports.updateUser = async (id, data) => {
+  const update = {};
+  if (data.role) update.role = data.role === "customer" ? "user" : data.role;
+  if (data.status) update.isActive = data.status === "active";
+  if (typeof data.isActive === "boolean") update.isActive = data.isActive;
+  if (data.name) update.name = data.name;
+
+  return User.findByIdAndUpdate(id, update, {
+    new: true,
+    runValidators: true
+  }).select("-password -refreshTokens").lean();
+};
+
+exports.deleteUser = async (id) => {
+  return User.findByIdAndUpdate(id, { isActive: false }, { new: true }).select("-password -refreshTokens").lean();
+};
+
+exports.getPayments = async ({ page = 1, limit = 20, status, search }) => {
+  const skip = (page - 1) * limit;
+  const query = {};
+  if (status) query.paymentStatus = status;
+  if (search) {
+    const safeSearch = escapeRegex(search);
+    query.$or = [
+      { phone: { $regex: safeSearch, $options: "i" } },
+      { razorpayOrderId: { $regex: safeSearch, $options: "i" } },
+      { razorpayPaymentId: { $regex: safeSearch, $options: "i" } }
+    ];
+  }
+
+  const [orders, totalItems, totals] = await Promise.all([
+    Order.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("user", "name email")
+      .select("user totalPrice paymentMethod paymentStatus isPaid createdAt razorpayOrderId razorpayPaymentId")
+      .lean(),
+    Order.countDocuments(query),
+    Order.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: "$paymentStatus",
+          amount: { $sum: "$totalPrice" },
+          count: { $sum: 1 }
+        }
+      }
+    ])
+  ]);
+
+  return {
+    payments: orders,
+    totals,
+    currentPage: Number(page),
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+    itemsPerPage: Number(limit)
+  };
+};
+
+exports.getAnalytics = async ({ days = 30 } = {}) => {
+  const dateFrom = new Date(Date.now() - Number(days) * 24 * 60 * 60 * 1000);
+  const dateTo = new Date();
+  const [stats, revenue, funnel, topProducts, heatmap] = await Promise.all([
+    exports.getDashboardStats({ dateFrom, dateTo }),
+    exports.getRevenueChartData({ days }),
+    exports.getConversionFunnel(),
+    exports.getTopProducts(10),
+    Order.aggregate([
+      { $match: { createdAt: { $gte: dateFrom, $lte: dateTo } } },
+      {
+        $group: {
+          _id: { dayOfWeek: { $dayOfWeek: "$createdAt" }, hour: { $hour: "$createdAt" } },
+          orders: { $sum: 1 },
+          revenue: { $sum: "$totalPrice" }
+        }
+      },
+      { $sort: { "_id.dayOfWeek": 1, "_id.hour": 1 } }
+    ])
+  ]);
+
+  return {
+    ...stats,
+    revenue,
+    funnel,
+    topProducts,
+    heatmap
+  };
+};

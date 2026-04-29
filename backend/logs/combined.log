@@ -553,3 +553,18 @@
 {"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-29 09:03:16"}
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-29 09:03:16"}
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-29 09:03:16"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-29 09:04:19"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-29 09:04:19"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-29 09:04:20"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-29 09:04:31"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-29 09:04:31"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-29 09:04:32"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-29 09:04:35"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-29 09:04:35"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-29 09:04:36"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-04-29 09:04:38"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-29 09:04:38"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-04-29 09:04:39"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-04-29 09:06:16"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 598.249 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-04-29 09:06:16"}
+{"level":"error","message":"UNCAUGHT EXCEPTION! Shutting down...","service":"nayamo-api","timestamp":"2026-04-29 09:06:18"}

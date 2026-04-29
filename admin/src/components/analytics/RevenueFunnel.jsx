@@ -1,15 +1,10 @@
 import React from 'react';
-import { Funnel, TrendingUp, ShoppingCart, PackageCheck, CheckCircle } from 'lucide-react';
+import { Funnel } from 'lucide-react';
 
-const FUNNEL_DATA = [
-  { stage: 'Visitors', value: 12500, color: 'from-blue-500 to-blue-600' },
-  { stage: 'Added to Cart', value: 3240, color: 'from-indigo-500 to-indigo-600' },
-  { stage: 'Checkout', value: 1560, color: 'from-purple-500 to-purple-600' },
-  { stage: 'Purchased', value: 847, color: 'from-emerald-500 to-emerald-600' },
-];
+const colors = ['from-blue-500 to-blue-600', 'from-indigo-500 to-indigo-600', 'from-purple-500 to-purple-600', 'from-emerald-500 to-emerald-600'];
 
-export default function RevenueFunnel({ data = FUNNEL_DATA }) {
-  const totalVisitors = data[0]?.value || 12500;
+export default function RevenueFunnel({ data = [] }) {
+  const totalVisitors = data[0]?.value || 1;
   const conversionRate = ((data[data.length - 1]?.value / totalVisitors) * 100).toFixed(1);
 
   return (
@@ -25,7 +20,9 @@ export default function RevenueFunnel({ data = FUNNEL_DATA }) {
       </div>
 
       <div className="space-y-3">
-        {data.map((item, index) => (
+        {data.length === 0 ? (
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 text-center text-luxury-dim">No funnel data yet</div>
+        ) : data.map((item, index) => (
           <div key={item.stage} className="group">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-luxury-text">{item.stage}</span>
@@ -33,7 +30,7 @@ export default function RevenueFunnel({ data = FUNNEL_DATA }) {
             </div>
             <div className="relative h-3 rounded-full bg-white/5 overflow-hidden group-hover:shadow-gold-sm transition-all">
               <div 
-                className={`h-full rounded-full bg-gradient-to-r ${item.color} shadow-lg`}
+                className={`h-full rounded-full bg-gradient-to-r ${item.color || colors[index % colors.length]} shadow-lg`}
                 style={{ width: `${(item.value / totalVisitors) * 100}%` }}
               />
             </div>
@@ -43,4 +40,3 @@ export default function RevenueFunnel({ data = FUNNEL_DATA }) {
     </div>
   );
 }
-

@@ -28,14 +28,14 @@ export default function Payments() {
       setLoading(true);
       setError("");
 
-      const res = await adminAPI.getOrders({
+      const res = await adminAPI.getPayments({
         page: currentPage,
         limit: 20,
         search: debouncedSearch || undefined,
       });
 
       const result = res.data;
-      setOrders(result.data?.orders || result.orders || []);
+      setOrders(Array.isArray(result.data) ? result.data : (result.data?.orders || result.orders || []));
       setTotalPages(result.pagination?.totalPages || 1);
       setPage(result.pagination?.currentPage || 1);
     } catch (error) {
@@ -242,4 +242,3 @@ export default function Payments() {
     </div>
   );
 }
-

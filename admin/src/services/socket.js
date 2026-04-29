@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
 import { adminAPI } from './api';
 
-const SOCKET_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
+const SOCKET_URL = API_URL.replace(/\/api\/v1\/?$/, '');
 
 class SocketService {
   constructor() {
@@ -13,7 +14,7 @@ class SocketService {
   connect(token) {
     if (this.socket?.connected) return;
 
-    this.socket = io(SOCKET_URL, {
+    this.socket = io(`${SOCKET_URL}/admin`, {
       auth: { token },
       transports: ['websocket', 'polling'],
       path: '/socket.io',
@@ -22,8 +23,7 @@ class SocketService {
 
     // Admin namespace connection
     this.socket.on('connect', () => {
-      console.log('✅ Socket.IO connected - Admin namespace');
-      this.socket.emit('join', { namespace: '/admin' });
+      console.log('Socket.IO connected - Admin namespace');
       
       // Request initial notifications
       this.fetchNotifications();
@@ -39,14 +39,22 @@ class SocketService {
         detail: notification 
       }));
       
-      console.log('🔔 New notification:', notification.title);
+      console.log('New notification:', notification.title);
+    });
+
+    this.socket.on('notifications', (notifications) => {
+      this.notifications = notifications || [];
+      this.unreadCount = this.notifications.filter((item) => !item.isRead).length;
+      window.dispatchEvent(new CustomEvent('notifications:sync', {
+        detail: { notifications: this.notifications, unreadCount: this.unreadCount }
+      }));
     });
 
     // Notification read ack
     this.socket.on('notification:read:ack', (id) => {
-      const notif = this.notifications.find(n => n.id === id);
+      const notif = this.notifications.find(n => (n.id || n._id) === id);
       if (notif) notif.isRead = true;
-      this.unreadCount--;
+      this.unreadCount = Math.max(0, this.unreadCount - 1);
     });
 
     // Live dashboard refresh triggers
@@ -87,6 +95,7 @@ class SocketService {
 
   markAsRead(notificationId) {
     this.socket?.emit('notification:read', notificationId);
+    return adminAPI.markNotificationRead(notificationId);
   }
 
   getUnreadCount() {
@@ -97,4 +106,3 @@ class SocketService {
 // Singleton instance
 export const socketService = new SocketService();
 export default socketService;
-

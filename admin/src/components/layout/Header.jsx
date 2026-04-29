@@ -11,51 +11,34 @@ import {
   RefreshCw,
   Package,
   IndianRupee,
+  ShieldAlert,
+  Users,
+  Boxes,
   ChevronDown,
   X,
   Check,
   Clock,
 } from "lucide-react";
+import { adminAPI } from "../../services/api";
+import { socketService } from "../../services/socket";
 
-// Mock notifications - in production, fetch from API
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: "order",
-    title: "New Order Received",
-    message: "Order #12345 from Priya Sharma",
-    time: "2 min ago",
-    read: false,
-    icon: Package,
-    color: "text-emerald-400",
-    bgColor: "bg-emerald-500/10",
-    borderColor: "border-emerald-500/20",
-  },
-  {
-    id: 2,
-    type: "payment",
-    title: "Payment Received",
-    message: "₹4,500 via UPI - Order #12344",
-    time: "15 min ago",
-    read: false,
-    icon: IndianRupee,
-    color: "text-gold-400",
-    bgColor: "bg-gold-500/10",
-    borderColor: "border-gold-500/20",
-  },
-  {
-    id: 3,
-    type: "alert",
-    title: "Low Stock Alert",
-    message: "Diamond Necklace (SKU: DN-001) - 2 left",
-    time: "1 hour ago",
-    read: true,
-    icon: Clock,
-    color: "text-orange-400",
-    bgColor: "bg-orange-500/10",
-    borderColor: "border-orange-500/20",
-  },
-];
+const notificationStyles = {
+  order: { icon: Package, color: "text-emerald-400", bgColor: "bg-emerald-500/10", borderColor: "border-emerald-500/20" },
+  payment: { icon: IndianRupee, color: "text-gold-400", bgColor: "bg-gold-500/10", borderColor: "border-gold-500/20" },
+  inventory: { icon: Boxes, color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/20" },
+  user: { icon: Users, color: "text-cyan-400", bgColor: "bg-cyan-500/10", borderColor: "border-cyan-500/20" },
+  security: { icon: ShieldAlert, color: "text-rose-400", bgColor: "bg-rose-500/10", borderColor: "border-rose-500/20" },
+};
+
+const timeAgo = (date) => {
+  const seconds = Math.max(1, Math.floor((Date.now() - new Date(date).getTime()) / 1000));
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+};
 
 export default function Header({ 
   onMenuToggle, 
@@ -69,13 +52,43 @@ export default function Header({
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
   
   const notifRef = useRef(null);
   const profileRef = useRef(null);
   const searchRef = useRef(null);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !(n.isRead || n.read)).length;
+
+  useEffect(() => {
+    let mounted = true;
+    adminAPI.getNotifications({ limit: 20 })
+      .then((res) => {
+        if (mounted) setNotifications(res.data.data || []);
+      })
+      .catch(() => {});
+
+    const handleNewNotification = (event) => {
+      const notification = event.detail;
+      setNotifications((prev) => [notification, ...prev].slice(0, 30));
+      if (localStorage.getItem("adminSound") !== "off") {
+        const audio = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=");
+        audio.play().catch(() => {});
+      }
+    };
+
+    const handleSync = (event) => {
+      setNotifications(event.detail.notifications || []);
+    };
+
+    window.addEventListener("realtime-notification", handleNewNotification);
+    window.addEventListener("notifications:sync", handleSync);
+    return () => {
+      mounted = false;
+      window.removeEventListener("realtime-notification", handleNewNotification);
+      window.removeEventListener("notifications:sync", handleSync);
+    };
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -92,11 +105,13 @@ export default function Header({
   }, []);
 
   const markAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    adminAPI.markNotificationRead("all").catch(() => {});
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
   };
 
   const markAsRead = (id) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    socketService.markAsRead(id).catch(() => {});
+    setNotifications(prev => prev.map(n => (n._id || n.id) === id ? { ...n, isRead: true, read: true } : n));
   };
 
   const clearNotifications = () => {
@@ -239,30 +254,33 @@ export default function Header({
                     </div>
                   ) : (
                     notifications.map((notif) => {
-                      const Icon = notif.icon;
+                      const style = notificationStyles[notif.type] || notificationStyles.order;
+                      const Icon = style.icon;
+                      const read = notif.isRead || notif.read;
+                      const id = notif._id || notif.id;
                       return (
                         <div
-                          key={notif.id}
-                          onClick={() => markAsRead(notif.id)}
+                          key={id}
+                          onClick={() => markAsRead(id)}
                           className={`p-4 border-b border-luxury-border/50 cursor-pointer transition-colors hover:bg-white/[0.02] ${
-                            !notif.read ? "bg-white/[0.01]" : ""
+                            !read ? "bg-white/[0.01]" : ""
                           }`}
                         >
                           <div className="flex items-start gap-3">
-                            <div className={`p-2 rounded-lg ${notif.bgColor} ${notif.borderColor} border shrink-0`}>
-                              <Icon size={16} className={notif.color} />
+                            <div className={`p-2 rounded-lg ${style.bgColor} ${style.borderColor} border shrink-0`}>
+                              <Icon size={16} className={style.color} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <h4 className={`text-sm font-medium ${!notif.read ? "text-luxury-text" : "text-luxury-muted"}`}>
+                                <h4 className={`text-sm font-medium ${!read ? "text-luxury-text" : "text-luxury-muted"}`}>
                                   {notif.title}
                                 </h4>
-                                {!notif.read && (
+                                {!read && (
                                   <div className="w-2 h-2 bg-gold-400 rounded-full shrink-0 mt-1.5" />
                                 )}
                               </div>
                               <p className="text-xs text-luxury-dim mt-1">{notif.message}</p>
-                              <p className="text-[10px] text-luxury-dim mt-2">{notif.time}</p>
+                              <p className="text-[10px] text-luxury-dim mt-2">{timeAgo(notif.createdAt || notif.time)}</p>
                             </div>
                           </div>
                         </div>
@@ -338,4 +356,3 @@ export default function Header({
     </header>
   );
 }
-

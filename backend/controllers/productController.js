@@ -13,9 +13,9 @@ exports.createProduct = asyncHandler(async (req, res) => {
     throw new Error("Title, price, and category are required");
   }
 
-  if (!["gold", "silver", "diamond"].includes(category)) {
+  if (!["party", "daily", "traditional", "western", "statement", "bridal"].includes(category)) {
     res.status(400);
-    throw new Error("Category must be gold, silver, or diamond");
+    throw new Error("Category must be party, daily, traditional, western, statement, or bridal");
   }
 
   if (price < 0) {
@@ -38,6 +38,10 @@ exports.createProduct = asyncHandler(async (req, res) => {
       });
       images.push({ url: result.secure_url, publicId: result.public_id });
     }
+  } else if (Array.isArray(req.body.images)) {
+    images = req.body.images.map((image) =>
+      typeof image === "string" ? { url: image, publicId: "" } : image
+    );
   }
 
   const product = await productService.createProduct({

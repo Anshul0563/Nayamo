@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { adminAPI } from '../services/api';
-import { Search, Shield, UserX, UserCheck, Trash2, Loader2, Filter } from 'lucide-react';
+import { Search, Loader2, Filter, Users as UsersIcon } from 'lucide-react';
 import { SkeletonTable } from '../components/ui/Skeleton';
 import StatCard from '../components/ui/StatCard';
 
@@ -192,7 +192,7 @@ export default function Users() {
         ) : filteredUsers.length === 0 ? (
           <div className="h-96 flex items-center justify-center">
             <div className="text-center text-luxury-dim">
-              <Users size={64} className="mx-auto mb-4 opacity-40" />
+              <UsersIcon size={64} className="mx-auto mb-4 opacity-40" />
               <h3 className="text-xl font-semibold mb-2">No users found</h3>
               <p>Try adjusting your search or filter criteria</p>
             </div>
@@ -292,11 +292,11 @@ export default function Users() {
                         </select>
                         
                         <button
-                          onClick={() => {/* Edit modal */ }}
+                          onClick={() => toggleUser(user._id, 'status', 'banned')}
                           className="p-1.5 text-luxury-dim hover:text-luxury-text hover:bg-white/5 rounded-lg transition-all"
-                          title="Edit user"
+                          title="Deactivate user"
                         >
-                          ✏️
+                          Ban
                         </button>
                       </div>
                     </td>
@@ -319,4 +319,3 @@ export default function Users() {
     </div>
   );
 }
-

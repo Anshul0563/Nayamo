@@ -4,14 +4,24 @@ const { body, param } = require("express-validator");
 
 const {
   getDashboardStats,
+  getDashboard,
   getNotifications,
+  markNotificationRead,
   getAllOrders,
   updateOrderStatus,
   getAllUsers,
+  updateUser,
+  deleteUser,
   getAllProducts,
   updateProduct,
   deleteProduct,
   uploadProductImage,
+  getPayments,
+  getAnalytics,
+  getRevenueData,
+  getConversionData,
+  getRecentActivity,
+  getTopProducts,
 } = require("../controllers/adminController");
 
 const protect = require("../middleware/authMiddleware");
@@ -57,8 +67,8 @@ const productUpdateValidation = [
     .withMessage("Price must be a positive number"),
   body("category")
     .optional()
-    .isIn(["gold", "silver", "diamond"])
-    .withMessage("Category must be gold, silver, or diamond"),
+    .isIn(["party", "daily", "traditional", "western", "statement", "bridal"])
+    .withMessage("Category must be party, daily, traditional, western, statement, or bridal"),
   body("stock")
     .optional()
     .isInt({ min: 0 })
@@ -69,13 +79,23 @@ const productUpdateValidation = [
     .withMessage("isActive must be a boolean"),
 ];
 
+router.get("/dashboard", protect, admin, getDashboard);
 router.get("/stats", protect, admin, getDashboardStats);
+router.get("/analytics", protect, admin, getAnalytics);
+router.get("/revenue", protect, admin, getRevenueData);
+router.get("/conversion", protect, admin, getConversionData);
+router.get("/recent-activity", protect, admin, getRecentActivity);
+router.get("/top-products", protect, admin, getTopProducts);
+router.get("/payments", protect, admin, getPayments);
 router.get("/notifications", protect, admin, getNotifications);
+router.patch("/notifications/:id/read", protect, admin, markNotificationRead);
 
 router.get("/orders", protect, admin, getAllOrders);
 router.put("/orders/:id", protect, admin, statusValidation, validate, updateOrderStatus);
 
 router.get("/users", protect, admin, getAllUsers);
+router.put("/users/:id", protect, admin, updateUser);
+router.delete("/users/:id", protect, admin, deleteUser);
 
 router.get("/products", protect, admin, getAllProducts);
 router.post("/products/upload", protect, admin, upload.single("image"), uploadProductImage);

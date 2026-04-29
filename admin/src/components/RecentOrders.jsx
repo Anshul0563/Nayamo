@@ -1,56 +1,7 @@
 import React from 'react';
-import { Clock, ShoppingCart, User, Package, DollarSign, TrendingUp } from 'lucide-react';
+import { Clock, ShoppingCart, Package, DollarSign, TrendingUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { enIN } from 'date-fns/locale';
-
-// Mock data - replace with real API data
-const RECENT_ORDERS = [
-  {
-    id: '#NAY456',
-    customer: 'Priya Sharma',
-    type: 'Order Confirmed',
-    amount: '₹12,500',
-    status: 'confirmed',
-    time: '2024-04-28T10:30:00Z',
-    avatar: 'PS'
-  },
-  {
-    id: '#NAY455', 
-    customer: 'Rahul Mehta',
-    type: 'Payment Received',
-    amount: '₹8,250',
-    status: 'payment',
-    time: '2024-04-28T09:45:00Z',
-    avatar: 'RM'
-  },
-  {
-    id: '#NAY454',
-    customer: 'Anita Desai', 
-    type: 'Ready to Ship',
-    amount: '₹22,000',
-    status: 'ready_to_ship',
-    time: '2024-04-28T08:20:00Z',
-    avatar: 'AD'
-  },
-  {
-    id: '#NAY453',
-    customer: 'Vikram Singh',
-    type: 'New Order',
-    amount: '₹6,800',
-    status: 'pending',
-    time: '2024-04-28T07:15:00Z',
-    avatar: 'VS'
-  },
-  {
-    id: '#NAY452',
-    customer: 'Sneha Patel',
-    type: 'Delivered',
-    amount: '₹15,999',
-    status: 'delivered',
-    time: '2024-04-28T06:30:00Z',
-    avatar: 'SP'
-  }
-];
 
 const getStatusConfig = (status) => {
   const configs = {
@@ -63,7 +14,9 @@ const getStatusConfig = (status) => {
   return configs[status] || configs.pending;
 };
 
-export default function RecentOrders({ orders = RECENT_ORDERS, loading = false }) {
+const initials = (name = "Customer") => name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+
+export default function RecentOrders({ orders = [], loading = false }) {
   if (loading) {
     return (
       <div className="space-y-3">
@@ -96,21 +49,26 @@ export default function RecentOrders({ orders = RECENT_ORDERS, loading = false }
       </div>
 
       <div className="space-y-3 max-h-96 overflow-y-auto scrollbar-hide">
-        {orders.map((order, index) => {
+        {orders.length === 0 ? (
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-8 text-center text-luxury-dim">
+            No recent activity yet
+          </div>
+        ) : orders.map((order, index) => {
           const config = getStatusConfig(order.status);
           const Icon = config.icon;
-          const timeAgo = formatDistanceToNow(new Date(order.time), { addSuffix: true, locale: enIN });
+          const customer = order.user?.name || order.customer || "Customer";
+          const timeAgo = formatDistanceToNow(new Date(order.createdAt || order.time), { addSuffix: true, locale: enIN });
 
           return (
             <div 
-              key={order.id}
+              key={order._id || order.id || index}
               className="group p-4 rounded-xl hover:bg-white/[0.02] transition-all duration-300 border border-transparent hover:border-luxury-borderHover hover:shadow-gold-sm -mx-1"
             >
               <div className="flex items-start gap-3">
                 {/* Avatar */}
                 <div className="w-10 h-10 rounded-xl bg-gold-gradient-soft border border-gold-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-gold-400 font-semibold text-sm uppercase tracking-wider">
-                    {order.avatar}
+                    {initials(customer)}
                   </span>
                 </div>
 
@@ -119,12 +77,12 @@ export default function RecentOrders({ orders = RECENT_ORDERS, loading = false }
                   <div className="flex items-start justify-between">
                     <div className="min-w-0">
                       <p className="font-medium text-luxury-text group-hover:text-gold-400 transition-colors">
-                        {order.type}
+                        {order.type || String(order.status || "order").replaceAll("_", " ")}
                       </p>
-                      <p className="text-sm text-luxury-dim truncate">{order.customer}</p>
+                      <p className="text-sm text-luxury-dim truncate">{customer}</p>
                     </div>
                     <span className="text-xs font-medium text-gold-400 ml-2 flex-shrink-0">
-                      {order.amount}
+                      ₹{Number(order.totalPrice || order.amount || 0).toLocaleString("en-IN")}
                     </span>
                   </div>
 
@@ -132,7 +90,7 @@ export default function RecentOrders({ orders = RECENT_ORDERS, loading = false }
                     {/* Status Badge */}
                     <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${config.color} ${config.bg} ${config.border}`}>
                       <Icon size={12} />
-                      {order.id}
+                      #{String(order._id || order.id).slice(-8)}
                     </div>
                     
                     {/* Time */}
@@ -150,4 +108,3 @@ export default function RecentOrders({ orders = RECENT_ORDERS, loading = false }
     </div>
   );
 }
-

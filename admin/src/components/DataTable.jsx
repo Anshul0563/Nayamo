@@ -36,10 +36,12 @@ const DataTable = ({
     onSearch?.(e.target.value);
   };
 
+  const getValue = (row, key) => key.split('.').reduce((value, part) => value?.[part], row);
+
   const filteredData = data.filter(row => {
     // Simple search across all columns
     return columns.some(col => 
-      row[col.key]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      getValue(row, col.key)?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
@@ -97,18 +99,18 @@ const DataTable = ({
             )}
             {filteredData.map((row, index) => (
               <tr 
-                key={row.id || index} 
+                key={row._id || row.id || index} 
                 ref={hasMore && index === filteredData.length - 1 ? lastRowRef : null}
                 className="border-b border-luxury-border/50 hover:bg-white/[0.02] transition-colors group"
               >
                 {enableSelection && (
                   <td className="p-4">
-                    <input type="checkbox" checked={selected?.includes(row.id)} onChange={() => onSelect?.(row.id)} className="w-4 h-4 rounded text-gold-500" />
+                    <input type="checkbox" checked={selected?.includes(row._id || row.id)} onChange={() => onSelect?.(row._id || row.id)} className="w-4 h-4 rounded text-gold-500" />
                   </td>
                 )}
                 {columns.map(col => (
                   <td key={col.key} className="p-4 text-luxury-text">
-                    {col.render ? col.render(row[col.key], row) : row[col.key] || '—'}
+                    {col.render ? col.render(getValue(row, col.key), row) : getValue(row, col.key) || '—'}
                   </td>
                 ))}
               </tr>
@@ -129,4 +131,3 @@ const DataTable = ({
 };
 
 export default DataTable;
-

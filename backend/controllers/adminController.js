@@ -7,9 +7,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
 const Notification = require("../models/Notification");
-const mongoosePaginate = require('mongoose-paginate-v2'); // Add pagination support
-
-Notification.paginate = mongoosePaginate.paginate;
+const { emitInventoryNotification } = require("../services/notificationService");
 
 const validStatuses = [
   "pending",
@@ -101,13 +99,15 @@ exports.getDashboardStats = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    stats,
+    metrics: stats,
     chartData,
     recentOrders,
     topProducts,
     funnelData
   });
 });
+
+exports.getDashboard = exports.getDashboardStats;
 
 // NOTIFICATIONS
 exports.getNotifications = asyncHandler(async (req, res) => {
@@ -117,28 +117,52 @@ exports.getNotifications = asyncHandler(async (req, res) => {
   if (read !== null) match.isRead = read === 'true';
   if (type) match.type = type;
 
-  const notifications = await Notification.paginate(match, {
-    page: parseInt(page),
-    limit: parseInt(limit),
-    sort: { createdAt: -1 },
-    populate: false
-  });
+  const skip = (Number(page) - 1) * Number(limit);
+  const [notifications, totalItems, unreadCount] = await Promise.all([
+    Notification.find(match).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)).lean(),
+    Notification.countDocuments(match),
+    Notification.countDocuments({ adminId: req.user._id, isRead: false })
+  ]);
 
   res.json({
     success: true,
-    data: notifications.docs,
-    pagination: notifications.pagination
+    data: notifications,
+    unreadCount,
+    pagination: {
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalItems / Number(limit)),
+      totalItems,
+      itemsPerPage: Number(limit)
+    }
   });
+});
+
+exports.markNotificationRead = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (id === "all") {
+    await Notification.updateMany({ adminId: req.user._id, isRead: false }, { isRead: true });
+  } else {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400);
+      throw new Error("Invalid notification ID format");
+    }
+    await Notification.updateOne({ _id: id, adminId: req.user._id }, { isRead: true });
+  }
+
+  res.json({ success: true, message: "Notification marked as read" });
 });
 
 // USERS
 exports.getAllUsers = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, search } = req.query;
+  const { page = 1, limit = 20, search, role, status } = req.query;
 
   const result = await adminService.getAllUsers({
     page: Number(page),
     limit: Number(limit),
     search,
+    role,
+    status,
   });
 
   res.json({
@@ -151,6 +175,44 @@ exports.getAllUsers = asyncHandler(async (req, res) => {
       itemsPerPage: result.itemsPerPage,
     },
   });
+});
+
+exports.updateUser = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error("Invalid user ID format");
+  }
+
+  const user = await adminService.updateUser(req.params.id, req.body);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  res.json({
+    success: true,
+    message: "User updated",
+    data: {
+      ...user,
+      status: user.isActive ? "active" : "banned",
+      role: user.role === "user" ? "customer" : user.role,
+    },
+  });
+});
+
+exports.deleteUser = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error("Invalid user ID format");
+  }
+
+  const user = await adminService.deleteUser(req.params.id);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  res.json({ success: true, message: "User deactivated" });
 });
 
 // PRODUCTS
@@ -192,6 +254,16 @@ exports.updateProduct = asyncHandler(async (req, res) => {
 
   // Invalidate cache
   await productService.invalidateProductCache();
+  if (typeof req.body.stock !== "undefined") {
+    const stock = Number(req.body.stock);
+    if (stock === 0) {
+      emitInventoryNotification(product, "out_of_stock").catch((err) => logger.error("Inventory notification failed:", err.message));
+    } else if (stock <= 5) {
+      emitInventoryNotification(product, "low_stock").catch((err) => logger.error("Inventory notification failed:", err.message));
+    } else {
+      emitInventoryNotification(product, "restocked").catch((err) => logger.error("Inventory notification failed:", err.message));
+    }
+  }
 
   logger.info(`Product updated: ${req.params.id}`);
 
@@ -264,5 +336,59 @@ exports.uploadProductImage = asyncHandler(async (req, res) => {
     success: true,
     url: result.secure_url,
     publicId: result.public_id,
+    data: {
+      url: result.secure_url,
+      publicId: result.public_id,
+    },
   });
+});
+
+exports.getPayments = asyncHandler(async (req, res) => {
+  const result = await adminService.getPayments(req.query);
+  res.json({
+    success: true,
+    data: result.payments,
+    totals: result.totals,
+    pagination: {
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      totalItems: result.totalItems,
+      itemsPerPage: result.itemsPerPage,
+    },
+  });
+});
+
+exports.getAnalytics = asyncHandler(async (req, res) => {
+  const data = await adminService.getAnalytics(req.query);
+  res.json({ success: true, data, ...data });
+});
+
+exports.getRevenueData = asyncHandler(async (req, res) => {
+  const data = await adminService.getRevenueChartData(req.query);
+  res.json({ success: true, data });
+});
+
+exports.getConversionData = asyncHandler(async (req, res) => {
+  const data = await adminService.getConversionFunnel();
+  res.json({ success: true, data });
+});
+
+exports.getRecentActivity = asyncHandler(async (req, res) => {
+  const [orders, notifications] = await Promise.all([
+    adminService.getRecentOrders(Number(req.query.limit) || 10),
+    Notification.find({ adminId: req.user._id }).sort({ createdAt: -1 }).limit(Number(req.query.limit) || 10).lean(),
+  ]);
+
+  res.json({
+    success: true,
+    data: [
+      ...orders.map((order) => ({ type: "order", createdAt: order.createdAt, data: order })),
+      ...notifications.map((notification) => ({ type: "notification", createdAt: notification.createdAt, data: notification })),
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+  });
+});
+
+exports.getTopProducts = asyncHandler(async (req, res) => {
+  const data = await adminService.getTopProducts(Number(req.query.limit) || 10);
+  res.json({ success: true, data });
 });
