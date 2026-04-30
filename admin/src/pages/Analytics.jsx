@@ -11,7 +11,11 @@ import {
   BarChart3, 
   TrendingUp, 
   Activity, 
-  CalendarDays
+  CalendarDays,
+  DollarSign,
+  Users,
+  ShoppingCart,
+  Percent
 } from 'lucide-react';
 
 
@@ -55,13 +59,13 @@ export default function Analytics() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'overview':
+case 'overview':
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-            <StatCard title="Total Revenue" value={data.totalRevenue || 0} prefix="₹" color="gold" />
-            <StatCard title="Conversion Rate" value={data.conversionRate || 0} suffix="%" color="emerald" />
-            <StatCard title="Avg Order Value" value={data.avgOrderValue || 0} prefix="₹" color="blue" />
-            <StatCard title="Customer Lifetime Value" value={data.clv || 0} prefix="₹" color="purple" />
+            <StatCard title="Total Revenue" value={data.totalRevenue || 0} prefix="₹" color="gold" icon={DollarSign} />
+            <StatCard title="Conversion Rate" value={data.conversionRate || 0} suffix="%" color="emerald" icon={Percent} />
+            <StatCard title="Avg Order Value" value={data.avgOrderValue || 0} prefix="₹" color="cyan" icon={ShoppingCart} />
+            <StatCard title="Customer Lifetime Value" value={data.clv || 0} prefix="₹" color="violet" icon={Users} />
           </div>
         );
 
