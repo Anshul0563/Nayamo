@@ -253,9 +253,27 @@ exports.getProductReviews = asyncHandler(async (req, res) => {
   
   const totalItems = await Review.countDocuments({ product: productId, isApproved: true });
 
+  // Get stats for this product
+  const statsResult = await Review.aggregate([
+    { $match: { product: productId, isApproved: true } },
+    {
+      $group: {
+        _id: null,
+        avgRating: { $avg: "$rating" },
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const stats = {
+    avgRating: statsResult[0]?.avgRating?.toFixed(1) || 0,
+    total: statsResult[0]?.count || 0
+  };
+
   res.json({
     success: true,
     data: reviews,
+    stats,
     pagination: {
       currentPage: Number(page),
       totalPages: Math.ceil(totalItems / limit),
