@@ -65,13 +65,6 @@ reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 reviewSchema.index({ status: 1, isApproved: 1 });
 reviewSchema.index({ createdAt: -1 });
 
-// Virtual for status
-reviewSchema.virtual("status").get(function() {
-  if (this.isApproved) return "approved";
-  if (this.status === "rejected") return "rejected";
-  return "pending";
-});
-
 // Calculate average rating on product save
 reviewSchema.statics.calcAverageRating = async function(productId) {
   const stats = await this.aggregate([
