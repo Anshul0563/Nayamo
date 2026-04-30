@@ -141,5 +141,11 @@ export const contactAPI = {
   sendMessage: (data) => apiClient.post("/contact", data),
 };
 
+// Review APIs
+export const reviewAPI = {
+  getProductReviews: (productId, params) => apiClient.get(`/reviews/product/${productId}`, { params }),
+  submitReview: (productId, data) => apiClient.post(`/reviews/product/${productId}`, data),
+};
+
 export default apiClient;
 
