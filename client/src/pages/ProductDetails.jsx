@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Heart,
@@ -31,12 +31,43 @@ export default function ProductDetails() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { isAuthenticated, user } = useAuth();
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [added, setAdded] = useState(false);
   const [qty, setQty] = useState(1);
+  
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewStats, setReviewStats] = useState({ avgRating: 0, total: 0 });
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [newReview, setNewReview] = useState({ rating: 5, comment: "" });
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+
+  // Fetch reviews for this product
+  const fetchReviews = useCallback(async () => {
+    try {
+      setReviewsLoading(true);
+      const res = await reviewAPI.getProductReviews(id, { page: 1, limit: 10 });
+      setReviews(res.data?.data || []);
+      // Calculate stats from returned data
+      const data = res.data;
+      if (data?.stats) {
+        setReviewStats({
+          avgRating: data.stats.avgRating || 0,
+          total: data.pagination?.totalItems || 0
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load reviews:", err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -55,6 +86,8 @@ export default function ProductDetails() {
             .filter((p) => p._id !== id)
             .slice(0, 4)
         );
+        // Fetch reviews after product loads
+        await fetchReviews();
       } catch (err) {
         console.error("Product detail error:", err);
       } finally {
@@ -62,9 +95,9 @@ export default function ProductDetails() {
       }
     };
     fetch();
-  }, [id]);
+  }, [id, fetchReviews]);
 
-  const liked = product ? isInWishlist(product._id) : false;
+const liked = product ? isInWishlist(product._id) : false;
 
   const handleWishlist = () => {
     if (!product) return;
@@ -76,6 +109,38 @@ export default function ProductDetails() {
     addToCart(product._id, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  // Submit review handler
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    
+    try {
+      setSubmittingReview(true);
+      setReviewError("");
+      await reviewAPI.submitReview(id, newReview);
+      // Reset form and refresh reviews
+      setNewReview({ rating: 5, comment: "" });
+      setShowReviewForm(false);
+      await fetchReviews();
+    } catch (err) {
+      setReviewError(err.response?.data?.message || "Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  // Helper: format date
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    });
   };
 
   const getImageUrl = (p, idx = 0) => {
@@ -188,18 +253,18 @@ export default function ProductDetails() {
               {product.title}
             </h1>
 
-            <div className="flex items-center gap-2.5 mb-5">
+<div className="flex items-center gap-2.5 mb-5">
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <Star
                     key={s}
-                    className="w-4 h-4 fill-[#D4A853] text-[#D4A853]"
+                    className={`w-4 h-4 ${s <= Math.round(reviewStats.avgRating) ? "fill-[#D4A853] text-[#D4A853]" : "fill-transparent text-[#52525B]"}`}
                   />
                 ))}
               </div>
-              <span className="text-sm text-[#A1A1AA]">(4.8)</span>
+              <span className="text-sm text-[#A1A1AA]">({reviewStats.avgRating || 0})</span>
               <span className="w-1 h-1 rounded-full bg-[#52525B]" />
-              <span className="text-sm text-[#71717A]">128 reviews</span>
+              <span className="text-sm text-[#71717A]">{reviewStats.total || 0} reviews</span>
             </div>
 
             <p className="text-3xl font-bold nayamo-text-gold mb-5">
