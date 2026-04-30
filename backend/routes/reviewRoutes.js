@@ -3,6 +3,7 @@ const router = express.Router();
 const { body, param } = require("express-validator");
 
 const {
+  submitReview,
   getAllReviews,
   getReview,
   approveReview,
@@ -32,6 +33,9 @@ const bulkValidation = [
 
 // Public routes - Get approved reviews for a product
 router.get("/product/:productId", getProductReviews);
+
+// Protected route - Submit review (requires login)
+router.post("/product/:productId", protect, submitReview);
 
 // Admin routes - All protected
 router.get("/", protect, admin, getAllReviews);

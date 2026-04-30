@@ -1,6 +1,58 @@
 const Review = require("../models/Review");
 const asyncHandler = require("../utils/asyncHandler");
+const mongoose = require("mongoose");
 const logger = require("../config/logger");
+
+// SUBMIT REVIEW (User)
+exports.submitReview = asyncHandler(async (req, res) => {
+  const { productId } = req.params;
+  const { rating, comment } = req.body;
+  
+  // Validate required fields
+  if (!rating || rating < 1 || rating > 5) {
+    res.status(400);
+    throw new Error("Rating is required and must be between 1 and 5");
+  }
+  
+  // Validate product ID
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    res.status(400);
+    throw new Error("Invalid product ID");
+  }
+  
+  // Check if user already reviewed this product
+  const existingReview = await Review.findOne({
+    product: productId,
+    user: req.user._id
+  });
+  
+  if (existingReview) {
+    res.status(400);
+    throw new Error("You have already reviewed this product");
+  }
+  
+  // Create review
+  const review = await Review.create({
+    user: req.user._id,
+    product: productId,
+    rating: Number(rating),
+    comment: comment?.trim() || "",
+    isApproved: false, // Requires admin approval
+    status: "pending"
+  });
+  
+  // Populate for response
+  await review.populate("user", "name");
+  await review.populate("product", "title");
+  
+  logger.info(`New review submitted for product ${productId} by user ${req.user._id}`);
+  
+  res.status(201).json({
+    success: true,
+    message: "Review submitted successfully. It will be visible after approval.",
+    data: review
+  });
+});
 
 // GET ALL REVIEWS (Admin)
 exports.getAllReviews = asyncHandler(async (req, res) => {
