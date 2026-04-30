@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { adminAPI } from '../services/api';
-import { Search, Loader2, Filter, Users as UsersIcon } from 'lucide-react';
+import { Search, Loader2, Filter, Users as UsersIcon, UserCheck, UserX, Crown } from 'lucide-react';
 import { SkeletonTable } from '../components/ui/Skeleton';
 import StatCard from '../components/ui/StatCard';
 
@@ -94,12 +94,12 @@ export default function Users() {
             <p className="text-lg text-luxury-dim mt-2">Manage customers and administrators with precision</p>
           </div>
 
-          {/* Stats */}
+{/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard title="Total Users" value={stats.total} color="cyan" />
-            <StatCard title="Active" value={stats.active} color="emerald" />
-            <StatCard title="Banned" value={stats.banned} color="rose" />
-            <StatCard title="Admins" value={stats.admins} color="gold" />
+            <StatCard title="Total Users" value={stats.total} color="cyan" icon={UsersIcon} />
+            <StatCard title="Active" value={stats.active} color="emerald" icon={UserCheck} />
+            <StatCard title="Banned" value={stats.banned} color="rose" icon={UserX} />
+            <StatCard title="Admins" value={stats.admins} color="gold" icon={Crown} />
           </div>
         </div>
       </div>
