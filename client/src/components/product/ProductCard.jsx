@@ -105,7 +105,7 @@ export default function ProductCard({ product, index = 0 }) {
               {product.category}
             </p>
           )}
-          <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
             <span className="text-base font-bold nayamo-text-gold">
               Rs {product.price?.toLocaleString("en-IN")}
             </span>
@@ -115,6 +115,20 @@ export default function ProductCard({ product, index = 0 }) {
               </span>
             )}
           </div>
+          {/* Rating Display */}
+          {(product.ratings?.count > 0) && (
+            <div className="flex items-center gap-1.5 mt-1">
+              <svg className="w-3.5 h-3.5 fill-[#D4A853] text-[#D4A853]" viewBox="0 0 20 20">
+                <path d="M10 15l-5.878 3.09 1.123-6.645L.197 6.015l6.695-.972L10 0l3.108 5.043 6.695.972-5.046 5.43 1.123 6.645z"/>
+              </svg>
+              <span className="text-xs text-[#A1A1AA]">
+                {product.ratings.average?.toFixed(1)}
+              </span>
+              <span className="text-xs text-[#52525B]">
+                ({product.ratings.count})
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

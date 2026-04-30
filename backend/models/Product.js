@@ -75,7 +75,7 @@ const productSchema = new mongoose.Schema(
       maxlength: [100, "Occasion cannot exceed 100 characters"],
     },
 
-    style: {
+style: {
       type: String,
       trim: true,
       maxlength: [100, "Style cannot exceed 100 characters"],
@@ -90,6 +90,20 @@ const productSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+
+    ratings: {
+      average: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5,
+      },
+      count: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
     },
   },
   { timestamps: true }
