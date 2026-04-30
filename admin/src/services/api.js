@@ -122,10 +122,16 @@ export const adminAPI = {
     }),
   createProduct: (data) => apiClient.post("/products", data),
 
-  // Users
+// Users
   getUsers: (params = {}) => apiClient.get("/admin/users", { params }),
   updateUser: (id, data) => apiClient.put(`/admin/users/${id}`, data),
   deleteUser: (id) => apiClient.delete(`/admin/users/${id}`),
+
+  // Reviews
+  getReviews: (params = {}) => apiClient.get("/reviews", { params }),
+  approveReview: (id) => apiClient.patch(`/reviews/${id}/approve`),
+  rejectReview: (id, reason) => apiClient.patch(`/reviews/${id}/reject`, { reason }),
+  deleteReview: (id) => apiClient.delete(`/reviews/${id}`),
 
   // Payments
   getPayments: (params = {}) => apiClient.get("/admin/payments", { params }),

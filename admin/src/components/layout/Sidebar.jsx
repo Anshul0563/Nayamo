@@ -15,6 +15,8 @@ import {
   Crown,
   ChevronLeft,
   ChevronRight,
+  Star,
+  MessageSquare,
 } from "lucide-react";
 
 const menuItems = [
@@ -25,6 +27,7 @@ const menuItems = [
   { name: "Payments", path: "/payments", icon: Wallet },
   { name: "Analytics", path: "/analytics", icon: BarChart3 },
   { name: "Users", path: "/users", icon: Users },
+  { name: "Reviews", path: "/reviews", icon: Star },
   { name: "Returns", path: "/returns", icon: RotateCcw },
   { name: "Settings", path: "/settings", icon: Settings },
 ];

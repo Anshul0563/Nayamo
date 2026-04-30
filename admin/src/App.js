@@ -14,6 +14,7 @@ import AddProduct from "./pages/AddProduct";
 import Payments from "./pages/Payments";
 import Analytics from "./pages/Analytics";
 import Users from "./pages/Users";
+import Reviews from "./pages/Reviews";
 import Returns from "./pages/Returns";
 import Settings from "./pages/Settings";
 
@@ -68,8 +69,9 @@ function App() {
             <Route path="inventory" element={<Inventory />} />
             <Route path="add-product" element={<AddProduct />} />
             <Route path="payments" element={<Payments />} />
-            <Route path="analytics" element={<Analytics />} />
+<Route path="analytics" element={<Analytics />} />
             <Route path="users" element={<Users />} />
+            <Route path="reviews" element={<Reviews />} />
             <Route path="returns" element={<Returns />} />
             <Route path="settings" element={<Settings />} />
 
