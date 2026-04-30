@@ -27,6 +27,7 @@ const notificationStyles = {
   inventory: { icon: Boxes, color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/20" },
   user: { icon: Users, color: "text-cyan-400", bgColor: "bg-cyan-500/10", borderColor: "border-cyan-500/20" },
   security: { icon: ShieldAlert, color: "text-rose-400", bgColor: "bg-rose-500/10", borderColor: "border-rose-500/20" },
+  review: { icon: Package, color: "text-violet-400", bgColor: "bg-violet-500/10", borderColor: "border-violet-500/20" },
 };
 
 const timeAgo = (date) => {

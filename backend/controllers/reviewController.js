@@ -43,11 +43,16 @@ exports.submitReview = asyncHandler(async (req, res) => {
     status: "pending"
   });
   
-  // Populate for response
+// Populate for response
   await review.populate("user", "name");
   await review.populate("product", "title");
   
   logger.info(`New review submitted for product ${productId} by user ${req.user._id}`);
+  
+  // Send notification to admin
+  emitReviewNotification(review, 'new_review').catch(err => 
+    logger.error('Review notification failed:', err.message)
+  );
   
   res.status(201).json({
     success: true,
@@ -158,6 +163,31 @@ exports.approveReview = asyncHandler(async (req, res) => {
   }
 
   logger.info(`Review ${req.params.id} approved by admin`);
+
+  // Update product ratings
+  const productId = review.product?._id || review.product;
+  if (productId) {
+    const stats = await Review.aggregate([
+      { $match: { product: productId, isApproved: true } },
+      {
+        $group: {
+          _id: null,
+          avgRating: { $avg: "$rating" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    await Product.findByIdAndUpdate(productId, {
+      "ratings.average": Math.round((stats[0]?.avgRating || 0) * 10) / 10,
+      "ratings.count": stats[0]?.count || 0
+    });
+  }
+
+  // Send notification
+  emitReviewNotification(review, 'review_approved').catch(err => 
+    logger.error('Review notification failed:', err.message)
+  );
 
   res.json({
     success: true,
