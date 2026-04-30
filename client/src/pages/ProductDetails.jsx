@@ -382,6 +382,136 @@ const liked = product ? isInWishlist(product._id) : false;
           </motion.div>
         </div>
 
+{/* Reviews Section */}
+        <div className="mt-20">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <span className="text-[#D4A853] text-sm font-semibold uppercase tracking-[0.2em]">
+                Customer Reviews
+              </span>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mt-2">
+                What Our Customers Say
+              </h2>
+            </div>
+            {isAuthenticated && (
+              <button
+                onClick={() => setShowReviewForm(!showReviewForm)}
+                className="nayamo-btn-primary flex items-center gap-2"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Write a Review
+              </button>
+            )}
+          </div>
+          
+          {/* Review Form */}
+          {showReviewForm && (
+            <form onSubmit={handleSubmitReview} className="nayamo-card p-6 mb-8 border border-[#D4A853]/20">
+              <h3 className="text-lg font-semibold text-white mb-4">Share Your Experience</h3>
+              
+              {reviewError && (
+                <div className="text-red-400 text-sm mb-4">{reviewError}</div>
+              )}
+              
+              <div className="mb-4">
+                <label className="text-sm text-[#A1A1AA] block mb-2">Rating</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setNewReview({ ...newReview, rating: star })}
+                      className="p-1"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${star <= newReview.rating ? "fill-[#D4A853] text-[#D4A853]" : "fill-transparent text-[#52525B]"}`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <label className="text-sm text-[#A1A1AA] block mb-2">Your Review (optional)</label>
+                <textarea
+                  value={newReview.comment}
+                  onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                  placeholder="Tell us about your experience with this product..."
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-xl bg-[#131316] border border-white/[0.06] text-white placeholder-[#52525B] focus:border-[#D4A853] outline-none"
+                />
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="nayamo-btn-primary flex items-center gap-2 disabled:opacity-50"
+                >
+                  {submittingReview ? (
+                    <Loader size={16} />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                  Submit Review
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowReviewForm(false)}
+                  className="px-5 py-3 rounded-xl bg-[#131316] text-[#A1A1AA] hover:text-white border border-white/[0.06]"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+          
+          {/* Reviews List */}
+          {reviewsLoading ? (
+            <div className="flex justify-center py-10">
+              <Loader size={32} />
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="nayamo-card p-10 text-center border border-white/[0.04]">
+              <MessageSquare className="w-10 h-10 text-[#52525B] mx-auto mb-4" />
+              <p className="text-[#A1A1AA]">No reviews yet. Be the first to review this product!</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <div key={review._id} className="nayamo-card p-5 border border-white/[0.04]">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#D4A853]/10 flex items-center justify-center">
+                        <User className="w-5 h-5 text-[#D4A853]" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">
+                          {review.user?.name || "Anonymous"}
+                        </p>
+                        <p className="text-xs text-[#71717A]">
+                          {formatDate(review.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star
+                          key={s}
+                          className={`w-3 h-3 ${s <= review.rating ? "fill-[#D4A853] text-[#D4A853]" : "fill-transparent text-[#52525B]"}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {review.comment && (
+                    <p className="text-[#A1A1AA] text-sm leading-relaxed">{review.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Related Products */}
         {related.length > 0 && (
           <div className="mt-20">
