@@ -25,6 +25,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const delhiveryRoutes = require("./routes/delhiveryRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -188,6 +189,9 @@ const contactLimiter = rateLimit({
 });
 app.use("/api/v1/contact", contactLimiter);
 app.use("/api/v1/contact", requireDB, contactRoutes);
+
+// Reviews routes (public for product reviews, admin for management)
+app.use("/api/v1/reviews", reviewRoutes);
 
 // Webhook rate limiter
 const webhookLimiter = rateLimit({
