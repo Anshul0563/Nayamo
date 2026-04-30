@@ -14,12 +14,16 @@ import {
   Star,
   Minus,
   Plus,
+  User,
+  MessageSquare,
+  Send,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { productAPI } from "../services/api";
+import { productAPI, reviewAPI } from "../services/api";
 import Loader from "../components/common/Loader";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 import ProductCard from "../components/product/ProductCard";
 
 export default function ProductDetails() {
