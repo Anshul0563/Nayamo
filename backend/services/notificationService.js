@@ -139,9 +139,39 @@ const emitUserNotification = async (user, eventType) => {
   await emitNotification(null, title, message, type, 'info', { userId: user._id, path: '/users' });
 };
 
+// Review notifications
+const emitReviewNotification = async (review, eventType, adminId = null) => {
+  let title, message, type = 'review', severity = 'info';
+
+  switch (eventType) {
+    case 'new_review':
+      title = 'New Review Submitted';
+      message = `${review.rating}★ review for "${review.product?.title || 'a product'}" by ${review.user?.name || 'Anonymous'}`;
+      break;
+    case 'review_approved':
+      title = 'Review Approved';
+      message = `Review for "${review.product?.title || 'product'}" approved`;
+      break;
+    case 'review_rejected':
+      title = 'Review Rejected';
+      message = `Review for "${review.product?.title || 'product'}" rejected`;
+      break;
+    default:
+      return;
+  }
+
+  if (eventType === 'new_review') severity = 'success';
+  await emitNotification(adminId, title, message, type, severity, {
+    reviewId: review._id,
+    productId: review.product?._id || review.product,
+    path: '/reviews'
+  });
+};
+
 module.exports = {
   emitNotification,
   emitOrderNotification,
   emitInventoryNotification,
-  emitUserNotification
+  emitUserNotification,
+  emitReviewNotification
 };

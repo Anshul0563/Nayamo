@@ -1,7 +1,9 @@
 const Review = require("../models/Review");
+const Product = require("../models/Product");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
+const { emitReviewNotification } = require("../services/notificationService");
 
 // SUBMIT REVIEW (User)
 exports.submitReview = asyncHandler(async (req, res) => {
