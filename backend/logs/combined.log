@@ -17062,3 +17062,5 @@
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 18:12:04"}
 {"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 18:12:05"}
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews?page=1&limit=20 \u001b[36m304\u001b[0m 127.376 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:12:57"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews \u001b[33m404\u001b[0m 1.366 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:13:20"}
+{"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 0.543 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:13:20"}
