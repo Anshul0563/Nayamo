@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTheme } from "../../context/ThemeContext";
 import {
   Search,
   Bell,
@@ -51,7 +52,7 @@ export default function Header({
   const [searchFocused, setSearchFocused] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const { darkMode, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState([]);
   
   const notifRef = useRef(null);
@@ -192,7 +193,7 @@ export default function Header({
 
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={toggleTheme}
             className="hidden sm:flex p-2.5 rounded-xl hover:bg-white/5 text-luxury-muted hover:text-gold-400 transition-colors"
             title={darkMode ? "Light Mode" : "Dark Mode"}
           >

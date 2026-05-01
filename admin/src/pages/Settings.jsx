@@ -15,11 +15,13 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { adminAPI } from "../services/api";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Settings() {
+  const { darkMode, toggleTheme, setTheme } = useTheme();
+
   const [settings, setSettings] = useState({
     notifications: true,
-    darkMode: true,
     autoRefresh: false,
     refreshInterval: 30,
     orderAlerts: true,
@@ -45,6 +47,7 @@ export default function Settings() {
         const res = await adminAPI.getSettings();
         const apiSettings = res.data?.settings || res.data;
         if (apiSettings) {
+          if (apiSettings.darkMode !== undefined) setTheme(apiSettings.darkMode);
           setSettings((prev) => ({ ...prev, ...apiSettings }));
           // Sync to localStorage as cache
           localStorage.setItem("adminSettings", JSON.stringify(apiSettings));
@@ -71,15 +74,17 @@ export default function Settings() {
   const saveSettings = async () => {
     try {
       setLoading(true);
+      const settingsToSave = { ...settings, darkMode };
       // Save to API
-      await adminAPI.updateSettings(settings);
+      await adminAPI.updateSettings(settingsToSave);
       // Save to localStorage as cache fallback
-      localStorage.setItem("adminSettings", JSON.stringify(settings));
+      localStorage.setItem("adminSettings", JSON.stringify(settingsToSave));
       setMessage({ type: "success", text: "Settings saved successfully!" });
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
       // Fallback to localStorage only
-      localStorage.setItem("adminSettings", JSON.stringify(settings));
+      const settingsToSave = { ...settings, darkMode };
+      localStorage.setItem("adminSettings", JSON.stringify(settingsToSave));
       setMessage({ type: "error", text: error.response?.data?.message || "Saved locally. API sync failed." });
     } finally {
       setLoading(false);
@@ -205,7 +210,7 @@ export default function Settings() {
           title="Dark Mode"
           description="Use dark theme for the admin panel"
         >
-          <Toggle checked={settings.darkMode} onChange={(v) => updateSetting("darkMode", v)} />
+          <Toggle checked={darkMode} onChange={toggleTheme} />
         </SettingRow>
 
         <SettingRow

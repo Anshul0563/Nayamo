@@ -5,6 +5,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 import { socketService } from "./services/socket";
 import { useEffect } from "react";
 import { useAuth } from "./hooks/useAuth";
+import { ThemeProvider } from "./context/ThemeContext";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -49,8 +50,9 @@ function App() {
   }, []);
 
   return (
-    <ToastProvider>
-      <BrowserRouter>
+    <ThemeProvider>
+      <ToastProvider>
+        <BrowserRouter>
         <Routes>
           {/* Public */}
           <Route path="/login" element={<Login />} />
@@ -79,6 +81,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </ToastProvider>
+  </ThemeProvider>
   );
 }
 
