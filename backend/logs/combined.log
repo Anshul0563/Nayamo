@@ -17653,3 +17653,71 @@
 {"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:36:18"}
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:36:18"}
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:36:18"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[33m401\u001b[0m 2.846 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[33m401\u001b[0m 0.527 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[33m401\u001b[0m 0.480 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[33m401\u001b[0m 0.390 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[33m401\u001b[0m 0.420 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[33m401\u001b[0m 0.431 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[32m200\u001b[0m 39.219 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[32m200\u001b[0m 50.499 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[32m200\u001b[0m 36.912 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[32m200\u001b[0m 34.356 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/refresh \u001b[32m200\u001b[0m 81.395 ms - 456\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[32m200\u001b[0m 62.860 ms - 73\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 64.762 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[32m200\u001b[0m 68.523 ms - 103\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 96.367 ms - 139\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 95.876 ms - 139\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[32m200\u001b[0m 62.485 ms - 73\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[32m200\u001b[0m 63.293 ms - 103\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 410.200 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:24"}
+{"level":"info","message":"New review submitted for product 69f4b47bc0bf82a0c70afb77 by user 69ee40645a555439480e798a","service":"nayamo-api","timestamp":"2026-05-01 20:36:34"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77 \u001b[32m201\u001b[0m 231.525 ms - 618\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:34"}
+{"_message":"Notification validation failed","errors":{"type":{"kind":"enum","message":"`review` is not a valid enum value for path `type`.","name":"ValidatorError","path":"type","properties":{"enumValues":["order","inventory","user","payment","security"],"length":6,"message":"`review` is not a valid enum value for path `type`.","path":"type","type":"enum","value":"review"},"value":"review"}},"level":"error","message":"Notification emission failed: Notification validation failed: type: `review` is not a valid enum value for path `type`.","service":"nayamo-api","stack":"ValidationError: Notification validation failed: type: `review` is not a valid enum value for path `type`.\n    at model.validate (/home/jarvis/Documents/IT/Nayamo/node_modules/mongoose/lib/document.js:2864:36)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)","timestamp":"2026-05-01 20:36:34"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 94.942 ms - 139\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:34"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[33m401\u001b[0m 0.275 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:39"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[33m401\u001b[0m 0.346 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:39"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/refresh \u001b[32m200\u001b[0m 69.679 ms - 456\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:39"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 63.758 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:39"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 63.300 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:39"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 67.049 ms - 865\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:39"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 64.463 ms - 865\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:39"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[32m200\u001b[0m 162.679 ms - 943\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:39"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[32m200\u001b[0m 159.475 ms - 943\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:40"}
+{"level":"info","message":"Review 69f4c17af31a1d910cdeead8 approved by admin","service":"nayamo-api","timestamp":"2026-05-01 20:36:51"}
+{"level":"info","message":"\u001b[0mPATCH /api/v1/admin/reviews/69f4c17af31a1d910cdeead8/approve \u001b[32m200\u001b[0m 186.842 ms - 658\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:52"}
+{"_message":"Notification validation failed","errors":{"type":{"kind":"enum","message":"`review` is not a valid enum value for path `type`.","name":"ValidatorError","path":"type","properties":{"enumValues":["order","inventory","user","payment","security"],"length":6,"message":"`review` is not a valid enum value for path `type`.","path":"type","type":"enum","value":"review"},"value":"review"}},"level":"error","message":"Notification emission failed: Notification validation failed: type: `review` is not a valid enum value for path `type`.","service":"nayamo-api","stack":"ValidationError: Notification validation failed: type: `review` is not a valid enum value for path `type`.\n    at model.validate (/home/jarvis/Documents/IT/Nayamo/node_modules/mongoose/lib/document.js:2864:36)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)","timestamp":"2026-05-01 20:36:52"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[32m200\u001b[0m 160.395 ms - 983\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:52"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 4.320 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[32m200\u001b[0m 2.418 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[36m304\u001b[0m 72.794 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 76.419 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[32m200\u001b[0m 72.202 ms - 103\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[32m200\u001b[0m 72.342 ms - 73\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[36m304\u001b[0m 72.428 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 72.051 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[36m304\u001b[0m 1.217 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[32m200\u001b[0m 1.212 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 127.792 ms - 550\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 127.864 ms - 550\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:36:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/analytics?type=products \u001b[36m304\u001b[0m 276.715 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/analytics?dateRange=30d \u001b[32m200\u001b[0m 399.278 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/revenue?dateRange=30d \u001b[36m304\u001b[0m 396.232 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/analytics?dateRange=30d \u001b[36m304\u001b[0m 510.298 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/conversion?dateRange=30d \u001b[32m200\u001b[0m 1049.655 ms - 169\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/conversion?dateRange=30d \u001b[36m304\u001b[0m 678.665 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/analytics?type=products \u001b[32m200\u001b[0m 1147.350 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/revenue?dateRange=30d \u001b[36m304\u001b[0m 659.610 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:16"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/analytics?type=customers \u001b[36m304\u001b[0m 836.109 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:16"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/analytics?type=customers \u001b[32m200\u001b[0m 1234.410 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:16"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/users?page=1&limit=20 \u001b[32m200\u001b[0m 66.618 ms - 432\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:34"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/users?page=1&limit=20 \u001b[32m200\u001b[0m 64.298 ms - 432\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:34"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[36m304\u001b[0m 174.869 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[36m304\u001b[0m 159.977 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[36m304\u001b[0m 174.291 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[36m304\u001b[0m 160.329 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/returns?page=1&limit=20 \u001b[36m304\u001b[0m 79.875 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:57"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/returns/stats \u001b[33m404\u001b[0m 0.915 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:57"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/returns?page=1&limit=20 \u001b[36m304\u001b[0m 64.755 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:57"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/returns/stats \u001b[33m404\u001b[0m 0.530 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:37:57"}
