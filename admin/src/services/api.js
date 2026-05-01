@@ -110,7 +110,10 @@ export const adminAPI = {
 
   // Orders
   getOrders: (params = {}) => apiClient.get("/admin/orders", { params }),
-  updateOrderStatus: (id, status) => apiClient.put(`/admin/orders/${id}`, { status }),
+  getOrderById: (id) => apiClient.get(`/admin/orders/${id}`),
+  updateOrderStatus: (id, data) => apiClient.put(`/admin/orders/${id}`, data),
+  getOrderStats: () => apiClient.get("/admin/orders/stats"),
+  exportOrders: (params = {}) => apiClient.get("/admin/orders/export", { params }, { responseType: 'blob' }),
 
   // Products
   getProducts: (params = {}) => apiClient.get("/admin/products", { params }),
@@ -120,21 +123,39 @@ export const adminAPI = {
     apiClient.post("/admin/products/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     }),
-  createProduct: (data) => apiClient.post("/products", data),
+  createProduct: (data) => apiClient.post("/admin/products", data),
+  exportProducts: (params = {}) => apiClient.get("/admin/products/export", { params }, { responseType: 'blob' }),
 
-// Users
+  // Users
   getUsers: (params = {}) => apiClient.get("/admin/users", { params }),
   updateUser: (id, data) => apiClient.put(`/admin/users/${id}`, data),
   deleteUser: (id) => apiClient.delete(`/admin/users/${id}`),
+  getUserStats: () => apiClient.get("/admin/users/stats"),
+  exportUsers: (params = {}) => apiClient.get("/admin/users/export", { params }, { responseType: 'blob' }),
 
   // Reviews
-  getReviews: (params = {}) => apiClient.get("/reviews", { params }),
-  approveReview: (id) => apiClient.patch(`/reviews/${id}/approve`),
-  rejectReview: (id, reason) => apiClient.patch(`/reviews/${id}/reject`, { reason }),
-  deleteReview: (id) => apiClient.delete(`/reviews/${id}`),
+  getReviews: (params = {}) => apiClient.get("/admin/reviews", { params }),
+  approveReview: (id) => apiClient.patch(`/admin/reviews/${id}/approve`),
+  rejectReview: (id, reason) => apiClient.patch(`/admin/reviews/${id}/reject`, { reason }),
+  deleteReview: (id) => apiClient.delete(`/admin/reviews/${id}`),
+  getReviewStats: () => apiClient.get("/admin/reviews/stats"),
 
   // Payments
   getPayments: (params = {}) => apiClient.get("/admin/payments", { params }),
+  getPaymentStats: () => apiClient.get("/admin/payments/stats"),
+
+  // Returns
+  getReturns: (params = {}) => apiClient.get("/admin/returns", { params }),
+  updateReturnStatus: (id, data) => apiClient.put(`/admin/returns/${id}`, data),
+  getReturnStats: () => apiClient.get("/admin/returns/stats"),
+
+  // Settings
+  getSettings: () => apiClient.get("/admin/settings"),
+  updateSettings: (data) => apiClient.put("/admin/settings", data),
+  changePassword: (data) => apiClient.post("/admin/change-password", data),
+
+  // Audit Logs
+  getAuditLogs: (params = {}) => apiClient.get("/admin/audit-logs", { params }),
 };
 
 
