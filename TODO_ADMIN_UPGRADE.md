@@ -43,15 +43,15 @@
   - [x] Improve stats fallback
 
 ## Phase 6: Returns Enhancement
-- [ ] 6.1 Update `admin/src/pages/Returns.jsx`
-  - [ ] Use `adminAPI.getReturns()` endpoint
-  - [ ] Add RTO status tab
-  - [ ] Add partial refund option
-  - [ ] Add return stats from API
+- [x] 6.1 Update `admin/src/pages/Returns.jsx`
+  - [x] Use `adminAPI.getReturns()` endpoint
+  - [x] Add RTO status tab
+  - [x] Add partial refund option
+  - [x] Add return stats from API
 
 ## Phase 7: Settings Backend Connection
-- [ ] 7.1 Update `admin/src/pages/Settings.jsx`
-  - [ ] Load settings from API on mount
-  - [ ] Save settings to API
-  - [ ] Add password change section
-  - [ ] Keep localStorage as cache fallback
+- [x] 7.1 Update `admin/src/pages/Settings.jsx`
+  - [x] Load settings from API on mount
+  - [x] Save settings to API
+  - [x] Add password change section
+  - [x] Keep localStorage as cache fallback

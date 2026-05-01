@@ -8,7 +8,13 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
+  Lock,
+  Clock,
+  Mail,
+  ShoppingBag,
+  RefreshCcw,
 } from "lucide-react";
+import { adminAPI } from "../services/api";
 
 export default function Settings() {
   const [settings, setSettings] = useState({
@@ -16,33 +22,97 @@ export default function Settings() {
     darkMode: true,
     autoRefresh: false,
     refreshInterval: 30,
+    orderAlerts: true,
+    emailNotifications: true,
+    autoLogoutTime: 60,
+  });
+
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  // Load settings from API on mount, fallback to localStorage
   useEffect(() => {
-    // Load settings from localStorage
-    const saved = localStorage.getItem("adminSettings");
-    if (saved) {
+    const loadSettings = async () => {
       try {
-        setSettings(JSON.parse(saved));
-      } catch {
-        // ignore parse errors
+        setLoading(true);
+        const res = await adminAPI.getSettings();
+        const apiSettings = res.data?.settings || res.data;
+        if (apiSettings) {
+          setSettings((prev) => ({ ...prev, ...apiSettings }));
+          // Sync to localStorage as cache
+          localStorage.setItem("adminSettings", JSON.stringify(apiSettings));
+        }
+      } catch (error) {
+        console.error("Failed to load settings from API, falling back to localStorage");
+        const saved = localStorage.getItem("adminSettings");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            setSettings((prev) => ({ ...prev, ...parsed }));
+          } catch {
+            // ignore parse errors
+          }
+        }
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    loadSettings();
   }, []);
 
-  const saveSettings = () => {
+  const saveSettings = async () => {
     try {
       setLoading(true);
+      // Save to API
+      await adminAPI.updateSettings(settings);
+      // Save to localStorage as cache fallback
       localStorage.setItem("adminSettings", JSON.stringify(settings));
       setMessage({ type: "success", text: "Settings saved successfully!" });
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
-    } catch {
-      setMessage({ type: "error", text: "Failed to save settings" });
+    } catch (error) {
+      // Fallback to localStorage only
+      localStorage.setItem("adminSettings", JSON.stringify(settings));
+      setMessage({ type: "error", text: error.response?.data?.message || "Saved locally. API sync failed." });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const changePassword = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword) {
+      setMessage({ type: "error", text: "All password fields are required" });
+      return;
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setMessage({ type: "error", text: "New passwords do not match" });
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      setMessage({ type: "error", text: "New password must be at least 6 characters" });
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+      await adminAPI.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setMessage({ type: "success", text: "Password changed successfully!" });
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    } catch (error) {
+      setMessage({ type: "error", text: error.response?.data?.message || "Failed to change password" });
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -51,9 +121,9 @@ export default function Settings() {
   };
 
   const SettingRow = ({ icon: Icon, title, description, children }) => (
-    <div className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 border-b border-white/5 last:border-0 gap-3">
       <div className="flex items-center gap-4">
-        <div className="p-2 rounded-xl bg-white/5">
+        <div className="p-2 rounded-xl bg-white/5 shrink-0">
           <Icon size={20} className="text-zinc-400" />
         </div>
         <div>
@@ -68,7 +138,7 @@ export default function Settings() {
   const Toggle = ({ checked, onChange }) => (
     <button
       onClick={() => onChange(!checked)}
-      className={`w-12 h-6 rounded-full transition-colors relative ${
+      className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${
         checked ? "bg-indigo-600" : "bg-zinc-700"
       }`}
     >
@@ -83,9 +153,23 @@ export default function Settings() {
   return (
     <div className="space-y-6 text-white">
       {/* Header */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6">
-        <h1 className="text-2xl md:text-4xl font-bold">Settings</h1>
-        <p className="text-zinc-400 mt-1">Configure your admin panel preferences.</p>
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-4xl font-bold">Settings</h1>
+          <p className="text-zinc-400 mt-1">Configure your admin panel preferences.</p>
+        </div>
+        <button
+          onClick={saveSettings}
+          disabled={loading}
+          className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition shrink-0"
+        >
+          {loading ? (
+            <Loader2 className="animate-spin" size={18} />
+          ) : (
+            <Save size={18} />
+          )}
+          {loading ? "Saving..." : "Save Settings"}
+        </button>
       </div>
 
       {/* Alert */}
@@ -102,9 +186,11 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Settings */}
+      {/* General Settings */}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-2">
-        <h2 className="text-lg font-semibold mb-4">General</h2>
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Database size={20} className="text-zinc-400" /> General
+        </h2>
 
         <SettingRow
           icon={Bell}
@@ -123,7 +209,7 @@ export default function Settings() {
         </SettingRow>
 
         <SettingRow
-          icon={Database}
+          icon={RefreshCcw}
           title="Auto Refresh"
           description="Automatically refresh dashboard data"
         >
@@ -131,10 +217,10 @@ export default function Settings() {
         </SettingRow>
 
         {settings.autoRefresh && (
-          <div className="flex items-center justify-between py-4 border-b border-white/5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 border-b border-white/5 gap-3">
             <div className="flex items-center gap-4">
-              <div className="p-2 rounded-xl bg-white/5">
-                <Database size={20} className="text-zinc-400" />
+              <div className="p-2 rounded-xl bg-white/5 shrink-0">
+                <Clock size={20} className="text-zinc-400" />
               </div>
               <div>
                 <h3 className="font-medium">Refresh Interval</h3>
@@ -147,15 +233,108 @@ export default function Settings() {
               max={300}
               value={settings.refreshInterval}
               onChange={(e) => updateSetting("refreshInterval", Number(e.target.value))}
-              className="w-20 px-3 py-2 rounded-xl bg-black/30 border border-white/10 outline-none text-center"
+              className="w-20 px-3 py-2 rounded-xl bg-black/30 border border-white/10 outline-none text-center shrink-0"
             />
           </div>
         )}
+
+        <SettingRow
+          icon={ShoppingBag}
+          title="Order Alerts"
+          description="Get notified when new orders arrive"
+        >
+          <Toggle checked={settings.orderAlerts} onChange={(v) => updateSetting("orderAlerts", v)} />
+        </SettingRow>
+
+        <SettingRow
+          icon={Mail}
+          title="Email Notifications"
+          description="Receive email summaries of daily activity"
+        >
+          <Toggle checked={settings.emailNotifications} onChange={(v) => updateSetting("emailNotifications", v)} />
+        </SettingRow>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 border-b border-white/5 gap-3">
+          <div className="flex items-center gap-4">
+            <div className="p-2 rounded-xl bg-white/5 shrink-0">
+              <Clock size={20} className="text-zinc-400" />
+            </div>
+            <div>
+              <h3 className="font-medium">Auto Logout</h3>
+              <p className="text-sm text-zinc-500">Minutes of inactivity before logout</p>
+            </div>
+          </div>
+          <input
+            type="number"
+            min={5}
+            max={240}
+            value={settings.autoLogoutTime}
+            onChange={(e) => updateSetting("autoLogoutTime", Number(e.target.value))}
+            className="w-20 px-3 py-2 rounded-xl bg-black/30 border border-white/10 outline-none text-center shrink-0"
+          />
+        </div>
       </div>
 
-      {/* Security */}
+      {/* Password Change */}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-2">
-        <h2 className="text-lg font-semibold mb-4">Security</h2>
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Lock size={20} className="text-zinc-400" /> Change Password
+        </h2>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm text-zinc-400 block mb-2">Current Password</label>
+            <input
+              type="password"
+              value={passwordData.currentPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+              className="w-full px-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none focus:border-indigo-500"
+              placeholder="Enter current password"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-400 block mb-2">New Password</label>
+            <input
+              type="password"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+              className="w-full px-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none focus:border-indigo-500"
+              placeholder="Enter new password"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-400 block mb-2">Confirm New Password</label>
+            <input
+              type="password"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              className="w-full px-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none focus:border-indigo-500"
+              placeholder="Confirm new password"
+            />
+          </div>
+
+          <button
+            onClick={changePassword}
+            disabled={passwordLoading}
+            className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition"
+          >
+            {passwordLoading ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              <Lock size={18} />
+            )}
+            {passwordLoading ? "Changing..." : "Change Password"}
+          </button>
+        </div>
+      </div>
+
+      {/* Security Info */}
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-2">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Shield size={20} className="text-zinc-400" /> Security
+        </h2>
 
         <SettingRow
           icon={Shield}
@@ -168,21 +347,6 @@ export default function Settings() {
           </div>
         </SettingRow>
       </div>
-
-      {/* Save */}
-      <button
-        onClick={saveSettings}
-        disabled={loading}
-        className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition"
-      >
-        {loading ? (
-          <Loader2 className="animate-spin" size={18} />
-        ) : (
-          <Save size={18} />
-        )}
-        {loading ? "Saving..." : "Save Settings"}
-      </button>
     </div>
   );
 }
-
