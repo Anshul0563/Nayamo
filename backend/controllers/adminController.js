@@ -155,14 +155,14 @@ exports.markNotificationRead = asyncHandler(async (req, res) => {
 
 // USERS
 exports.getAllUsers = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, search, role, status } = req.query;
+  const { page = 1, limit = 20, search, role, status, isActive } = req.query;
 
   const result = await adminService.getAllUsers({
     page: Number(page),
     limit: Number(limit),
     search,
     role,
-    status,
+    status: isActive !== undefined ? isActive : status,
   });
 
   res.json({
