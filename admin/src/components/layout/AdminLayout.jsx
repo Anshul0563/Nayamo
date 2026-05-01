@@ -59,7 +59,7 @@ export default function AdminLayout() {
   )?.name || "Admin";
 
   return (
-    <div className="min-h-screen bg-luxury-black text-luxury-text flex">
+<div className="min-h-screen bg-transparent text-luxury-text flex">
       {/* Sidebar */}
       <Sidebar
         mobileOpen={mobileOpen}
