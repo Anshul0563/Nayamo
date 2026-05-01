@@ -16,11 +16,27 @@ export default function DateRangePicker({ value, onChange }) {
     { label: 'Custom', value: 'custom' },
   ];
 
-  const formatDate = (date) => date.toLocaleDateString('en-IN', { 
-    month: 'short', 
-    day: 'numeric',
-    year: 'numeric'
-  });
+const formatDate = (date) => {
+    if (!date || !(date instanceof Date)) return 'Invalid Date';
+    return date.toLocaleDateString('en-IN', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const getPresetLabel = () => {
+    if (!value) return 'Last 30 days';
+    if (typeof value === 'string') {
+      const preset = presets.find(p => p.value === value);
+      return preset ? preset.label : 'Last 30 days';
+    }
+    // If it's an array of dates
+    if (Array.isArray(value) ){
+      return value[0] && value[1] ? formatDate(value[0]) + ' - ' + formatDate(value[1]) : 'Last 30 days';
+    }
+    return 'Last 30 days';
+  };
 
   return (
     <div className="relative">
@@ -30,7 +46,7 @@ export default function DateRangePicker({ value, onChange }) {
       >
         <CalendarIcon className="w-5 h-5 text-gold-400" />
         <span className="font-medium">
-          {value ? formatDate(value[0]) + ' - ' + formatDate(value[1]) : 'Last 30 days'}
+          {getPresetLabel()}
         </span>
       </button>
 
