@@ -409,3 +409,117 @@ exports.getAnalytics = async ({ days = 30 } = {}) => {
     heatmap
   };
 };
+
+// ── NEW: Product Creation ───────────────────────────────────────────
+exports.createProduct = async (data) => {
+  const product = new Product(data);
+  return await product.save();
+};
+
+// ── NEW: Order Stats ────────────────────────────────────────────────
+exports.getOrderStats = async () => {
+  const stats = await Order.aggregate([
+    { $group: { _id: "$status", count: { $sum: 1 } } }
+  ]);
+  const result = {
+    total: 0,
+    pending: 0,
+    confirmed: 0,
+    ready_to_ship: 0,
+    pickup_requested: 0,
+    in_transit: 0,
+    out_for_delivery: 0,
+    delivered: 0,
+    cancelled: 0,
+    returned: 0,
+    rto: 0,
+    refunded: 0,
+  };
+  stats.forEach((item) => {
+    result[item._id || "unknown"] = item.count;
+    result.total += item.count;
+  });
+  return result;
+};
+
+// ── NEW: User Stats ─────────────────────────────────────────────────
+exports.getUserStats = async () => {
+  const [total, active, banned, admins, customers] = await Promise.all([
+    User.countDocuments(),
+    User.countDocuments({ isActive: true }),
+    User.countDocuments({ isActive: false }),
+    User.countDocuments({ role: "admin" }),
+    User.countDocuments({ role: "user" }),
+  ]);
+  return { total, active, banned, admins, customers };
+};
+
+// ── NEW: Returns ────────────────────────────────────────────────────
+exports.getReturns = async ({ page = 1, limit = 20, status, search }) => {
+  const skip = (page - 1) * limit;
+  const query = { status: { $in: ["returned", "rto", "refunded"] } };
+  if (status) query.status = status;
+  if (search) {
+    const safeSearch = escapeRegex(search);
+    query.$or = [
+      { phone: { $regex: safeSearch, $options: "i" } },
+      { _id: { $regex: safeSearch, $options: "i" } },
+    ];
+  }
+
+  const [orders, totalItems] = await Promise.all([
+    Order.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("user", "name email phone")
+      .lean(),
+    Order.countDocuments(query),
+  ]);
+
+  return {
+    orders,
+    currentPage: Number(page),
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+    itemsPerPage: Number(limit),
+  };
+};
+
+exports.updateReturnStatus = async (id, data) => {
+  const update = { status: data.status };
+  if (data.refundAmount !== undefined) update.refundAmount = data.refundAmount;
+  if (data.refundReason) update.refundReason = data.refundReason;
+  return await Order.findByIdAndUpdate(id, update, { new: true }).lean();
+};
+
+// ── NEW: Settings ───────────────────────────────────────────────────
+const Settings = require("../models/Settings");
+exports.getSettings = async () => {
+  return await Settings.getSingleton();
+};
+
+exports.updateSettings = async (data) => {
+  const settings = await Settings.findOne();
+  if (!settings) {
+    return await Settings.create(data);
+  }
+  Object.assign(settings, data);
+  await settings.save();
+  return settings;
+};
+
+// ── NEW: Change Password ────────────────────────────────────────────
+const bcrypt = require("bcryptjs");
+exports.changePassword = async (userId, { currentPassword, newPassword }) => {
+  const user = await User.findById(userId).select("+password");
+  if (!user) throw new Error("User not found");
+
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) throw new Error("Current password is incorrect");
+
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(newPassword, salt);
+  await user.save();
+  return { message: "Password changed successfully" };
+};
