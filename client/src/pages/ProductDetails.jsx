@@ -117,48 +117,43 @@ export default function ProductDetails() {
 
   // Submit review handler
   const handleSubmitReview = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
-    }
+  if (!isAuthenticated) {
+    navigate("/login");
+    return;
+  }
 
-    if (!newReview.title.trim()) {
-      setReviewError("Title is required");
-      return;
-    }
+  const comment = newReview.comment.trim();
 
-    if (!newReview.comment.trim()) {
-      setReviewError("Comment is required");
-      return;
-    }
+  if (!comment) {
+    setReviewError("Comment is required");
+    return;
+  }
 
-    try {
-      setSubmittingReview(true);
-      setReviewError("");
-
-      await reviewAPI.submitReview(id, {
-        title: newReview.comment.trim().slice(0, 30) || "Review", // 🔥 auto title
-        rating: Number(newReview.rating),
-        comment: newReview.comment.trim(),
-      });
-
-      // reset (important fix)
-      setNewReview({
-        rating: 5,
-        title: "",
-        comment: "",
-      });
-
-      setShowReviewForm(false);
-      await fetchReviews();
-    } catch (err) {
-      setReviewError(err.response?.data?.message || "Failed to submit review");
-    } finally {
-      setSubmittingReview(false);
-    }
+  const payload = {
+    title: comment.substring(0, 30) || "User Review", // 🔥 FORCE TITLE
+    rating: Number(newReview.rating),
+    comment,
   };
+
+  console.log("SENDING:", payload); // 🔥 DEBUG
+
+  try {
+    setSubmittingReview(true);
+    setReviewError("");
+
+    await reviewAPI.submitReview(id, payload);
+
+    setNewReview({ rating: 5, title: "", comment: "" });
+    setShowReviewForm(false);
+    await fetchReviews();
+  } catch (err) {
+    setReviewError(err.response?.data?.message || "Failed to submit review");
+  } finally {
+    setSubmittingReview(false);
+  }
+};
 
   // Helper: format date
   const formatDate = (date) => {
