@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -62,7 +63,7 @@ export default function Sidebar({
     <>
       {/* Desktop Sidebar */}
       <aside 
-        className={`hidden md:flex flex-col h-screen sticky top-0 bg-luxury-black border-r border-luxury-border transition-all duration-500 ease-luxury ${sidebarClasses}`}
+        className={`hidden md:flex flex-col h-screen sticky top-0 sidebar border-r border-luxury-border transition-all duration-500 ease-luxury ${sidebarClasses}`}
       >
         {/* Logo Section */}
         <div className={`p-5 border-b border-luxury-border flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
@@ -88,7 +89,7 @@ export default function Sidebar({
           )}
           <button
             onClick={onToggleCollapse}
-            className="p-1.5 rounded-lg hover:bg-white/5 text-luxury-muted hover:text-luxury-text transition-colors"
+            className="p-1.5 rounded-lg nav-link-hover text-luxury-muted hover:text-luxury-text transition-colors"
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
@@ -110,8 +111,8 @@ export default function Sidebar({
                   group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300
                   ${collapsed ? 'justify-center' : ''}
                   ${navActive || isActive
-                    ? "bg-gold-500/10 border border-gold-500/20 text-gold-400 font-medium" 
-                    : "text-luxury-muted hover:text-luxury-text hover:bg-white/5"
+                    ? "nav-link-active text-gold-400 font-medium" 
+                    : "text-luxury-muted hover:text-luxury-text nav-link-hover"
                   }
                 `}
                 onMouseEnter={() => setHoveredItem(item.name)}
@@ -180,7 +181,7 @@ export default function Sidebar({
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
             onClick={onMobileClose}
           />
-          <aside className="fixed inset-y-0 left-0 w-72 bg-luxury-black border-r border-luxury-border z-50 md:hidden flex flex-col animate-slide-in-right">
+          <aside className="fixed inset-y-0 left-0 w-72 sidebar border-r border-luxury-border z-50 md:hidden flex flex-col animate-slide-in-right">
             {/* Mobile Logo */}
             <div className="p-5 border-b border-luxury-border flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -198,7 +199,7 @@ export default function Sidebar({
               </div>
               <button
                 onClick={onMobileClose}
-                className="p-2 rounded-lg hover:bg-white/5 text-luxury-muted"
+                className="p-2 rounded-lg nav-link-hover text-luxury-muted"
               >
                 <ChevronLeft size={20} />
               </button>
@@ -219,8 +220,8 @@ export default function Sidebar({
                     className={({ isActive: navActive }) => `
                       flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
                       ${navActive || isActive
-                        ? "bg-gold-500/10 border border-gold-500/20 text-gold-400 font-medium" 
-                        : "text-luxury-muted hover:text-luxury-text hover:bg-white/5"
+                        ? "nav-link-active text-gold-400 font-medium" 
+                        : "text-luxury-muted hover:text-luxury-text nav-link-hover"
                       }
                     `}
                   >
@@ -256,4 +257,3 @@ export default function Sidebar({
     </>
   );
 }
-
