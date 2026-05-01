@@ -44,8 +44,8 @@ export default function Shop() {
         if (sort) params.sort = sort;
         if (search) params.search = search;
         const res = await productAPI.getProducts(params);
-        setProducts(res.data?.data?.products || []);
-        setPagination(res.data?.data?.pagination || { currentPage: 1, totalPages: 1 });
+        setProducts(res.data?.data || []);
+        setPagination(res.data?.pagination || { currentPage: 1, totalPages: 1 });
       } catch (err) {
         console.error("Shop error:", err);
       } finally {
