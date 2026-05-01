@@ -301,6 +301,11 @@ aside.sidebar,
     background-color: #f8f7f4 !important;
   }
   
+  /* Arbitrary dark backgrounds (e.g. bg-[#0c0c0e]) */
+  [class*="bg-\\["] {
+    background-color: #f8f7f4 !important;
+  }
+  
   /* Sidebar override */
   html.light aside[class*="bg-luxury-black"],
   html.light .sidebar {
@@ -346,7 +351,6 @@ aside.sidebar,
   /* Hover states */
   .hover\:bg-white\/5:hover,
   .hover\:bg-white\/10:hover,
-  .hover\:bg-white\/\[0\.02\]:hover,
   [class*="hover"]:hover {
     background-color: rgba(0,0,0,0.04) !important;
   }
