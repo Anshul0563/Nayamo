@@ -13,7 +13,15 @@ import {
   Crown,
 } from "lucide-react";
 
-function Input({ label, name, type = "text", placeholder, icon, value, onChange }) {
+function Input({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  icon,
+  value,
+  onChange,
+}) {
   return (
     <div>
       <label className="text-sm text-luxury-dim block mb-2">{label}</label>
@@ -36,7 +44,14 @@ function Input({ label, name, type = "text", placeholder, icon, value, onChange 
   );
 }
 
-const VALID_CATEGORIES = ["party", "daily", "traditional", "western", "statement", "bridal"];
+const VALID_CATEGORIES = [
+  "party",
+  "daily",
+  "traditional",
+  "western",
+  "statement",
+  "bridal",
+];
 const imageUrl = (image) => (typeof image === "string" ? image : image?.url);
 
 export default function AddProduct() {
@@ -146,10 +161,16 @@ export default function AddProduct() {
 
       await adminAPI.createProduct(payload);
 
-      notify("success", "Product created successfully! ✨ Ready for Nayamo luxury collection.");
+      notify(
+        "success",
+        "Product created successfully! ✨ Ready for Nayamo luxury collection.",
+      );
       resetForm();
     } catch (error) {
-      notify("error", error.response?.data?.message || "Failed to create product");
+      notify(
+        "error",
+        error.response?.data?.message || "Failed to create product",
+      );
     } finally {
       setLoading(false);
     }
@@ -166,23 +187,34 @@ export default function AddProduct() {
             <h1 className="text-3xl md:text-4xl font-display font-bold text-luxury-text">
               Add Luxury Product
             </h1>
-            <p className="text-lg text-luxury-dim mt-1">Create exquisite jewelry pieces for Nayamo collection</p>
+            <p className="text-lg text-luxury-dim mt-1">
+              Create exquisite jewelry pieces for Nayamo collection
+            </p>
           </div>
         </div>
 
         {/* Alert */}
         {message.text && (
-          <div className={`glass-card p-4 rounded-2xl border flex items-center gap-3 mb-6 ${
-            message.type === "success"
-              ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
-              : "border-rose-500/30 bg-rose-500/5 text-rose-300"
-          }`}>
-            {message.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+          <div
+            className={`glass-card p-4 rounded-2xl border flex items-center gap-3 mb-6 ${
+              message.type === "success"
+                ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
+                : "border-rose-500/30 bg-rose-500/5 text-rose-300"
+            }`}
+          >
+            {message.type === "success" ? (
+              <CheckCircle2 size={20} />
+            ) : (
+              <AlertCircle size={20} />
+            )}
             {message.text}
           </div>
         )}
 
-        <form onSubmit={submitHandler} className="grid xl:grid-cols-[1fr_380px] gap-8">
+        <form
+          onSubmit={submitHandler}
+          className="grid xl:grid-cols-[1fr_380px] gap-8"
+        >
           {/* Main Form */}
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
@@ -230,8 +262,8 @@ export default function AddProduct() {
                 name="description"
                 value={form.description}
                 onChange={changeHandler}
-                placeholder="Describe the luxury craftsmanship, materials (18K gold, VS diamonds), dimensions, and unique features of this exquisite piece..."
-                className="luxury-input resize-none focus:shadow-gold-md h-40"
+                placeholder="Describe the luxury craftsmanship..."
+                className="luxury-input w-full resize-none focus:shadow-gold-md h-40"
               />
             </div>
 
@@ -283,9 +315,16 @@ export default function AddProduct() {
                     <Loader2 className="mx-auto h-12 w-12 animate-spin text-gold-400" />
                   ) : (
                     <>
-                      <ImagePlus size={40} className="mx-auto mb-3 text-gold-400 group-hover:animate-sparkle" />
-                      <p className="text-luxury-text font-medium mb-1">Upload Images</p>
-                      <p className="text-sm text-luxury-dim">High-res jewelry photos (JPG, PNG, up to 10MB)</p>
+                      <ImagePlus
+                        size={40}
+                        className="mx-auto mb-3 text-gold-400 group-hover:animate-sparkle"
+                      />
+                      <p className="text-luxury-text font-medium mb-1">
+                        Upload Images
+                      </p>
+                      <p className="text-sm text-luxury-dim">
+                        High-res jewelry photos (JPG, PNG, up to 10MB)
+                      </p>
                     </>
                   )}
                 </div>
@@ -295,10 +334,10 @@ export default function AddProduct() {
                 <div className="grid grid-cols-2 gap-3 mt-6">
                   {form.images.map((img, index) => (
                     <div key={index} className="relative group">
-                      <img 
-                        src={imageUrl(img)} 
-                        alt="preview" 
-                        className="h-32 w-full object-cover rounded-2xl hover:scale-105 transition-transform duration-300" 
+                      <img
+                        src={imageUrl(img)}
+                        alt="preview"
+                        className="h-32 w-full object-cover rounded-2xl hover:scale-105 transition-transform duration-300"
                       />
                       <button
                         type="button"
@@ -315,12 +354,14 @@ export default function AddProduct() {
 
             {/* Live Preview Card */}
             <div className="glass-card p-6 rounded-2xl border-gold-animated hover:shadow-gold-lg transition-all">
-              <h4 className="font-semibold mb-4 text-gold-gradient">Live Preview</h4>
+              <h4 className="font-semibold mb-4 text-gold-gradient">
+                Live Preview
+              </h4>
               {form.images[0] ? (
-                <img 
-                src={imageUrl(form.images[0])} 
-                  alt="main preview" 
-                  className="w-full h-48 object-cover rounded-2xl mb-4 shadow-gold-sm hover:shadow-gold-md transition-all" 
+                <img
+                  src={imageUrl(form.images[0])}
+                  alt="main preview"
+                  className="w-full h-48 object-cover rounded-2xl mb-4 shadow-gold-sm hover:shadow-gold-md transition-all"
                 />
               ) : (
                 <div className="w-full h-48 bg-luxury-surface/50 rounded-2xl flex items-center justify-center mb-4">
@@ -328,14 +369,20 @@ export default function AddProduct() {
                 </div>
               )}
               <div className="space-y-1">
-                <h3 className="font-display font-bold text-xl truncate">{form.title || "Nayamo Masterpiece"}</h3>
-                <p className="text-2xl font-bold text-gold-gradient">₹{form.price || '0'}</p>
+                <h3 className="font-display font-bold text-xl truncate">
+                  {form.title || "Nayamo Masterpiece"}
+                </h3>
+                <p className="text-2xl font-bold text-gold-gradient">
+                  ₹{form.price || "0"}
+                </p>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    Number(form.stock) === 0 
-                      ? 'bg-rose-500/20 text-rose-400' 
-                      : 'bg-emerald-500/20 text-emerald-400'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      Number(form.stock) === 0
+                        ? "bg-rose-500/20 text-rose-400"
+                        : "bg-emerald-500/20 text-emerald-400"
+                    }`}
+                  >
                     Stock: {form.stock || 0}
                   </span>
                   {form.category && (
@@ -345,7 +392,8 @@ export default function AddProduct() {
                   )}
                 </div>
                 <p className="text-sm text-luxury-dim line-clamp-2 leading-relaxed mt-2">
-                  {form.description || "Crafted with unparalleled luxury for the modern connoisseur..."}
+                  {form.description ||
+                    "Crafted with unparalleled luxury for the modern connoisseur..."}
                 </p>
               </div>
             </div>
