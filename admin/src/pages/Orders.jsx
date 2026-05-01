@@ -33,7 +33,15 @@ const TABS = [
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
+  const [tab, setTab] = useState("pending");
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState([]);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [stats, setStats] = useState({});
+  const [detailOrder, setDetailOrder] = useState(null);
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -60,15 +68,25 @@ export default function Orders() {
     }
   }, [tab, debouncedSearch]);
 
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await adminAPI.getOrderStats();
+      setStats(res.data?.stats || {});
+    } catch {
+      // silently fail - tab counts will show 0
+    }
+  }, []);
+
   useEffect(() => {
     loadOrders(1);
-  }, [loadOrders]);
+    loadStats();
+  }, [loadOrders, loadStats]);
 
   const updateStatus = async (id, status) => {
     try {
       setActionLoading(id);
       await adminAPI.updateOrderStatus(id, status);
-      await loadOrders(page);
+      await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to update status");
     } finally {
@@ -80,15 +98,10 @@ export default function Orders() {
     window.open(`/api/v1/orders/${id}/invoice`, "_blank");
   };
 
-  // Remove filtered - DataTable handles it
-
-  const counts = useMemo(() => {
-    const map = {};
-    TABS.forEach(([key]) => {
-      map[key] = orders.filter((o) => o.status === key).length;
-    });
-    return map;
-  }, [orders]);
+  const getStatusCount = (key) => {
+    if (!stats) return 0;
+    return stats[key] || 0;
+  };
 
   const toggleSelect = (id) => {
     setSelected((prev) =>
@@ -96,7 +109,49 @@ export default function Orders() {
     );
   };
 
-  if (loading) {
+  const selectAll = () => {
+    if (selected.length === orders.length) {
+      setSelected([]);
+    } else {
+      setSelected(orders.map((o) => o._id));
+    }
+  };
+
+  const bulkStatusUpdate = async (status) => {
+    if (!selected.length) return;
+    try {
+      setActionLoading("bulk");
+      await Promise.all(selected.map((id) => adminAPI.updateOrderStatus(id, status)));
+      setSelected([]);
+      await Promise.all([loadOrders(page), loadStats()]);
+    } catch (error) {
+      setError(error.response?.data?.message || "Bulk update failed");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const bulkCancel = async () => {
+    if (!selected.length) return;
+    if (!window.confirm(`Cancel ${selected.length} selected orders?`)) return;
+    await bulkStatusUpdate("cancelled");
+  };
+
+  const exportData = useMemo(() => {
+    return orders.map((order) => ({
+      id: order._id,
+      customer: order.user?.name || "Guest",
+      email: order.user?.email || "",
+      status: order.status,
+      amount: order.totalPrice,
+      paymentStatus: order.paymentStatus,
+      items: (order.items || []).map((i) => `${i.quantity}x ${i.product?.title || i.name}`).join(", "),
+      address: order.address || order.shippingAddress || "",
+      date: new Date(order.createdAt).toLocaleDateString("en-IN"),
+    }));
+  }, [orders]);
+
+  if (loading && orders.length === 0) {
     return (
       <div className="h-[70vh] grid place-items-center text-white">
         <Loader2 size={40} className="animate-spin text-indigo-500" />
@@ -133,8 +188,13 @@ export default function Orders() {
             />
           </div>
 
+          <ExportButton filename="orders" data={exportData} />
+
           <button
-            onClick={() => loadOrders(page)}
+            onClick={() => {
+              loadOrders(page);
+              loadStats();
+            }}
             className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-semibold flex items-center justify-center gap-2 shrink-0"
           >
             <RefreshCcw size={16} />
@@ -158,10 +218,41 @@ export default function Orders() {
                 : "bg-white/5 hover:bg-white/10"
             }`}
           >
-            {labelText} ({counts[key] || 0})
+            {labelText} ({getStatusCount(key)})
           </button>
         ))}
       </div>
+
+      {/* Bulk Actions */}
+      {selected.length > 0 && (
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center gap-3">
+          <span className="text-sm font-medium">{selected.length} selected</span>
+          <select
+            value=""
+            onChange={(e) => e.target.value && bulkStatusUpdate(e.target.value)}
+            className="px-4 py-2 rounded-xl bg-black/40 border border-white/10 text-sm outline-none"
+          >
+            <option value="">Bulk Update Status</option>
+            {TABS.map(([key, label]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+          <button
+            onClick={bulkCancel}
+            disabled={actionLoading === "bulk"}
+            className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-sm flex items-center gap-2 disabled:opacity-50"
+          >
+            <XSquare size={14} />
+            Bulk Cancel
+          </button>
+          <button
+            onClick={() => setSelected([])}
+            className="text-sm text-zinc-400 hover:text-white ml-auto underline"
+          >
+            Clear
+          </button>
+        </div>
+      )}
 
       {/* Orders */}
       <DataTable
@@ -176,6 +267,13 @@ export default function Orders() {
           )},
           { key: 'actions', label: 'Actions', render: (_, row) => (
             <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setDetailOrder(row)}
+                className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
+              >
+                <Eye size={14} />
+                View
+              </button>
               <select
                 value={row.status}
                 disabled={actionLoading === row._id}
@@ -204,7 +302,7 @@ export default function Orders() {
         enableSelection={true}
         selected={selected}
         onSelect={toggleSelect}
-        exportData={() => {/* CSV export */}}
+        exportData={() => {/* handled by ExportButton above */}}
         className="min-h-[400px]"
       />
 
@@ -229,6 +327,15 @@ export default function Orders() {
             Next <ChevronRight size={16} />
           </button>
         </div>
+      )}
+
+      {/* Order Detail Modal */}
+      {detailOrder && (
+        <OrderDetailModal
+          order={detailOrder}
+          onClose={() => setDetailOrder(null)}
+          onStatusChange={updateStatus}
+        />
       )}
     </div>
   );
