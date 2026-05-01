@@ -444,6 +444,7 @@ export default function ProductDetails() {
                 <label className="text-sm text-[#A1A1AA] block mb-2">
                   Rating
                 </label>
+                
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
