@@ -14,9 +14,9 @@ export default function DateRangePicker({ value, onChange }) {
     { label: '90 Days', value: '90d' },
     { label: 'This Year', value: 'year' },
     { label: 'Custom', value: 'custom' },
-  ];
+];
 
-const formatDate = (date) => {
+  const formatDate = (date) => {
     if (!date || !(date instanceof Date)) return 'Invalid Date';
     return date.toLocaleDateString('en-IN', { 
       month: 'short', 
@@ -32,7 +32,7 @@ const formatDate = (date) => {
       return preset ? preset.label : 'Last 30 days';
     }
     // If it's an array of dates
-    if (Array.isArray(value) ){
+    if (Array.isArray(value)) {
       return value[0] && value[1] ? formatDate(value[0]) + ' - ' + formatDate(value[1]) : 'Last 30 days';
     }
     return 'Last 30 days';
