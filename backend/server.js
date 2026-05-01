@@ -194,7 +194,7 @@ app.use("/api/v1/contact", contactLimiter);
 app.use("/api/v1/contact", requireDB, contactRoutes);
 
 // Reviews routes (public for product reviews, admin for management)
-app.use("/api/v1/reviews", reviewRoutes);
+app.use("/api/v1/admin/reviews", requireDB, reviewRoutes);
 
 // Webhook rate limiter
 const webhookLimiter = rateLimit({
