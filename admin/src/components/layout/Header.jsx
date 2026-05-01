@@ -120,13 +120,13 @@ export default function Header({
   };
 
   return (
-    <header className="h-16 bg-luxury-black/80 backdrop-blur-glass border-b border-luxury-border sticky top-0 z-30">
+    <header className="h-16 border-b border-luxury-border sticky top-0 z-30">
       <div className="h-full px-4 md:px-6 flex items-center justify-between gap-4">
         {/* Left Section */}
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onMenuToggle}
-            className="md:hidden p-2 rounded-xl hover:bg-white/5 text-luxury-muted hover:text-luxury-text transition-colors"
+            className="md:hidden p-2 rounded-xl nav-link-hover text-luxury-muted hover:text-luxury-text transition-colors"
           >
             <Menu size={20} />
           </button>
@@ -169,7 +169,7 @@ export default function Header({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-white/5 border border-luxury-border text-sm text-luxury-text placeholder:text-luxury-dim outline-none focus:border-gold-500/50 focus:shadow-gold-sm transition-all"
+                className="w-full h-10 pl-10 pr-4 rounded-xl bg-black/[0.04] border border-luxury-border text-sm text-luxury-text placeholder:text-luxury-dim outline-none focus:border-gold-500/50 focus:shadow-gold-sm transition-all"
               />
               {searchQuery && (
                 <button
@@ -185,7 +185,7 @@ export default function Header({
           {/* Refresh Button */}
           <button
             onClick={onRefresh}
-            className="hidden sm:flex p-2.5 rounded-xl hover:bg-white/5 text-luxury-muted hover:text-luxury-text transition-colors"
+            className="hidden sm:flex p-2.5 rounded-xl nav-link-hover text-luxury-muted hover:text-luxury-text transition-colors"
             title="Refresh Data"
           >
             <RefreshCw size={18} />
@@ -194,7 +194,7 @@ export default function Header({
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="hidden sm:flex p-2.5 rounded-xl hover:bg-white/5 text-luxury-muted hover:text-gold-400 transition-colors"
+            className="hidden sm:flex p-2.5 rounded-xl nav-link-hover text-luxury-muted hover:text-gold-400 transition-colors"
             title={darkMode ? "Light Mode" : "Dark Mode"}
           >
             {darkMode ? <Sun size={18} /> : <Moon size={18} />}
@@ -207,14 +207,15 @@ export default function Header({
                 setNotificationsOpen(!notificationsOpen);
                 setProfileOpen(false);
               }}
-              className="relative p-2.5 rounded-xl hover:bg-white/5 text-luxury-muted hover:text-luxury-text transition-colors"
+              className="relative p-2.5 rounded-xl nav-link-hover text-luxury-muted hover:text-luxury-text transition-colors"
             >
               <Bell size={18} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-gold-gradient text-black text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-luxury-black">
-                  {unreadCount}
-                </span>
-              )}
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-gold-gradient text-black text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-theme-bg">
+                      {unreadCount}
+                    </span>
+                  )}
+
             </button>
 
             {/* Notifications Dropdown */}
@@ -231,14 +232,14 @@ export default function Header({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={markAllRead}
-                      className="p-2 rounded-lg hover:bg-white/5 text-luxury-dim hover:text-luxury-text transition-colors"
+                      className="p-2 rounded-lg nav-link-hover text-luxury-dim hover:text-luxury-text transition-colors"
                       title="Mark all read"
                     >
                       <Check size={16} />
                     </button>
                     <button
                       onClick={clearNotifications}
-                      className="p-2 rounded-lg hover:bg-white/5 text-luxury-dim hover:text-red-400 transition-colors"
+                      className="p-2 rounded-lg nav-link-hover text-luxury-dim hover:text-red-400 transition-colors"
                       title="Clear all"
                     >
                       <X size={16} />
@@ -263,8 +264,8 @@ export default function Header({
                         <div
                           key={id}
                           onClick={() => markAsRead(id)}
-                          className={`p-4 border-b border-luxury-border/50 cursor-pointer transition-colors hover:bg-white/[0.02] ${
-                            !read ? "bg-white/[0.01]" : ""
+                          className={`p-4 border-b border-luxury-border/50 cursor-pointer transition-colors nav-link-hover ${
+                            !read ? "bg-black/[0.02]" : ""
                           }`}
                         >
                           <div className="flex items-start gap-3">
@@ -300,7 +301,7 @@ export default function Header({
                 setProfileOpen(!profileOpen);
                 setNotificationsOpen(false);
               }}
-              className="flex items-center gap-2 p-1.5 pr-3 rounded-xl hover:bg-white/5 transition-colors"
+              className="flex items-center gap-2 p-1.5 pr-3 rounded-xl nav-link-hover transition-colors"
             >
               <div className="w-8 h-8 rounded-lg bg-gold-gradient-soft border border-gold-500/20 flex items-center justify-center">
                 <User size={16} className="text-gold-400" />
@@ -331,7 +332,7 @@ export default function Header({
                 <div className="p-2">
                   <button
                     onClick={() => { window.location.href = "/settings"; setProfileOpen(false); }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-luxury-muted hover:text-luxury-text hover:bg-white/5 transition-colors text-sm"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-luxury-muted hover:text-luxury-text nav-link-hover transition-colors text-sm"
                   >
                     <Settings size={16} />
                     Settings
