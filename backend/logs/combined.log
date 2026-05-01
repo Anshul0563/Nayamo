@@ -16548,3 +16548,4 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews?page=1&limit=20 \u001b[36m304\u001b[0m 110.886 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 15:48:16"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?status=returned&limit=100 \u001b[36m304\u001b[0m 67.844 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 15:48:18"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?status=returned&limit=100 \u001b[32m200\u001b[0m 69.696 ms - 106\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 15:48:18"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 15:51:57"}
