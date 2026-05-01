@@ -30,17 +30,17 @@
   - [x] Add bulk delete action
 
 ## Phase 4: Inventory Enhancement
-- [ ] 4.1 Update `admin/src/pages/Inventory.jsx`
-  - [ ] Add bulk selection & bulk delete
-  - [ ] Add category filter dropdown
-  - [ ] Add sort options (name, price, stock, date)
-  - [ ] Add pagination
+- [x] 4.1 Update `admin/src/pages/Inventory.jsx`
+  - [x] Add bulk selection & bulk delete
+  - [x] Add category filter dropdown
+  - [x] Add sort options (name, price, stock, date)
+  - [x] Add pagination
 
 ## Phase 5: Reviews Enhancement
-- [ ] 5.1 Update `admin/src/pages/Reviews.jsx`
-  - [ ] Add bulk selection + bulk approve/reject
-  - [ ] Add date range filter
-  - [ ] Improve stats fallback
+- [x] 5.1 Update `admin/src/pages/Reviews.jsx`
+  - [x] Add bulk selection + bulk approve/reject
+  - [x] Add date range filter
+  - [x] Improve stats fallback
 
 ## Phase 6: Returns Enhancement
 - [ ] 6.1 Update `admin/src/pages/Returns.jsx`
