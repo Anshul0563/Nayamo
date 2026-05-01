@@ -51,6 +51,8 @@ exports.createProduct = asyncHandler(async (req, res) => {
     category,
     stock: stock ? Number(stock) : 0,
     images,
+
+    isActive: true,
   });
 
   logger.info(`Product created: ${product._id}`);
