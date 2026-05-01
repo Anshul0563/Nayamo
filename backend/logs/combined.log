@@ -16807,3 +16807,8 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/settings \u001b[36m304\u001b[0m 58.887 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:19:31"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/settings \u001b[36m304\u001b[0m 54.933 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:19:32"}
 {"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-01 17:19:32"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[33m401\u001b[0m 0.250 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:21:16"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[33m401\u001b[0m 0.278 ms - 63\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:21:16"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/refresh \u001b[32m200\u001b[0m 84.993 ms - 456\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:21:16"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 54.768 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:21:16"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 54.364 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:21:16"}
