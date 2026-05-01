@@ -16839,3 +16839,24 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 717.414 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:53"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/users?page=1&limit=20 \u001b[32m200\u001b[0m 85.802 ms - 432\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:54"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/users?page=1&limit=20 \u001b[32m200\u001b[0m 89.509 ms - 432\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:54"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-01 17:28:16"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-01 17:28:25"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 488.608 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:25"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 17:28:26"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 63.478 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:26"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 66.101 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:26"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 156.728 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:26"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 204.065 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:26"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[32m200\u001b[0m 239.517 ms - 606\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:26"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 1072.080 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:27"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-01 17:28:41"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-01 17:28:43"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 449.237 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:43"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 17:28:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 53.748 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 54.716 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 57.867 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 90.512 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[32m200\u001b[0m 138.454 ms - 606\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 418.100 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:28:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 409.987 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:29:15"}
