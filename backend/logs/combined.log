@@ -17492,3 +17492,5 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 96.442 ms - 139\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:07:09"}
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 94.350 ms - 139\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:07:10"}
 {"level":"info","message":"\u001b[0mPOST /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77 \u001b[33m400\u001b[0m 67.632 ms - 734\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:07:20"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77 \u001b[33m401\u001b[0m 0.452 ms - 60\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:08:20"}
+{"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 0.443 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:08:20"}
