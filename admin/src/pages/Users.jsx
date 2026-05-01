@@ -117,7 +117,7 @@ export default function Users() {
   }, [users]);
 
   return (
-    <div className="min-h-screen bg-[#0c0c0e] p-6">
+    <div className="min-h-screen p-6">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-luxury-text mb-2">Users</h1>
@@ -188,12 +188,12 @@ export default function Users() {
 
       {/* Bulk Actions */}
       {selected.length > 0 && (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center gap-3 mb-6">
-          <span className="text-sm font-medium text-white">{selected.length} selected</span>
+        <div className="rounded-2xl border border-luxury-border bg-black/[0.04] p-4 flex flex-wrap items-center gap-3 mb-6">
+          <span className="text-sm font-medium text-luxury-text">{selected.length} selected</span>
           <select
             value={bulkAction}
             onChange={(e) => setBulkAction(e.target.value)}
-            className="px-4 py-2 rounded-xl bg-black/40 border border-white/10 text-sm outline-none text-white"
+            className="px-4 py-2 rounded-xl bg-black/[0.06] border border-luxury-border text-sm outline-none text-luxury-text"
           >
             <option value="">Bulk Update Status</option>
             {STATUSES.map(status => (
@@ -216,7 +216,7 @@ export default function Users() {
           </button>
           <button
             onClick={() => setSelected([])}
-            className="text-sm text-luxury-dim hover:text-white ml-auto underline"
+            className="text-sm text-luxury-dim hover:text-luxury-text ml-auto underline"
           >
             Clear
           </button>
@@ -249,7 +249,7 @@ export default function Users() {
                 <SkeletonTable rows={5} cols={6} />
               ) : (
                 users.map(user => (
-                  <tr key={user._id} className="border-b border-luxury-border/50 hover:bg-white/[0.02] transition-colors">
+                  <tr key={user._id} className="border-b border-luxury-border/50 table-row nav-link-hover transition-colors">
                     <td className="p-6">
                       <input 
                         type="checkbox" 
