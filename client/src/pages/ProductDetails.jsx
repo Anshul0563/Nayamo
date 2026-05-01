@@ -139,7 +139,7 @@ export default function ProductDetails() {
       setReviewError("");
 
       await reviewAPI.submitReview(id, {
-        title: newReview.title.trim(),
+        title: newReview.comment.trim().slice(0, 30) || "Review", // 🔥 auto title
         rating: Number(newReview.rating),
         comment: newReview.comment.trim(),
       });
@@ -466,15 +466,6 @@ export default function ProductDetails() {
                 <label className="text-sm text-[#A1A1AA] block mb-2">
                   Rating
                 </label>
-                <input
-                  type="text"
-                  value={newReview.title}
-                  onChange={(e) =>
-                    setNewReview({ ...newReview, title: e.target.value })
-                  }
-                  placeholder="Enter review title..."
-                  className="w-full px-4 py-3 rounded-xl bg-[#131316] border border-white/[0.06] text-white placeholder-[#52525B] focus:border-[#D4A853] outline-none"
-                />
 
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
