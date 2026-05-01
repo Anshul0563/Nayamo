@@ -196,6 +196,19 @@
     border-left: 3px solid var(--gold-primary);
   }
 
+  /* NAV LINK HOVER - utility class for components */
+  .nav-link-hover {
+    transition: all 0.3s ease;
+  }
+
+  .nav-link-hover:hover {
+    background: rgba(255,255,255,0.05);
+  }
+
+  .light .nav-link-hover:hover {
+    background: rgba(0,0,0,0.04);
+  }
+
   /* SECTION */
   .section-card {
     padding: 20px;
@@ -333,6 +346,7 @@ aside.sidebar,
   /* Hover states */
   .hover\:bg-white\/5:hover,
   .hover\:bg-white\/10:hover,
+  .hover\:bg-white\/\[0\.02\]:hover,
   [class*="hover"]:hover {
     background-color: rgba(0,0,0,0.04) !important;
   }
