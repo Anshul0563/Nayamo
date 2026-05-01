@@ -8,7 +8,7 @@ const { emitReviewNotification } = require("../services/notificationService");
 // SUBMIT REVIEW (User)
 exports.submitReview = asyncHandler(async (req, res) => {
   const { productId } = req.params;
-  const { rating, comment } = req.body;
+  const { rating, comment, title } = req.body;
   
   // Validate required fields
   if (!rating || rating < 1 || rating > 5) {
@@ -35,12 +35,14 @@ exports.submitReview = asyncHandler(async (req, res) => {
   
   // Create review
   const review = await Review.create({
-  user: req.user._id,
-  product: req.params.productId,
-  rating,
-  comment,
-  title: title || comment.substring(0, 30) || "User Review", // 🔥 fallback
-});
+    user: req.user._id,
+    product: productId,
+    rating: Number(rating),
+    comment: comment?.trim() || "",
+    title: title || comment?.substring(0,30) || "User Review",
+    isApproved: false, 
+    status: "pending"
+  });
   
 // Populate for response
   await review.populate("user", "name");

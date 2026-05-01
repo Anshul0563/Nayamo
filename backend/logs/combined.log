@@ -17610,3 +17610,46 @@
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:32:31"}
 {"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:33:06"}
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:33:06"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:33:06"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:33:10"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:33:10"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:33:10"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:33:58"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:33:58"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:33:58"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:34:13"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:34:13"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:34:14"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:34:27"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:34:27"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:34:27"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:34:46"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:34:46"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:34:47"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:34:53"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:34:53"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:34:54"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:35:08"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:35:08"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:35:08"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:35:19"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:35:19"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:35:19"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:35:22"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:35:22"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:35:23"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:35:30"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:35:30"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:35:31"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:35:35"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:35:35"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:35:36"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:35:42"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:35:42"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:35:43"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:35:46"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:35:46"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:35:46"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 20:36:18"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 20:36:18"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 20:36:18"}
