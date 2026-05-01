@@ -19,9 +19,10 @@ const reviewSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
-    maxlength: 200
+    maxlength: 200,
+    default: "User Review"
   },
   comment: {
     type: String,
@@ -66,7 +67,7 @@ reviewSchema.index({ status: 1, isApproved: 1 });
 reviewSchema.index({ createdAt: -1 });
 
 // Calculate average rating on product save
-reviewSchema.statics.calcAverageRating = async function(productId) {
+reviewSchema.statics.calcAverageRating = async function (productId) {
   const stats = await this.aggregate([
     {
       $match: { product: productId, isApproved: true }
@@ -90,12 +91,12 @@ reviewSchema.statics.calcAverageRating = async function(productId) {
 };
 
 // Post save middleware
-reviewSchema.post("save", async function() {
+reviewSchema.post("save", async function () {
   await this.constructor.calcAverageRating(this.product);
 });
 
 // Post remove middleware  
-reviewSchema.post("remove", async function() {
+reviewSchema.post("remove", async function () {
   await this.constructor.calcAverageRating(this.product);
 });
 

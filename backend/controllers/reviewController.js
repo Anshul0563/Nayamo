@@ -35,13 +35,12 @@ exports.submitReview = asyncHandler(async (req, res) => {
   
   // Create review
   const review = await Review.create({
-    user: req.user._id,
-    product: productId,
-    rating: Number(rating),
-    comment: comment?.trim() || "",
-    isApproved: false, // Requires admin approval
-    status: "pending"
-  });
+  user: req.user._id,
+  product: req.params.productId,
+  rating,
+  comment,
+  title: title || comment.substring(0, 30) || "User Review", // 🔥 fallback
+});
   
 // Populate for response
   await review.populate("user", "name");
