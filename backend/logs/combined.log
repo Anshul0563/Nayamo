@@ -1229,3 +1229,5 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=20&sort=-createdAt \u001b[32m200\u001b[0m 54.903 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 15:19:17"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=20&sort=-createdAt \u001b[32m200\u001b[0m 59.168 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 15:19:17"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?limit=20&sort=-createdAt \u001b[32m200\u001b[0m 55.934 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 15:19:17"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-01 15:19:36"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 15:19:36"}
