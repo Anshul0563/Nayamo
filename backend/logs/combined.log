@@ -17362,3 +17362,4 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 75.064 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 19:43:45"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1&category=party \u001b[32m200\u001b[0m 39.482 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 19:43:49"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 0.566 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 19:43:51"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products \u001b[32m200\u001b[0m 36.316 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 19:45:10"}
