@@ -5,7 +5,6 @@ import GrowthComparison from '../components/analytics/GrowthComparison';
 import SalesHeatmap from '../components/analytics/SalesHeatmap';
 import CustomerAnalytics from '../components/analytics/CustomerAnalytics';
 import ProductAnalytics from '../components/analytics/ProductAnalytics';
-import RealTimeFeed from '../components/analytics/RealTimeFeed';
 import StatCard from '../components/ui/StatCard';
 import DateRangePicker from '../components/DateRangePicker';
 import ExportButton from '../components/ExportButton';
@@ -16,7 +15,6 @@ import {
   Users,
   Package,
   Activity,
-  Zap,
   DollarSign,
   ShoppingCart,
   Percent,
@@ -30,7 +28,6 @@ const TABS = [
   { id: 'revenue', label: 'Revenue', icon: TrendingUp },
   { id: 'customers', label: 'Customers', icon: Users },
   { id: 'products', label: 'Products', icon: Package },
-  { id: 'realtime', label: 'Live', icon: Zap },
 ];
 
 export default function Analytics() {
@@ -53,8 +50,6 @@ export default function Analytics() {
     products: {},
     recentOrders: []
   });
-  const [liveOrders, setLiveOrders] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -110,54 +105,13 @@ export default function Analytics() {
     }
   }, [dateRange]);
 
-useEffect(() => {
+  useEffect(() => {
     loadAnalytics();
     
     // Auto-refresh every 60 seconds
     const interval = setInterval(loadAnalytics, 60000);
     return () => clearInterval(interval);
   }, [loadAnalytics]);
-
-// Fetch live orders for the realtime tab
-  const fetchLiveOrders = useCallback(async () => {
-    if (activeTab !== 'realtime') return;
-    try {
-      setOrdersLoading(true);
-      // Use direct api call with proper response handling
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1'}/admin/orders?limit=20&sort=-createdAt`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      if (!response.ok) throw new Error('Failed to fetch');
-      const result = await response.json();
-      const orders = result.data || [];
-      setLiveOrders(orders);
-    } catch (err) {
-      console.error('Failed to fetch live orders:', err);
-      // Fallback to demo data if API fails
-      setLiveOrders([
-        { _id: '1', orderId: 'NYM-2024-001', customer: { name: 'Priya Sharma' }, total: 12500, status: 'pending', createdAt: new Date() },
-        { _id: '2', orderId: 'NYM-2024-002', customer: { name: 'Ananya Patel' }, total: 8900, status: 'processing', createdAt: new Date(Date.now() - 300000) },
-      ]);
-    } finally {
-      setOrdersLoading(false);
-    }
-  }, [activeTab]);
-
-  // Fetch live orders when switching to realtime tab or periodically
-  useEffect(() => {
-    if (activeTab === 'realtime') {
-      fetchLiveOrders();
-      // Refresh live orders every 10 seconds for real-time updates
-      const interval = setInterval(fetchLiveOrders, 10000);
-      return () => clearInterval(interval);
-    }
-  }, [activeTab, fetchLiveOrders]);
 
   const handleRetry = () => {
     loadAnalytics();
@@ -244,9 +198,6 @@ useEffect(() => {
 
   const renderCustomers = () => <CustomerAnalytics data={data.customers || {}} />;
   const renderProducts = () => <ProductAnalytics data={data.products || {}} />;
-const renderRealtime = () => (
-    <RealTimeFeed orders={liveOrders} loading={ordersLoading} />
-  );
 
   const renderContent = () => {
     switch (activeTab) {
@@ -254,7 +205,6 @@ const renderRealtime = () => (
       case 'revenue': return renderRevenue();
       case 'customers': return renderCustomers();
       case 'products': return renderProducts();
-      case 'realtime': return renderRealtime();
       default: return renderOverview();
     }
   };
