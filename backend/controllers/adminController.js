@@ -392,3 +392,21 @@ exports.getTopProducts = asyncHandler(async (req, res) => {
   const data = await adminService.getTopProducts(Number(req.query.limit) || 10);
   res.json({ success: true, data });
 });
+
+// ── NEW: Create Product ─────────────────────────────────────────────
+exports.createProduct = asyncHandler(async (req, res) => {
+  const product = await adminService.createProduct(req.body);
+  logger.info(`Product created: ${product._id}`);
+  res.status(201).json({
+    success: true,
+    message: "Product created successfully",
+    data: product,
+  });
+});
+
+// ── NEW: Order Stats ────────────────────────────────────────────────
+exports.getOrderStats = asyncHandler(async (req, res) => {
+  const stats = await adminService.getOrderStats();
+  res.json({ success: true, stats });
+});
+
