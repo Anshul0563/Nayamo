@@ -44,7 +44,11 @@ export default function ProductDetails() {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewStats, setReviewStats] = useState({ avgRating: 0, total: 0 });
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [newReview, setNewReview] = useState({ rating: 5, title:"" ,comment: "" });
+  const [newReview, setNewReview] = useState({
+    rating: 5,
+    title: "",
+    comment: "",
+  });
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState("");
 
@@ -114,21 +118,39 @@ export default function ProductDetails() {
   // Submit review handler
   const handleSubmitReview = async (e) => {
     e.preventDefault();
+
     if (!isAuthenticated) {
       navigate("/login");
+      return;
+    }
+
+    if (!newReview.title.trim()) {
+      setReviewError("Title is required");
+      return;
+    }
+
+    if (!newReview.comment.trim()) {
+      setReviewError("Comment is required");
       return;
     }
 
     try {
       setSubmittingReview(true);
       setReviewError("");
+
       await reviewAPI.submitReview(id, {
-        title: "User Review", 
+        title: newReview.title.trim(),
         rating: Number(newReview.rating),
-        comment: newReview.comment.trim() || "Nice product", // 🔥 REQUIRED
+        comment: newReview.comment.trim(),
       });
-      // Reset form and refresh reviews
-      setNewReview({ rating: 5, comment: "" });
+
+      // reset (important fix)
+      setNewReview({
+        rating: 5,
+        title: "",
+        comment: "",
+      });
+
       setShowReviewForm(false);
       await fetchReviews();
     } catch (err) {
@@ -444,7 +466,16 @@ export default function ProductDetails() {
                 <label className="text-sm text-[#A1A1AA] block mb-2">
                   Rating
                 </label>
-                
+                <input
+                  type="text"
+                  value={newReview.title}
+                  onChange={(e) =>
+                    setNewReview({ ...newReview, title: e.target.value })
+                  }
+                  placeholder="Enter review title..."
+                  className="w-full px-4 py-3 rounded-xl bg-[#131316] border border-white/[0.06] text-white placeholder-[#52525B] focus:border-[#D4A853] outline-none"
+                />
+
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
