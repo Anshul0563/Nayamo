@@ -36,6 +36,7 @@ const protect = require("../middleware/authMiddleware");
 const admin = require("../middleware/adminMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const validate = require("../middleware/validateMiddleware");
+const reviewRoutes = require("./reviewRoutes");
 
 const statusValidation = [
   param("id").isMongoId().withMessage("Invalid order ID"),
@@ -127,5 +128,8 @@ router.put("/settings", protect, admin, updateSettings);
 
 // Change Password
 router.post("/change-password", protect, admin, changePassword);
+
+//Reviews - Admin management routes
+router.use("/reviews", reviewRoutes);
 
 module.exports = router;

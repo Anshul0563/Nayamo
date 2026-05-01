@@ -169,6 +169,7 @@ app.get("/", (req, res) => {
 // ============================================
 // API ROUTES (Versioned - with DB check)
 // ============================================
+app.use("/api/v1/reviews", requireDB, reviewRoutes);
 app.use("/api/v1/auth", requireDB, authRoutes);
 app.use("/api/v1/admin", requireDB, adminRoutes);
 app.use("/api/v1/cart", requireDB, cartRoutes);
@@ -194,7 +195,7 @@ app.use("/api/v1/contact", contactLimiter);
 app.use("/api/v1/contact", requireDB, contactRoutes);
 
 // Reviews routes (public for product reviews, admin for management)
-app.use("/api/v1/admin/reviews", reviewRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
 // Webhook rate limiter
 const webhookLimiter = rateLimit({
