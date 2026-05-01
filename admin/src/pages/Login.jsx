@@ -33,10 +33,7 @@ export default function Login() {
     setSuccess("");
 
     const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
+    if (validationError) return setError(validationError);
 
     try {
       setLoading(true);
@@ -48,187 +45,134 @@ export default function Login() {
 
       const { accessToken, refreshToken, data: userData } = res.data;
 
-      if (!accessToken || !refreshToken) {
-        throw new Error("Invalid server response");
-      }
-
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("role", userData?.role || "user");
 
-      setSuccess("Login successful! Redirecting...");
+      setSuccess("Login successful!");
 
       setTimeout(() => {
         if (userData?.role === "admin") {
           window.location.href = "/";
         } else {
-          setError("Access denied. Admin privileges required.");
+          setError("Admin access only");
           localStorage.clear();
         }
       }, 700);
     } catch (err) {
-      let message = "Login failed. Please try again.";
-
-      if (err.response) {
-        const status = err.response.status;
-        const data = err.response.data || {};
-
-        if (status === 503 && data.code === "DB_UNAVAILABLE") {
-          message =
-            "Database unavailable. Check MongoDB Atlas IP access or MONGO_URI.";
-        } else {
-          message = data.message || `Server error: ${status}`;
-        }
-      } else if (err.request) {
-        message =
-          "Cannot reach server. Please check backend is running on port 5000.";
-      } else {
-        message = err.message || message;
-      }
-
-      setError(message);
+      setError("Login failed. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-luxury-gradient text-white flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-10 left-10 w-80 h-80 rounded-full bg-gold-gradient-radial blur-3xl opacity-30 animate-pulse" />
-      <div className="absolute bottom-10 right-10 w-72 h-72 rounded-full bg-gold-gradient-soft blur-3xl opacity-30 gold-pulse" />
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 relative overflow-hidden">
 
-      {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md rounded-3xl border-gold-animated bg-luxury-card/90 backdrop-blur-glass shadow-gold-xl p-6 md:p-8">
-        {/* Logo */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-gold-gradient flex items-center justify-center shadow-gold-lg">
+      {/* GOLD GLOW BACKGROUND */}
+      <div className="absolute top-10 left-10 w-80 h-80 rounded-full bg-yellow-500/20 blur-3xl" />
+      <div className="absolute bottom-10 right-10 w-72 h-72 rounded-full bg-yellow-400/10 blur-3xl" />
+
+      {/* CARD */}
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-yellow-500/20 bg-[#0d0d0d] shadow-[0_0_40px_rgba(212,168,83,0.15)] p-8">
+
+        {/* LOGO */}
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-300 flex items-center justify-center">
             <Crown size={28} className="text-black" />
           </div>
         </div>
 
-        {/* Heading */}
+        {/* TITLE */}
         <div className="text-center mb-6">
-          <p className="text-xs uppercase tracking-[0.35em] text-gold-400 mb-2">
-            Nayamo Luxury
-          </p>
-
-          <h1 className="text-3xl font-bold text-gold-gradient text-glow-gold">
-            Welcome Back
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-200 bg-clip-text text-transparent">
+            Nayamo
           </h1>
-
-          <p className="text-zinc-400 mt-2 text-sm">
-            Login to access premium admin dashboard
+          <p className="text-gray-400 text-sm mt-2">
+            Premium Admin Login
           </p>
         </div>
 
-        {/* Alerts */}
+        {/* ERROR */}
         {error && (
-          <div className="mb-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
-            <AlertCircle size={16} />
-            {error}
+          <div className="mb-4 bg-red-500/10 border border-red-500/30 text-red-300 p-3 rounded-xl flex gap-2">
+            <AlertCircle size={16} /> {error}
           </div>
         )}
 
+        {/* SUCCESS */}
         {success && (
-          <div className="mb-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300 flex items-center gap-2">
-            <CheckCircle2 size={16} />
-            {success}
+          <div className="mb-4 bg-green-500/10 border border-green-500/30 text-green-300 p-3 rounded-xl flex gap-2">
+            <CheckCircle2 size={16} /> {success}
           </div>
         )}
 
-        {/* Form */}
+        {/* FORM */}
         <form onSubmit={handleLogin} className="space-y-4">
-          {/* Email */}
+
+          {/* EMAIL */}
           <div>
-            <label className="mb-2 block text-sm text-zinc-400">
-              Email Address
-            </label>
-
-            <div className="relative">
-              <Mail
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"
-              />
-
+            <label className="text-sm text-gray-400">Email</label>
+            <div className="relative mt-1">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
               <input
                 type="email"
-                placeholder="admin@nayamo.com"
-                autoComplete="email"
+                className="w-full bg-black border border-gray-700 text-white pl-10 pr-3 py-3 rounded-xl focus:border-yellow-500 outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="luxury-input h-12 pl-11 pr-4"
-                disabled={loading}
               />
             </div>
           </div>
 
-          {/* Password */}
+          {/* PASSWORD */}
           <div>
-            <label className="mb-2 block text-sm text-zinc-400">
-              Password
-            </label>
-
-            <div className="relative">
-              <Lock
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"
-              />
+            <label className="text-sm text-gray-400">Password</label>
+            <div className="relative mt-1">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
 
               <input
                 type={showPass ? "text" : "password"}
-                placeholder="Enter your password"
-                autoComplete="current-password"
+                className="w-full bg-black border border-gray-700 text-white pl-10 pr-10 py-3 rounded-xl focus:border-yellow-500 outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="luxury-input h-12 pl-11 pr-12"
-                disabled={loading}
               />
 
               <button
                 type="button"
-                onClick={() => setShowPass((prev) => !prev)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-gold-400 transition"
-                disabled={loading}
+                onClick={() => setShowPass(!showPass)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
               >
                 {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
-          {/* Info */}
-          <div className="flex items-center justify-between text-sm text-zinc-500">
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-gold-400" />
-              Secure JWT Login
+          {/* INFO */}
+          <div className="flex justify-between text-sm text-gray-500">
+            <div className="flex gap-2 items-center">
+              <ShieldCheck size={16} className="text-yellow-400" />
+              Secure Login
             </div>
-
-            <span>Admin Only</span>
+            <span>Admin</span>
           </div>
 
-          {/* Button */}
+          {/* BUTTON */}
           <button
             type="submit"
             disabled={loading}
-            className="luxury-btn-primary w-full h-12 rounded-2xl"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-300 text-black font-semibold hover:scale-105 transition"
           >
             {loading ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Logging in...
-              </>
+              <Loader2 className="animate-spin mx-auto" />
             ) : (
-              <>
-                <Crown size={18} />
-                Access Dashboard
-              </>
+              "Login"
             )}
           </button>
         </form>
 
-        {/* Footer */}
-        <div className="mt-6 pt-5 border-t border-white/10 text-center text-xs text-zinc-500">
-          © {new Date().getFullYear()} Nayamo • Premium Admin Access
+        {/* FOOTER */}
+        <div className="mt-6 text-center text-xs text-gray-600">
+          © {new Date().getFullYear()} Nayamo
         </div>
       </div>
     </div>
