@@ -15,19 +15,19 @@
 - [x] 1.4 Add missing routes to `backend/routes/adminRoutes.js`
 
 ## Phase 2: Orders Enhancement
-- [ ] 2.1 Create `admin/src/components/orders/OrderDetailModal.jsx`
-- [ ] 2.2 Update `admin/src/pages/Orders.jsx`
-  - [ ] Implement CSV export via ExportButton
-  - [ ] Add bulk actions UI (bulk status update, bulk cancel)
-  - [ ] Integrate OrderDetailModal
-  - [ ] Fix tab counts to use API stats
+- [x] 2.1 Create `admin/src/components/orders/OrderDetailModal.jsx`
+- [x] 2.2 Update `admin/src/pages/Orders.jsx`
+  - [x] Implement CSV export via ExportButton
+  - [x] Add bulk actions UI (bulk status update, bulk cancel)
+  - [x] Integrate OrderDetailModal
+  - [x] Fix tab counts to use API stats
 
 ## Phase 3: Users Pagination Fix
-- [ ] 3.1 Update `admin/src/pages/Users.jsx`
-  - [ ] Connect Prev/Next buttons to API
-  - [ ] Add currentPage state
-  - [ ] Use totalPages from API response
-  - [ ] Add bulk delete action
+- [x] 3.1 Update `admin/src/pages/Users.jsx`
+  - [x] Connect Prev/Next buttons to API
+  - [x] Add currentPage state
+  - [x] Use totalPages from API response
+  - [x] Add bulk delete action
 
 ## Phase 4: Inventory Enhancement
 - [ ] 4.1 Update `admin/src/pages/Inventory.jsx`

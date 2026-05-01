@@ -13,8 +13,8 @@ import {
   X,
   ImagePlus,
   Loader2,
-} from "lucide-react";
-
+  ChevronLeft,
+  ChevronRight,
 function Field({ label, value, onChange, placeholder, type = "text" }) {
   return (
     <div>
