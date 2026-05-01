@@ -38,7 +38,7 @@ export default function ProductDetails() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [added, setAdded] = useState(false);
   const [qty, setQty] = useState(1);
-  
+
   // Reviews state
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -59,7 +59,7 @@ export default function ProductDetails() {
       if (data?.stats) {
         setReviewStats({
           avgRating: data.stats.avgRating || 0,
-          total: data.pagination?.totalItems || 0
+          total: data.pagination?.totalItems || 0,
         });
       }
     } catch (err) {
@@ -84,7 +84,7 @@ export default function ProductDetails() {
         setRelated(
           (relRes.data?.data?.products || [])
             .filter((p) => p._id !== id)
-            .slice(0, 4)
+            .slice(0, 4),
         );
         // Fetch reviews after product loads
         await fetchReviews();
@@ -97,7 +97,7 @@ export default function ProductDetails() {
     fetch();
   }, [id, fetchReviews]);
 
-const liked = product ? isInWishlist(product._id) : false;
+  const liked = product ? isInWishlist(product._id) : false;
 
   const handleWishlist = () => {
     if (!product) return;
@@ -118,11 +118,14 @@ const liked = product ? isInWishlist(product._id) : false;
       navigate("/login");
       return;
     }
-    
+
     try {
       setSubmittingReview(true);
       setReviewError("");
-      await reviewAPI.submitReview(id, newReview);
+      await reviewAPI.submitReview(id, {
+        rating: newReview.rating,
+        ...(newReview.comment.trim() && { comment: newReview.comment }),
+      });
       // Reset form and refresh reviews
       setNewReview({ rating: 5, comment: "" });
       setShowReviewForm(false);
@@ -139,7 +142,7 @@ const liked = product ? isInWishlist(product._id) : false;
     return new Date(date).toLocaleDateString("en-IN", {
       year: "numeric",
       month: "short",
-      day: "numeric"
+      day: "numeric",
     });
   };
 
@@ -253,7 +256,7 @@ const liked = product ? isInWishlist(product._id) : false;
               {product.title}
             </h1>
 
-<div className="flex items-center gap-2.5 mb-5">
+            <div className="flex items-center gap-2.5 mb-5">
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <Star
@@ -262,9 +265,13 @@ const liked = product ? isInWishlist(product._id) : false;
                   />
                 ))}
               </div>
-              <span className="text-sm text-[#A1A1AA]">({reviewStats.avgRating || 0})</span>
+              <span className="text-sm text-[#A1A1AA]">
+                ({reviewStats.avgRating || 0})
+              </span>
               <span className="w-1 h-1 rounded-full bg-[#52525B]" />
-              <span className="text-sm text-[#71717A]">{reviewStats.total || 0} reviews</span>
+              <span className="text-sm text-[#71717A]">
+                {reviewStats.total || 0} reviews
+              </span>
             </div>
 
             <p className="text-3xl font-bold nayamo-text-gold mb-5">
@@ -279,9 +286,21 @@ const liked = product ? isInWishlist(product._id) : false;
             {/* Specs */}
             <div className="grid grid-cols-3 gap-3 mb-8">
               {[
-                { icon: Weight, label: "Weight", value: product.weight || "2-4g" },
-                { icon: Ruler, label: "Dimensions", value: product.dimensions || "25 x 15mm" },
-                { icon: Lock, label: "Closure", value: product.closure || "Push Back" },
+                {
+                  icon: Weight,
+                  label: "Weight",
+                  value: product.weight || "2-4g",
+                },
+                {
+                  icon: Ruler,
+                  label: "Dimensions",
+                  value: product.dimensions || "25 x 15mm",
+                },
+                {
+                  icon: Lock,
+                  label: "Closure",
+                  value: product.closure || "Push Back",
+                },
               ].map((spec) => (
                 <div
                   key={spec.label}
@@ -291,7 +310,9 @@ const liked = product ? isInWishlist(product._id) : false;
                   <p className="text-[11px] text-[#71717A] uppercase tracking-wider mb-1">
                     {spec.label}
                   </p>
-                  <p className="text-sm font-semibold text-white">{spec.value}</p>
+                  <p className="text-sm font-semibold text-white">
+                    {spec.value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -382,7 +403,7 @@ const liked = product ? isInWishlist(product._id) : false;
           </motion.div>
         </div>
 
-{/* Reviews Section */}
+        {/* Reviews Section */}
         <div className="mt-20">
           <div className="flex items-end justify-between mb-10">
             <div>
@@ -403,24 +424,33 @@ const liked = product ? isInWishlist(product._id) : false;
               </button>
             )}
           </div>
-          
+
           {/* Review Form */}
           {showReviewForm && (
-            <form onSubmit={handleSubmitReview} className="nayamo-card p-6 mb-8 border border-[#D4A853]/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Share Your Experience</h3>
-              
+            <form
+              onSubmit={handleSubmitReview}
+              className="nayamo-card p-6 mb-8 border border-[#D4A853]/20"
+            >
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Share Your Experience
+              </h3>
+
               {reviewError && (
                 <div className="text-red-400 text-sm mb-4">{reviewError}</div>
               )}
-              
+
               <div className="mb-4">
-                <label className="text-sm text-[#A1A1AA] block mb-2">Rating</label>
+                <label className="text-sm text-[#A1A1AA] block mb-2">
+                  Rating
+                </label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       type="button"
-                      onClick={() => setNewReview({ ...newReview, rating: star })}
+                      onClick={() =>
+                        setNewReview({ ...newReview, rating: star })
+                      }
                       className="p-1"
                     >
                       <Star
@@ -430,18 +460,22 @@ const liked = product ? isInWishlist(product._id) : false;
                   ))}
                 </div>
               </div>
-              
+
               <div className="mb-4">
-                <label className="text-sm text-[#A1A1AA] block mb-2">Your Review (optional)</label>
+                <label className="text-sm text-[#A1A1AA] block mb-2">
+                  Your Review (optional)
+                </label>
                 <textarea
                   value={newReview.comment}
-                  onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                  onChange={(e) =>
+                    setNewReview({ ...newReview, comment: e.target.value })
+                  }
                   placeholder="Tell us about your experience with this product..."
                   rows={4}
                   className="w-full px-4 py-3 rounded-xl bg-[#131316] border border-white/[0.06] text-white placeholder-[#52525B] focus:border-[#D4A853] outline-none"
                 />
               </div>
-              
+
               <div className="flex gap-3">
                 <button
                   type="submit"
@@ -465,7 +499,7 @@ const liked = product ? isInWishlist(product._id) : false;
               </div>
             </form>
           )}
-          
+
           {/* Reviews List */}
           {reviewsLoading ? (
             <div className="flex justify-center py-10">
@@ -474,12 +508,17 @@ const liked = product ? isInWishlist(product._id) : false;
           ) : reviews.length === 0 ? (
             <div className="nayamo-card p-10 text-center border border-white/[0.04]">
               <MessageSquare className="w-10 h-10 text-[#52525B] mx-auto mb-4" />
-              <p className="text-[#A1A1AA]">No reviews yet. Be the first to review this product!</p>
+              <p className="text-[#A1A1AA]">
+                No reviews yet. Be the first to review this product!
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
               {reviews.map((review) => (
-                <div key={review._id} className="nayamo-card p-5 border border-white/[0.04]">
+                <div
+                  key={review._id}
+                  className="nayamo-card p-5 border border-white/[0.04]"
+                >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-[#D4A853]/10 flex items-center justify-center">
@@ -504,7 +543,9 @@ const liked = product ? isInWishlist(product._id) : false;
                     </div>
                   </div>
                   {review.comment && (
-                    <p className="text-[#A1A1AA] text-sm leading-relaxed">{review.comment}</p>
+                    <p className="text-[#A1A1AA] text-sm leading-relaxed">
+                      {review.comment}
+                    </p>
                   )}
                 </div>
               ))}
