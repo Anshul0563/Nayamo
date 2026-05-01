@@ -723,3 +723,33 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews?page=1&limit=20 \u001b[36m304\u001b[0m 109.906 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:28:34"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?status=returned&limit=100 \u001b[32m200\u001b[0m 58.243 ms - 106\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:28:37"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?status=returned&limit=100 \u001b[36m304\u001b[0m 61.291 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:28:37"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 32.213 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:08"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[36m304\u001b[0m 31.257 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:08"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 30.654 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:08"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 27.533 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:08"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 29.176 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:08"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[36m304\u001b[0m 28.893 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:08"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-01 14:30:17"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 330.079 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 3.717 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[36m304\u001b[0m 3.225 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[36m304\u001b[0m 2.509 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 2.193 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 1.914 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:17"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 3.469 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:17"}
+{"level":"info","message":"User logged out: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-01 14:30:20"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/logout \u001b[32m200\u001b[0m 67.385 ms - 52\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:20"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.701 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:20"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[36m304\u001b[0m 1.138 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:20"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[36m304\u001b[0m 2.646 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:20"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 1.434 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:20"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 1.086 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:20"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 2.105 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:20"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-01 14:30:24"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 368.917 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 0.701 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[36m304\u001b[0m 0.837 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[36m304\u001b[0m 0.718 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 0.775 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 0.487 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 0.535 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 14:30:24"}
