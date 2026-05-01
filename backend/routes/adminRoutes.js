@@ -13,6 +13,7 @@ const {
   updateUser,
   deleteUser,
   getAllProducts,
+  createProduct,
   updateProduct,
   deleteProduct,
   uploadProductImage,
@@ -22,6 +23,13 @@ const {
   getConversionData,
   getRecentActivity,
   getTopProducts,
+  getOrderStats,
+  getUserStats,
+  getReturns,
+  updateReturnStatus,
+  getSettings,
+  updateSettings,
+  changePassword,
 } = require("../controllers/adminController");
 
 const protect = require("../middleware/authMiddleware");
@@ -98,8 +106,26 @@ router.put("/users/:id", protect, admin, updateUser);
 router.delete("/users/:id", protect, admin, deleteUser);
 
 router.get("/products", protect, admin, getAllProducts);
+router.post("/products", protect, admin, productUpdateValidation, validate, createProduct);
 router.post("/products/upload", protect, admin, upload.single("image"), uploadProductImage);
 router.put("/products/:id", protect, admin, productUpdateValidation, validate, updateProduct);
 router.delete("/products/:id", protect, admin, deleteProduct);
+
+// Order Stats
+router.get("/orders/stats", protect, admin, getOrderStats);
+
+// User Stats
+router.get("/users/stats", protect, admin, getUserStats);
+
+// Returns
+router.get("/returns", protect, admin, getReturns);
+router.put("/returns/:id", protect, admin, updateReturnStatus);
+
+// Settings
+router.get("/settings", protect, admin, getSettings);
+router.put("/settings", protect, admin, updateSettings);
+
+// Change Password
+router.post("/change-password", protect, admin, changePassword);
 
 module.exports = router;

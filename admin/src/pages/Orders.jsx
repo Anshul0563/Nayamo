@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import DataTable from "../components/DataTable.jsx";
+import OrderDetailModal from "../components/orders/OrderDetailModal.jsx";
+import ExportButton from "../components/ExportButton.jsx";
 import { adminAPI } from "../services/api";
 import { useDebounce } from "../hooks/useApi";
 import {
@@ -10,6 +12,10 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  CheckSquare,
+  XSquare,
+  Trash2,
 } from "lucide-react";
 
 const TABS = [
@@ -27,12 +33,6 @@ const TABS = [
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(null);
-  const [tab, setTab] = useState("pending");
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState([]);
-  const [error, setError] = useState("");
-  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const debouncedSearch = useDebounce(search, 300);

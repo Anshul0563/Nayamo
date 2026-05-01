@@ -1,18 +1,18 @@
 # Admin Panel Full Upgrade — Implementation Tracker
 
 ## Phase 1: Backend API & Core Fixes
-- [ ] 1.1 Create `backend/models/Settings.js` model
-- [ ] 1.2 Add missing service methods to `backend/services/adminService.js`
-  - [ ] `createProduct(data)`
-  - [ ] `getOrderStats()`
-  - [ ] `getUserStats()`
-  - [ ] `getReturns(params)`
-  - [ ] `updateReturnStatus(id, data)`
-  - [ ] `getSettings()`
-  - [ ] `updateSettings(data)`
-  - [ ] `changePassword(userId, data)`
-- [ ] 1.3 Add missing controller functions to `backend/controllers/adminController.js`
-- [ ] 1.4 Add missing routes to `backend/routes/adminRoutes.js`
+- [x] 1.1 Create `backend/models/Settings.js` model
+- [x] 1.2 Add missing service methods to `backend/services/adminService.js`
+  - [x] `createProduct(data)`
+  - [x] `getOrderStats()`
+  - [x] `getUserStats()`
+  - [x] `getReturns(params)`
+  - [x] `updateReturnStatus(id, data)`
+  - [x] `getSettings()`
+  - [x] `updateSettings(data)`
+  - [x] `changePassword(userId, data)`
+- [x] 1.3 Add missing controller functions to `backend/controllers/adminController.js`
+- [x] 1.4 Add missing routes to `backend/routes/adminRoutes.js`
 
 ## Phase 2: Orders Enhancement
 - [ ] 2.1 Create `admin/src/components/orders/OrderDetailModal.jsx`
