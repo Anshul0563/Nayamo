@@ -44,7 +44,7 @@ export default function ProductDetails() {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewStats, setReviewStats] = useState({ avgRating: 0, total: 0 });
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [newReview, setNewReview] = useState({ rating: 5, comment: "" });
+  const [newReview, setNewReview] = useState({ rating: 5, title:"" ,comment: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState("");
 
@@ -123,8 +123,9 @@ export default function ProductDetails() {
       setSubmittingReview(true);
       setReviewError("");
       await reviewAPI.submitReview(id, {
-        rating: newReview.rating,
-        ...(newReview.comment.trim() && { comment: newReview.comment }),
+        title: "User Review", 
+        rating: Number(newReview.rating),
+        comment: newReview.comment.trim() || "Nice product", // 🔥 REQUIRED
       });
       // Reset form and refresh reviews
       setNewReview({ rating: 5, comment: "" });
