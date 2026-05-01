@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Zap, Clock, ShoppingCart, User, CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Zap, Clock, ShoppingCart, User, CheckCircle, XCircle, AlertCircle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { adminAPI } from '../../services/api';
+import { socketService } from '../../services/socket';
 
 const statusConfig = {
   pending: { icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20', label: 'Pending' },
@@ -9,38 +11,121 @@ const statusConfig = {
   cancelled: { icon: XCircle, color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-400/20', label: 'Cancelled' },
 };
 
-export default function RealTimeFeed({ orders = [], compact = false, loading = false }) {
+export default function RealTimeFeed({ 
+  orders = [], 
+  compact = false, 
+  loading: externalLoading = false,
+  autoFetch = true,
+  refreshInterval = 10000,
+  apiParams = { limit: 20, sort: '-createdAt' },
+  onOrderClick,
+  showStats = true,
+}) {
   const [liveOrders, setLiveOrders] = useState(orders);
-  const [isConnected, setIsConnected] = useState(true);
+  const [internalLoading, setInternalLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [socketConnected, setSocketConnected] = useState(false);
+  
+  const intervalRef = useRef(null);
+  const isExternalData = orders.length > 0;
 
-  // Simulate real-time updates when no orders prop provided
+  // Fetch orders from API
+  const fetchOrders = useCallback(async (silent = false) => {
+    if (isExternalData) return; // Don't fetch if parent provides data
+    
+    if (!silent) setInternalLoading(true);
+    setError(null);
+
+    try {
+      const response = await adminAPI.getOrders(apiParams);
+      const fetchedOrders = response.data?.data || response.data || [];
+      setLiveOrders(fetchedOrders);
+      setLastUpdate(new Date());
+      setIsConnected(true);
+    } catch (err) {
+      console.error('RealTimeFeed: Failed to fetch orders:', err);
+      setError(err.response?.data?.message || 'Failed to load orders');
+      setIsConnected(false);
+    } finally {
+      if (!silent) setInternalLoading(false);
+    }
+  }, [isExternalData, apiParams]);
+
+  // Initial fetch and auto-refresh
   useEffect(() => {
-    if (orders.length > 0) {
+    if (!isExternalData && autoFetch) {
+      fetchOrders();
+      
+      // Set up auto-refresh interval
+      intervalRef.current = setInterval(() => {
+        fetchOrders(true); // silent refresh
+      }, refreshInterval);
+
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }
+  }, [isExternalData, autoFetch, refreshInterval, fetchOrders]);
+
+  // Sync with external orders prop
+  useEffect(() => {
+    if (isExternalData) {
       setLiveOrders(orders);
       setLastUpdate(new Date());
-      return;
+      setIsConnected(true);
+    }
+  }, [orders, isExternalData]);
+
+  // Socket.io integration for real-time updates
+  useEffect(() => {
+    const handleNewOrder = (event) => {
+      const newOrder = event.detail;
+      setLiveOrders(prev => {
+        // Prevent duplicates
+        if (prev.some(o => o._id === newOrder._id)) return prev;
+        return [newOrder, ...prev].slice(0, apiParams.limit || 20);
+      });
+      setLastUpdate(new Date());
+    };
+
+    const handleStatusUpdate = (event) => {
+      const updatedOrder = event.detail;
+      setLiveOrders(prev => 
+        prev.map(o => o._id === updatedOrder._id ? { ...o, ...updatedOrder } : o)
+      );
+      setLastUpdate(new Date());
+    };
+
+    const handleSocketConnect = () => setSocketConnected(true);
+    const handleSocketDisconnect = () => setSocketConnected(false);
+
+    // Listen for custom events from socket service
+    window.addEventListener('order:new', handleNewOrder);
+    window.addEventListener('order:status_updated', handleStatusUpdate);
+    window.addEventListener('socket:connect', handleSocketConnect);
+    window.addEventListener('socket:disconnect', handleSocketDisconnect);
+
+    // Check initial socket state
+    if (socketService.socket?.connected) {
+      setSocketConnected(true);
     }
 
-    // Demo data for showcase
-    const demoOrders = [
-      { _id: '1', orderId: 'NYM-2024-001', customer: { name: 'Priya Sharma' }, total: 12500, status: 'pending', createdAt: new Date() },
-      { _id: '2', orderId: 'NYM-2024-002', customer: { name: 'Ananya Patel' }, total: 8900, status: 'processing', createdAt: new Date(Date.now() - 300000) },
-      { _id: '3', orderId: 'NYM-2024-003', customer: { name: 'Meera Singh' }, total: 24500, status: 'shipped', createdAt: new Date(Date.now() - 600000) },
-      { _id: '4', orderId: 'NYM-2024-004', customer: { name: 'Kavya Nair' }, total: 5600, status: 'delivered', createdAt: new Date(Date.now() - 900000) },
-      { _id: '5', orderId: 'NYM-2024-005', customer: { name: 'Riya Verma' }, total: 18200, status: 'pending', createdAt: new Date(Date.now() - 1200000) },
-    ];
-    setLiveOrders(demoOrders);
-  }, [orders]);
+    return () => {
+      window.removeEventListener('order:new', handleNewOrder);
+      window.removeEventListener('order:status_updated', handleStatusUpdate);
+      window.removeEventListener('socket:connect', handleSocketConnect);
+      window.removeEventListener('socket:disconnect', handleSocketDisconnect);
+    };
+  }, [apiParams.limit]);
 
-  // Auto-refresh effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastUpdate(new Date());
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // Manual refresh handler
+  const handleRefresh = useCallback(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const getStatusIcon = (status) => {
     const config = statusConfig[status] || statusConfig.pending;
@@ -69,6 +154,9 @@ export default function RealTimeFeed({ orders = [], compact = false, loading = f
     return `${Math.floor(seconds / 60)}m ago`;
   };
 
+  const isLoading = externalLoading || internalLoading;
+
+  // Compact mode render
   if (compact) {
     return (
       <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -79,7 +167,8 @@ export default function RealTimeFeed({ orders = [], compact = false, loading = f
           return (
             <div 
               key={order._id} 
-              className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] transition-all"
+              className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer"
+              onClick={() => onOrderClick?.(order)}
             >
               <div className={`p-2 rounded-lg ${status.bg} ${status.border} border`}>
                 <Icon size={14} className={status.color} />
@@ -92,11 +181,17 @@ export default function RealTimeFeed({ orders = [], compact = false, loading = f
             </div>
           );
         })}
+        {liveOrders.length === 0 && !isLoading && (
+          <div className="text-center py-4 text-luxury-dim text-xs">
+            No orders yet
+          </div>
+        )}
       </div>
     );
   }
 
-return (
+  // Full mode render
+  return (
     <div className="glass-card p-6 rounded-2xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -110,27 +205,66 @@ return (
           <div>
             <h3 className="text-lg font-semibold text-luxury-text">Live Orders</h3>
             <p className="text-sm text-luxury-dim">
-              {loading ? 'Loading...' : isConnected ? 'Connected' : 'Disconnected'} • Updated {timeSinceUpdate()}
+              {isLoading ? 'Loading...' : isConnected ? 'Connected' : 'Disconnected'} • Updated {timeSinceUpdate()}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Socket status indicator */}
+          <div className="px-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-luxury-dim flex items-center gap-1.5" title={socketConnected ? 'Real-time updates active' : 'Real-time updates inactive'}>
+            {socketConnected ? (
+              <Wifi size={12} className="text-emerald-400" />
+            ) : (
+              <WifiOff size={12} className="text-luxury-dim" />
+            )}
+          </div>
+
+          {/* Live/Loading badge */}
           <div className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 flex items-center gap-1.5">
-            {loading ? (
+            {isLoading ? (
               <RefreshCw size={12} className="animate-spin" />
             ) : (
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             )}
-            <span>{loading ? 'Loading' : 'Live'}</span>
+            <span>{isLoading ? 'Loading' : 'Live'}</span>
           </div>
+
+          {/* Refresh button (only for internal fetching) */}
+          {!isExternalData && (
+            <button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              className="p-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-luxury-dim hover:text-luxury-text transition-all disabled:opacity-50"
+              title="Refresh now"
+            >
+              <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+            </button>
+          )}
+
           <span className="text-xs text-luxury-dim">{liveOrders.length} orders</span>
         </div>
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-rose-400 text-sm">
+            <AlertCircle size={16} />
+            <span>{error}</span>
+          </div>
+          <button 
+            onClick={handleRefresh}
+            className="px-3 py-1 rounded-lg bg-rose-500/20 text-rose-400 text-xs hover:bg-rose-500/30 transition-all"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Orders List */}
       <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
-        {loading ? (
+        {isLoading && liveOrders.length === 0 ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] animate-pulse">
@@ -147,6 +281,14 @@ return (
           <div className="text-center py-8 text-luxury-dim">
             <ShoppingCart size={32} className="mx-auto mb-2 opacity-50" />
             <p>No orders yet</p>
+            {!isExternalData && autoFetch && (
+              <button 
+                onClick={handleRefresh}
+                className="mt-3 px-4 py-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 transition-all"
+              >
+                Refresh
+              </button>
+            )}
           </div>
         ) : (
           liveOrders.map((order) => {
@@ -157,6 +299,7 @@ return (
               <div 
                 key={order._id} 
                 className="group flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-gold-500/20 transition-all cursor-pointer"
+                onClick={() => onOrderClick?.(order)}
               >
                 {/* Status Icon */}
                 <div className={`p-3 rounded-xl ${status.bg} ${status.border} border transition-all group-hover:scale-110`}>
@@ -202,32 +345,34 @@ return (
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-luxury-border/50">
-        <div className="text-center p-2 rounded-lg bg-white/[0.02]">
-          <p className="text-lg font-bold text-yellow-400">
-            {liveOrders.filter(o => o.status === 'pending').length}
-          </p>
-          <p className="text-[10px] text-luxury-dim">Pending</p>
+      {showStats && (
+        <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-luxury-border/50">
+          <div className="text-center p-2 rounded-lg bg-white/[0.02]">
+            <p className="text-lg font-bold text-yellow-400">
+              {liveOrders.filter(o => o.status === 'pending').length}
+            </p>
+            <p className="text-[10px] text-luxury-dim">Pending</p>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-white/[0.02]">
+            <p className="text-lg font-bold text-blue-400">
+              {liveOrders.filter(o => o.status === 'processing').length}
+            </p>
+            <p className="text-[10px] text-luxury-dim">Processing</p>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-white/[0.02]">
+            <p className="text-lg font-bold text-violet-400">
+              {liveOrders.filter(o => o.status === 'shipped').length}
+            </p>
+            <p className="text-[10px] text-luxury-dim">Shipped</p>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-white/[0.02]">
+            <p className="text-lg font-bold text-emerald-400">
+              {liveOrders.filter(o => o.status === 'delivered').length}
+            </p>
+            <p className="text-[10px] text-luxury-dim">Delivered</p>
+          </div>
         </div>
-        <div className="text-center p-2 rounded-lg bg-white/[0.02]">
-          <p className="text-lg font-bold text-blue-400">
-            {liveOrders.filter(o => o.status === 'processing').length}
-          </p>
-          <p className="text-[10px] text-luxury-dim">Processing</p>
-        </div>
-        <div className="text-center p-2 rounded-lg bg-white/[0.02]">
-          <p className="text-lg font-bold text-violet-400">
-            {liveOrders.filter(o => o.status === 'shipped').length}
-          </p>
-          <p className="text-[10px] text-luxury-dim">Shipped</p>
-        </div>
-        <div className="text-center p-2 rounded-lg bg-white/[0.02]">
-          <p className="text-lg font-bold text-emerald-400">
-            {liveOrders.filter(o => o.status === 'delivered').length}
-          </p>
-          <p className="text-[10px] text-luxury-dim">Delivered</p>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -25,6 +25,9 @@ class SocketService {
     this.socket.on('connect', () => {
       console.log('Socket.IO connected - Admin namespace');
       
+      // Emit socket connect event for UI state tracking
+      window.dispatchEvent(new CustomEvent('socket:connect'));
+      
       // Request initial notifications
       this.fetchNotifications();
     });
@@ -58,11 +61,21 @@ class SocketService {
     });
 
     // Live dashboard refresh triggers
-    this.socket.on('order:new', () => {
+    this.socket.on('order:new', (order) => {
+      // Emit order data for RealTimeFeed component
+      window.dispatchEvent(new CustomEvent('order:new', { 
+        detail: order || {} 
+      }));
+      // Legacy event for backward compatibility
       window.dispatchEvent(new CustomEvent('refresh-dashboard'));
     });
 
-    this.socket.on('order:status_updated', () => {
+    this.socket.on('order:status_updated', (order) => {
+      // Emit order data for RealTimeFeed component
+      window.dispatchEvent(new CustomEvent('order:status_updated', { 
+        detail: order || {} 
+      }));
+      // Legacy event for backward compatibility
       window.dispatchEvent(new CustomEvent('refresh-orders'));
     });
 
@@ -73,6 +86,7 @@ class SocketService {
     // Disconnect handling
     this.socket.on('disconnect', () => {
       console.log('Socket.IO disconnected');
+      window.dispatchEvent(new CustomEvent('socket:disconnect'));
     });
   }
 
