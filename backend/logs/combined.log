@@ -17088,3 +17088,23 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 60.798 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:15:56"}
 {"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 18:15:56"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 263.842 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:15:56"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-01 18:16:32"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-01 18:16:32"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-01 18:16:33"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 18:16:34"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-01 18:16:35"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 18:16:35"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 69.211 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:35"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.694 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.370 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 68.127 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 67.867 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 240.424 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 72.758 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.249 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.279 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 57.736 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 65.486 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 65.552 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:16:36"}
