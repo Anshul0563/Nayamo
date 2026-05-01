@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, cloneElement } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 function AnimatedCounter({ end, duration = 1500, prefix = "", suffix = "" }) {
@@ -134,11 +134,16 @@ export default function StatCard({
       {/* Gradient overlay */}
       <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${theme.gradient} pointer-events-none opacity-50`} />
       
-      <div className="relative">
+<div className="relative">
         <div className="flex items-center justify-between">
           <p className="text-sm text-luxury-muted font-medium">{title}</p>
           <div className={`p-2.5 rounded-xl ${theme.iconBg} ${theme.border} border`}>
-            <Icon size={18} className={theme.iconColor} />
+            {/* Handle both component references (Icons) and JSX elements (<Icon />) */}
+            {Icon && typeof Icon === 'object' && Icon.props ? (
+              cloneElement(Icon, { size: 18, className: `${theme.iconColor} ${Icon.props.className || ''}` })
+            ) : (
+              <Icon size={18} className={theme.iconColor} />
+            )}
           </div>
         </div>
 
