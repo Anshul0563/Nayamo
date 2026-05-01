@@ -16648,3 +16648,11 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/settings \u001b[36m304\u001b[0m 55.217 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:55:32"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/settings \u001b[32m200\u001b[0m 53.535 ms - 287\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:55:32"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 55.591 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:55:32"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-01 16:57:10"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 16:57:10"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 54.232 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:57:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 54.238 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:57:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/settings \u001b[32m200\u001b[0m 68.094 ms - 287\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:57:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/settings \u001b[36m304\u001b[0m 72.591 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:57:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 71.683 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:57:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 76.190 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 16:57:11"}

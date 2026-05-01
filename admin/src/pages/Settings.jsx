@@ -47,7 +47,9 @@ export default function Settings() {
         const res = await adminAPI.getSettings();
         const apiSettings = res.data?.settings || res.data;
         if (apiSettings) {
-          if (apiSettings.darkMode !== undefined) setTheme(apiSettings.darkMode);
+          if (apiSettings.darkMode !== undefined && !localStorage.getItem("adminTheme")) {
+            setTheme(apiSettings.darkMode);
+          }
           setSettings((prev) => ({ ...prev, ...apiSettings }));
           // Sync to localStorage as cache
           localStorage.setItem("adminSettings", JSON.stringify(apiSettings));
