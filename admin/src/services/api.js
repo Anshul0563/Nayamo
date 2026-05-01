@@ -113,7 +113,7 @@ export const adminAPI = {
   getOrderById: (id) => apiClient.get(`/admin/orders/${id}`),
   updateOrderStatus: (id, data) => apiClient.put(`/admin/orders/${id}`, data),
   getOrderStats: () => apiClient.get("/admin/orders/stats"),
-  exportOrders: (params = {}) => apiClient.get("/admin/orders/export", { params }, { responseType: 'blob' }),
+  exportOrders: (params = {}) => apiClient.get("/admin/orders/export", { params, responseType: 'blob' }),
 
   // Products
   getProducts: (params = {}) => apiClient.get("/admin/products", { params }),
@@ -124,14 +124,14 @@ export const adminAPI = {
       headers: { "Content-Type": "multipart/form-data" },
     }),
   createProduct: (data) => apiClient.post("/admin/products", data),
-  exportProducts: (params = {}) => apiClient.get("/admin/products/export", { params }, { responseType: 'blob' }),
+  exportProducts: (params = {}) => apiClient.get("/admin/products/export", { params, responseType: 'blob' }),
 
   // Users
   getUsers: (params = {}) => apiClient.get("/admin/users", { params }),
   updateUser: (id, data) => apiClient.put(`/admin/users/${id}`, data),
   deleteUser: (id) => apiClient.delete(`/admin/users/${id}`),
   getUserStats: () => apiClient.get("/admin/users/stats"),
-  exportUsers: (params = {}) => apiClient.get("/admin/users/export", { params }, { responseType: 'blob' }),
+  exportUsers: (params = {}) => apiClient.get("/admin/users/export", { params, responseType: 'blob' }),
 
   // Reviews
   getReviews: (params = {}) => apiClient.get("/admin/reviews", { params }),

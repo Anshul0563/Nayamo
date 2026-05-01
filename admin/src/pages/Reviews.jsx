@@ -91,7 +91,7 @@ export default function Reviews() {
   const rejectReview = async (id) => {
     try {
       setActionLoading(id);
-      await adminAPI.rejectReview(id);
+      await adminAPI.rejectReview(id, "Rejected by admin");
       await loadReviews(page);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to reject review");
@@ -152,7 +152,7 @@ export default function Reviews() {
     if (!selected.length) return;
     try {
       setActionLoading("bulk");
-      await Promise.all(selected.map((id) => adminAPI.rejectReview(id)));
+      await Promise.all(selected.map((id) => adminAPI.rejectReview(id, "Bulk rejected")));
       setSelected([]);
       await loadReviews(page);
     } catch (error) {

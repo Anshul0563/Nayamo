@@ -31,7 +31,7 @@ export default function Users() {
         limit: 20, 
         search: debouncedSearch || undefined, 
         role: roleFilter || undefined, 
-        status: statusFilter || undefined 
+        isActive: statusFilter ? statusFilter === 'active' : undefined
       };
       const res = await adminAPI.getUsers(params);
       const result = res.data;
@@ -68,9 +68,9 @@ export default function Users() {
     
     try {
       for (const userId of selected) {
-        await adminAPI.updateUser(userId, { status: bulkAction });
+        await adminAPI.updateUser(userId, { isActive: bulkAction === 'active' });
       }
-      setUsers(prev => prev.map(u => selected.includes(u._id) ? { ...u, status: bulkAction } : u));
+      setUsers(prev => prev.map(u => selected.includes(u._id) ? { ...u, isActive: bulkAction === 'active' } : u));
       setSelected([]);
       setBulkAction('');
     } catch (error) {
@@ -280,10 +280,10 @@ export default function Users() {
                     </td>
                     <td className="p-6">
                       <button
-                        onClick={() => toggleUser(user._id, 'status', user.status === 'active' ? 'banned' : 'active')}
+                        onClick={() => toggleUser(user._id, 'isActive', !user.isActive)}
                         disabled={updating[user._id]}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                          user.status === 'active' || user.isActive
+                          user.isActive
                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                         }`}
@@ -291,7 +291,7 @@ export default function Users() {
                         {updating[user._id] ? (
                           <Loader2 size={12} className="animate-spin" />
                         ) : (
-                          user.status === 'active' || user.isActive ? 'Active' : 'Banned'
+                          user.isActive ? 'Active' : 'Banned'
                         )}
                       </button>
                     </td>

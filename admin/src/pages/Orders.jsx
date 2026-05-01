@@ -85,7 +85,7 @@ export default function Orders() {
   const updateStatus = async (id, status) => {
     try {
       setActionLoading(id);
-      await adminAPI.updateOrderStatus(id, status);
+      await adminAPI.updateOrderStatus(id, { status });
       await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to update status");
@@ -119,9 +119,13 @@ export default function Orders() {
 
   const bulkStatusUpdate = async (status) => {
     if (!selected.length) return;
+    if (!TABS.map(([key]) => key).includes(status)) {
+      setError("Invalid status selected");
+      return;
+    }
     try {
       setActionLoading("bulk");
-      await Promise.all(selected.map((id) => adminAPI.updateOrderStatus(id, status)));
+      await Promise.all(selected.map((id) => adminAPI.updateOrderStatus(id, { status })));
       setSelected([]);
       await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {

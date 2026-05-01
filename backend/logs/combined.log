@@ -17036,3 +17036,6 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/users?page=1&limit=20 \u001b[36m304\u001b[0m 66.554 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:07:08"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.542 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:07:09"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.279 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:07:09"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.488 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:10:29"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.337 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:10:42"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/reviews?page=1&limit=20 \u001b[33m404\u001b[0m 0.363 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 18:10:45"}
