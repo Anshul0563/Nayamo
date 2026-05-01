@@ -123,7 +123,7 @@ export const adminAPI = {
     apiClient.post("/admin/products/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     }),
-  createProduct: (data) => apiClient.post("/admin/products", data),
+  createProduct: (data) => apiClient.post("/products", data),
   exportProducts: (params = {}) => apiClient.get("/admin/products/export", { params, responseType: 'blob' }),
 
   // Users
