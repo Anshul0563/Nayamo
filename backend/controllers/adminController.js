@@ -410,3 +410,76 @@ exports.getOrderStats = asyncHandler(async (req, res) => {
   res.json({ success: true, stats });
 });
 
+// ── NEW: User Stats ─────────────────────────────────────────────────
+exports.getUserStats = asyncHandler(async (req, res) => {
+  const stats = await adminService.getUserStats();
+  res.json({ success: true, stats });
+});
+
+// ── NEW: Returns ────────────────────────────────────────────────────
+exports.getReturns = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, status, search } = req.query;
+  const result = await adminService.getReturns({
+    page: Number(page),
+    limit: Number(limit),
+    status,
+    search,
+  });
+  res.json({
+    success: true,
+    data: result.orders,
+    pagination: {
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      totalItems: result.totalItems,
+      itemsPerPage: result.itemsPerPage,
+    },
+  });
+});
+
+exports.updateReturnStatus = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error("Invalid return ID format");
+  }
+
+  const order = await adminService.updateReturnStatus(req.params.id, req.body);
+  if (!order) {
+    res.status(404);
+    throw new Error("Return not found");
+  }
+
+  logger.info(`Return ${req.params.id} updated to ${req.body.status}`);
+  res.json({
+    success: true,
+    message: "Return status updated",
+    data: order,
+  });
+});
+
+// ── NEW: Settings ───────────────────────────────────────────────────
+exports.getSettings = asyncHandler(async (req, res) => {
+  const settings = await adminService.getSettings();
+  res.json({ success: true, data: settings });
+});
+
+exports.updateSettings = asyncHandler(async (req, res) => {
+  const settings = await adminService.updateSettings(req.body);
+  res.json({ success: true, message: "Settings updated", data: settings });
+});
+
+// ── NEW: Change Password ────────────────────────────────────────────
+exports.changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    res.status(400);
+    throw new Error("Current password and new password are required");
+  }
+  if (newPassword.length < 6) {
+    res.status(400);
+    throw new Error("New password must be at least 6 characters");
+  }
+
+  await adminService.changePassword(req.user._id, { currentPassword, newPassword });
+  res.json({ success: true, message: "Password changed successfully" });
+});
