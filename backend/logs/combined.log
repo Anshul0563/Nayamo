@@ -16828,3 +16828,14 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 254.719 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:26"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 605.072 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:27"}
 {"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-01 17:24:36"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-01 17:24:51"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 304.138 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:51"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 17:24:52"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 203.111 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:52"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 202.139 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:52"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 52.766 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:52"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 57.681 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:52"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[32m200\u001b[0m 312.906 ms - 606\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:53"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 717.414 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:53"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/users?page=1&limit=20 \u001b[32m200\u001b[0m 85.802 ms - 432\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:54"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/users?page=1&limit=20 \u001b[32m200\u001b[0m 89.509 ms - 432\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:24:54"}

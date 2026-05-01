@@ -131,10 +131,10 @@ export default function StatCard({
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
-      {/* Gradient overlay */}
+{/* Gradient overlay */}
       <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${theme.gradient} pointer-events-none opacity-50`} />
       
-<div className="relative">
+      <div className="relative">
         <div className="flex items-center justify-between">
           <p className="text-sm text-luxury-muted font-medium">{title}</p>
           <div className={`p-2.5 rounded-xl ${theme.iconBg} ${theme.border} border`}>
