@@ -16697,3 +16697,12 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 1.005 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:06:34"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 0.630 ms - 104\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:06:34"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 233.097 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:06:38"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/payments?page=1&limit=20 \u001b[36m304\u001b[0m 59.127 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:06:59"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/payments?page=1&limit=20 \u001b[36m304\u001b[0m 57.649 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:06:59"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-01 17:07:05"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 48.856 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:07:05"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 54.870 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:07:05"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/payments?page=1&limit=20 \u001b[36m304\u001b[0m 55.899 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:07:05"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 59.873 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:07:05"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/payments?page=1&limit=20 \u001b[32m200\u001b[0m 56.486 ms - 117\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:07:05"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 624.500 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 17:07:06"}
