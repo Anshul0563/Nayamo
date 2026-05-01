@@ -134,11 +134,11 @@ export const adminAPI = {
   exportUsers: (params = {}) => apiClient.get("/admin/users/export", { params, responseType: 'blob' }),
 
   // Reviews
-  getReviews: (params = {}) => apiClient.get("/admin/reviews", { params }),
-  approveReview: (id) => apiClient.patch(`/admin/reviews/${id}/approve`),
-  rejectReview: (id, reason) => apiClient.patch(`/admin/reviews/${id}/reject`, { reason }),
-  deleteReview: (id) => apiClient.delete(`/admin/reviews/${id}`),
-  getReviewStats: () => apiClient.get("/admin/reviews/stats"),
+  getReviews: (params = {}) => apiClient.get("/reviews", { params }),
+  approveReview: (id) => apiClient.patch(`/reviews/${id}/approve`),
+  rejectReview: (id, reason) => apiClient.patch(`/reviews/${id}/reject`, { reason }),
+  deleteReview: (id) => apiClient.delete(`/reviews/${id}`),
+  getReviewStats: () => apiClient.get("/reviews/stats"),
 
   // Payments
   getPayments: (params = {}) => apiClient.get("/admin/payments", { params }),
