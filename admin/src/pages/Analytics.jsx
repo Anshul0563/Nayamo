@@ -53,6 +53,8 @@ export default function Analytics() {
     products: {},
     recentOrders: []
   });
+  const [liveOrders, setLiveOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -108,13 +110,38 @@ export default function Analytics() {
     }
   }, [dateRange]);
 
-  useEffect(() => {
+useEffect(() => {
     loadAnalytics();
     
     // Auto-refresh every 60 seconds
     const interval = setInterval(loadAnalytics, 60000);
     return () => clearInterval(interval);
   }, [loadAnalytics]);
+
+  // Fetch live orders for the realtime tab
+  const fetchLiveOrders = useCallback(async () => {
+    if (activeTab !== 'realtime') return;
+    try {
+      setOrdersLoading(true);
+      const response = await adminAPI.getOrders({ limit: 20, sort: '-createdAt' });
+      const orders = response.data?.data || response.data || [];
+      setLiveOrders(orders);
+    } catch (err) {
+      console.error('Failed to fetch live orders:', err);
+    } finally {
+      setOrdersLoading(false);
+    }
+  }, [activeTab]);
+
+  // Fetch live orders when switching to realtime tab or periodically
+  useEffect(() => {
+    if (activeTab === 'realtime') {
+      fetchLiveOrders();
+      // Refresh live orders every 10 seconds for real-time updates
+      const interval = setInterval(fetchLiveOrders, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, fetchLiveOrders]);
 
   const handleRetry = () => {
     loadAnalytics();
@@ -201,7 +228,9 @@ export default function Analytics() {
 
   const renderCustomers = () => <CustomerAnalytics data={data.customers || {}} />;
   const renderProducts = () => <ProductAnalytics data={data.products || {}} />;
-  const renderRealtime = () => <RealTimeFeed orders={data.recentOrders || []} />;
+const renderRealtime = () => (
+    <RealTimeFeed orders={liveOrders} loading={ordersLoading} />
+  );
 
   const renderContent = () => {
     switch (activeTab) {

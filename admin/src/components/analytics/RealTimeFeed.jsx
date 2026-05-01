@@ -9,7 +9,7 @@ const statusConfig = {
   cancelled: { icon: XCircle, color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-400/20', label: 'Cancelled' },
 };
 
-export default function RealTimeFeed({ orders = [], compact = false }) {
+export default function RealTimeFeed({ orders = [], compact = false, loading = false }) {
   const [liveOrders, setLiveOrders] = useState(orders);
   const [isConnected, setIsConnected] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
@@ -96,7 +96,7 @@ export default function RealTimeFeed({ orders = [], compact = false }) {
     );
   }
 
-  return (
+return (
     <div className="glass-card p-6 rounded-2xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -110,15 +110,19 @@ export default function RealTimeFeed({ orders = [], compact = false }) {
           <div>
             <h3 className="text-lg font-semibold text-luxury-text">Live Orders</h3>
             <p className="text-sm text-luxury-dim">
-              {isConnected ? 'Connected' : 'Disconnected'} • Updated {timeSinceUpdate()}
+              {loading ? 'Loading...' : isConnected ? 'Connected' : 'Disconnected'} • Updated {timeSinceUpdate()}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Live</span>
+            {loading ? (
+              <RefreshCw size={12} className="animate-spin" />
+            ) : (
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            )}
+            <span>{loading ? 'Loading' : 'Live'}</span>
           </div>
           <span className="text-xs text-luxury-dim">{liveOrders.length} orders</span>
         </div>
@@ -126,7 +130,20 @@ export default function RealTimeFeed({ orders = [], compact = false }) {
 
       {/* Orders List */}
       <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
-        {liveOrders.length === 0 ? (
+        {loading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] animate-pulse">
+                <div className="w-12 h-12 rounded-xl bg-white/5" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 bg-white/5 rounded" />
+                  <div className="h-3 w-24 bg-white/5 rounded" />
+                </div>
+                <div className="h-6 w-20 bg-white/5 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : liveOrders.length === 0 ? (
           <div className="text-center py-8 text-luxury-dim">
             <ShoppingCart size={32} className="mx-auto mb-2 opacity-50" />
             <p>No orders yet</p>
