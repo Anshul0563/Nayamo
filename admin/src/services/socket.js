@@ -21,15 +21,15 @@ class SocketService {
       autoConnect: true
     });
 
-    // Admin namespace connection
+// Admin namespace connection
     this.socket.on('connect', () => {
       console.log('Socket.IO connected - Admin namespace');
       
       // Emit socket connect event for UI state tracking
       window.dispatchEvent(new CustomEvent('socket:connect'));
       
-      // Request initial notifications
-      this.fetchNotifications();
+      // Note: Initial notifications are sent directly from server on connection
+      // No need to call fetchNotifications() - prevents duplicate 429 errors
     });
 
     // Real-time notifications
