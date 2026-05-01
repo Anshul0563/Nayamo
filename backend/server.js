@@ -73,40 +73,42 @@ app.use(compression());
 // Rate Limiting - Prevent brute force and DDoS
 const limiter = rateLimit({
   windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 500,
   message: {
     success: false,
     message: "Too many requests from this IP, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.path === "/health",
+  skip: (req) => req.path === "/health" || process.env.NODE_ENV === "development",
 });
 app.use(limiter);
 
 // Stricter rate limiting for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 30,
   message: {
     success: false,
     message: "Too many authentication attempts, please try again after 15 minutes.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "development",
 });
 app.use("/api/v1/auth", authLimiter);
 
 // Stricter rate limiting for payment endpoints
 const paymentLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 50,
   message: {
     success: false,
     message: "Too many payment requests, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "development",
 });
 app.use("/api/v1/payment", paymentLimiter);
 
@@ -179,13 +181,14 @@ app.use("/api/v1/delhivery", requireDB, delhiveryRoutes);
 // Stricter rate limiting for contact form
 const contactLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 5,
+  max: 10,
   message: {
     success: false,
     message: "Too many contact form submissions. Please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "development",
 });
 app.use("/api/v1/contact", contactLimiter);
 app.use("/api/v1/contact", requireDB, contactRoutes);
