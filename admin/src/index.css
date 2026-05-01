@@ -196,7 +196,6 @@ header {
 .light {
   /* TEXT COLORS - Most critical */
   color: #111111 !important;
-  color: #1a1a1a !important;
   
   /* Root page container text */
   .space-y-6,
