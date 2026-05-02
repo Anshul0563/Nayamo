@@ -18304,3 +18304,9 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1&sort=newest \u001b[36m304\u001b[0m 51.558 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:22:55"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 0.911 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:22:58"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.149 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:23:13"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 0.694 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:25:38"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.260 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:25:42"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 1.133 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:25:42"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.028 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:25:54"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.286 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:25:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 1.175 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 19:25:55"}
