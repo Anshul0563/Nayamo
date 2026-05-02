@@ -9,11 +9,11 @@ import {
   User,
   LogOut,
   ChevronDown,
-  Crown,
   Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
+import logo from "../../assets/logo.png";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 
@@ -97,11 +97,14 @@ export default function Navbar() {
             {/* LOGO */}
             <Link to="/" className="flex items-center gap-4 group">
               <motion.div
-                className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[linear-gradient(120deg,#D4A853,#FFD700,#D4A853)] bg-[length:200%_200%] shadow-[0_12px_40px_rgba(212,168,83,0.4)]"
-                animate={{ backgroundPosition: ["0% 50%", "200% 50%"] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="flex h-14 w-14 items-center justify-center rounded-3xl"
               >
-                <Crown className="w-7 h-7 text-white" />
+                <motion.img
+                  src={logo}
+                  alt="Nayamo Logo"
+                  className="h-12 w-12 object-contain drop-shadow-[0_8px_24px_rgba(212,168,83,0.3)]"
+                  whileHover={{ scale: 1.1 }}
+                />
               </motion.div>
 
               <div className="hidden sm:block">

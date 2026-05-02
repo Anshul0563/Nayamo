@@ -1,7 +1,8 @@
 import React from "react";
-import { Heart, ShoppingBag, Eye, Sparkles, Crown } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import logo from "../../assets/logo.png";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 
@@ -63,8 +64,8 @@ export default function ProductCard({ product, index = 0 }) {
             animate={{ scale: 1 }}
             transition={{ delay: index * 0.15 + 0.3, type: "spring", stiffness: 200 }}
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] shadow-[0_8px_24px_rgba(212,168,83,0.4)] ring-1 ring-white/20">
-              <Crown className="w-4 h-4 text-black" />
+<div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] shadow-[0_8px_24px_rgba(212,168,83,0.4)] ring-1 ring-white/20">
+              <motion.img src={logo} alt="Crown" className="w-4 h-4 object-contain" whileHover={{ scale: 1.1 }} />
             </div>
             {discount > 0 && (
               <motion.div

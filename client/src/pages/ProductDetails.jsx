@@ -13,12 +13,12 @@ import {
   User,
   MessageSquare,
   Sparkles,
-  Crown,
   Gem,
   Award,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { productAPI, reviewAPI } from "../services/api";
+import logo from "../assets/logo.png";
 import Loader from "../components/common/Loader";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
@@ -161,6 +161,7 @@ export default function ProductDetails() {
     });
   };
 
+  // Helper: Get image URL
   const getImageUrl = (p, idx = 0) => {
     if (!p) return "";
     const img = p.images?.[idx];
@@ -247,9 +248,12 @@ export default function ProductDetails() {
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] shadow-[0_12px_40px_rgba(212,168,83,0.4)] ring-2 ring-white/20">
-                  <Crown className="w-8 h-8 text-black" />
-                </div>
+                <motion.img
+                  src={logo}
+                  alt="Nayamo Premium"
+                  className="h-16 w-16 drop-shadow-[0_12px_40px_rgba(212,168,83,0.4)]"
+                  whileHover={{ scale: 1.15 }}
+                />
               </motion.div>
 
               <div className="relative aspect-square rounded-3xl overflow-hidden bg-gradient-to-br from-[#0A0A0C] to-[#070708] border border-white/[0.08] shadow-2xl group">

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, X, ChevronDown, ChevronLeft, ChevronRight, Sparkles, Crown } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronDown, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import { SkeletonGrid } from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
+import logo from "../assets/logo.png";
 
 const categories = [
   { value: "party", label: "Party Wear", icon: "🎭" },
@@ -101,33 +102,31 @@ export default function Shop() {
           >
             <motion.div
               className="flex items-center justify-center gap-3 mb-6"
-              initial={{ scale: 0 }}
+initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
             >
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] shadow-[0_12px_40px_rgba(212,168,83,0.4)] ring-2 ring-white/20">
-                <Crown className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-[#D4A853] to-white bg-clip-text text-transparent tracking-tight">
-                  {pageTitle}
-                </h1>
-                <motion.div
-                  className="flex items-center justify-center gap-2 mt-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <Sparkles className="w-5 h-5 text-[#D4A853]" />
-                  <p className="text-zinc-400 text-lg font-medium">
-                    {category
-                      ? `Exquisite ${category} earrings crafted to perfection`
-                      : "Discover handcrafted luxury for every occasion"}
-                  </p>
-                  <Sparkles className="w-5 h-5 text-[#D4A853]" />
-                </motion.div>
-              </div>
+              <motion.img src={logo} alt="Excellence" className="h-14 w-14 object-contain drop-shadow-[0_12px_40px_rgba(212,168,83,0.4)]" whileHover={{ scale: 1.1 }} />
             </motion.div>
+            <div>
+              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-[#D4A853] to-white bg-clip-text text-transparent tracking-tight">
+                {pageTitle}
+              </h1>
+              <motion.div
+                className="flex items-center justify-center gap-2 mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                <Sparkles className="w-5 h-5 text-[#D4A853]" />
+                <p className="text-zinc-400 text-lg font-medium">
+                  {category
+                    ? `Exquisite ${category} earrings crafted to perfection`
+                    : "Discover handcrafted luxury for every occasion"}
+                </p>
+                <Sparkles className="w-5 h-5 text-[#D4A853]" />
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </motion.div>
@@ -289,7 +288,7 @@ export default function Shop() {
               <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl shadow-2xl">
                 <div className="flex flex-wrap items-center gap-4">
                   <span className="text-lg font-semibold text-white mr-4 flex items-center gap-2">
-                    <Crown className="w-5 h-5 text-[#D4A853]" />
+                    <motion.img src={logo} alt="Premium" className="w-5 h-5 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]" whileHover={{ scale: 1.15 }} />
                     Categories:
                   </span>
                   {categories.map((c, index) => (

@@ -10,12 +10,13 @@ import {
   Heart,
   Sparkles,
   ArrowUpRight,
-  Crown,
   Zap,
   Award,
   Users,
 } from "lucide-react";
 import { productAPI } from "../services/api";
+import ClientLayout from "../components/layout/ClientLayout";
+import logo from "../assets/logo.png";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -87,13 +88,13 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             >
-              <motion.div
+<motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/20 text-[#D4A853] text-sm font-medium mb-8 shadow-lg backdrop-blur-sm"
               >
-                <Crown className="w-4 h-4" />
+                <motion.img src={logo} alt="Crown" className="w-4 h-4 object-contain" whileHover={{ scale: 1.1 }} />
                 Luxury Collection 2026
               </motion.div>
               <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif font-bold leading-[0.95] mb-8 text-white">
@@ -124,7 +125,7 @@ export default function Home() {
               </div>
               <div className="flex flex-wrap gap-8 mt-14">
                 {[
-                  { icon: Crown, text: "Premium Quality" },
+                  { icon: null, logo: true, text: "Premium Quality" },
                   { icon: Shield, text: "Lifetime Warranty" },
                   { icon: Truck, text: "Express Shipping" },
                 ].map((item, i) => (
@@ -135,7 +136,11 @@ export default function Home() {
                     className="flex items-center gap-3 text-[#A1A1AA] group"
                   >
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/15 flex items-center justify-center group-hover:border-[#D4A853]/30 transition-all duration-300">
-                      <item.icon className="w-5 h-5 text-[#D4A853]" />
+                      {item.logo ? (
+                        <motion.img src={logo} alt="Premium" className="w-6 h-6 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]" whileHover={{ scale: 1.1 }} />
+                      ) : (
+                        <item.icon className="w-5 h-5 text-[#D4A853]" />
+                      )}
                     </div>
                     <span className="text-sm font-medium">{item.text}</span>
                   </motion.div>
@@ -223,7 +228,7 @@ export default function Home() {
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
           >
             {[
-              { icon: Crown, title: "Luxury Crafted", desc: "Premium materials" },
+                { icon: null, logo: true, title: "Luxury Crafted", desc: "Premium materials" },
               { icon: Sparkles, title: "Designer Inspired", desc: "Latest trends" },
               { icon: Heart, title: "Comfort First", desc: "All-day wear" },
               { icon: Truck, title: "Swift Delivery", desc: "24hr dispatch" },
@@ -237,7 +242,11 @@ export default function Home() {
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/15 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D4A853]/20 group-hover:border-[#D4A853]/30 transition-all duration-300 shadow-lg"
                 >
-                  <badge.icon className="w-6 h-6 text-[#D4A853]" />
+                  {badge.logo ? (
+                    <motion.img src={logo} alt="Luxury" className="w-7 h-7 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]" whileHover={{ scale: 1.15 }} />
+                  ) : (
+                    <badge.icon className="w-6 h-6 text-[#D4A853]" />
+                  )}
                 </motion.div>
                 <div>
                   <p className="font-semibold text-sm text-white group-hover:text-[#D4A853] transition-colors">
@@ -434,7 +443,7 @@ export default function Home() {
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4A853] to-[#D4A5A5] flex items-center justify-center mx-auto mb-8 shadow-xl"
             >
-              <Crown className="w-10 h-10 text-white" />
+              <motion.img src={logo} alt="Nayamo Premium" className="w-14 h-14 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]" whileHover={{ scale: 1.1 }} />
             </motion.div>
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">
               Experience <span className="nayamo-text-gold">Unparalleled</span> Luxury
