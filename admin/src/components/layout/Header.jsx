@@ -105,12 +105,12 @@ export default function Header({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const markAllRead = () => {
+const markAllRead = () => {
     adminAPI.markNotificationRead("all").catch(() => {});
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
   };
 
-const markAsRead = (id) => {
+  const markAsRead = (id) => {
     socketService.markAsRead(id).catch(() => {});
     setNotifications(prev => prev.map(n => (n._id || n.id) === id ? { ...n, isRead: true, read: true } : n));
   };

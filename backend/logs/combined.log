@@ -18126,3 +18126,5 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[32m200\u001b[0m 39.301 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:01:04"}
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 165.038 ms - 550\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:01:04"}
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 195.356 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:01:04"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.296 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:02:34"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.416 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:02:34"}
