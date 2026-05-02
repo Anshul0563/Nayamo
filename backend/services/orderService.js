@@ -175,8 +175,9 @@ exports.cancelOrder = async (userId, orderId) => {
       }
     }
 
-    order.status = "cancelled";
+order.status = "cancelled";
     order.cancelledAt = new Date();
+    order.statusUpdatedAt = new Date(); // Start 30-day countdown
     await order.save({ session });
 
     await session.commitTransaction();
