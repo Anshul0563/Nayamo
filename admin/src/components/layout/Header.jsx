@@ -111,12 +111,20 @@ export default function Header({
   };
 
   const markAsRead = (id) => {
+const markAsRead = (id) => {
     socketService.markAsRead(id).catch(() => {});
     setNotifications(prev => prev.map(n => (n._id || n.id) === id ? { ...n, isRead: true, read: true } : n));
   };
 
   const clearNotifications = () => {
-    setNotifications([]);
+    adminAPI.deleteAllNotifications()
+      .then(() => {
+        setNotifications([]);
+      })
+      .catch(() => {
+        // Fallback: still clear UI if API fails
+        setNotifications([]);
+      });
   };
 
   return (
