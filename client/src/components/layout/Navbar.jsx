@@ -10,6 +10,8 @@ import {
   LogOut,
   ChevronDown,
   Sparkles,
+  Package,
+  Settings,
 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
@@ -22,6 +24,12 @@ const links = [
   { name: "Shop", path: "/shop" },
   { name: "About", path: "/about" },
   { name: "Contact", path: "/contact" },
+];
+
+const userMenuItems = [
+  { name: "My Account", path: "/profile", icon: User },
+  { name: "My Orders", path: "/orders", icon: Package },
+  { name: "Settings", path: "/profile?tab=settings", icon: Settings },
 ];
 
 export default function Navbar() {
@@ -208,17 +216,73 @@ export default function Navbar() {
                 )}
               </Link>
 
-              {/* AUTH */}
+              {/* AUTH - Profile Dropdown */}
               {isAuthenticated ? (
-                <button
-                  onClick={() => {
-                    logout();
-                    navigate("/");
-                  }}
-                  className="hidden md:flex h-12 px-5 items-center rounded-2xl bg-red-500/20 text-red-300 hover:bg-red-500/30 transition"
-                >
-                  <LogOut size={18} />
-                </button>
+                <div className="relative" ref={profileRef}>
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="hidden md:flex items-center gap-2 h-12 px-3 rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 hover:border-[#D4A853]/40 transition-all"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D4A853] to-[#D4A5A5] flex items-center justify-center">
+                      <User size={16} className="text-white" />
+                    </div>
+                    <span className="text-sm text-zinc-300 font-medium capitalize max-w-[80px] truncate">
+                      {user?.name?.split(" ")[0] || "Account"}
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      className={`text-zinc-400 transition-transform duration-300 ${
+                        profileOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  <AnimatePresence>
+                    {profileOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 top-full mt-3 w-56 bg-[#0A0A0C]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                      >
+                        <div className="p-3 border-b border-white/5">
+                          <p className="text-sm text-white font-medium truncate">
+                            {user?.name}
+                          </p>
+                          <p className="text-xs text-zinc-500 truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                        <div className="p-2">
+                          {userMenuItems.map((item) => (
+                            <Link
+                              key={item.path}
+                              to={item.path}
+                              onClick={() => setProfileOpen(false)}
+                              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-zinc-300 hover:text-white hover:bg-white/5 transition-all"
+                            >
+                              <item.icon size={16} />
+                              {item.name}
+                            </Link>
+                          ))}
+                        </div>
+                        <div className="p-2 border-t border-white/5">
+                          <button
+                            onClick={() => {
+                              logout();
+                              navigate("/");
+                            }}
+                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all"
+                          >
+                            <LogOut size={16} />
+                            Logout
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               ) : (
                 <Link
                   to="/login"
