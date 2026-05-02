@@ -103,9 +103,9 @@ export default function Header({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+}, []);
 
-const markAllRead = () => {
+  const markAllRead = () => {
     adminAPI.markNotificationRead("all").catch(() => {});
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
   };
