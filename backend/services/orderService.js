@@ -153,7 +153,7 @@ exports.cancelOrder = async (userId, orderId) => {
       user: userId,
     }).session(session);
 
-if (!order) {
+    if (!order) {
       throw new Error("Order not found");
     }
 
@@ -193,44 +193,6 @@ if (!order) {
   } finally {
     session.endSession();
   }
-};
-
-// ADMIN - Get all orders with pagination
-exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
-  const skip = (page - 1) * limit;
-  const query = {};
-
-  if (status) query.status = status;
-  if (search) {
-    const escapeRegex = require("../utils/escapeRegex");
-    const safeSearch = escapeRegex(search);
-    query.$or = [
-      { address: { $regex: safeSearch, $options: "i" } },
-      { phone: { $regex: safeSearch, $options: "i" } },
-    ];
-  }
-
-  const [orders, totalItems] = await Promise.all([
-    Order.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate("user", "name email")
-      .populate({
-        path: "items.product",
-        select: "title price images",
-      })
-      .lean(),
-    Order.countDocuments(query),
-  ]);
-
-  return {
-    orders,
-    currentPage: page,
-    totalPages: Math.ceil(totalItems / limit),
-    totalItems,
-    itemsPerPage: limit,
-  };
 };
 
 // USER - Return Order
@@ -280,6 +242,44 @@ exports.returnOrder = async (userId, orderId) => {
   } finally {
     session.endSession();
   }
+};
+
+// ADMIN - Get all orders with pagination
+exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
+  const skip = (page - 1) * limit;
+  const query = {};
+
+  if (status) query.status = status;
+  if (search) {
+    const escapeRegex = require("../utils/escapeRegex");
+    const safeSearch = escapeRegex(search);
+    query.$or = [
+      { address: { $regex: safeSearch, $options: "i" } },
+      { phone: { $regex: safeSearch, $options: "i" } },
+    ];
+  }
+
+  const [orders, totalItems] = await Promise.all([
+    Order.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("user", "name email")
+      .populate({
+        path: "items.product",
+        select: "title price images",
+      })
+      .lean(),
+    Order.countDocuments(query),
+  ]);
+
+  return {
+    orders,
+    currentPage: page,
+    totalPages: Math.ceil(totalItems / limit),
+    totalItems,
+    itemsPerPage: limit,
+  };
 };
 
 // ADMIN - Update order status

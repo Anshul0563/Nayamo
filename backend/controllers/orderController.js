@@ -101,7 +101,7 @@ exports.returnOrder = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    message: "Return request submitted successfully",
+    message: "Return requested successfully",
     data: order,
   });
 });
