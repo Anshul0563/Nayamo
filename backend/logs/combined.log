@@ -18217,3 +18217,13 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 0.845 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:41:55"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 30.939 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:44:57"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 33.328 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:44:57"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 0.515 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:45:14"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 0.551 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:45:14"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.313 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:45:19"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 1.041 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:45:19"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 37.151 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:46:03"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 0.831 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:46:03"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[36m304\u001b[0m 35.638 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:46:03"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[32m200\u001b[0m 32.055 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:46:03"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 148.920 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:46:03"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 134.840 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:46:03"}
