@@ -17782,3 +17782,15 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/orders/3596EBD5 \u001b[33m400\u001b[0m 31.636 ms - 340\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:41:23"}
 {"level":"info","message":"\u001b[0mGET /api/v1/orders \u001b[36m304\u001b[0m 106.700 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:41:34"}
 {"level":"info","message":"\u001b[0mGET /api/v1/orders \u001b[32m200\u001b[0m 104.570 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-01 20:41:34"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 16:49:28"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 16:49:28"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 16:49:29"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-02 16:49:43"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 429.546 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:49:43"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-02 16:49:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 66.637 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:49:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 56.759 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:49:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 66.657 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:49:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 171.100 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:49:45"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 317.416 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:49:45"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 282.830 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:49:45"}
