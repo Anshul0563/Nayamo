@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, X, ChevronDown, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
@@ -27,7 +35,10 @@ const sortOptions = [
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+  });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [showFilters, setShowFilters] = useState(false);
@@ -46,7 +57,9 @@ export default function Shop() {
         if (search) params.search = search;
         const res = await productAPI.getProducts(params);
         setProducts(res.data?.data || []);
-        setPagination(res.data?.pagination || { currentPage: 1, totalPages: 1 });
+        setPagination(
+          res.data?.pagination || { currentPage: 1, totalPages: 1 },
+        );
       } catch (err) {
         console.error("Shop error:", err);
       } finally {
@@ -75,10 +88,11 @@ export default function Shop() {
   };
 
   const pageTitle = category
-    ? `${categories.find(c => c.value === category)?.label || category} Collection`
+    ? `${categories.find((c) => c.value === category)?.label || category} Collection`
     : "Luxury Earrings Collection";
 
-  const activeFiltersCount = (category ? 1 : 0) + (search ? 1 : 0) + (sort ? 1 : 0);
+  const activeFiltersCount =
+    (category ? 1 : 0) + (search ? 1 : 0) + (sort ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#070708] via-[#0A0A0C] to-[#070708]">
@@ -106,11 +120,11 @@ export default function Shop() {
               animate={{ scale: 1 }}
               transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
             >
-              <motion.img 
-                src={logo} 
-                alt="Excellence" 
-                className="h-14 w-14 object-contain drop-shadow-[0_12px_40px_rgba(212,168,83,0.4)]" 
-                whileHover={{ scale: 1.1 }} 
+              <motion.img
+                src={logo}
+                alt="Excellence"
+                className="h-14 w-14 object-contain drop-shadow-[0_12px_40px_rgba(212,168,83,0.4)]"
+                whileHover={{ scale: 1.1 }}
               />
             </motion.div>
             <div>
@@ -199,7 +213,11 @@ export default function Shop() {
                 className="relative appearance-none px-8 py-5 pr-14 rounded-3xl border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl text-sm font-semibold text-zinc-300 hover:border-[#D4A853]/50 hover:bg-white/[0.06] focus:border-[#D4A853]/60 focus:ring-2 focus:ring-[#D4A853]/20 outline-none cursor-pointer transition-all duration-500"
               >
                 {sortOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-[#0A0A0C] text-white">
+                  <option
+                    key={opt.value}
+                    value={opt.value}
+                    className="bg-[#0A0A0C] text-white"
+                  >
                     {opt.label}
                   </option>
                 ))}
@@ -219,7 +237,9 @@ export default function Shop() {
               transition={{ duration: 0.4 }}
               className="flex flex-wrap items-center gap-3 mb-8 p-4 rounded-3xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl"
             >
-              <span className="text-sm font-medium text-zinc-400 mr-2">Active Filters:</span>
+              <span className="text-sm font-medium text-zinc-400 mr-2">
+                Active Filters:
+              </span>
               {category && (
                 <motion.span
                   initial={{ scale: 0 }}
@@ -227,7 +247,9 @@ export default function Shop() {
                   exit={{ scale: 0 }}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 text-white border border-[#D4A853]/30 shadow-lg"
                 >
-                  {categories.find((c) => c.value === category)?.icon} {categories.find((c) => c.value === category)?.label || category}
+                  {categories.find((c) => c.value === category)?.icon}{" "}
+                  {categories.find((c) => c.value === category)?.label ||
+                    category}
                   <button
                     onClick={() => updateParam("category", "")}
                     className="hover:bg-white/20 rounded-full p-1 transition-colors"
@@ -245,7 +267,10 @@ export default function Shop() {
                 >
                   "{search}"
                   <button
-                    onClick={() => { setSearch(""); updateParam("search", ""); }}
+                    onClick={() => {
+                      setSearch("");
+                      updateParam("search", "");
+                    }}
                     className="hover:bg-white/20 rounded-full p-1 transition-colors"
                   >
                     <X className="w-4 h-4" />
@@ -284,49 +309,156 @@ export default function Shop() {
         <AnimatePresence>
           {showFilters && (
             <motion.div
-              initial={{ opacity: 0, height: 0, y: -20 }}
+              initial={{ opacity: 0, height: 0, y: -40 }}
               animate={{ opacity: 1, height: "auto", y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -20 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden mb-10"
+              exit={{ opacity: 0, height: 0, y: -40 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden mb-20"
             >
-              <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl shadow-2xl">
-                <div className="flex flex-wrap items-center gap-4">
-                  <span className="text-lg font-semibold text-white mr-4 flex items-center gap-2">
-                    <motion.img src={logo} alt="Premium" className="w-5 h-5 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]" whileHover={{ scale: 1.15 }} />
-                    Categories:
-                  </span>
-                  {categories.map((c, index) => (
-                    <motion.button
-                      key={c.value}
-                      onClick={() =>
-                        updateParam("category", category === c.value ? "" : c.value)
-                      }
-                      className={`relative px-6 py-4 rounded-2xl text-sm font-semibold transition-all duration-500 overflow-hidden ${
-                        category === c.value
-                          ? "bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] text-black shadow-[0_8px_32px_rgba(212,168,83,0.4)] border-2 border-[#D4A853]/50"
-                          : "bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08] border border-white/[0.12] hover:border-[#D4A853]/40 hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
-                      }`}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
+              <motion.div
+                className="group relative"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{
+                  delay: 0.2,
+                  duration: 0.5,
+                  type: "spring",
+                  stiffness: 250,
+                }}
+              >
+                {/* Outer Glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/70 to-[#0f0f23]/60 rounded-3xl blur-3xl shadow-2xl shadow-[#D4A853]/25 opacity-90" />
+
+                {/* Main Panel */}
+                <div className="relative p-10 rounded-3xl bg-gradient-to-br from-slate-900/95 via-slate-800/98 to-slate-900/95 border border-[#D4A853]/20 backdrop-blur-3xl shadow-[0_35px_100px_rgba(0,0,0,0.8)] shadow-[#1e3a8a]/30">
+                  {/* Header */}
+                  <div className="flex items-center gap-6 mb-12 pb-8 border-b border-[#D4A853]/10 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#D4A853]/5 via-transparent to-[#D4A853]/5 animate-shimmer" />
+
+                    <motion.div
+                      className="relative p-3 bg-gradient-to-br from-[#D4A853]/20 to-[#1e40af]/20 rounded-2xl backdrop-blur-xl border border-[#D4A853]/30 shadow-2xl shadow-[#D4A853]/30"
+                      whileHover={{ scale: 1.2, rotate: 180 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      <span className="mr-2">{c.icon}</span>
-                      {c.label}
-                      {category === c.value && (
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                          initial={{ x: '-100%' }}
-                          animate={{ x: '100%' }}
-                          transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
+                      <img
+                        src={logo}
+                        alt="Premium"
+                        className="w-8 h-8 object-contain drop-shadow-xl"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] rounded-2xl blur-xl opacity-70 animate-pulse" />
+                    </motion.div>
+
+                    <div>
+                      <h3 className="text-3xl font-black bg-gradient-to-r from-zinc-200 via-[#D4A853] to-[#FFD700] bg-clip-text text-transparent tracking-tight">
+                        Master Categories
+                      </h3>
+                      <p className="text-zinc-500 text-lg mt-1 font-light">
+                        Curated collections
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Categories Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+                    {categories.map((c, index) => (
+                      <motion.button
+                        key={c.value}
+                        onClick={() =>
+                          updateParam(
+                            "category",
+                            category === c.value ? "" : c.value,
+                          )
+                        }
+                        className={`group relative h-28 p-6 rounded-2xl font-bold text-lg overflow-hidden transition-all duration-700 shadow-xl border backdrop-blur-xl ${
+                          category === c.value
+                            ? "bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] text-black shadow-[0_25px_60px_rgba(212,168,83,0.6)] shadow-[#D4A853]/50 border-[#D4A853]/70 scale-[1.02] rotate-[1deg]"
+                            : "bg-gradient-to-br from-slate-800/70 to-slate-900/60 border-white/[0.1] hover:border-[#D4A853]/50 hover:bg-gradient-to-br hover:from-slate-700/80 hover:to-[#D4A853]/10 hover:shadow-[0_25px_60px_rgba(212,168,83,0.4)] hover:shadow-[#D4A853]/40 hover:scale-[1.08] hover:rotate-[2deg] text-zinc-300"
+                        }`}
+                        whileHover={{
+                          scale: category === c.value ? 1.03 : 1.1,
+                          y: -8,
+                          rotateX: category === c.value ? 0 : 8,
+                          rotateY: category === c.value ? 0 : 8,
+                        }}
+                        whileTap={{ scale: 0.96 }}
+                        initial={{ opacity: 0, y: 40, scale: 0.8 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{
+                          delay: index * 0.08,
+                          duration: 0.6,
+                          type: "spring",
+                          stiffness: 300,
+                        }}
+                      >
+                        {/* Dynamic Background */}
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-0 group-hover:opacity-60 blur-sm transition-all duration-700`}
                         />
-                      )}
-                    </motion.button>
-                  ))}
+
+                        {/* Shine Effect */}
+                        {category === c.value && (
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-white/40 -skew-x-12 animate-shimmer-fast"
+                            initial={{ x: "-120%" }}
+                            animate={{ x: "120%" }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              repeatDelay: 2.5,
+                            }}
+                          />
+                        )}
+
+                        {/* Content */}
+                        <div className="relative z-20 flex flex-col items-center justify-center h-full gap-3">
+                          <motion.span
+                            className={`text-3xl drop-shadow-2xl transition-all duration-500 ${
+                              category === c.value
+                                ? "text-black/95 drop-shadow-[0_8px_25px_rgba(212,168,83,0.8)] scale-110"
+                                : "text-zinc-300 group-hover:text-[#D4A853] group-hover:scale-125"
+                            }`}
+                            whileHover={{ scale: 1.4, rotate: 360 }}
+                            transition={{ duration: 0.4 }}
+                          >
+                            {c.icon}
+                          </motion.span>
+
+                          <span
+                            className={`text-sm lg:text-base font-black tracking-wide leading-tight transition-all duration-500 ${
+                              category === c.value
+                                ? "bg-gradient-to-r from-white via-[#D4A853] to-[#FFD700] bg-clip-text text-transparent drop-shadow-lg"
+                                : "text-zinc-400 group-hover:text-zinc-200"
+                            }`}
+                          >
+                            {c.label}
+                          </span>
+
+                          {/* Active Badge */}
+                          {category === c.value && (
+                            <motion.div
+                              className="w-16 h-1.5 bg-gradient-to-r from-[#FFD700] via-[#D4A853] to-[#FFD700] rounded-full shadow-md shadow-[#D4A853]/50 mx-auto"
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: 1 }}
+                              transition={{ delay: 0.3, duration: 0.6 }}
+                            />
+                          )}
+
+                          {/* Hover Sparkle */}
+                          {!category === c.value && (
+                            <motion.div
+                              className="absolute -top-4 -right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                              initial={{ scale: 0 }}
+                              whileHover={{ scale: 1 }}
+                            >
+                              <Sparkles className="w-6 h-6 text-[#D4A853] animate-pulse" />
+                            </motion.div>
+                          )}
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -386,9 +518,14 @@ export default function Shop() {
                 </motion.button>
 
                 {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                  .filter(p => {
+                  .filter((p) => {
                     const distance = Math.abs(p - page);
-                    return distance === 0 || distance === 1 || p === 1 || p === pagination.totalPages;
+                    return (
+                      distance === 0 ||
+                      distance === 1 ||
+                      p === 1 ||
+                      p === pagination.totalPages
+                    );
                   })
                   .map((p, index, arr) => (
                     <React.Fragment key={p}>
