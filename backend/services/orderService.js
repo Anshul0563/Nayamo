@@ -232,6 +232,55 @@ exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
   };
 };
 
+// USER - Return Order
+exports.returnOrder = async (userId, orderId) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const order = await Order.findOne({
+      _id: orderId,
+      user: userId,
+    }).session(session);
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Return is only allowed for delivered orders
+    if (order.status !== "delivered") {
+      throw new Error("Can only return delivered orders");
+    }
+
+    // Check if return is within 7 days
+    const deliveredDate = new Date(order.deliveredAt);
+    const now = new Date();
+    const daysSinceDelivery = Math.floor((now - deliveredDate) / (1000 * 60 * 60 * 24));
+
+    if (daysSinceDelivery > 7) {
+      throw new Error("Return period of 7 days has expired");
+    }
+
+    // Update status to return_requested first
+    order.status = "return_requested";
+    await order.save({ session });
+
+    await session.commitTransaction();
+
+    logger.info(`Return requested for order: ${order._id} by user ${userId}`);
+    emitOrderNotification(order, "return_requested").catch((err) =>
+      logger.error("Return notification failed:", err.message)
+    );
+
+    return order;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
 // ADMIN - Update order status
 exports.updateOrderStatus = async (orderId, status) => {
   const updateData = { status };

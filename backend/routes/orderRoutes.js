@@ -7,6 +7,7 @@ const {
   getOrders,
   getOrderById,
   cancelOrder,
+  returnOrder,
 } = require("../controllers/orderController");
 
 const protect = require("../middleware/authMiddleware");
@@ -35,5 +36,6 @@ router.post("/", protect, orderValidation, validate, placeOrder);
 router.get("/", protect, getOrders);
 router.get("/:id", protect, getOrderById);
 router.put("/:id/cancel", protect, cancelOrder);
+router.put("/:id/return", protect, returnOrder);
 
 module.exports = router;

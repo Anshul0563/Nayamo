@@ -89,3 +89,19 @@ exports.cancelOrder = asyncHandler(async (req, res) => {
     data: order,
   });
 });
+
+// RETURN ORDER
+exports.returnOrder = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error("Invalid order ID format");
+  }
+
+  const order = await orderService.returnOrder(req.user._id, req.params.id);
+
+  res.json({
+    success: true,
+    message: "Return request submitted successfully",
+    data: order,
+  });
+});

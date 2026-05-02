@@ -72,7 +72,7 @@ const orderSchema = new mongoose.Schema(
       default: false,
     },
 
-    paidAt: Date,
+paidAt: Date,
 
     status: {
       type: String,
@@ -87,6 +87,7 @@ const orderSchema = new mongoose.Schema(
           "delivered",
           "cancelled",
           "returned",
+          "return_requested",
           "rto",
         ],
         message: "Invalid order status",
