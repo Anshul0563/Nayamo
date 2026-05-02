@@ -349,13 +349,13 @@ exports.getPayments = async ({ page = 1, limit = 20, status, search }) => {
     ];
   }
 
-  const [orders, totalItems, totals] = await Promise.all([
+const [orders, totalItems, totals] = await Promise.all([
     Order.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("user", "name email")
-      .select("user totalPrice paymentMethod paymentStatus isPaid createdAt razorpayOrderId razorpayPaymentId")
+      .select("user totalPrice paymentMethod paymentStatus status isPaid createdAt razorpayOrderId razorpayPaymentId")
       .lean(),
     Order.countDocuments(query),
     Order.aggregate([
