@@ -17892,3 +17892,45 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/orders \u001b[36m304\u001b[0m 82.672 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:35"}
 {"level":"info","message":"\u001b[0mGET /api/v1/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 83.736 ms - 978\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:37"}
 {"level":"info","message":"\u001b[0mGET /api/v1/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 88.533 ms - 978\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:37"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[32m200\u001b[0m 70.965 ms - 199\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[36m304\u001b[0m 71.345 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=pending \u001b[36m304\u001b[0m 77.529 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=pending \u001b[36m304\u001b[0m 56.144 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:15"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[36m304\u001b[0m 72.241 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:18"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=ready_to_ship \u001b[36m304\u001b[0m 91.952 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:18"}
+{"level":"info","message":"Order 69f4b98d949d04193596ebd5 status updated to confirmed","service":"nayamo-api","timestamp":"2026-05-02 17:02:21"}
+{"level":"info","message":"\u001b[0mPUT /api/v1/admin/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 113.273 ms - 780\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:21"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=ready_to_ship \u001b[32m200\u001b[0m 59.192 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:21"}
+{"level":"info","message":"Notification sent to 1 admin(s): Order Confirmed","service":"nayamo-api","timestamp":"2026-05-02 17:02:21"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[32m200\u001b[0m 61.106 ms - 199\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:21"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 55.218 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 59.571 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[32m200\u001b[0m 73.904 ms - 73\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 86.305 ms - 974\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:28"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[36m304\u001b[0m 69.570 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:28"}
+{"level":"info","message":"\u001b[0mGET /api/v1/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 104.675 ms - 974\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:28"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[36m304\u001b[0m 55.622 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:28"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[32m200\u001b[0m 60.932 ms - 103\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:28"}
+{"level":"info","message":"Order cancelled: 69f4b98d949d04193596ebd5 by user 69ee40645a555439480e798a","service":"nayamo-api","timestamp":"2026-05-02 17:02:34"}
+{"level":"info","message":"\u001b[0mPUT /api/v1/orders/69f4b98d949d04193596ebd5/cancel \u001b[32m200\u001b[0m 187.916 ms - 673\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:34"}
+{"level":"info","message":"Notification sent to 1 admin(s): Order Cancelled","service":"nayamo-api","timestamp":"2026-05-02 17:02:34"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 193.963 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[36m304\u001b[0m 198.036 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[32m200\u001b[0m 211.517 ms - 103\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[36m304\u001b[0m 234.178 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 234.521 ms - 1015\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 250.771 ms - 1015\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[32m200\u001b[0m 84.072 ms - 73\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 95.711 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:40"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-02 17:02:48"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-02 17:02:48"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 59.359 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:48"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 55.187 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:48"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=pending \u001b[36m304\u001b[0m 56.895 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:48"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=pending \u001b[36m304\u001b[0m 57.948 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:48"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[32m200\u001b[0m 57.488 ms - 199\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:48"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[32m200\u001b[0m 57.492 ms - 199\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:48"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 566.900 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:49"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 54.906 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:49"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[36m304\u001b[0m 74.503 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:51"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=cancelled \u001b[32m200\u001b[0m 99.651 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:51"}
