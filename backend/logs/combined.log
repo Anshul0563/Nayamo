@@ -17934,3 +17934,13 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 54.906 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:49"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[36m304\u001b[0m 74.503 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:51"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=cancelled \u001b[32m200\u001b[0m 99.651 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:51"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/payments?page=1&limit=20 \u001b[32m200\u001b[0m 84.065 ms - 412\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:54"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/payments?page=1&limit=20 \u001b[36m304\u001b[0m 83.588 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:54"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-02 17:02:57"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-02 17:02:57"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 54.034 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:57"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 55.286 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:57"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/payments?page=1&limit=20 \u001b[36m304\u001b[0m 83.951 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:58"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/payments?page=1&limit=20 \u001b[32m200\u001b[0m 84.029 ms - 412\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:58"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 360.323 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:58"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 378.403 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:02:58"}
