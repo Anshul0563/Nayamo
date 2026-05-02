@@ -18187,3 +18187,4 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[36m304\u001b[0m 35.172 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:25:31"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 32.590 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:25:31"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 34.265 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:25:31"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 18:29:30"}
