@@ -12,24 +12,36 @@ import ProductCard from "../components/product/ProductCard";
 import { SkeletonGrid } from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
 
+const categories = [
+  { value: "party", label: "Party Wear" },
+  { value: "daily", label: "Daily Wear" },
+  { value: "traditional", label: "Traditional" },
+  { value: "western", label: "Western" },
+  { value: "statement", label: "Statement" },
+  { value: "bridal", label: "Bridal" },
+];
+
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
   const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [showFilters, setShowFilters] = useState(false);
 
   const category = searchParams.get("category") || "";
-  const sort = searchParams.get("sort") || "";
   const page = Number(searchParams.get("page")) || 1;
 
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
       try {
-        const params = { page, category, sort, search };
-        const res = await productAPI.getProducts(params);
+        const res = await productAPI.getProducts({
+          page,
+          category,
+          search,
+        });
         setProducts(res.data?.data || []);
         setPagination(res.data?.pagination || { currentPage: 1, totalPages: 1 });
       } catch (err) {
@@ -39,7 +51,7 @@ export default function Shop() {
       }
     };
     fetch();
-  }, [category, sort, page, search]);
+  }, [category, page, search]);
 
   const updateParam = (key, value) => {
     const sp = new URLSearchParams(searchParams);
@@ -56,47 +68,70 @@ export default function Shop() {
   return (
     <div className="bg-[#070708] text-white min-h-screen">
 
-      {/* 🔥 HERO SECTION */}
-      <div className="relative h-[70vh] flex items-center justify-center overflow-hidden">
-        
-        <img
-          src="/images/hero.jpg"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover scale-110"
-        />
+      {/* 🔥 HERO */}
+      <div className="py-14 text-center relative">
+        <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,192,203,0.08),transparent_70%)]" />
 
-        <div className="absolute inset-0 bg-black/60" />
+        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-200 via-white to-[#D4A853] bg-clip-text text-transparent">
+          Discover Your Shine ✨
+        </h1>
 
-        {/* glow */}
-        <div className="absolute w-[500px] h-[500px] bg-[#D4A853]/20 blur-[120px] top-[-100px] left-[-100px]" />
-        <div className="absolute w-[400px] h-[400px] bg-[#D4A5A5]/10 blur-[100px] bottom-[-100px] right-[-100px]" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative text-center z-10"
-        >
-          <h1 className="text-5xl md:text-7xl font-bold">
-            Luxury That Speaks
-          </h1>
-          <p className="text-zinc-300 mt-4 text-lg">
-            Crafted for elegance. Designed for you.
-          </p>
-        </motion.div>
+        <p className="text-zinc-400 mt-3">
+          Handpicked jewellery for every beautiful moment
+        </p>
       </div>
 
-      <div className="nayamo-container py-16">
+      <div className="nayamo-container">
 
-        {/* 🔍 SEARCH */}
-        <form onSubmit={handleSearch} className="mb-10 relative max-w-xl mx-auto">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search luxury jewellery..."
-            className="w-full pl-12 pr-4 py-4 rounded-xl bg-[#111] border border-white/10 focus:border-[#D4A853] outline-none"
-          />
-        </form>
+        {/* 🔍 SEARCH + FILTER BTN */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+
+          <form onSubmit={handleSearch} className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search jewellery..."
+              className="w-full pl-12 pr-4 py-4 rounded-xl bg-[#111] border border-white/10 focus:border-pink-400 outline-none"
+            />
+          </form>
+
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="px-6 py-4 rounded-xl border border-white/10 bg-[#111] hover:border-pink-400 flex items-center gap-2"
+          >
+            <SlidersHorizontal size={18} />
+            Filters
+          </button>
+        </div>
+
+        {/* 🎯 FILTER PANEL */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mb-8 flex flex-wrap gap-3"
+            >
+              {categories.map((c) => (
+                <button
+                  key={c.value}
+                  onClick={() =>
+                    updateParam("category", category === c.value ? "" : c.value)
+                  }
+                  className={`px-5 py-2 rounded-full text-sm transition ${
+                    category === c.value
+                      ? "bg-gradient-to-r from-pink-400 to-[#D4A853] text-black"
+                      : "bg-[#111] border border-white/10 hover:border-pink-400"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* 🛍 PRODUCTS */}
         {loading ? (
@@ -105,16 +140,15 @@ export default function Shop() {
           <EmptyState />
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {products.map((p, i) => (
                 <motion.div
                   key={p._id}
-                  initial={{ opacity: 0, y: 60 }}
+                  initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.05 }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="group"
                 >
                   <ProductCard product={p} />
                 </motion.div>
@@ -123,7 +157,7 @@ export default function Shop() {
 
             {/* 📄 PAGINATION */}
             {pagination.totalPages > 1 && (
-              <div className="flex justify-center gap-3 mt-16">
+              <div className="flex justify-center gap-3 mt-14">
                 <button
                   disabled={page <= 1}
                   onClick={() => updateParam("page", page - 1)}
@@ -138,7 +172,7 @@ export default function Shop() {
                     onClick={() => updateParam("page", p)}
                     className={`w-10 h-10 rounded-xl ${
                       p === page
-                        ? "bg-[#D4A853] text-black"
+                        ? "bg-gradient-to-r from-pink-400 to-[#D4A853] text-black"
                         : "bg-[#111] border border-white/10"
                     }`}
                   >
