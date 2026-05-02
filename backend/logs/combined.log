@@ -18133,3 +18133,9 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 58.813 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:04:36"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 61.098 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:04:37"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 68.776 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:04:37"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[32m200\u001b[0m 84.008 ms - 199\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=pending \u001b[36m304\u001b[0m 97.684 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=pending \u001b[32m200\u001b[0m 96.625 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[36m304\u001b[0m 102.403 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[36m304\u001b[0m 73.520 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:09"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=delivered \u001b[32m200\u001b[0m 86.708 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:09"}
