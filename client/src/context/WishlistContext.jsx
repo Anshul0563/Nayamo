@@ -58,12 +58,21 @@ export function WishlistProvider({ children }) {
     }
   }, [fetchWishlist]);
 
-  const isInWishlist = useCallback(
+const isInWishlist = useCallback(
     (productId) => {
       return wishlist.some((p) => p._id === productId || p === productId);
     },
     [wishlist]
   );
+
+  const toggleWishlist = useCallback(async (product) => {
+    const productId = product._id || product;
+    if (isInWishlist(productId)) {
+      await removeFromWishlist(productId);
+    } else {
+      await addToWishlist(productId);
+    }
+  }, [isInWishlist, removeFromWishlist, addToWishlist]);
 
   return (
     <WishlistContext.Provider
@@ -74,6 +83,7 @@ export function WishlistProvider({ children }) {
         addToWishlist,
         removeFromWishlist,
         isInWishlist,
+        toggleWishlist,
         refreshWishlist: fetchWishlist,
       }}
     >
