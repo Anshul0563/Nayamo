@@ -149,7 +149,7 @@ export default function Navbar() {
                         : "text-zinc-400 hover:text-white"
                     }`}
                   >
-                    {item.name}a
+                    {item.name}
                   </Link>
                 </motion.div>
               ))}
