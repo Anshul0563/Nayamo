@@ -245,9 +245,15 @@ exports.returnOrder = async (userId, orderId) => {
 };
 
 // ADMIN - Get all orders with pagination
-exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
+// Default: exclude archived orders (users see their full history, admin sees clean list)
+exports.getAllOrders = async ({ page = 1, limit = 20, status, search, includeArchived = false }) => {
   const skip = (page - 1) * limit;
   const query = {};
+
+  // By default, exclude archived orders for admin panel cleanliness
+  if (!includeArchived) {
+    query.isArchived = false;
+  }
 
   if (status) query.status = status;
   if (search) {
