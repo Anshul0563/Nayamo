@@ -18139,3 +18139,7 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[36m304\u001b[0m 102.403 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:00"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders/stats \u001b[36m304\u001b[0m 73.520 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:09"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/orders?page=1&limit=20&status=delivered \u001b[32m200\u001b[0m 86.708 ms - 105\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:06:09"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 18:09:40"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 18:09:40"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 18:09:40"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-02 18:09:42"}

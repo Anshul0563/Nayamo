@@ -400,7 +400,7 @@ exports.getConversionData = asyncHandler(async (req, res) => {
 exports.getRecentActivity = asyncHandler(async (req, res) => {
   const [orders, notifications] = await Promise.all([
     adminService.getRecentOrders(Number(req.query.limit) || 10),
-    Notification.find({ adminId: req.user._id }).sort({ createdAt: -1 }).limit(Number(req.query.limit) || 10).lean(),
+    Notification.find({ adminId: req.user._id, isDeleted: false }).sort({ createdAt: -1 }).limit(Number(req.query.limit) || 10).lean(),
   ]);
 
   res.json({
