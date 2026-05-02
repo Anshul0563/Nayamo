@@ -158,31 +158,37 @@ export default function Navbar() {
             {/* RIGHT SIDE */}
             <div className="flex items-center gap-3">
               {/* SEARCH FIXED */}
-              <div className="hidden md:flex items-center gap-2" ref={searchRef}>
-  <AnimatePresence>
-    {searchOpen && (
-      <motion.form
-        onSubmit={submitSearch}
-        initial={{ opacity: 0, width: 0 }}
-        animate={{ opacity: 1, width: 220 }}
-        exit={{ opacity: 0, width: 0 }}
-        className="overflow-hidden"
-      >
-        <input
-          autoFocus
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search..."
-          className="h-12 w-[220px] rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-4 text-sm text-white outline-none focus:border-[#D4A853]/60"
-        />
-      </motion.form>
-    )}
-  </AnimatePresence>
+              <div
+                className="hidden md:flex items-center gap-2"
+                ref={searchRef}
+              >
+                <AnimatePresence>
+                  {searchOpen && (
+                    <motion.form
+                      onSubmit={submitSearch}
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: 220 }}
+                      exit={{ opacity: 0, width: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <input
+                        autoFocus
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search..."
+                        className="h-12 w-[220px] rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-4 text-sm text-white outline-none focus:border-[#D4A853]/60"
+                      />
+                    </motion.form>
+                  )}
+                </AnimatePresence>
 
-  <button className={iconBtn} onClick={() => setSearchOpen(!searchOpen)}>
-    {searchOpen ? <X size={20} /> : <Search size={20} />}
-  </button>
-</div>
+                <button
+                  className={iconBtn}
+                  onClick={() => setSearchOpen(!searchOpen)}
+                >
+                  {searchOpen ? <X size={20} /> : <Search size={20} />}
+                </button>
+              </div>
 
               {/* WISHLIST */}
               <Link to="/wishlist" className={iconBtn}>
