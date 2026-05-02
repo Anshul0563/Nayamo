@@ -274,13 +274,13 @@ export default function Navbar() {
                               logout();
                               navigate("/");
                             }}
-                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all"
+className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all"
                           >
                             <LogOut size={16} />
                             Logout
                           </button>
                         </div>
-</motion.div>
+                      </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
