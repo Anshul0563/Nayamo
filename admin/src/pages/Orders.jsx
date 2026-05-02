@@ -77,10 +77,27 @@ export default function Orders() {
     }
   }, []);
 
-  useEffect(() => {
+useEffect(() => {
     loadOrders(1);
     loadStats();
   }, [loadOrders, loadStats]);
+
+  // Socket event listener for real-time order updates
+  useEffect(() => {
+    const handleStatusUpdate = (event) => {
+      const { orderId, status, eventType } = event.detail;
+      console.log('Order status update received:', orderId, status);
+      // Reload orders and stats to reflect the change
+      loadOrders(page);
+      loadStats();
+    };
+
+    window.addEventListener('order:status_updated', handleStatusUpdate);
+
+    return () => {
+      window.removeEventListener('order:status_updated', handleStatusUpdate);
+    };
+  }, [loadOrders, loadStats, page]);
 
   const updateStatus = async (id, status) => {
     try {
