@@ -274,7 +274,7 @@ export default function Navbar() {
                               logout();
                               navigate("/");
                             }}
-className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all"
+                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-all"
                           >
                             <LogOut size={16} />
                             Logout
@@ -306,12 +306,12 @@ className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-red-
         </div>
       </motion.header>
 
-{/* MOBILE MENU */}
+      {/* MOBILE MENU */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div className="fixed inset-0 z-[60] lg:hidden">
             <div
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80"
               onClick={() => setMobileOpen(false)}
             />
 
@@ -319,110 +319,21 @@ className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-red-
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute right-0 top-0 h-full w-[85vw] max-w-sm bg-[#0A0A0C] border-l border-white/10"
+              className="absolute right-0 top-0 h-full w-[90vw] max-w-sm bg-black p-6"
             >
-              {/* Mobile Header */}
-              <div className="flex items-center justify-between p-5 border-b border-white/5">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A853] to-[#D4A5A5] flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">N</span>
-                  </div>
-                  <span className="text-white font-semibold tracking-widest">NAYAMO</span>
-                </div>
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"
+              <button onClick={() => setMobileOpen(false)}>
+                <X />
+              </button>
+
+              {links.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className="block py-4 text-white"
                 >
-                  <X size={20} className="text-white" />
-                </button>
-              </div>
-
-              {/* Mobile Search */}
-              <div className="p-5 border-b border-white/5">
-                <form onSubmit={submitSearch} className="relative">
-                  <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search products..."
-                    className="w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 pl-12 text-sm text-white placeholder-zinc-500 outline-none focus:border-[#D4A853]/50 transition-all"
-                  />
-                  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
-                </form>
-              </div>
-
-              {/* Mobile Nav Links */}
-              <div className="p-5">
-                <nav className="space-y-2">
-                  {links.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.path}
-                      onClick={() => setMobileOpen(false)}
-                      className={`block py-4 px-4 rounded-xl text-base font-medium transition-all ${
-                        isActive(item.path)
-                          ? "text-white bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 border border-[#D4A853]/20"
-                          : "text-zinc-400 hover:text-white hover:bg-white/5"
-                      }`}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-
-              {/* Mobile User Section */}
-              <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-white/5 bg-[#0A0A0C]">
-                {isAuthenticated ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 px-2">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A853] to-[#D4A5A5] flex items-center justify-center">
-                        <User size={18} className="text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white font-medium truncate">
-                          {user?.name}
-                        </p>
-                        <p className="text-xs text-zinc-500 truncate">{user?.email}</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {userMenuItems.slice(0, 2).map((item) => (
-                        <Link
-                          key={item.path}
-                          to={item.path}
-                          onClick={() => setMobileOpen(false)}
-                          className="flex items-center gap-2 py-3 px-3 rounded-xl bg-white/5 text-zinc-300 text-sm hover:bg-white/10 hover:text-white transition-all"
-                        >
-                          <item.icon size={16} />
-                          {item.name}
-                        </Link>
-                      ))}
-                    </div>
-                    <button
-                      onClick={() => {
-                        logout();
-                        navigate("/");
-                        setMobileOpen(false);
-                      }}
-                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-red-500/10 text-red-400 text-sm hover:bg-red-500/20 transition-all"
-                    >
-                      <LogOut size={16} />
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    to="/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] text-black font-semibold"
-                  >
-                    <Sparkles size={16} />
-                    Sign In
-                  </Link>
-                )}
-              </div>
+                  {item.name}
+                </Link>
+              ))}
             </motion.div>
           </motion.div>
         )}
