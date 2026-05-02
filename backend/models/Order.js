@@ -115,9 +115,16 @@ paidAt: Date,
       createdAt: Date,
     },
 
-    deliveredAt: Date,
+deliveredAt: Date,
     cancelledAt: Date,
     returnedAt: Date,
+
+    // Order cleanup/archive fields
+    statusUpdatedAt: Date,
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
 
     // Razorpay payment details
     razorpayOrderId: String,

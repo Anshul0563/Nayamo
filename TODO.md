@@ -1,24 +1,39 @@
-# My Orders Feature Implementation Plan
+# Order Cleanup System - Implementation TODO
 
-## Completed
-- [x] Analyze existing implementation
-- [x] Implement backend return order functionality
-- [x] Create frontend Order components
-- [x] Update MyOrders page with clickable cards
-- [x] Create OrderDetails page
-- [x] Update App.js routes
-- [x] Test and verify
+## Backend
+- [ ] 1. Update Order model - add statusUpdatedAt and isArchived fields
+- [ ] 2. Update Order service - set statusUpdatedAt when status becomes final state
+- [ ] 3. Update getUserOrders to ignore isArchived (return all orders for users)
+- [ ] 4. Update getAllOrders (admin) to filter isArchived = false by default
+- [ ] 5. Create cron job for daily order cleanup/archive
 
-## Implementation Summary:
-1. ✅ Backend: Add returnOrder to orderService.js
-2. ✅ Backend: Add returnOrder controller
-3. ✅ Backend: Add returnOrder route
-4. ✅ Backend: Update Order model with return_requested status
-5. ✅ Frontend: Create StatusBadge component
-6. ✅ Frontend: Create OrderTimeline component
-7. ✅ Frontend: Create OrderCard component
-8. ✅ Frontend: Create OrderDetails component
-9. ✅ Frontend: Update api.js with returnOrder
-10. ✅ Frontend: Update MyOrders.jsx with clickable cards
-11. ✅ Frontend: Create OrderDetails.jsx page
-12. ✅ Frontend: Update App.js with routes
+## Frontend (Optional)
+- [ ] 6. Add Order History page for admin to view archived orders
+
+## Implementation Steps
+
+### Step 1: Order Model Update
+File: backend/models/Order.js
+- Add statusUpdatedAt: Date field
+- Add isArchived: Boolean (default: false)
+- Add compound index for efficient queries
+
+### Step 2: Order Service Update  
+File: backend/services/orderService.js
+- Update updateOrderStatus to set statusUpdatedAt when status becomes final state
+- Update getUserOrders to NOT filter by isArchived (user sees all)
+- Update getAllOrders to filter isArchived = false by default
+
+### Step 3: Cron Job
+File: backend/jobs/orderCleanup.js (new file)
+- Run daily at midnight
+- Find orders in final states where 30+ days since statusUpdatedAt
+- Set isArchived = true
+
+### Step 4: Update server.js
+File: backend/server.js
+- Import and schedule the cron job
+
+### Step 5: Admin Routes Update (Optional)
+File: backend/routes/adminRoutes.js
+- Add query param to include archived orders
