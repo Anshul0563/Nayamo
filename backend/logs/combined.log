@@ -18649,3 +18649,8 @@
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 20:54:07"}
 {"level":"info","message":"Starting order cleanup job...","service":"nayamo-api","timestamp":"2026-05-02 20:55:06"}
 {"level":"info","message":"Order cleanup: No orders to archive","service":"nayamo-api","timestamp":"2026-05-02 20:55:07"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 33.929 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:57:59"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77 \u001b[32m200\u001b[0m 122.889 ms - 550\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:57:59"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 0.673 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:58:06"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[36m304\u001b[0m 35.526 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:58:06"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 117.351 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:58:06"}
