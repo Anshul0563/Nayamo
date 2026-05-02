@@ -153,11 +153,12 @@ exports.cancelOrder = async (userId, orderId) => {
       user: userId,
     }).session(session);
 
-    if (!order) {
+if (!order) {
       throw new Error("Order not found");
     }
 
-    if (["shipped", "delivered", "cancelled"].includes(order.status)) {
+    // Can only cancel if status is pending or confirmed
+    if (!["pending", "confirmed"].includes(order.status)) {
       throw new Error(`Cannot cancel order with status: ${order.status}`);
     }
 

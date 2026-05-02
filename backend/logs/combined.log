@@ -17866,3 +17866,29 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 1.315 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:11"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 548.395 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:12"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 0.778 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:12"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 16:58:25"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 16:58:25"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 16:58:26"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-02 16:58:27"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 16:58:36"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 16:58:36"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 16:58:36"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-02 16:58:39"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 39.294 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:23"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 38.904 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:23"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[36m304\u001b[0m 48.535 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:23"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 50.300 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:23"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[36m304\u001b[0m 547.012 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:24"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 543.518 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:24"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-02 17:01:27"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 425.444 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 0.885 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[36m304\u001b[0m 6.106 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[36m304\u001b[0m 3.787 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 3.932 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 4.889 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 3.279 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:27"}
+{"level":"info","message":"\u001b[0mGET /api/v1/orders \u001b[36m304\u001b[0m 105.828 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:35"}
+{"level":"info","message":"\u001b[0mGET /api/v1/orders \u001b[36m304\u001b[0m 82.672 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:35"}
+{"level":"info","message":"\u001b[0mGET /api/v1/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 83.736 ms - 978\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:37"}
+{"level":"info","message":"\u001b[0mGET /api/v1/orders/69f4b98d949d04193596ebd5 \u001b[32m200\u001b[0m 88.533 ms - 978\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 17:01:37"}
