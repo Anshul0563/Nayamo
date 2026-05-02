@@ -17860,3 +17860,9 @@
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 16:54:11"}
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 16:54:12"}
 {"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-02 16:54:13"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 44.665 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 4.378 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 50.308 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=newest&page=1 \u001b[32m200\u001b[0m 1.315 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:11"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 548.395 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:12"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?sort=popular&page=1 \u001b[32m200\u001b[0m 0.778 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 16:56:12"}
