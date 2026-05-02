@@ -14,7 +14,12 @@ import {
   Settings,
   UserCircle,
 } from "lucide-react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo.png";
 import { useCart } from "../../context/CartContext";
@@ -66,8 +71,10 @@ export default function Navbar() {
 
   useEffect(() => {
     const close = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
-      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target))
+        setProfileOpen(false);
+      if (searchRef.current && !searchRef.current.contains(e.target))
+        setSearchOpen(false);
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
@@ -82,7 +89,9 @@ export default function Navbar() {
   };
 
   const isActive = (path) =>
-    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+    path === "/"
+      ? location.pathname === "/"
+      : location.pathname.startsWith(path);
 
   const iconBtn =
     "relative flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 text-zinc-200 transition-all duration-500 hover:-translate-y-1 hover:border-[#D4A853]/60 hover:text-white hover:shadow-[0_10px_40px_rgba(212,168,83,0.35)] backdrop-blur-xl";
@@ -102,7 +111,6 @@ export default function Navbar() {
 
         <div className="nayamo-container">
           <div className="flex h-24 items-center justify-between gap-4">
-
             {/* LOGO */}
             <Link to="/" className="flex items-center gap-4 group">
               <motion.div className="flex h-14 w-14 items-center justify-center rounded-3xl">
@@ -149,33 +157,32 @@ export default function Navbar() {
 
             {/* RIGHT SIDE */}
             <div className="flex items-center gap-3">
-
               {/* SEARCH FIXED */}
-              <div className="hidden md:flex items-center" ref={searchRef}>
-                <AnimatePresence>
-                  {searchOpen && (
-                    <motion.form
-                      onSubmit={submitSearch}
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: "min(220px, 60vw)" }} // ✅ FIX
-                      exit={{ opacity: 0, width: 0 }}
-                      className="absolute right-14 top-1/2 -translate-y-1/2 overflow-hidden"
-                    >
-                      <input
-                        autoFocus
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search..."
-                        className="w-full max-w-[220px] h-12 rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-2xl px-4 text-sm text-white outline-none focus:border-[#D4A853]/60"
-                      />
-                    </motion.form>
-                  )}
-                </AnimatePresence>
+              <div className="hidden md:flex items-center gap-2" ref={searchRef}>
+  <AnimatePresence>
+    {searchOpen && (
+      <motion.form
+        onSubmit={submitSearch}
+        initial={{ opacity: 0, width: 0 }}
+        animate={{ opacity: 1, width: 220 }}
+        exit={{ opacity: 0, width: 0 }}
+        className="overflow-hidden"
+      >
+        <input
+          autoFocus
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search..."
+          className="h-12 w-[220px] rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-4 text-sm text-white outline-none focus:border-[#D4A853]/60"
+        />
+      </motion.form>
+    )}
+  </AnimatePresence>
 
-                <button className={iconBtn} onClick={() => setSearchOpen(!searchOpen)}>
-                  {searchOpen ? <X size={20} /> : <Search size={20} />}
-                </button>
-              </div>
+  <button className={iconBtn} onClick={() => setSearchOpen(!searchOpen)}>
+    {searchOpen ? <X size={20} /> : <Search size={20} />}
+  </button>
+</div>
 
               {/* WISHLIST */}
               <Link to="/wishlist" className={iconBtn}>
@@ -251,7 +258,10 @@ export default function Navbar() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <Link to="/login" className="hidden md:flex h-11 px-5 items-center rounded-xl bg-gradient-to-r from-[#D4A853] to-[#FFD700] text-black font-semibold">
+                <Link
+                  to="/login"
+                  className="hidden md:flex h-11 px-5 items-center rounded-xl bg-gradient-to-r from-[#D4A853] to-[#FFD700] text-black font-semibold"
+                >
                   <Sparkles className="w-4 h-4 mr-1.5" />
                   Sign In
                 </Link>
