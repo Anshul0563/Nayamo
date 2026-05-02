@@ -101,6 +101,8 @@ export const adminAPI = {
   getStats: () => apiClient.get("/admin/stats"),
   getNotifications: (params = {}) => apiClient.get("/admin/notifications", { params }),
   markNotificationRead: (id) => apiClient.patch(`/admin/notifications/${id}/read`),
+  deleteNotification: (id) => apiClient.delete(`/admin/notifications/${id}`),
+  deleteAllNotifications: () => apiClient.delete("/admin/notifications/all"),
   getRecentActivity: (params = {}) => apiClient.get("/admin/recent-activity", { params }),
   getTopProducts: (params = {}) => apiClient.get("/admin/top-products", { params }),
   // Analytics endpoints

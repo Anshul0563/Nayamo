@@ -113,7 +113,7 @@ exports.getDashboard = exports.getDashboardStats;
 exports.getNotifications = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20, read = null, type } = req.query;
   
-  const match = { adminId: req.user._id };
+  const match = { adminId: req.user._id, isDeleted: false };
   if (read !== null) match.isRead = read === 'true';
   if (type) match.type = type;
 
@@ -121,7 +121,7 @@ exports.getNotifications = asyncHandler(async (req, res) => {
   const [notifications, totalItems, unreadCount] = await Promise.all([
     Notification.find(match).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)).lean(),
     Notification.countDocuments(match),
-    Notification.countDocuments({ adminId: req.user._id, isRead: false })
+    Notification.countDocuments({ adminId: req.user._id, isRead: false, isDeleted: false })
   ]);
 
   res.json({
@@ -141,16 +141,40 @@ exports.markNotificationRead = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (id === "all") {
-    await Notification.updateMany({ adminId: req.user._id, isRead: false }, { isRead: true });
+    await Notification.updateMany({ adminId: req.user._id, isRead: false, isDeleted: false }, { isRead: true });
   } else {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400);
       throw new Error("Invalid notification ID format");
     }
-    await Notification.updateOne({ _id: id, adminId: req.user._id }, { isRead: true });
+    await Notification.updateOne({ _id: id, adminId: req.user._id, isDeleted: false }, { isRead: true });
   }
 
   res.json({ success: true, message: "Notification marked as read" });
+});
+
+// DELETE NOTIFICATION - Single
+exports.deleteNotification = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (id === "all") {
+    // Delete all notifications for this admin
+    await Notification.updateMany({ adminId: req.user._id }, { isDeleted: true });
+    res.json({ success: true, message: "All notifications deleted" });
+  } else {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400);
+      throw new Error("Invalid notification ID format");
+    }
+    await Notification.updateOne({ _id: id, adminId: req.user._id }, { isDeleted: true });
+    res.json({ success: true, message: "Notification deleted" });
+  }
+});
+
+// DELETE ALL NOTIFICATIONS
+exports.deleteAllNotifications = asyncHandler(async (req, res) => {
+  await Notification.updateMany({ adminId: req.user._id }, { isDeleted: true });
+  res.json({ success: true, message: "All notifications deleted" });
 });
 
 // USERS

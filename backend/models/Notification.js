@@ -26,8 +26,8 @@ const notificationSchema = new mongoose.Schema({
   data: {
     type: mongoose.Schema.Types.Mixed,
     default: {}
-  },
-isRead: {
+},
+  isRead: {
     type: Boolean,
     default: false
   },
@@ -45,9 +45,10 @@ isRead: {
 });
 
 // Index for fast queries
-notificationSchema.index({ adminId: 1, isRead: 1, createdAt: -1 });
-notificationSchema.index({ type: 1, createdAt: -1 });
-notificationSchema.index({ isRead: 1, createdAt: -1 });
+notificationSchema.index({ adminId: 1, isRead: 1, isDeleted: 1, createdAt: -1 });
+notificationSchema.index({ type: 1, isDeleted: 1, createdAt: -1 });
+notificationSchema.index({ isRead: 1, isDeleted: 1, createdAt: -1 });
+notificationSchema.index({ adminId: 1, isDeleted: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);
 

@@ -7,6 +7,8 @@ const {
   getDashboard,
   getNotifications,
   markNotificationRead,
+  deleteNotification,
+  deleteAllNotifications,
   getAllOrders,
   updateOrderStatus,
   getAllUsers,
@@ -98,6 +100,8 @@ router.get("/top-products", protect, admin, getTopProducts);
 router.get("/payments", protect, admin, getPayments);
 router.get("/notifications", protect, admin, getNotifications);
 router.patch("/notifications/:id/read", protect, admin, markNotificationRead);
+router.delete("/notifications/:id", protect, admin, deleteNotification);
+router.delete("/notifications/all", protect, admin, deleteAllNotifications);
 
 router.get("/orders", protect, admin, getAllOrders);
 router.put("/orders/:id", protect, admin, statusValidation, validate, updateOrderStatus);
