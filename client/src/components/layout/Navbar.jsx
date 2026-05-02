@@ -151,7 +151,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
 
               {/* SEARCH FIXED */}
-              <div className="relative hidden md:block" ref={searchRef}>
+              <div className="hidden md:flex items-center" ref={searchRef}>
                 <AnimatePresence>
                   {searchOpen && (
                     <motion.form
