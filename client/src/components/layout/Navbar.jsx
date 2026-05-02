@@ -177,7 +177,7 @@ export default function Navbar() {
                     <motion.form
                       onSubmit={submitSearch}
                       initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: 220 }}
+                      animate={{ opacity: 1, width: "min(220px, 60vw)" }}
                       exit={{ opacity: 0, width: 0 }}
                       className="absolute right-14 top-1/2 -translate-y-1/2"
                     >
