@@ -18233,3 +18233,15 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[36m304\u001b[0m 0.490 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:47:24"}
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[32m200\u001b[0m 155.090 ms - 550\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:47:25"}
 {"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 161.725 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:47:25"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 0.597 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[36m304\u001b[0m 0.614 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 128.929 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:40"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 0.523 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[36m304\u001b[0m 0.646 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 131.948 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:44"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 0.554 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:46"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[36m304\u001b[0m 0.722 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:46"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 128.820 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:46"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products/69f4b47bc0bf82a0c70afb77 \u001b[36m304\u001b[0m 0.556 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/products?category=party&page=1 \u001b[36m304\u001b[0m 0.778 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:55"}
+{"level":"info","message":"\u001b[0mGET /api/v1/reviews/product/69f4b47bc0bf82a0c70afb77?page=1&limit=10 \u001b[36m304\u001b[0m 2013.846 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 18:48:57"}
