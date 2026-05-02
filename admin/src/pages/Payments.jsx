@@ -49,12 +49,19 @@ export default function Payments() {
     loadPayments(1);
   }, [loadPayments]);
 
-  const transactions = useMemo(() => {
+const transactions = useMemo(() => {
     return orders.map((order) => {
       const isPaid = order.isPaid || order.paymentStatus === "paid";
       let status = "pending";
-      if (isPaid) status = "paid";
-      else if (order.paymentStatus === "failed") status = "failed";
+      
+      // Check if order is cancelled first - show as cancelled regardless of payment
+      if (order.status === "cancelled" || order.status === "rto") {
+        status = "cancelled";
+      } else if (isPaid) {
+        status = "paid";
+      } else if (order.paymentStatus === "failed") {
+        status = "failed";
+      }
 
       return {
         id: order._id,
@@ -62,6 +69,7 @@ export default function Payments() {
         method: order.paymentMethod === "cod" ? "COD" : "Online",
         amount: Number(order.totalPrice || 0),
         status,
+        orderStatus: order.status, // Keep track of order status
         date: order.createdAt
           ? new Date(order.createdAt).toLocaleDateString()
           : "-",
@@ -79,15 +87,17 @@ export default function Payments() {
     );
   }, [transactions, debouncedSearch]);
 
-  const stats = useMemo(() => {
-    const total = transactions.reduce((sum, item) => sum + item.amount, 0);
-    const received = transactions
+const stats = useMemo(() => {
+    // Exclude cancelled orders from calculations
+    const activeTransactions = transactions.filter((item) => item.status !== "cancelled");
+    const total = activeTransactions.reduce((sum, item) => sum + item.amount, 0);
+    const received = activeTransactions
       .filter((item) => item.status === "paid")
       .reduce((sum, item) => sum + item.amount, 0);
-    const pending = transactions
+    const pending = activeTransactions
       .filter((item) => item.status === "pending")
       .reduce((sum, item) => sum + item.amount, 0);
-    const failed = transactions
+    const failed = activeTransactions
       .filter((item) => item.status === "failed")
       .reduce((sum, item) => sum + item.amount, 0);
 
@@ -104,12 +114,20 @@ export default function Payments() {
     </div>
   );
 
-  const Status = ({ status }) => {
+const Status = ({ status }) => {
     if (status === "paid") {
       return (
         <span className="px-3 py-1 rounded-full text-xs bg-green-500/10 text-green-400 border border-green-500/20 inline-flex items-center gap-1">
           <CheckCircle2 size={14} />
           Paid
+        </span>
+      );
+    }
+    if (status === "cancelled") {
+      return (
+        <span className="px-3 py-1 rounded-full text-xs bg-gray-500/10 text-gray-400 border border-gray-500/20 inline-flex items-center gap-1">
+          <AlertCircle size={14} />
+          Cancelled
         </span>
       );
     }
