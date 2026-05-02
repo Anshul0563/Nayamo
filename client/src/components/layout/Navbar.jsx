@@ -136,33 +136,36 @@ export default function Navbar() {
             <div className="flex items-center gap-1 shrink-0">
               {/* SEARCH */}
               <div className="relative" ref={searchRef}>
-                <AnimatePresence>
-                  {searchOpen && (
-                    <motion.form
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: 200, opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      onSubmit={submitSearch}
-                      className="overflow-hidden"
-                    >
-                      <input
-                        autoFocus
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search..."
-                        className="w-full h-9 rounded-lg bg-white/10 border border-white/10 px-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-[#D4A853]/50"
-                      />
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-                <button
-                  onClick={() => setSearchOpen(!searchOpen)}
-                  className={iconBtn}
-                >
-                  {searchOpen ? <X size={18} /> : <Search size={18} />}
-                </button>
-              </div>
+  
+  <AnimatePresence>
+    {searchOpen && (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-50"
+      >
+        <form onSubmit={submitSearch}>
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search..."
+            className="w-[200px] h-9 rounded-lg bg-white/10 border border-white/10 px-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-[#D4A853]/50 shadow-lg backdrop-blur-xl"
+          />
+        </form>
+      </motion.div>
+    )}
+  </AnimatePresence>
+
+  <button
+    onClick={() => setSearchOpen(!searchOpen)}
+    className={iconBtn}
+  >
+    {searchOpen ? <X size={18} /> : <Search size={18} />}
+  </button>
+</div>
 
               {/* WISHLIST */}
               <Link to="/wishlist" className="relative">

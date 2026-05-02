@@ -18504,3 +18504,15 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.338 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:15:51"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[36m304\u001b[0m 1.319 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:15:54"}
 {"level":"info","message":"\u001b[0mGET /api/v1/products?page=1 \u001b[32m200\u001b[0m 2.295 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:15:54"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 70.489 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:18:53"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[36m304\u001b[0m 73.116 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:18:53"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[36m304\u001b[0m 74.396 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:18:53"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 75.950 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:18:53"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[36m304\u001b[0m 62.181 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:18:53"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[36m304\u001b[0m 64.980 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:18:53"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[32m200\u001b[0m 77.527 ms - 192\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:19:32"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[32m200\u001b[0m 78.824 ms - 103\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:19:32"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 80.229 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:19:32"}
+{"level":"info","message":"\u001b[0mGET /api/v1/wishlist \u001b[36m304\u001b[0m 82.636 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:19:32"}
+{"level":"info","message":"\u001b[0mGET /api/v1/cart \u001b[36m304\u001b[0m 83.812 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:19:32"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 84.544 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-02 20:19:32"}
