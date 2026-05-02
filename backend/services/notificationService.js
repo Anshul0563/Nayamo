@@ -96,7 +96,7 @@ const severity = ['cancelled', 'returned', 'payment_failed'].includes(eventType)
   await emitNotification(null, title, message, type, severity, { orderId: order._id, path: `/orders?order=${order._id}` });
 
   // Also emit socket events for real-time order updates
-  if (global.emitToAdmins && ['new', 'confirmed', 'cancelled', 'delivered', 'returned', 'shipped', 'in_transit', 'return_requested'].includes(eventType)) {
+  if (global.emitToAdmins) {
     global.emitToAdmins('order:status_updated', {
       orderId: order._id,
       status: order.status,
