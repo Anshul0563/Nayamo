@@ -18578,3 +18578,18 @@
 {"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 20:45:49"}
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 20:45:49"}
 {"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 20:45:50"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 20:46:16"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 20:46:16"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 20:46:17"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 20:46:30"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 20:46:30"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 20:46:30"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 20:46:43"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 20:46:43"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 20:46:43"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 20:46:53"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 20:46:53"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 20:46:54"}
+{"level":"warn","message":"RAZORPAY_WEBHOOK_SECRET is not configured. Razorpay webhooks are disabled.","service":"nayamo-api","timestamp":"2026-05-02 20:47:08"}
+{"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-05-02 20:47:08"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"nayamo-api","timestamp":"2026-05-02 20:47:08"}

@@ -72,7 +72,7 @@ const orderSchema = new mongoose.Schema(
       default: false,
     },
 
-paidAt: Date,
+    paidAt: Date,
 
     status: {
       type: String,
@@ -115,7 +115,7 @@ paidAt: Date,
       createdAt: Date,
     },
 
-deliveredAt: Date,
+    deliveredAt: Date,
     cancelledAt: Date,
     returnedAt: Date,
 
@@ -147,5 +147,7 @@ orderSchema.index({ status: 1 });
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ "delhivery.waybill": 1 });
 orderSchema.index({ createdAt: -1 });
+// Index for order cleanup cron job
+orderSchema.index({ status: 1, statusUpdatedAt: 1, isArchived: 1 });
 
 module.exports = mongoose.model("Order", orderSchema);

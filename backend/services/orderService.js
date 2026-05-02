@@ -282,12 +282,20 @@ exports.getAllOrders = async ({ page = 1, limit = 20, status, search }) => {
   };
 };
 
+// Final statuses that trigger 30-day countdown
+const FINAL_STATUSES = ["delivered", "cancelled", "returned", "rto"];
+
 // ADMIN - Update order status
 exports.updateOrderStatus = async (orderId, status) => {
   const updateData = { status };
 
   if (status === "delivered") {
     updateData.deliveredAt = new Date();
+  }
+
+  // Set statusUpdatedAt when status changes to final state
+  if (FINAL_STATUSES.includes(status)) {
+    updateData.statusUpdatedAt = new Date();
   }
 
   const order = await Order.findByIdAndUpdate(orderId, updateData, {
