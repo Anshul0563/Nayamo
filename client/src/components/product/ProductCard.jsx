@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, ShoppingBag, Eye, Sparkles } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Sparkles, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "../../assets/logo.png";
@@ -197,7 +197,7 @@ export default function ProductCard({ product, index = 0 }) {
               </div>
             </div>
 
-            {/* Enhanced Rating Display */}
+{/* Enhanced Rating Display - Always show if ratings exist */}
             {product.ratings?.count > 0 && (
               <motion.div
                 className="flex items-center gap-2"
@@ -229,6 +229,21 @@ export default function ProductCard({ product, index = 0 }) {
                 <span className="text-xs text-zinc-500">
                   ({product.ratings.count})
                 </span>
+              </motion.div>
+            )}
+            {/* Show "No reviews" when count is 0 */}
+            {(!product.ratings?.count || product.ratings.count === 0) && (
+              <motion.div
+                className="flex items-center gap-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-zinc-600" />
+                  ))}
+                </div>
+                <span className="text-xs text-zinc-500">No reviews</span>
               </motion.div>
             )}
           </motion.div>

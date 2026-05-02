@@ -140,10 +140,15 @@ export default function ProductDetails() {
       setSubmittingReview(true);
       setReviewError("");
 
-      await reviewAPI.submitReview(id, payload);
+await reviewAPI.submitReview(id, payload);
 
       setNewReview({ rating: 5, title: "", comment: "" });
       setShowReviewForm(false);
+      // Refetch product to get updated ratings
+      const prodRes = await productAPI.getProductById(id);
+      if (prodRes.data?.data) {
+        setProduct(prodRes.data.data);
+      }
       await fetchReviews();
     } catch (err) {
       setReviewError(err.response?.data?.message || "Failed to submit review");
@@ -343,8 +348,8 @@ export default function ProductDetails() {
               </h1>
             </motion.div>
 
-            {/* Rating */}
-            {reviewStats.total > 0 && (
+{/* Rating - use product.ratings or fallback to reviewStats */}
+            {(product.ratings?.count > 0 || reviewStats.total > 0) && (
               <motion.div
                 className="flex items-center gap-4"
                 initial={{ opacity: 0, y: 20 }}
@@ -356,18 +361,18 @@ export default function ProductDetails() {
                     <Star
                       key={i}
                       className={`w-5 h-5 ${
-                        i < Math.floor(reviewStats.avgRating)
+                        i < Math.floor(product.ratings?.average || reviewStats.avgRating)
                           ? "fill-[#D4A853] text-[#D4A853]"
                           : "fill-zinc-600 text-zinc-600"
                       }`}
                     />
                   ))}
                   <span className="text-lg font-bold text-white ml-2">
-                    {reviewStats.avgRating.toFixed(1)}
+                    {(product.ratings?.average || reviewStats.avgRating).toFixed(1)}
                   </span>
                 </div>
                 <span className="text-zinc-400">
-                  ({reviewStats.total} reviews)
+                  ({product.ratings?.count || reviewStats.total} reviews)
                 </span>
               </motion.div>
             )}

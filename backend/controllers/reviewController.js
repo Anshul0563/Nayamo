@@ -33,15 +33,32 @@ exports.submitReview = asyncHandler(async (req, res) => {
     throw new Error("You have already reviewed this product");
   }
   
-  // Create review
+// Create review
   const review = await Review.create({
     user: req.user._id,
     product: productId,
     rating: Number(rating),
     comment: comment?.trim() || "",
     title: title || comment?.substring(0,30) || "User Review",
-    isApproved: false, 
-    status: "pending"
+    isApproved: true,  // Auto-approve for now (change to false for production)
+    status: "approved"
+  });
+  
+  // Immediately update product ratings
+  const stats = await Review.aggregate([
+    { $match: { product: productId, isApproved: true } },
+    {
+      $group: {
+        _id: null,
+        avgRating: { $avg: "$rating" },
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+  
+  await Product.findByIdAndUpdate(productId, {
+    "ratings.average": Math.round((stats[0]?.avgRating || 0) * 10) / 10,
+    "ratings.count": stats[0]?.count || 0
   });
   
 // Populate for response
