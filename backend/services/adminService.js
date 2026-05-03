@@ -167,7 +167,14 @@ exports.getRecentOrders = async (limit = 5) => {
 
 // Top products
 exports.getTopProducts = async (limit = 5) => {
+  const validStatuses = ["delivered"];
   return await Order.aggregate([
+    {
+      $match: {
+        status: { $in: validStatuses },
+        paymentStatus: "paid"
+      }
+    },
     { $unwind: "$items" },
     {
       $group: {

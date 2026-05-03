@@ -3,7 +3,7 @@ import { Star, ShoppingBag, Crown } from 'lucide-react';
 const imageUrl = (image) => (typeof image === "string" ? image : image?.url);
 
 export default function TopProducts({ products = [], loading = false }) {
-  if (loading) {
+if (loading) {
     return (
       <div className="glass-card p-6 rounded-2xl">
         <div className="flex items-center justify-between mb-6">
