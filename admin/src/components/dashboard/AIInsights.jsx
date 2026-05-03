@@ -2,91 +2,45 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Lightbulb, Brain, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
 
-const AIInsights = ({ stats = {} }) => {
-  const [insights, setInsights] = useState([]);
-
-  const generateInsights = (stats) => [
+const KeyInsights = ({ stats = {} }) => {
+  const insights = [
     {
       icon: TrendingUp,
-      title: `Revenue Growth +${stats.growthRate || 12}%`,
-      description: 'High-value orders from returning customers up significantly. Consider loyalty campaigns.',
-      color: 'emerald',
-      type: 'positive'
-    },
-    {
-      icon: TrendingDown,
-      title: `Low Stock Alert: ${stats.lowStockProducts || 5} items`,
-      description: 'Prioritize restock for high-demand categories based on sales velocity.',
-      color: 'rose',
-      type: 'alert'
+      title: `Revenue up ${(stats.growthRate || 12).toFixed(1)}%`,
+      description: 'Strong performance from repeat customers this period.'
     },
     {
       icon: Lightbulb,
-      title: `Top Category: ${stats.topCategory || 'Ethnic Wear'}`,
-      description: stats.topCategory ? `${stats.topCategory} accounts for ${(stats.categoryRevenue || 42)}% revenue. Bundle offers recommended.` : 'Analyze top categories for bundling.',
-      color: 'gold',
-      type: 'insight'
+      title: `Low stock: ${stats.lowStockProducts || 0} items`,
+      description: 'Prioritize restocking top-selling categories.'
     },
     {
-      icon: AlertCircle,
-      title: `Pending Orders: ${stats.pendingOrders || 23}`,
-      description: 'Optimize fulfillment for pending orders. Average wait time increasing.',
-      color: 'orange',
-      type: 'warning'
-    },
-    {
-      icon: Brain,
-      title: 'Conversion Opportunity',
-      description: `Mobile conversion ${stats.mobileConversion || 18}% lower. Consider AMP checkout optimization.`,
-      color: 'violet',
-      type: 'opportunity'
+      icon: TrendingUp,
+      title: `${stats.pendingOrders || 0} orders pending`,
+      description: 'Optimize fulfillment for faster delivery times.'
     }
   ];
 
-  useEffect(() => {
-    const aiInsights = generateInsights(stats);
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-      setInsights(aiInsights.slice(currentIndex, currentIndex + 2));
-      currentIndex = (currentIndex + 2) % aiInsights.length;
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [stats]);
-
   return (
-    <div className="glass-card p-6 rounded-3xl border-gold-animated shadow-gold-lg backdrop-blur-xl">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
-          <Brain className="w-5 h-5 text-white" />
-        </div>
-        <div>
-          <h3 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            AI Business Insights
-          </h3>
-          <p className="text-sm text-luxury-dim">Real-time recommendations powered by your data</p>
-        </div>
-      </div>
-
-      <div className="space-y-4">
+    <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm p-8 rounded-2xl border border-neutral-200/50 dark:border-neutral-800/50 shadow-lg">
+      <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50 mb-8 flex items-center gap-3">
+        <Lightbulb size={24} className="text-gold-500" />
+        Key Insights
+      </h3>
+      <div className="space-y-6">
         {insights.map((insight, index) => {
           const Icon = insight.icon;
           return (
-            <div key={index} className="group p-4 rounded-2xl border border-white/10 hover:border-gold-500/30 hover:bg-gradient-to-r hover:from-white/5 hover:to-transparent transition-all backdrop-blur-sm cursor-pointer hover:shadow-gold-md">
+            <div key={index} className="group p-6 rounded-xl border border-neutral-200/30 dark:border-neutral-800/50 hover:border-gold-400/50 bg-neutral-50/50 dark:bg-neutral-800/30 hover:bg-white/70 dark:hover:bg-neutral-700/50 transition-all">
               <div className="flex items-start gap-4">
-                <div className={`p-2 rounded-xl ${
-                  insight.color === 'emerald' ? 'bg-emerald-500/10 border-emerald-500/20' : 
-                  insight.color === 'orange' ? 'bg-orange-500/10 border-orange-500/20' :
-                  insight.color === 'rose' ? 'bg-rose-500/10 border-rose-500/20' :
-                  'bg-gold-500/10 border-gold-500/20'
-                } flex-shrink-0`}>
-                  <Icon className={`w-5 h-5 text-${insight.color}-400`} />
+                <div className="p-3 rounded-lg bg-white/60 dark:bg-neutral-700/50 border border-neutral-200/30 w-12 h-12 flex items-center justify-center flex-shrink-0">
+                  <Icon size={20} className="text-neutral-700 dark:text-neutral-300 group-hover:text-gold-500" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-luxury-text group-hover:text-gold-400 transition-colors mb-1">
+                <div className="flex-1">
+                  <p className="font-semibold text-neutral-900 dark:text-neutral-50 mb-2 group-hover:text-gold-600">
                     {insight.title}
                   </p>
-                  <p className="text-sm text-luxury-dim leading-relaxed">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
                     {insight.description}
                   </p>
                 </div>
@@ -99,8 +53,8 @@ const AIInsights = ({ stats = {} }) => {
   );
 };
 
-AIInsights.propTypes = {
+export default KeyInsights;
+
+KeyInsights.propTypes = {
   stats: PropTypes.object
 };
-
-export default AIInsights;
