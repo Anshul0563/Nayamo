@@ -1,72 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Package, DollarSign, Users, Clock } from 'lucide-react';
+import PropTypes from 'prop-types';
+import { Bell, Package, DollarSign, Users, Clock, UserPlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { enIN } from 'date-fns/locale';
 
-const NotificationTicker = () => {
-  const [notifications, setNotifications] = useState([]);
+const NotificationTicker = ({ recentOrders = [], stats = {} }) => {
   const [scrollIndex, setScrollIndex] = useState(0);
 
-  // Mock real-time notifications
-  useEffect(() => {
-    const mockNotifications = [
-      {
-        id: 1,
+  const generateNotifications = (recentOrders, stats) => {
+    const notifications = [];
+
+    // Recent orders as notifications
+    recentOrders.slice(0, 3).forEach((order) => {
+      notifications.push({
+        id: order._id || order.id,
         type: 'order',
-        message: 'New order #ORD-1245 from Priya Sharma - ₹2,450',
+        message: `New order #${String(order._id || order.id).slice(-8)} - ₹${Number(order.totalPrice || order.amount || 0).toLocaleString('en-IN')}`,
         icon: Package,
-        time: new Date(),
+        time: new Date(order.createdAt || order.updatedAt),
         color: 'emerald'
-      },
-      {
-        id: 2,
-        type: 'payment',
-        message: 'Payment received for order #ORD-1244 - ₹1,890',
-        icon: DollarSign,
-        time: new Date(Date.now() - 5 * 60 * 1000),
-        color: 'gold'
-      },
-      {
-        id: 3,
+      });
+    });
+
+    // Recent user / payment events from stats if available
+    if (stats.newUsersToday) {
+      notifications.push({
+        id: 'new-user',
         type: 'user',
-        message: 'New customer registered: Rohan Patel',
-        icon: Users,
-        time: new Date(Date.now() - 15 * 60 * 1000),
+        message: `${stats.newUsersToday || 5} new customers registered`,
+        icon: UserPlus,
+        time: new Date(),
         color: 'cyan'
-      },
-      {
-        id: 4,
-        type: 'order',
-        message: 'Order #ORD-1243 shipped via Delhivery',
-        icon: Package,
-        time: new Date(Date.now() - 30 * 60 * 1000),
-        color: 'blue'
-      },
-      {
-        id: 5,
+      });
+    }
+
+    if (stats.todayRevenue) {
+      notifications.push({
+        id: 'revenue',
+        type: 'payment',
+        message: `Today revenue ₹${Number(stats.todayRevenue).toLocaleString('en-IN')}`,
+        icon: DollarSign,
+        time: new Date(),
+        color: 'gold'
+      });
+    }
+
+    // Low stock if any
+    if (stats.lowStockProducts > 0) {
+      notifications.push({
+        id: 'low-stock',
         type: 'low_stock',
-        message: 'Low stock alert: Premium Cotton Saree (12 units)',
+        message: `Low stock: ${stats.lowStockProducts} items`,
         icon: Bell,
-        time: new Date(Date.now() - 45 * 60 * 1000),
+        time: new Date(),
         color: 'orange'
-      }
-    ];
+      });
+    }
 
-    setNotifications(mockNotifications);
+    return notifications.slice(0, 5);
+  };
 
-    // Auto-scroll every 4 seconds
+  const notifications = generateNotifications(recentOrders, stats);
+
+  useEffect(() => {
     const interval = setInterval(() => {
-      setScrollIndex((prev) => (prev + 1) % mockNotifications.length);
+      setScrollIndex((prev) => (prev + 1) % Math.max(notifications.length, 1));
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [notifications.length]);
 
   return (
     <div className="glass-card px-6 py-4 rounded-2xl border border-gold-500/20 shadow-gold-sm relative overflow-hidden">
-      {/* Gradient background animation */}
-      <div className="absolute inset-0 bg-gradient-to-r from-gold-500/5 via-transparent to-emerald-500/5 animate-shift" />
-      
       <div className="flex items-center gap-3 relative z-10">
         <div className="w-10 h-10 bg-gradient-to-br from-gold-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-gold-lg">
           <Bell className="w-5 h-5 text-black font-bold drop-shadow-sm" />
@@ -77,28 +82,31 @@ const NotificationTicker = () => {
             Live Updates
           </p>
           <div className="flex items-center gap-3 animate-slide-in">
-            {notifications.map((notification, index) => (
-              <div
-                key={notification.id}
-                className={`flex items-center gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 min-w-0 transition-all ${
-                  index === scrollIndex 
-                    ? 'scale-105 shadow-gold-md border-gold-400/50 bg-white/10' 
-                    : 'opacity-60 hover:opacity-90'
-                }`}
-              >
-                <div className={`p-2 rounded-lg bg-${notification.color}-500/10 border border-${notification.color}-500/20`}>
-                  <notification.icon className={`w-4 h-4 text-${notification.color}-400`} />
+            {notifications.map((notification, index) => {
+              const Icon = notification.icon;
+              return (
+                <div
+                  key={notification.id}
+                  className={`flex items-center gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 min-w-0 transition-all ${
+                    index === scrollIndex 
+                      ? 'scale-105 shadow-gold-md border-gold-400/50 bg-white/10' 
+                      : 'opacity-60 hover:opacity-90'
+                  }`}
+                >
+                  <div className={`p-2 rounded-lg bg-${notification.color}-500/10 border border-${notification.color}-500/20`}>
+                    <Icon className={`w-4 h-4 text-${notification.color}-400`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-luxury-text truncate">
+                      {notification.message}
+                    </p>
+                    <p className="text-xs text-luxury-dim">
+                      {formatDistanceToNow(notification.time, { addSuffix: true, locale: enIN })}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-luxury-text truncate">
-                    {notification.message}
-                  </p>
-                  <p className="text-xs text-luxury-dim">
-                    {formatDistanceToNow(notification.time, { addSuffix: true, locale: enIN })}
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
         
@@ -115,16 +123,14 @@ const NotificationTicker = () => {
         .animate-slide-in {
           animation: slide-in 0.5s ease-out;
         }
-        @keyframes shift {
-          0%, 100% { transform: translateX(0); }
-          50% { transform: translateX(100%); }
-        }
-        .animate-shift {
-          animation: shift 8s ease-in-out infinite;
-        }
       `}</style>
     </div>
   );
+};
+
+NotificationTicker.propTypes = {
+  recentOrders: PropTypes.array,
+  stats: PropTypes.object
 };
 
 export default NotificationTicker;

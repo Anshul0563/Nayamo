@@ -124,7 +124,7 @@ export default function Dashboard() {
             <p className="text-lg text-luxury-dim">Live business overview</p>
           </div>
         </div>
-        <NotificationTicker />
+<NotificationTicker stats={stats} recentOrders={recentOrders} />
       </motion.div>
 
       {/* 6 KEY METRICS - 2x3 GRID */}
@@ -163,7 +163,7 @@ export default function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
       >
-        <AIInsights />
+<AIInsights stats={stats} />
         <QuickActions />
       </motion.div>
 

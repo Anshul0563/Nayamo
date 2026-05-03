@@ -1,57 +1,58 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Lightbulb, Brain, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
 
-const AIInsights = () => {
+const AIInsights = ({ stats = {} }) => {
   const [insights, setInsights] = useState([]);
 
-  // Mock AI insights - rotate every 30s
-  useEffect(() => {
-    const mockInsights = [
-      {
-        icon: TrendingUp,
-        title: 'Revenue Growth Detected',
-        description: '15% increase in high-value orders from returning customers. Consider loyalty program expansion.',
-        color: 'emerald',
-        type: 'positive'
-      },
-      {
-        icon: AlertCircle,
-        title: 'Cart Abandonment Spike',
-        description: '23% increase in abandoned carts during checkout. Optimize payment flow and add exit-intent offers.',
-        color: 'orange',
-        type: 'warning'
-      },
-      {
-        icon: Brain,
-        title: 'Top Performer Identified',
-        description: "Product 'Premium Silk Saree' accounts for 42% revenue. Create lookalike products and bundle offers.",
-        color: 'gold',
-        type: 'insight'
-      },
-      {
-        icon: TrendingDown,
-        title: 'Inventory Alert',
-        description: '12 SKUs below safety stock. Prioritize restock for high-demand categories: Ethnic Wear, Jewelry.',
-        color: 'rose',
-        type: 'alert'
-      },
-      {
-        icon: Lightbulb,
-        title: 'Conversion Opportunity',
-        description: 'Mobile users converting 18% lower. Implement AMP pages and faster checkout for mobile.',
-        color: 'violet',
-        type: 'opportunity'
-      }
-    ];
+  const generateInsights = (stats) => [
+    {
+      icon: TrendingUp,
+      title: `Revenue Growth +${stats.growthRate || 12}%`,
+      description: 'High-value orders from returning customers up significantly. Consider loyalty campaigns.',
+      color: 'emerald',
+      type: 'positive'
+    },
+    {
+      icon: TrendingDown,
+      title: `Low Stock Alert: ${stats.lowStockProducts || 5} items`,
+      description: 'Prioritize restock for high-demand categories based on sales velocity.',
+      color: 'rose',
+      type: 'alert'
+    },
+    {
+      icon: Lightbulb,
+      title: `Top Category: ${stats.topCategory || 'Ethnic Wear'}`,
+      description: stats.topCategory ? `${stats.topCategory} accounts for ${(stats.categoryRevenue || 42)}% revenue. Bundle offers recommended.` : 'Analyze top categories for bundling.',
+      color: 'gold',
+      type: 'insight'
+    },
+    {
+      icon: AlertCircle,
+      title: `Pending Orders: ${stats.pendingOrders || 23}`,
+      description: 'Optimize fulfillment for pending orders. Average wait time increasing.',
+      color: 'orange',
+      type: 'warning'
+    },
+    {
+      icon: Brain,
+      title: 'Conversion Opportunity',
+      description: `Mobile conversion ${stats.mobileConversion || 18}% lower. Consider AMP checkout optimization.`,
+      color: 'violet',
+      type: 'opportunity'
+    }
+  ];
 
+  useEffect(() => {
+    const aiInsights = generateInsights(stats);
     let currentIndex = 0;
     const interval = setInterval(() => {
-      setInsights(mockInsights.slice(currentIndex, currentIndex + 2));
-      currentIndex = (currentIndex + 2) % mockInsights.length;
+      setInsights(aiInsights.slice(currentIndex, currentIndex + 2));
+      currentIndex = (currentIndex + 2) % aiInsights.length;
     }, 10000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [stats]);
 
   return (
     <div className="glass-card p-6 rounded-3xl border-gold-animated shadow-gold-lg backdrop-blur-xl">
@@ -73,10 +74,12 @@ const AIInsights = () => {
           return (
             <div key={index} className="group p-4 rounded-2xl border border-white/10 hover:border-gold-500/30 hover:bg-gradient-to-r hover:from-white/5 hover:to-transparent transition-all backdrop-blur-sm cursor-pointer hover:shadow-gold-md">
               <div className="flex items-start gap-4">
-                <div className={`p-2 rounded-xl ${insight.color === 'emerald' ? 'bg-emerald-500/10 border-emerald-500/20' : 
+                <div className={`p-2 rounded-xl ${
+                  insight.color === 'emerald' ? 'bg-emerald-500/10 border-emerald-500/20' : 
                   insight.color === 'orange' ? 'bg-orange-500/10 border-orange-500/20' :
                   insight.color === 'rose' ? 'bg-rose-500/10 border-rose-500/20' :
-                  'bg-gold-500/10 border-gold-500/20'} flex-shrink-0`}>
+                  'bg-gold-500/10 border-gold-500/20'
+                } flex-shrink-0`}>
                   <Icon className={`w-5 h-5 text-${insight.color}-400`} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -94,6 +97,10 @@ const AIInsights = () => {
       </div>
     </div>
   );
+};
+
+AIInsights.propTypes = {
+  stats: PropTypes.object
 };
 
 export default AIInsights;
