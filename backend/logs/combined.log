@@ -18790,3 +18790,5 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[32m200\u001b[0m 153.275 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:44:30"}
 {"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-03 10:44:31"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 621.572 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:44:31"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 127.808 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:45:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 135.082 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:45:30"}
