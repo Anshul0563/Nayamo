@@ -170,7 +170,7 @@ export default function ProductCard({ product, index = 0 }) {
                 to={`/product/${product._id}`}
                 className="hover:underline decoration-[#D4A853]/50 underline-offset-4"
               >
-                {product.name}
+                {product.title || product.name || "Exquisite Handcrafted Earrings"}
               </Link>
             </h3>
 
