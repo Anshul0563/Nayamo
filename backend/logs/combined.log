@@ -18818,3 +18818,5 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 64.959 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:48:11"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 105.217 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:48:11"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[32m200\u001b[0m 465.522 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:48:12"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 114.552 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:48:42"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 117.093 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:49:12"}
