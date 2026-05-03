@@ -68,6 +68,8 @@ export default function Dashboard() {
     { title: "Today Revenue", value: stats.todayRevenue || 0, icon: DollarSign, color: "gold", prefix: "₹", trend: stats.growthRate || 0, trendLabel: "vs previous period" },
     { title: "Total Orders", value: stats.totalOrders || 0, icon: ShoppingCart, color: "emerald" },
     { title: "Pending Orders", value: stats.pendingOrders || 0, icon: Activity, color: "orange" },
+    { title: "Cancelled Orders", value: stats.cancelledOrders || 0, icon: Activity, color: "rose", suffix: "orders" },
+    { title: "Client Cancellations", value: stats.todayCancellations || 0, icon: Users, color: "amber", suffix: "today" },
     { title: "Active Users", value: stats.activeUsers || 0, icon: Users, color: "cyan" },
     { title: "Monthly Revenue", value: stats.monthlyRevenue || 0, icon: BarChart3, color: "gold", prefix: "₹" },
     { title: "Average Order Value", value: stats.avgOrderValue || 0, icon: DollarSign, color: "violet", prefix: "₹" },
