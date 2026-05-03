@@ -18845,3 +18845,11 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 188.264 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:57:02"}
 {"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-03 10:57:02"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[32m200\u001b[0m 726.565 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:57:03"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-03 10:58:13"}
+{"level":"info","message":"\u001b[0mPOST /api/v1/auth/login \u001b[32m200\u001b[0m 360.335 ms - 625\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:58:13"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 107.234 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:58:50"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[32m200\u001b[0m 110.964 ms - 260\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:58:50"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 85.866 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:58:50"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 115.763 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:58:50"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 68.189 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:58:50"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 95.862 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 10:58:50"}
