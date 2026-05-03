@@ -1,60 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Lightbulb, Brain, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import React from "react";
+import PropTypes from "prop-types";
+import {
+  Lightbulb,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  Package,
+} from "lucide-react";
 
-const KeyInsights = ({ stats = {} }) => {
+export default function KeyInsights({ stats = {} }) {
+  const growth = stats.growthRate || 0;
+  const lowStock = stats.lowStockProducts || 0;
+  const pending = stats.pendingOrders || 0;
+
   const insights = [
     {
-      icon: TrendingUp,
-      title: `Revenue up ${(stats.growthRate || 12).toFixed(1)}%`,
-      description: 'Strong performance from repeat customers this period.'
+      icon: growth >= 0 ? TrendingUp : TrendingDown,
+      title: `Revenue ${growth >= 0 ? "up" : "down"} ${Math.abs(growth).toFixed(1)}%`,
+      description:
+        growth >= 0
+          ? "Strong performance driven by customer engagement."
+          : "Revenue dropped — analyze campaign and pricing strategy.",
+      color: growth >= 0 ? "emerald" : "rose",
     },
     {
-      icon: Lightbulb,
-      title: `Low stock: ${stats.lowStockProducts || 0} items`,
-      description: 'Prioritize restocking top-selling categories.'
+      icon: Package,
+      title: `${lowStock} low stock items`,
+      description:
+        lowStock > 0
+          ? "Restock fast-moving products to avoid lost sales."
+          : "Inventory levels are healthy.",
+      color: lowStock > 0 ? "amber" : "cyan",
     },
     {
-      icon: TrendingUp,
-      title: `${stats.pendingOrders || 0} orders pending`,
-      description: 'Optimize fulfillment for faster delivery times.'
-    }
+      icon: AlertTriangle,
+      title: `${pending} orders pending`,
+      description:
+        pending > 0
+          ? "Speed up fulfillment to improve delivery experience."
+          : "All orders are processed efficiently.",
+      color: pending > 0 ? "violet" : "emerald",
+    },
   ];
 
   return (
-    <div className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm p-8 rounded-2xl border border-neutral-200/50 dark:border-neutral-800/50 shadow-lg">
-      <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50 mb-8 flex items-center gap-3">
-        <Lightbulb size={24} className="text-gold-500" />
-        Key Insights
-      </h3>
-      <div className="space-y-6">
-        {insights.map((insight, index) => {
-          const Icon = insight.icon;
+    <div className="relative p-6 rounded-2xl bg-[#0d0d0d] border border-white/5 shadow-[0_0_25px_rgba(212,168,83,0.05)]">
+
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 rounded-lg bg-[#D4A853]/10">
+          <Lightbulb className="text-[#D4A853]" size={18} />
+        </div>
+        <h3 className="text-lg font-semibold text-white tracking-wide">
+          Key Insights
+        </h3>
+      </div>
+
+      {/* Insights */}
+      <div className="space-y-4">
+        {insights.map((item, index) => {
+          const Icon = item.icon;
+
           return (
-            <div key={index} className="group p-6 rounded-xl border border-neutral-200/30 dark:border-neutral-800/50 hover:border-gold-400/50 bg-neutral-50/50 dark:bg-neutral-800/30 hover:bg-white/70 dark:hover:bg-neutral-700/50 transition-all">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-lg bg-white/60 dark:bg-neutral-700/50 border border-neutral-200/30 w-12 h-12 flex items-center justify-center flex-shrink-0">
-                  <Icon size={20} className="text-neutral-700 dark:text-neutral-300 group-hover:text-gold-500" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-neutral-900 dark:text-neutral-50 mb-2 group-hover:text-gold-600">
-                    {insight.title}
-                  </p>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                    {insight.description}
-                  </p>
-                </div>
+            <div
+              key={index}
+              className="group flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:border-[#D4A853]/40 hover:bg-white/[0.04] transition-all duration-300"
+            >
+              {/* Icon */}
+              <div className="p-2 rounded-lg bg-white/5 group-hover:bg-[#D4A853]/10 transition">
+                <Icon
+                  size={18}
+                  className={`text-${item.color}-400 group-hover:text-[#D4A853]`}
+                />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1">
+                <p className="text-white font-medium mb-1">
+                  {item.title}
+                </p>
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  {item.description}
+                </p>
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Glow Effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-0 hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top,rgba(212,168,83,0.1),transparent_70%)]" />
     </div>
   );
-};
-
-export default KeyInsights;
+}
 
 KeyInsights.propTypes = {
-  stats: PropTypes.object
+  stats: PropTypes.object,
 };
