@@ -140,7 +140,7 @@ export default function ProductDetails() {
       setSubmittingReview(true);
       setReviewError("");
 
-await reviewAPI.submitReview(id, payload);
+      await reviewAPI.submitReview(id, payload);
 
       setNewReview({ rating: 5, title: "", comment: "" });
       setShowReviewForm(false);
@@ -230,9 +230,13 @@ await reviewAPI.submitReview(id, payload);
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <Link to="/" className="hover:text-[#D4A853] transition-colors">Home</Link>
+            <Link to="/" className="hover:text-[#D4A853] transition-colors">
+              Home
+            </Link>
             <span>/</span>
-            <Link to="/shop" className="hover:text-[#D4A853] transition-colors">Shop</Link>
+            <Link to="/shop" className="hover:text-[#D4A853] transition-colors">
+              Shop
+            </Link>
             <span>/</span>
             <span className="text-white">{product.name}</span>
           </motion.div>
@@ -344,11 +348,11 @@ await reviewAPI.submitReview(id, payload);
               transition={{ delay: 0.5 }}
             >
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-[#D4A853] to-white bg-clip-text text-transparent leading-tight">
-                {product.name}
+                {product.title || product.name || "Exquisite Handcrafted Earrings"}
               </h1>
             </motion.div>
 
-{/* Rating - use product.ratings or fallback to reviewStats */}
+            {/* Rating - use product.ratings or fallback to reviewStats */}
             {(product.ratings?.count > 0 || reviewStats.total > 0) && (
               <motion.div
                 className="flex items-center gap-4"
@@ -361,14 +365,19 @@ await reviewAPI.submitReview(id, payload);
                     <Star
                       key={i}
                       className={`w-5 h-5 ${
-                        i < Math.floor(product.ratings?.average || reviewStats.avgRating)
+                        i <
+                        Math.floor(
+                          product.ratings?.average || reviewStats.avgRating,
+                        )
                           ? "fill-[#D4A853] text-[#D4A853]"
                           : "fill-zinc-600 text-zinc-600"
                       }`}
                     />
                   ))}
                   <span className="text-lg font-bold text-white ml-2">
-                    {(product.ratings?.average || reviewStats.avgRating).toFixed(1)}
+                    {(
+                      product.ratings?.average || reviewStats.avgRating
+                    ).toFixed(1)}
                   </span>
                 </div>
                 <span className="text-zinc-400">
@@ -387,11 +396,12 @@ await reviewAPI.submitReview(id, payload);
               <span className="text-4xl font-bold bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] bg-clip-text text-transparent">
                 ₹{product.price?.toLocaleString("en-IN")}
               </span>
-              {product.originalPrice && product.originalPrice > product.price && (
-                <span className="text-xl text-zinc-500 line-through">
-                  ₹{product.originalPrice?.toLocaleString("en-IN")}
-                </span>
-              )}
+              {product.originalPrice &&
+                product.originalPrice > product.price && (
+                  <span className="text-xl text-zinc-500 line-through">
+                    ₹{product.originalPrice?.toLocaleString("en-IN")}
+                  </span>
+                )}
             </motion.div>
 
             {/* Description */}
@@ -402,7 +412,8 @@ await reviewAPI.submitReview(id, payload);
               className="prose prose-invert max-w-none"
             >
               <p className="text-zinc-300 text-lg leading-relaxed">
-                {product.description || "Experience unparalleled craftsmanship with our handcrafted luxury earrings. Each piece is meticulously designed to complement your unique style and elevate any occasion."}
+                {product.description ||
+                  "Experience unparalleled craftsmanship with our handcrafted luxury earrings. Each piece is meticulously designed to complement your unique style and elevate any occasion."}
               </p>
             </motion.div>
 
@@ -415,7 +426,9 @@ await reviewAPI.submitReview(id, payload);
             >
               {/* Quantity Selector */}
               <div className="flex items-center gap-4">
-                <span className="text-sm font-semibold text-zinc-300">Quantity:</span>
+                <span className="text-sm font-semibold text-zinc-300">
+                  Quantity:
+                </span>
                 <div className="flex items-center gap-2">
                   <motion.button
                     onClick={() => setQty(Math.max(1, qty - 1))}
@@ -425,7 +438,9 @@ await reviewAPI.submitReview(id, payload);
                   >
                     <Minus className="w-5 h-5 text-zinc-300" />
                   </motion.button>
-                  <span className="w-16 text-center text-lg font-bold text-white">{qty}</span>
+                  <span className="w-16 text-center text-lg font-bold text-white">
+                    {qty}
+                  </span>
                   <motion.button
                     onClick={() => setQty(qty + 1)}
                     className="w-12 h-12 rounded-2xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl flex items-center justify-center hover:border-[#D4A853]/40 hover:bg-white/[0.06] transition-all duration-300"
@@ -466,7 +481,9 @@ await reviewAPI.submitReview(id, payload);
                 >
                   <Heart
                     className={`w-6 h-6 transition-all duration-300 ${
-                      liked ? "text-white fill-white scale-110" : "text-zinc-300 group-hover:text-[#D4A5A5]"
+                      liked
+                        ? "text-white fill-white scale-110"
+                        : "text-zinc-300 group-hover:text-[#D4A5A5]"
                     }`}
                   />
                 </motion.button>
@@ -489,14 +506,19 @@ await reviewAPI.submitReview(id, payload);
                 <motion.div
                   key={badge.label}
                   className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl"
-                  whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.05)" }}
+                  whileHover={{
+                    scale: 1.05,
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                  }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1 + index * 0.1 }}
                 >
                   <badge.icon className="w-6 h-6 text-[#D4A853]" />
                   <div>
-                    <div className="text-sm font-bold text-white">{badge.label}</div>
+                    <div className="text-sm font-bold text-white">
+                      {badge.label}
+                    </div>
                     <div className="text-xs text-zinc-400">{badge.desc}</div>
                   </div>
                 </motion.div>
@@ -539,7 +561,9 @@ await reviewAPI.submitReview(id, payload);
                         <button
                           key={star}
                           type="button"
-                          onClick={() => setNewReview({ ...newReview, rating: star })}
+                          onClick={() =>
+                            setNewReview({ ...newReview, rating: star })
+                          }
                           className="text-2xl"
                         >
                           <Star
@@ -560,7 +584,9 @@ await reviewAPI.submitReview(id, payload);
                     </label>
                     <textarea
                       value={newReview.comment}
-                      onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                      onChange={(e) =>
+                        setNewReview({ ...newReview, comment: e.target.value })
+                      }
                       className="w-full p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] text-white placeholder-zinc-500 focus:border-[#D4A853]/60 outline-none resize-none"
                       rows={4}
                       placeholder="Share your experience with this product..."
@@ -604,8 +630,12 @@ await reviewAPI.submitReview(id, payload);
             ) : reviews.length === 0 ? (
               <div className="text-center py-12">
                 <MessageSquare className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-zinc-400 mb-2">No reviews yet</h3>
-                <p className="text-zinc-500">Be the first to share your experience!</p>
+                <h3 className="text-xl font-semibold text-zinc-400 mb-2">
+                  No reviews yet
+                </h3>
+                <p className="text-zinc-500">
+                  Be the first to share your experience!
+                </p>
               </div>
             ) : (
               reviews.map((review, index) => (
@@ -622,7 +652,9 @@ await reviewAPI.submitReview(id, payload);
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="font-semibold text-white">{review.user?.name || "Anonymous"}</span>
+                        <span className="font-semibold text-white">
+                          {review.user?.name || "Anonymous"}
+                        </span>
                         <div className="flex">
                           {[...Array(5)].map((_, i) => (
                             <Star
@@ -635,7 +667,9 @@ await reviewAPI.submitReview(id, payload);
                             />
                           ))}
                         </div>
-                        <span className="text-sm text-zinc-500">{formatDate(review.createdAt)}</span>
+                        <span className="text-sm text-zinc-500">
+                          {formatDate(review.createdAt)}
+                        </span>
                       </div>
                       <p className="text-zinc-300">{review.comment}</p>
                     </div>
@@ -671,7 +705,9 @@ await reviewAPI.submitReview(id, payload);
               <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-gradient-to-br from-[#D4A5A5] to-[#D4A853] shadow-lg">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-white">You Might Also Like</h2>
+              <h2 className="text-3xl font-bold text-white">
+                You Might Also Like
+              </h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
