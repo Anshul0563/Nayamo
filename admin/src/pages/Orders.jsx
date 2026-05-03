@@ -36,6 +36,7 @@ export default function Orders() {
   const [actionLoading, setActionLoading] = useState(null);
   const [tab, setTab] = useState("pending");
   const [search, setSearch] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
   const [selected, setSelected] = useState([]);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
@@ -55,6 +56,7 @@ export default function Orders() {
         limit: 20,
         status: tab !== "all" ? tab : undefined,
         search: debouncedSearch || undefined,
+        includeArchived: showArchived,
       });
 
       const result = res.data;
@@ -66,7 +68,7 @@ export default function Orders() {
     } finally {
       setLoading(false);
     }
-  }, [tab, debouncedSearch]);
+  }, [tab, debouncedSearch, showArchived]);
 
   const loadStats = useCallback(async () => {
     try {
@@ -208,6 +210,16 @@ useEffect(() => {
               className="pl-10 pr-4 py-3 rounded-2xl bg-black/30 border border-white/10 outline-none w-full min-w-0 sm:w-72"
             />
           </div>
+
+          <label className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-black/30 border border-white/10 text-sm cursor-pointer hover:bg-black/40 transition-all">
+            <input
+              type="checkbox"
+              className="w-4 h-4 rounded text-indigo-600 bg-black/50 border-white/20 focus:ring-indigo-500 focus:ring-2"
+              checked={showArchived}
+              onChange={(e) => setShowArchived(e.target.checked)}
+            />
+            Show Archived
+          </label>
 
           <ExportButton filename="orders" data={exportData} />
 
