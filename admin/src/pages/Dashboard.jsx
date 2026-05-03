@@ -6,7 +6,7 @@ import {
   QuickActions,
   AIInsights,
   NotificationTicker,
-} from "../components/dashboard/index.js";
+} from "../components/dashboard";
 import { DashboardSkeleton } from "../components/ui/Skeleton.jsx";
 import { adminAPI } from "../services/api";
 import {
@@ -21,42 +21,67 @@ import {
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [stats, setStats] = useState({});
   const [recentOrders, setRecentOrders] = useState([]);
   const [chartData, setChartData] = useState([]);
 
+  // 🔥 MAIN FETCH
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
 
       const res = await adminAPI.getStats();
-      const data = res.data || {};
+      const data = res?.data || {};
 
       setStats(data);
       setRecentOrders(data.recentOrders || []);
       setChartData(data.chartData || []);
     } catch (err) {
-      console.error(err);
+      console.error("Dashboard Error:", err);
+      setError("Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // 🔥 CHART RANGE FETCH (SEPARATE)
+  const handleRangeChange = async (range) => {
+    try {
+      setChartLoading(true);
+
+      const res = await adminAPI.getStats(range);
+      const data = res?.data || {};
+
+      setChartData(data.chartData || []);
+    } catch (err) {
+      console.error("Chart Error:", err);
+    } finally {
+      setChartLoading(false);
+    }
+  };
+
+  // 🔥 AUTO REFRESH
   useEffect(() => {
     fetchDashboardData();
+
     const interval = setInterval(fetchDashboardData, 30000);
+
     return () => clearInterval(interval);
   }, [fetchDashboardData]);
 
   if (loading) return <DashboardSkeleton />;
 
-  // 🔥 FIXED TOTAL ORDERS
+  // 🔥 VALID ORDERS FIX
   const validOrders = Math.max(
     0,
     (stats.totalOrders || 0) -
       (stats.cancelledOrders || 0) -
       (stats.returnedOrders || 0) -
-      (stats.rtoOrders || 0),
+      (stats.rtoOrders || 0)
   );
 
   const metrics = [
@@ -65,11 +90,23 @@ export default function Dashboard() {
       value: stats.todayRevenue || 0,
       icon: DollarSign,
       prefix: "₹",
-      trend: stats.growthRate,
+      trend: stats.growthRate || 0,
     },
-    { title: "Orders", value: validOrders, icon: ShoppingCart },
-    { title: "Users", value: stats.activeUsers || 0, icon: Users },
-    { title: "Pending", value: stats.pendingOrders || 0, icon: Activity },
+    {
+      title: "Orders",
+      value: validOrders,
+      icon: ShoppingCart,
+    },
+    {
+      title: "Users",
+      value: stats.activeUsers || 0,
+      icon: Users,
+    },
+    {
+      title: "Pending",
+      value: stats.pendingOrders || 0,
+      icon: Activity,
+    },
     {
       title: "Monthly",
       value: stats.monthlyRevenue || 0,
@@ -85,6 +122,7 @@ export default function Dashboard() {
 
   return (
     <div className="page-container space-y-8">
+
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -93,32 +131,39 @@ export default function Dashboard() {
           </div>
 
           <div>
-            <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-            <p className="text-sm text-gray-500">Overview of your business</p>
+            <h1 className="text-2xl font-semibold text-white">
+              Dashboard
+            </h1>
+            <p className="text-sm text-gray-500">
+              Overview of your business
+            </p>
           </div>
         </div>
 
         <NotificationTicker stats={stats} recentOrders={recentOrders} />
       </div>
 
+      {/* ERROR */}
+      {error && (
+        <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-xl">
+          {error}
+        </div>
+      )}
+
       {/* METRICS */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
         {metrics.map((item, i) => (
-          <StatCard key={i} {...item} />
+          <StatCard key={item.title} {...item} />
         ))}
       </div>
 
       {/* CHART */}
       <SalesChart
-        data={chartData}
-        loading={loading}
-        onRangeChange={(range) => {
-          // 🔥 call backend with range
-          adminAPI.getStats(range).then((res) => {
-            setChartData(res.data.chartData || []);
-          });
-        }}
+        data={chartData || []}
+        loading={chartLoading}
+        onRangeChange={handleRangeChange}
       />
+
       {/* INSIGHTS + ACTIONS */}
       <div className="grid lg:grid-cols-2 gap-5">
         <AIInsights stats={stats} />
@@ -127,6 +172,7 @@ export default function Dashboard() {
 
       {/* ORDERS */}
       <RecentOrders orders={recentOrders} />
+
     </div>
   );
 }
