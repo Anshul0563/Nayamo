@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import StatCard from '../components/ui/StatCard';
 import SalesChart from '../components/SalesChart';
 import RecentOrders from '../components/RecentOrders';
 import TopProducts from '../components/TopProducts';
+import QuickActions, { AIInsights, NotificationTicker } from '../components/dashboard/index.js';
 import { DashboardSkeleton } from '../components/ui/Skeleton.jsx';
 import { adminAPI } from '../services/api';
 import { 
@@ -14,6 +16,7 @@ import {
   BarChart3 
 } from 'lucide-react';
 import { Crown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -22,6 +25,8 @@ export default function Dashboard() {
   const [recentOrders, setRecentOrders] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [chartData, setChartData] = useState([]);
+  const [dateRange, setDateRange] = useState('30d');
+  const navigate = useNavigate();
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -140,50 +145,58 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="page-container">
+    <div className="page-container space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        {/* HERO + QUICK ACTIONS */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          <div className="glass-card p-8 md:p-10 rounded-3xl mb-8 border-gold-animated shadow-gold-md">
+            <div className="max-w-4xl">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-gold-lg">
+                  <Crown className="w-8 h-8 text-black font-bold" />
+                </div>
 
-      {/* HERO */}
-      <div className="glass-card p-8 md:p-10 rounded-3xl mb-8 border-gold-animated shadow-gold-md">
-        <div className="max-w-4xl">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-gold-lg">
-              <Crown className="w-8 h-8 text-black font-bold" />
-            </div>
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-display font-bold bg-gradient-to-r from-white via-luxury-text to-gold-400 bg-clip-text text-transparent">
+                    Welcome to Nayamo Admin
+                  </h1>
+                  <p className="text-lg text-luxury-dim mt-2">
+                    Live command center for revenue, orders, customers, and inventory.
+                  </p>
+                </div>
+              </div>
 
-            <div>
-              <h1 className="text-3xl md:text-4xl font-display font-bold bg-gradient-to-r from-white via-luxury-text to-gold-400 bg-clip-text text-transparent">
-                Welcome to Nayamo Admin
-              </h1>
-              <p className="text-lg text-luxury-dim mt-2">
-                Live command center for revenue, orders, customers, and inventory.
-              </p>
+              <div className="grid md:grid-cols-3 gap-6 pt-6 border-t border-luxury-border/50">
+                <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
+                  <div className="text-3xl font-bold text-gold-gradient mb-1">
+                    ₹{Number(stats.monthlyRevenue || 0).toLocaleString("en-IN")}
+                  </div>
+                  <div className="text-sm text-luxury-dim">Monthly Revenue</div>
+                </div>
+
+                <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
+                  <div className="text-3xl font-bold text-emerald-400 mb-1">
+                    {Number(validOrders < 0 ? 0 : validOrders).toLocaleString("en-IN")}
+                  </div>
+                  <div className="text-sm text-luxury-dim">Total Orders</div>
+                </div>
+
+                <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
+                  <div className="text-3xl font-bold text-cyan-400 mb-1">
+                    {Number(stats.conversionRate || 0)}%
+                  </div>
+                  <div className="text-sm text-luxury-dim">Growth Rate</div>
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-6 pt-6 border-t border-luxury-border/50">
-            <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
-              <div className="text-3xl font-bold text-gold-gradient mb-1">
-                ₹{Number(stats.monthlyRevenue || 0).toLocaleString("en-IN")}
-              </div>
-              <div className="text-sm text-luxury-dim">Monthly Revenue</div>
-            </div>
-
-            <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
-              <div className="text-3xl font-bold text-emerald-400 mb-1">
-                {Number(validOrders < 0 ? 0 : validOrders).toLocaleString("en-IN")}
-              </div>
-              <div className="text-sm text-luxury-dim">Total Orders</div>
-            </div>
-
-            <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
-              <div className="text-3xl font-bold text-cyan-400 mb-1">
-                {Number(stats.conversionRate || 0)}%
-              </div>
-              <div className="text-sm text-luxury-dim">Growth Rate</div>
-            </div>
-          </div>
+          <QuickActions />
         </div>
-      </div>
+      </motion.div>
 
       {/* STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">

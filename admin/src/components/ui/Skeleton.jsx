@@ -1,4 +1,6 @@
 import React from "react";
+import { EnhancedDashboardSkeleton } from '../dashboard/DashboardSkeleton';
+
 
 export function SkeletonCard() {
   return (
@@ -73,33 +75,32 @@ export function SkeletonChart() {
   );
 }
 
+
 export function DashboardSkeleton() {
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Hero Banner */}
-      <div className="glass-card p-6 rounded-2xl">
-        <div className="shimmer h-6 w-52 rounded bg-white/5 mb-4" />
-        <div className="shimmer h-3 w-80 max-w-full rounded bg-white/5 mb-3" />
-        <div className="shimmer h-3 w-64 max-w-full rounded bg-white/5" />
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card p-8 md:p-10 rounded-3xl">
+        <div className="shimmer h-8 w-64 rounded bg-white/5 mb-6" />
+        <div className="grid md:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="text-center p-4">
+              <div className="shimmer h-12 w-24 mx-auto rounded bg-white/10 mb-2" />
+              <div className="shimmer h-4 w-20 mx-auto rounded bg-white/5" />
+            </div>
+          ))}
+        </div>
       </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <SkeletonStatCard key={i} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <SkeletonCard key={i} />
         ))}
       </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2">
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
           <SkeletonChart />
         </div>
-
         <SkeletonChart />
       </div>
-
-      {/* Table */}
       <SkeletonTable rows={6} />
     </div>
   );

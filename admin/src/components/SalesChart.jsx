@@ -40,8 +40,9 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function SalesChart({ data = [], loading = false, height = 350 }) {
+export default function SalesChart({ data = [], loading = false, height = 350, dateRange, onDateChange }) {
   const [defs, setDefs] = useState('');
+  const [selectedRange, setSelectedRange] = useState('30d');
 
   useEffect(() => {
     setDefs(`
@@ -59,6 +60,10 @@ export default function SalesChart({ data = [], loading = false, height = 350 })
     `);
   }, []);
 
+  useEffect(() => {
+    if (onDateChange) onDateChange(selectedRange);
+  }, [selectedRange]);
+
   if (loading || !data || data.length === 0) {
     return (
       <div className="glass-card p-6 rounded-2xl h-[350px] flex flex-col gap-4 animate-pulse">
@@ -70,13 +75,25 @@ export default function SalesChart({ data = [], loading = false, height = 350 })
 
   return (
     <div className="glass-card p-6 rounded-2xl h-full min-h-[350px]">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h3 className="text-lg font-semibold text-luxury-text">Sales Overview</h3>
           <p className="text-sm text-luxury-dim mt-1">Revenue & Orders - Live Data</p>
         </div>
-        <div className="text-xs text-gold-400 font-medium bg-gold-500/10 px-3 py-1.5 rounded-full border border-gold-500/20">
-          LIVE
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-gold-400 font-medium bg-gold-500/10 px-3 py-1.5 rounded-full border border-gold-500/20">
+            LIVE
+          </div>
+          <select 
+            className="text-xs bg-white/5 border border-white/20 rounded-lg px-3 py-1.5 text-luxury-text focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-colors"
+            onChange={(e) => onDateChange && onDateChange(e.target.value)}
+            value={dateRange || '30d'}
+          >
+            <option value="7d">7 Days</option>
+            <option value="30d">30 Days</option>
+            <option value="90d">90 Days</option>
+            <option value="365d">1 Year</option>
+          </select>
         </div>
       </div>
 

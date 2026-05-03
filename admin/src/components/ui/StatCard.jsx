@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, cloneElement } from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, Sparkles } from "lucide-react";
 
 function AnimatedCounter({ end, duration = 1500, prefix = "", suffix = "" }) {
   const [count, setCount] = useState(0);
@@ -51,7 +51,8 @@ export default function StatCard({
   trendLabel,
   delay = 0,
   prefix = "",
-  suffix = ""
+  suffix = "",
+  onClick
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef(null);
@@ -121,15 +122,21 @@ export default function StatCard({
     return () => observer.disconnect();
   }, [delay]);
 
+  const handleClick = (e) => {
+    e.stopPropagation();
+    if (onClick) onClick();
+  };
+
   return (
     <div
       ref={cardRef}
-      className={`glass-card p-5 md:p-6 border-gold-animated transition-all duration-500 ${
+      className={`glass-card p-5 md:p-6 border-gold-animated transition-all duration-500 cursor-pointer hover:shadow-gold-lg hover:-translate-y-1 active:scale-[0.98] ${
         isVisible 
           ? "opacity-100 translate-y-0" 
           : "opacity-0 translate-y-4"
       }`}
       style={{ transitionDelay: `${delay}ms` }}
+      onClick={handleClick}
     >
 {/* Gradient overlay */}
       <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${theme.gradient} pointer-events-none opacity-50`} />
@@ -164,6 +171,13 @@ export default function StatCard({
             )}
           </div>
         )}
+
+        {/* Sparkline Mini Chart */}
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="h-8 bg-white/5 rounded-lg overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-emerald-400/30 to-gold-400/30 animate-sparkline w-full" />
+          </div>
+        </div>
       </div>
     </div>
   );
