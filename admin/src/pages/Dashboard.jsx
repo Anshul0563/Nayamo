@@ -6,15 +6,7 @@ import RecentOrders from '../components/RecentOrders';
 import { QuickActions, AIInsights, NotificationTicker } from '../components/dashboard/index.js';
 import { DashboardSkeleton } from '../components/ui/Skeleton.jsx';
 import { adminAPI } from '../services/api';
-import { 
-  Users, 
-  ShoppingCart, 
-  Package, 
-  DollarSign, 
-  Activity,
-  BarChart3,
-  Crown 
-} from 'lucide-react';
+import { Users, ShoppingCart, Package, DollarSign, Activity, BarChart3, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -22,7 +14,6 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [stats, setStats] = useState({});
   const [recentOrders, setRecentOrders] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [dateRange, setDateRange] = useState('30d');
   const navigate = useNavigate();
@@ -32,17 +23,16 @@ export default function Dashboard() {
       setLoading(true);
       setError('');
 
-      const statsResponse = await adminAPI.getStats(dateRange);
-      const data = statsResponse.data || {};
+      const res = await adminAPI.getStats(dateRange);
+      const data = res.data || {};
 
       setStats(data);
       setRecentOrders(data.recentOrders || []);
-      setTopProducts(data.topProducts || []);
       setChartData(data.chartData || []);
 
     } catch (err) {
-      console.error('Dashboard load error:', err);
-      setError('Failed to load dashboard data.');
+      console.error(err);
+      setError('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
@@ -50,140 +40,111 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashboardData();
-    
     const interval = setInterval(fetchDashboardData, 30000);
-    
     return () => clearInterval(interval);
   }, [fetchDashboardData]);
 
   if (loading) return <DashboardSkeleton />;
 
-  const validOrders = Math.max(0, (stats.totalOrders || 0) - (stats.cancelledOrders || 0) - (stats.returnedOrders || 0) - (stats.rtoOrders || 0));
+  // 🔥 Clean logic
+  const validOrders = Math.max(
+    0,
+    (stats.totalOrders || 0) -
+    (stats.cancelledOrders || 0) -
+    (stats.returnedOrders || 0) -
+    (stats.rtoOrders || 0)
+  );
 
-  // 6 KEY PREMIUM METRICS
-  const keyMetrics = [
+  const metrics = [
     {
-      title: 'Today Revenue',
+      title: 'Revenue',
       value: stats.todayRevenue || 0,
       icon: DollarSign,
-      color: 'gold',
       prefix: '₹',
-      trend: stats.growthRate || 0,
-      trendLabel: 'vs yesterday'
+      trend: stats.growthRate || 0
     },
     {
-      title: 'Total Orders',
+      title: 'Orders',
       value: validOrders,
-      icon: ShoppingCart,
-      color: 'emerald'
+      icon: ShoppingCart
     },
     {
-      title: 'Active Users',
+      title: 'Users',
       value: stats.activeUsers || 0,
-      icon: Users,
-      color: 'cyan'
+      icon: Users
     },
     {
-      title: 'Pending Orders',
+      title: 'Pending',
       value: stats.pendingOrders || 0,
-      icon: Activity,
-      color: 'orange'
+      icon: Activity
     },
     {
-      title: 'Monthly Revenue',
+      title: 'Monthly',
       value: stats.monthlyRevenue || 0,
       icon: BarChart3,
-      color: 'violet',
       prefix: '₹'
     },
     {
-      title: 'Low Stock Alerts',
+      title: 'Stock Alerts',
       value: stats.lowStockProducts || 0,
-      icon: Package,
-      color: 'rose'
+      icon: Package
     }
   ];
 
   return (
     <div className="page-container space-y-8">
-      {/* CLEAN HEADER */}
-      <motion.div 
-        className="glass-card p-6 rounded-3xl flex items-center justify-between"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
+
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
+
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-gold-lg">
-            <Crown className="w-7 h-7 text-black" />
+          <div className="w-10 h-10 rounded-xl bg-[#D4A853] flex items-center justify-center">
+            <Crown size={18} className="text-black" />
           </div>
+
           <div>
-            <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-white to-gold-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-semibold text-white">
               Dashboard
             </h1>
-            <p className="text-lg text-luxury-dim">Live business overview</p>
+            <p className="text-sm text-gray-500">
+              Overview of your business
+            </p>
           </div>
         </div>
-<NotificationTicker stats={stats} recentOrders={recentOrders} />
-      </motion.div>
 
-      {/* 6 KEY METRICS - 2x3 GRID */}
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-      >
-        {keyMetrics.map((metric, index) => (
-          <StatCard 
-            key={metric.title} 
-            {...metric} 
-            delay={200 * index}
-          />
+        <NotificationTicker stats={stats} recentOrders={recentOrders} />
+      </div>
+
+      {/* METRICS */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+        {metrics.map((item, i) => (
+          <StatCard key={i} {...item} />
         ))}
-      </motion.div>
+      </div>
 
-      {/* DOMINANT SALES CHART */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <SalesChart 
-          data={chartData} 
+      {/* CHART */}
+      <div className="rounded-2xl overflow-hidden border border-white/5">
+        <SalesChart
+          data={chartData}
           dateRange={dateRange}
           onDateChange={setDateRange}
         />
-      </motion.div>
+      </div>
 
-      {/* AI INSIGHTS + QUICK ACTIONS */}
-      <motion.div 
-        className="grid lg:grid-cols-2 gap-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-      >
-<AIInsights stats={stats} />
+      {/* INSIGHTS + ACTIONS */}
+      <div className="grid lg:grid-cols-2 gap-5">
+        <AIInsights stats={stats} />
         <QuickActions />
-      </motion.div>
+      </div>
 
-      {/* RECENT ACTIVITY */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-      >
-        <RecentOrders orders={recentOrders} />
-      </motion.div>
+      {/* ORDERS */}
+      <RecentOrders orders={recentOrders} />
 
+      {/* ERROR */}
       {error && (
-        <motion.div 
-          className="glass-card p-6 rounded-2xl border border-rose-500/30 bg-rose-500/5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <span className="text-rose-400 text-sm">{error}</span>
-        </motion.div>
+        <div className="text-sm text-red-400">
+          {error}
+        </div>
       )}
     </div>
   );
