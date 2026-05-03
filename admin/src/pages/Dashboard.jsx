@@ -1,11 +1,23 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import StatCard from '../components/ui/StatCard';
-import SalesChart from '../components/SalesChart';
-import RecentOrders from '../components/RecentOrders';
-import { QuickActions, AIInsights, NotificationTicker } from '../components/dashboard/index.js';
-import { DashboardSkeleton } from '../components/ui/Skeleton.jsx';
-import { adminAPI } from '../services/api';
-import { Users, ShoppingCart, Package, DollarSign, Activity, BarChart3, Crown } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from "react";
+import StatCard from "../components/ui/StatCard";
+import SalesChart from "../components/SalesChart";
+import RecentOrders from "../components/RecentOrders";
+import {
+  QuickActions,
+  AIInsights,
+  NotificationTicker,
+} from "../components/dashboard/index.js";
+import { DashboardSkeleton } from "../components/ui/Skeleton.jsx";
+import { adminAPI } from "../services/api";
+import {
+  Users,
+  ShoppingCart,
+  Package,
+  DollarSign,
+  Activity,
+  BarChart3,
+  Crown,
+} from "lucide-react";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -23,7 +35,6 @@ export default function Dashboard() {
       setStats(data);
       setRecentOrders(data.recentOrders || []);
       setChartData(data.chartData || []);
-
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,24 +53,38 @@ export default function Dashboard() {
   // 🔥 FIXED TOTAL ORDERS
   const validOrders = Math.max(
     0,
-    (stats.totalOrders || 0)
-    - (stats.cancelledOrders || 0)
-    - (stats.returnedOrders || 0)
-    - (stats.rtoOrders || 0)
+    (stats.totalOrders || 0) -
+      (stats.cancelledOrders || 0) -
+      (stats.returnedOrders || 0) -
+      (stats.rtoOrders || 0),
   );
 
   const metrics = [
-    { title: 'Revenue', value: stats.todayRevenue || 0, icon: DollarSign, prefix: '₹', trend: stats.growthRate },
-    { title: 'Orders', value: validOrders, icon: ShoppingCart },
-    { title: 'Users', value: stats.activeUsers || 0, icon: Users },
-    { title: 'Pending', value: stats.pendingOrders || 0, icon: Activity },
-    { title: 'Monthly', value: stats.monthlyRevenue || 0, icon: BarChart3, prefix: '₹' },
-    { title: 'Stock Alerts', value: stats.lowStockProducts || 0, icon: Package },
+    {
+      title: "Revenue",
+      value: stats.todayRevenue || 0,
+      icon: DollarSign,
+      prefix: "₹",
+      trend: stats.growthRate,
+    },
+    { title: "Orders", value: validOrders, icon: ShoppingCart },
+    { title: "Users", value: stats.activeUsers || 0, icon: Users },
+    { title: "Pending", value: stats.pendingOrders || 0, icon: Activity },
+    {
+      title: "Monthly",
+      value: stats.monthlyRevenue || 0,
+      icon: BarChart3,
+      prefix: "₹",
+    },
+    {
+      title: "Stock Alerts",
+      value: stats.lowStockProducts || 0,
+      icon: Package,
+    },
   ];
 
   return (
     <div className="page-container space-y-8">
-
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -84,8 +109,16 @@ export default function Dashboard() {
       </div>
 
       {/* CHART */}
-      <SalesChart data={chartData} />
-
+      <SalesChart
+        data={chartData}
+        loading={loading}
+        onRangeChange={(range) => {
+          // 🔥 call backend with range
+          adminAPI.getStats(range).then((res) => {
+            setChartData(res.data.chartData || []);
+          });
+        }}
+      />
       {/* INSIGHTS + ACTIONS */}
       <div className="grid lg:grid-cols-2 gap-5">
         <AIInsights stats={stats} />
@@ -94,7 +127,6 @@ export default function Dashboard() {
 
       {/* ORDERS */}
       <RecentOrders orders={recentOrders} />
-
     </div>
   );
 }

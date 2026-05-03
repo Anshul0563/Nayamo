@@ -1,150 +1,174 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
+import React, { useState, useEffect } from "react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
-  Legend 
-} from 'recharts';
+} from "recharts";
 
-// Luxury gradient defs for Recharts
-const GRADIENT_ID = 'goldGradient';
-const REVENUE_GRADIENT_ID = 'revenueGradient';
+const ranges = ["7d", "30d", "90d"];
 
-// Custom Tooltip for luxury theme
 const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white/95 dark:bg-neutral-900/95 p-4 rounded-xl border border-neutral-200/50 dark:border-neutral-800/50 shadow-lg min-w-[180px]">
-        <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">{label}</p>
-        <div className="space-y-2">
-          {payload.map((entry, index) => (
-            <div key={index} className="flex items-center gap-3 text-sm">
-              <div 
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: entry.color || '#d4a853' }}
-              />
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">{entry.name}:</span>
-              <span className="ml-auto font-bold text-gold-600">
-                {typeof entry.value === 'number' ? `₹${entry.value.toLocaleString()}` : entry.value}
-              </span>
-            </div>
-          ))}
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="bg-[#0d0d0d] border border-white/10 p-3 rounded-lg">
+      <p className="text-xs text-gray-400 mb-2">{label}</p>
+
+      {payload.map((item, i) => (
+        <div key={i} className="flex justify-between text-sm gap-4">
+          <span className="text-gray-400">{item.name}</span>
+          <span className="text-[#D4A853] font-semibold">
+            {item.name === "Revenue"
+              ? `₹${Number(item.value).toLocaleString("en-IN")}`
+              : item.value}
+          </span>
         </div>
+      ))}
+    </div>
+  );
+};
+
+export default function SalesChart({
+  data = [],
+  loading,
+  onRangeChange,
+}) {
+  const [metric, setMetric] = useState("revenue");
+  const [range, setRange] = useState("30d");
+
+  // 🔥 notify parent when range changes
+  useEffect(() => {
+    if (onRangeChange) onRangeChange(range);
+  }, [range]);
+
+  // 🔥 normalize data
+  const formatted = (data || []).map((d) => ({
+    date: d.date || d.day || "",
+    revenue: Number(d.revenue || d.totalRevenue || 0),
+    orders: Number(d.orders || d.totalOrders || 0),
+  }));
+
+  // 🔥 auto-refresh every 20s
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (onRangeChange) onRangeChange(range);
+    }, 20000);
+    return () => clearInterval(interval);
+  }, [range]);
+
+  if (loading) {
+    return (
+      <div className="h-[350px] flex items-center justify-center text-gray-400">
+        Loading chart...
       </div>
     );
   }
-  return null;
-};
 
-export default function SalesChart({ data = [], loading = false, height = 350, dateRange, onDateChange }) {
-  const [defs, setDefs] = useState('');
-  const [selectedRange, setSelectedRange] = useState('30d');
-
-  useEffect(() => {
-    setDefs(`
-      <defs>
-        <linearGradient id="${GRADIENT_ID}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(212, 150, 42, 0.8)" />
-          <stop offset="50%" stopColor="rgba(212, 150, 42, 0.3)" />
-          <stop offset="100%" stopColor="rgba(212, 150, 42, 0.05)" />
-        </linearGradient>
-        <linearGradient id="${REVENUE_GRADIENT_ID}" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#d4962a" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#f5e0b3" stopOpacity="0.3" />
-        </linearGradient>
-      </defs>
-    `);
-  }, []);
-
-  useEffect(() => {
-    if (onDateChange) onDateChange(selectedRange);
-  }, [selectedRange]);
-
-  if (loading || !data || data.length === 0) {
+  if (!formatted.length) {
     return (
-      <div className="bg-white/80 dark:bg-neutral-900/80 p-8 rounded-2xl h-[350px] flex flex-col gap-6 animate-pulse border border-neutral-200/50 dark:border-neutral-800/50 shadow-lg">
-        <div className="h-6 w-48 bg-neutral-200/50 dark:bg-neutral-700 rounded" />
-        <div className="flex-1 bg-neutral-200/30 dark:bg-neutral-800/30 rounded-xl" />
+      <div className="h-[350px] flex items-center justify-center text-gray-500">
+        No data available
       </div>
     );
   }
 
   return (
-    <div className="bg-white/80 dark:bg-neutral-900/80 p-8 rounded-2xl h-full min-h-[400px] border border-neutral-200/50 dark:border-neutral-800/50 shadow-lg">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+    <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-6">
+
+      {/* HEADER */}
+      <div className="flex items-center justify-between mb-6">
+
         <div>
-          <h3 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">Sales Overview</h3>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-1">Revenue and orders trend</p>
+          <h3 className="text-white font-semibold text-lg">
+            Sales Overview
+          </h3>
+          <p className="text-xs text-gray-500">
+            Real-time business analytics
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-xs font-semibold bg-gold-500/10 text-gold-700 px-3 py-1.5 rounded-lg border border-gold-400/30">
-            LIVE
-          </div>
-          <select 
-            className="bg-white dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700 px-4 py-2 rounded-lg text-sm font-medium text-neutral-900 dark:text-neutral-50 focus:ring-2 focus:ring-gold-400 focus:border-gold-400 transition-all"
-            onChange={(e) => onDateChange && onDateChange(e.target.value)}
-            value={dateRange || '30d'}
-          >
-            <option value="7d">7 Days</option>
-            <option value="30d">30 Days</option>
-            <option value="90d">90 Days</option>
-            <option value="365d">1 Year</option>
-          </select>
+
+        {/* RANGE FILTER */}
+        <div className="flex gap-2">
+          {ranges.map((r) => (
+            <button
+              key={r}
+              onClick={() => setRange(r)}
+              className={`px-3 py-1 text-xs rounded-lg transition ${
+                range === r
+                  ? "bg-[#D4A853] text-black"
+                  : "bg-white/5 text-gray-400 hover:bg-white/10"
+              }`}
+            >
+              {r}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="h-[320px] w-full">
+      {/* METRIC TOGGLE */}
+      <div className="flex gap-3 mb-4">
+        <button
+          onClick={() => setMetric("revenue")}
+          className={`px-3 py-1 rounded-lg text-xs ${
+            metric === "revenue"
+              ? "bg-[#D4A853] text-black"
+              : "bg-white/5 text-gray-400"
+          }`}
+        >
+          Revenue
+        </button>
+
+        <button
+          onClick={() => setMetric("orders")}
+          className={`px-3 py-1 rounded-lg text-xs ${
+            metric === "orders"
+              ? "bg-[#D4A853] text-black"
+              : "bg-white/5 text-gray-400"
+          }`}
+        >
+          Orders
+        </button>
+      </div>
+
+      {/* CHART */}
+      <div className="h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
-            <defs dangerouslySetInnerHTML={{ __html: defs }} />
-            <CartesianGrid 
-              vertical={false} 
-              stroke="rgba(0,0,0,0.05)" 
-              strokeDasharray="4 4"
-            />
-            <XAxis 
-              dataKey="date" 
+          <AreaChart data={formatted}>
+            <defs>
+              <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#D4A853" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#D4A853" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+
+            <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
+
+            <XAxis
+              dataKey="date"
+              tick={{ fill: "#888", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
-              tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 12, fontWeight: 500 }}
-              tickMargin={12}
             />
-            <YAxis 
+
+            <YAxis
+              tick={{ fill: "#888", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
-              tickMargin={12}
-              tickFormatter={(value) => `₹${value / 1000}K`}
-              tick={{ fill: 'rgba(0,0,0,0.6)', fontSize: 12 }}
             />
+
             <Tooltip content={<CustomTooltip />} />
-            <Legend 
-              wrapperStyle={{ paddingTop: '16px' }}
-              formatter={(value) => (
-                <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{value}</span>
-              )}
-            />
-            <Area 
-              type="monotone" 
-              dataKey="revenue" 
-              stroke="#d4962a" 
-              strokeWidth={3}
-              fillOpacity={0.6}
-              fill={`url(#${REVENUE_GRADIENT_ID})`}
-              name="Revenue"
-            />
-            <Area 
-              type="monotone" 
-              dataKey="orders" 
-              stroke="#a68a4e"
+
+            <Area
+              type="monotone"
+              dataKey={metric}
+              stroke="#D4A853"
+              fill="url(#gold)"
               strokeWidth={2}
-              fillOpacity={0.4}
-              fill={`url(#${GRADIENT_ID})`}
-              name="Orders"
-              yAxisId="right"
+              name={metric === "revenue" ? "Revenue" : "Orders"}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -152,4 +176,3 @@ export default function SalesChart({ data = [], loading = false, height = 350, d
     </div>
   );
 }
-
