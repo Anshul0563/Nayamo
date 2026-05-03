@@ -4,7 +4,7 @@ import StatCard from '../components/ui/StatCard';
 import SalesChart from '../components/SalesChart';
 import RecentOrders from '../components/RecentOrders';
 import TopProducts from '../components/TopProducts';
-import QuickActions, { AIInsights, NotificationTicker } from '../components/dashboard/index.js';
+import { QuickActions, AIInsights, NotificationTicker } from '../components/dashboard/index.js';
 import { DashboardSkeleton } from '../components/ui/Skeleton.jsx';
 import { adminAPI } from '../services/api';
 import { 
