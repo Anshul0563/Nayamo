@@ -46,7 +46,7 @@ export default function ProductCard({ product, index = 0 }) {
                 product.image ||
                 "/placeholder.jpg"
               }
-              alt={product.name}
+              alt={product.title || product.name}
               className="w-full h-full object-cover"
               loading="lazy"
               whileHover={{ scale: 1.1 }}
@@ -62,10 +62,19 @@ export default function ProductCard({ product, index = 0 }) {
             className="absolute top-4 left-4 flex items-center gap-2"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: index * 0.15 + 0.3, type: "spring", stiffness: 200 }}
+            transition={{
+              delay: index * 0.15 + 0.3,
+              type: "spring",
+              stiffness: 200,
+            }}
           >
-<div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] shadow-[0_8px_24px_rgba(212,168,83,0.4)] ring-1 ring-white/20">
-              <motion.img src={logo} alt="Crown" className="w-4 h-4 object-contain" whileHover={{ scale: 1.1 }} />
+            <div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] shadow-[0_8px_24px_rgba(212,168,83,0.4)] ring-1 ring-white/20">
+              <motion.img
+                src={logo}
+                alt="Crown"
+                className="w-4 h-4 object-contain"
+                whileHover={{ scale: 1.1 }}
+              />
             </div>
             {discount > 0 && (
               <motion.div
@@ -103,7 +112,9 @@ export default function ProductCard({ product, index = 0 }) {
             >
               <Heart
                 className={`w-5 h-5 transition-all duration-300 ${
-                  inWishlist ? "text-white fill-white scale-110" : "text-white group-hover:text-[#D4A5A5]"
+                  inWishlist
+                    ? "text-white fill-white scale-110"
+                    : "text-white group-hover:text-[#D4A5A5]"
                 }`}
               />
             </motion.button>
@@ -155,7 +166,10 @@ export default function ProductCard({ product, index = 0 }) {
             transition={{ delay: index * 0.15 + 0.8, duration: 0.5 }}
           >
             <h3 className="text-lg font-bold text-white group-hover:text-[#D4A853] transition-colors duration-500 line-clamp-2 mb-2 leading-tight">
-              <Link to={`/product/${product._id}`} className="hover:underline decoration-[#D4A853]/50 underline-offset-4">
+              <Link
+                to={`/product/${product._id}`}
+                className="hover:underline decoration-[#D4A853]/50 underline-offset-4"
+              >
                 {product.name}
               </Link>
             </h3>
@@ -180,7 +194,11 @@ export default function ProductCard({ product, index = 0 }) {
                   className="text-xl font-bold bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] bg-clip-text text-transparent"
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}
-                  transition={{ delay: index * 0.15 + 1.2, type: "spring", stiffness: 200 }}
+                  transition={{
+                    delay: index * 0.15 + 1.2,
+                    type: "spring",
+                    stiffness: 200,
+                  }}
                 >
                   ₹{product.price?.toLocaleString("en-IN")}
                 </motion.span>
@@ -197,7 +215,7 @@ export default function ProductCard({ product, index = 0 }) {
               </div>
             </div>
 
-{/* Enhanced Rating Display - Always show if ratings exist */}
+            {/* Enhanced Rating Display - Always show if ratings exist */}
             {product.ratings?.count > 0 && (
               <motion.div
                 className="flex items-center gap-2"
