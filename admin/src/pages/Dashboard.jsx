@@ -18,7 +18,20 @@ import { Crown } from 'lucide-react';
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [stats, setStats] = useState({});
+  const [stats, setStats] = useState({
+    todayRevenue: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    cancelledOrders: 0,
+    todayCancellations: 0,
+    activeUsers: 0,
+    monthlyRevenue: 0,
+    avgOrderValue: 0,
+    deliveredOrders: 0,
+    lowStockProducts: 0,
+    conversionRate: 0,
+    growthRate: 0
+  });
   const [recentOrders, setRecentOrders] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [chartData, setChartData] = useState([]);
@@ -28,19 +41,24 @@ export default function Dashboard() {
       setLoading(true);
       setError('');
 
-      // Parallel data fetching
-      const statsResponse = await adminAPI.getStats();
-      const data = statsResponse.data;
+      const res = await adminAPI.getStats();
+      const data = res.data || {};
 
-      setStats(data.metrics || data.stats || {});
-      setRecentOrders(data.recentOrders || []);
+      // 🔥 FIX: handle all possible API structures
+      const metrics = data.metrics || data.stats || data.data || {};
+
+      setStats(prev => ({
+        ...prev,
+        ...metrics
+      }));
+
+      setRecentOrders(data.recentOrders || data.orders || []);
       setTopProducts(data.topProducts || []);
-      setChartData(data.chartData || []);
+      setChartData(data.chartData || data.salesData || []);
 
     } catch (err) {
       console.error('Dashboard load error:', err);
-      setError('Failed to load dashboard data. Using cached data.');
-      // Don't set error state for UX - use mock data gracefully
+      setError('Failed to load dashboard data.');
     } finally {
       setLoading(false);
     }
@@ -48,11 +66,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashboardData();
-    
-    // Refresh every 30 seconds
+
     const interval = setInterval(fetchDashboardData, 30000);
     window.addEventListener("refresh-dashboard", fetchDashboardData);
     window.addEventListener("admin:refresh", fetchDashboardData);
+
     return () => {
       clearInterval(interval);
       window.removeEventListener("refresh-dashboard", fetchDashboardData);
@@ -60,118 +78,100 @@ export default function Dashboard() {
     };
   }, [fetchDashboardData]);
 
-  if (loading) {
-    return <DashboardSkeleton />;
-  }
+  if (loading) return <DashboardSkeleton />;
 
   const statCards = [
-    { title: "Today Revenue", value: stats.todayRevenue || 0, icon: DollarSign, color: "gold", prefix: "₹", trend: stats.growthRate || 0, trendLabel: "vs previous period" },
-    { title: "Total Orders", value: stats.totalOrders || 0, icon: ShoppingCart, color: "emerald" },
-    { title: "Pending Orders", value: stats.pendingOrders || 0, icon: Activity, color: "orange" },
-    { title: "Cancelled Orders", value: stats.cancelledOrders || 0, icon: Activity, color: "rose", suffix: "orders" },
-    { title: "Client Cancellations", value: stats.todayCancellations || 0, icon: Users, color: "amber", suffix: "today" },
-    { title: "Active Users", value: stats.activeUsers || 0, icon: Users, color: "cyan" },
-    { title: "Monthly Revenue", value: stats.monthlyRevenue || 0, icon: BarChart3, color: "gold", prefix: "₹" },
-    { title: "Average Order Value", value: stats.avgOrderValue || 0, icon: DollarSign, color: "violet", prefix: "₹" },
-    { title: "Delivered Orders", value: stats.deliveredOrders || 0, icon: Package, color: "emerald" },
-    { title: "Low Stock Products", value: stats.lowStockProducts || 0, icon: Package, color: "rose" },
+    { title: "Today Revenue", value: stats.todayRevenue, icon: DollarSign, color: "gold", prefix: "₹", trend: stats.growthRate },
+    { title: "Total Orders", value: stats.totalOrders, icon: ShoppingCart, color: "emerald" },
+    { title: "Pending Orders", value: stats.pendingOrders, icon: Activity, color: "orange" },
+    { title: "Cancelled Orders", value: stats.cancelledOrders, icon: Activity, color: "rose" },
+    { title: "Client Cancellations", value: stats.todayCancellations, icon: Users, color: "amber" },
+    { title: "Active Users", value: stats.activeUsers, icon: Users, color: "cyan" },
+    { title: "Monthly Revenue", value: stats.monthlyRevenue, icon: BarChart3, color: "gold", prefix: "₹" },
+    { title: "Average Order Value", value: stats.avgOrderValue, icon: DollarSign, color: "violet", prefix: "₹" },
+    { title: "Delivered Orders", value: stats.deliveredOrders, icon: Package, color: "emerald" },
+    { title: "Low Stock Products", value: stats.lowStockProducts, icon: Package, color: "rose" },
   ];
 
   return (
     <div className="page-container">
-      {/* Hero Welcome */}
+
+      {/* HERO */}
       <div className="glass-card p-8 md:p-10 rounded-3xl mb-8 border-gold-animated shadow-gold-md">
         <div className="max-w-4xl">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-gold-lg">
-              <Crown className="w-8 h-8 text-black font-bold" />
+              <Crown className="w-8 h-8 text-black" />
             </div>
+
             <div>
-              <h1 className="text-3xl md:text-4xl font-display font-bold bg-gradient-to-r from-white via-luxury-text to-gold-400 bg-clip-text text-transparent">
-                Welcome to Nayamo Admin
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-yellow-400 bg-clip-text text-transparent">
+                Nayamo Admin Dashboard
               </h1>
-              <p className="text-lg text-luxury-dim mt-2">Live command center for revenue, orders, customers, and inventory.</p>
+              <p className="text-gray-400 mt-2">
+                Real-time overview of your business
+              </p>
             </div>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 pt-6 border-t border-luxury-border/50">
-            <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
-              <div className="text-3xl font-bold text-gold-gradient mb-1">₹{Number(stats.monthlyRevenue || 0).toLocaleString("en-IN")}</div>
-              <div className="text-sm text-luxury-dim">Monthly Revenue</div>
+
+          {/* STATS PREVIEW */}
+          <div className="grid md:grid-cols-3 gap-6 pt-6 border-t border-white/10">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-yellow-400">
+                ₹{stats.monthlyRevenue.toLocaleString("en-IN")}
+              </div>
+              <div className="text-sm text-gray-400">Monthly Revenue</div>
             </div>
-            <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
-              <div className="text-3xl font-bold text-emerald-400 mb-1">{Number(stats.totalOrders || 0).toLocaleString("en-IN")}</div>
-              <div className="text-sm text-luxury-dim">Total Orders</div>
+
+            <div className="text-center">
+              <div className="text-3xl font-bold text-emerald-400">
+                {stats.totalOrders}
+              </div>
+              <div className="text-sm text-gray-400">Orders</div>
             </div>
-            <div className="text-center p-4 rounded-2xl hover:bg-white/[0.02] transition-colors">
-              <div className="text-3xl font-bold text-cyan-400 mb-1">{Number(stats.conversionRate || 0)}%</div>
-              <div className="text-sm text-luxury-dim">Growth Rate</div>
+
+            <div className="text-center">
+              <div className="text-3xl font-bold text-cyan-400">
+                {stats.conversionRate}%
+              </div>
+              <div className="text-sm text-gray-400">Growth</div>
             </div>
           </div>
         </div>
       </div>
 
-
+      {/* STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         {statCards.map((stat, index) => (
-          <StatCard
-            key={stat.title}
-            title={stat.title}
-            value={stat.value}
-            icon={stat.icon}
-            color={stat.color}
-            trend={stat.trend}
-            trendLabel={stat.trendLabel}
-            prefix={stat.prefix}
-            suffix={stat.suffix}
-            delay={100 * index}
-          />
+          <StatCard key={index} {...stat} />
         ))}
       </div>
 
-      {/* Charts Row */}
+      {/* CHART + TOP PRODUCTS */}
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2">
           <SalesChart data={chartData} />
         </div>
-        <div className="lg:col-span-1">
-          <TopProducts products={topProducts} />
-        </div>
+        <TopProducts products={topProducts} />
       </div>
 
-      {/* Bottom Row */}
+      {/* RECENT ORDERS */}
       <div className="grid lg:grid-cols-2 gap-6">
         <RecentOrders orders={recentOrders} />
+
         <div className="glass-card p-6 rounded-2xl">
-          <h3 className="text-lg font-semibold mb-6">Quick Actions</h3>
+          <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+
           <div className="grid grid-cols-2 gap-4">
-            <button onClick={() => { window.location.href = "/orders"; }} className="luxury-btn luxury-btn-primary group h-20 rounded-2xl flex flex-col items-center justify-center gap-2 hover:shadow-gold-lg transform hover:-translate-y-1 transition-all duration-300">
-              <ShoppingCart size={24} />
-              <span className="font-semibold text-sm">View Orders</span>
-            </button>
-            <button onClick={() => { window.location.href = "/inventory"; }} className="luxury-btn luxury-btn-secondary group h-20 rounded-2xl flex flex-col items-center justify-center gap-2 hover:shadow-gold-sm transform hover:-translate-y-1 transition-all duration-300">
-              <Package size={24} />
-              <span className="font-semibold text-sm">Inventory</span>
-            </button>
-            <button onClick={() => { window.location.href = "/users"; }} className="luxury-btn luxury-btn-primary group h-20 rounded-2xl flex flex-col items-center justify-center gap-2 hover:shadow-gold-lg transform hover:-translate-y-1 transition-all duration-300">
-              <Users size={24} />
-              <span className="font-semibold text-sm">Customers</span>
-            </button>
-            <button onClick={() => { window.location.href = "/analytics"; }} className="luxury-btn luxury-btn-secondary group h-20 rounded-2xl flex flex-col items-center justify-center gap-2 hover:shadow-gold-sm transform hover:-translate-y-1 transition-all duration-300">
-              <BarChart3 size={24} />
-              <span className="font-semibold text-sm">Analytics</span>
-            </button>
+            <button onClick={() => (window.location.href = "/orders")}>Orders</button>
+            <button onClick={() => (window.location.href = "/inventory")}>Inventory</button>
+            <button onClick={() => (window.location.href = "/users")}>Users</button>
+            <button onClick={() => (window.location.href = "/analytics")}>Analytics</button>
           </div>
         </div>
       </div>
 
-      {error && (
-        <div className="glass-card p-4 rounded-2xl border border-rose-500/30 bg-rose-500/5">
-          <div className="flex items-center gap-3 text-rose-400">
-            <span className="text-sm">{error}</span>
-          </div>
-        </div>
-      )}
+      {error && <p className="text-red-400 mt-4">{error}</p>}
     </div>
   );
 }
