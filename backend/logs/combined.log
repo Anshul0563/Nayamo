@@ -18988,3 +18988,13 @@
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 96.762 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:29:28"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 210.987 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:29:58"}
 {"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 89.913 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:30:28"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 112.963 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:30:57"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a disconnected","service":"nayamo-api","timestamp":"2026-05-03 11:31:00"}
+{"level":"info","message":"Admin 69ee40645a555439480e798a connected via Socket.IO","service":"nayamo-api","timestamp":"2026-05-03 11:31:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 55.982 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:31:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/auth/profile \u001b[36m304\u001b[0m 53.884 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:31:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[32m200\u001b[0m 91.111 ms - 121\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:31:00"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/notifications?limit=20 \u001b[36m304\u001b[0m 91.607 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:31:01"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[32m200\u001b[0m 98.169 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:31:01"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 509.065 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:31:01"}
+{"level":"info","message":"\u001b[0mGET /api/v1/admin/stats \u001b[36m304\u001b[0m 92.334 ms - -\u001b[0m","service":"nayamo-api","timestamp":"2026-05-03 11:31:31"}

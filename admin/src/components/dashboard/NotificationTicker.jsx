@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Bell, Package, DollarSign, Users, Clock, UserPlus } from 'lucide-react';
+import { Bell, Package, DollarSign, UserPlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { enIN } from 'date-fns/locale';
 
@@ -10,8 +10,14 @@ const NotificationTicker = ({ recentOrders = [], stats = {} }) => {
   const generateNotifications = (recentOrders, stats) => {
     const notifications = [];
 
-    // Recent orders as notifications
-    recentOrders.slice(0, 3).forEach((order) => {
+    // 🔥 FILTER VALID ORDERS
+    const validOrders = recentOrders.filter((order) => {
+      const status = (order.status || "").toLowerCase();
+      return !["cancelled", "returned", "rto"].includes(status);
+    });
+
+    // Recent valid orders
+    validOrders.slice(0, 3).forEach((order) => {
       notifications.push({
         id: order._id || order.id,
         type: 'order',
@@ -21,17 +27,18 @@ const NotificationTicker = ({ recentOrders = [], stats = {} }) => {
       });
     });
 
-    // Recent user / payment events from stats if available
+    // New users
     if (stats.newUsersToday) {
       notifications.push({
         id: 'new-user',
         type: 'user',
-        message: `${stats.newUsersToday || 5} new customers registered`,
+        message: `${stats.newUsersToday} new customers registered`,
         icon: UserPlus,
         time: new Date()
       });
     }
 
+    // Revenue
     if (stats.todayRevenue) {
       notifications.push({
         id: 'revenue',
@@ -42,7 +49,7 @@ const NotificationTicker = ({ recentOrders = [], stats = {} }) => {
       });
     }
 
-    // Low stock if any
+    // Low stock
     if (stats.lowStockProducts > 0) {
       notifications.push({
         id: 'low-stock',
@@ -59,8 +66,10 @@ const NotificationTicker = ({ recentOrders = [], stats = {} }) => {
   const notifications = generateNotifications(recentOrders, stats);
 
   useEffect(() => {
+    if (notifications.length === 0) return;
+
     const interval = setInterval(() => {
-      setScrollIndex((prev) => (prev + 1) % Math.max(notifications.length, 1));
+      setScrollIndex((prev) => (prev + 1) % notifications.length);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -72,24 +81,27 @@ const NotificationTicker = ({ recentOrders = [], stats = {} }) => {
         <div className="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-500 rounded-lg flex items-center justify-center shadow-lg">
           <Bell className="w-5 h-5 text-white" />
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
             Live Updates
           </p>
+
           <div className="flex gap-2 overflow-hidden">
             {notifications.map((notification, index) => {
               const Icon = notification.icon;
+
               return (
                 <div
                   key={notification.id}
                   className={`flex items-center gap-2 p-2 rounded-lg bg-neutral-100/50 dark:bg-neutral-800/50 border border-neutral-200/30 dark:border-neutral-700/50 min-w-0 flex-shrink-0 transition-all whitespace-nowrap ${
-                    index === scrollIndex 
-                      ? 'shadow-md ring-2 ring-gold-400/50 scale-105 bg-white dark:bg-neutral-700' 
-                      : 'opacity-70 hover:opacity-90'
+                    index === scrollIndex
+                      ? 'shadow-md ring-2 ring-gold-400/50 scale-105 bg-white dark:bg-neutral-700'
+                      : 'opacity-70'
                   }`}
                 >
-                  <Icon size={14} className="text-neutral-600 dark:text-neutral-400 flex-shrink-0" />
+                  <Icon size={14} className="text-neutral-600 dark:text-neutral-400" />
+
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 truncate max-w-[140px]">
                       {notification.message}
@@ -103,7 +115,7 @@ const NotificationTicker = ({ recentOrders = [], stats = {} }) => {
             })}
           </div>
         </div>
-        
+
         <div className="text-xs font-mono bg-gold-500/10 text-gold-600 px-2 py-1 rounded-full border border-gold-500/20 font-semibold">
           LIVE
         </div>
