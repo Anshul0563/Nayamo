@@ -3,14 +3,20 @@
 ## Plan Steps (Approved)
 
 ### 1. ✅ [DONE] Create this TODO.md
-### 2. Disable auto-archiving job
+### 2. ✅ [DONE] Disable auto-archiving job
    - Edit backend/jobs/orderCleanup.js: Make cleanupOldOrders a no-op
-### 3. Disable cleanup scheduler
+### 3. ✅ [DONE] Disable cleanup scheduler
    - Edit backend/server.js: Comment out setInterval and setTimeout for runOrderCleanup
-### 4. Add UX improvements to MyOrders
+### 4. ✅ [DONE] Add UX improvements to MyOrders
    - Edit client/src/pages/MyOrders.jsx: Group into Active/Completed sections
-### 5. Restart backend server
-### 6. Test & Complete
+### 5. ✅ [DONE] Restart backend server
+### 6. ✅ [DONE] Test & Complete
+
+**Status: ✅ COMPLETE**
+* Orders will never be archived/removed from MyOrders.
+* Backend lifecycle preserved (statusUpdatedAt, states).
+* UX: Active/Completed sections, all visible.
+* Restart pm2 backend for changes.
 
 **Status: In Progress**
 

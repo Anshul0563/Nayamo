@@ -325,24 +325,25 @@ global.io = io;
 // ============================================
 // ORDER CLEANUP SCHEDULER (Daily at midnight)
 // ============================================
-const { cleanupOldOrders } = require("./jobs/orderCleanup");
+// DISABLED Order Cleanup - All orders kept visible forever per requirements
+// const { cleanupOldOrders } = require("./jobs/orderCleanup");
 
 // Helper function to run cleanup
-const runOrderCleanup = async () => {
-  if (mongoose.connection.readyState === 1) {
-    try {
-      await cleanupOldOrders();
-    } catch (error) {
-      logger.error("Order cleanup failed:", error.message);
-    }
-  }
-};
+// const runOrderCleanup = async () => {
+//   if (mongoose.connection.readyState === 1) {
+//     try {
+//       await cleanupOldOrders();
+//     } catch (error) {
+//       logger.error("Order cleanup failed:", error.message);
+//     }
+//   }
+// };
 
-// Schedule daily cleanup (every 24 hours)
-setInterval(runOrderCleanup, 24 * 60 * 60 * 1000);
+// Schedule daily cleanup (every 24 hours) - DISABLED
+// setInterval(runOrderCleanup, 24 * 60 * 60 * 1000);
 
-// Run initial cleanup after 1 minute (delayed to allow server to start properly)
-setTimeout(runOrderCleanup, 60 * 1000);
+// Run initial cleanup after 1 minute (delayed to allow server to start properly) - DISABLED
+// setTimeout(runOrderCleanup, 60 * 1000);
 
 // ============================================
 // SERVER START

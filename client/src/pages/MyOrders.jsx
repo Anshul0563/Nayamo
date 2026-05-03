@@ -86,6 +86,11 @@ export default function MyOrders() {
     );
   }
 
+  // Group orders for better UX
+  const activeStatuses = ["pending", "confirmed", "ready_to_ship", "pickup_requested", "in_transit", "out_for_delivery"];
+  const activeOrders = orders.filter(order => activeStatuses.includes(order.status));
+  const completedOrders = orders.filter(order => !activeStatuses.includes(order.status));
+
   return (
     <div className="min-h-screen bg-[#070708]">
       <div className="nayamo-container py-10">
@@ -98,21 +103,51 @@ export default function MyOrders() {
             My Orders
           </h1>
           <p className="text-[#A1A1AA]">
-            {orders.length} {orders.length === 1 ? "order" : "orders"} placed
+            {orders.length} {orders.length === 1 ? "order" : "orders"} total
           </p>
         </motion.div>
 
-        <div className="space-y-5">
-          {orders.map((order, index) => (
-            <OrderCard
-              key={order._id}
-              order={order}
-              index={index}
-              onCancel={handleCancelOrder}
-            />
-          ))}
+        {activeOrders.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-8 pb-6 border-b border-white/[0.06]">
+              <div className="w-2 h-8 bg-[#D4A853] rounded-full" />
+              <h2 className="text-2xl font-serif font-bold text-white">
+                Active Orders ({activeOrders.length})
+              </h2>
+            </div>
+            <div className="space-y-5 mb-8">
+              {activeOrders.map((order, index) => (
+                <OrderCard
+                  key={order._id}
+                  order={order}
+                  index={index}
+                  onCancel={handleCancelOrder}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <div className="flex items-center gap-3 mb-8 pb-6 border-b border-white/[0.06]">
+            <div className="w-2 h-8 bg-green-500/60 rounded-full" />
+            <h2 className="text-2xl font-serif font-bold text-white">
+              Completed Orders ({completedOrders.length})
+            </h2>
+          </div>
+          <div className="space-y-5">
+            {completedOrders.map((order, index) => (
+              <OrderCard
+                key={order._id}
+                order={order}
+                index={index}
+                onCancel={handleCancelOrder}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
+
 }
