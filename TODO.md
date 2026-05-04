@@ -1,45 +1,47 @@
-# Nayamo - Make Bestest Ever! 🚀
+# Nayamo Production Deployment Fix - useRef Null Error
+Status: 🚀 In Progress | Priority: Critical
 
-## Overall Progress: 0% Complete
-**Target: Production-ready e-commerce platform with 100% Lighthouse, 90% test coverage, CI/CD.**
+## Breakdown of Approved Plan (Step-by-Step)
 
-[COMPLETE ✅]
-- [x] Remove all console.log/debug statements (~56 instances)
-- [x] Fix React: Downgrade to 18.3 in client/admin package.json, resolve CRA warnings
-- [x] Add MongoDB indexes (products: title/slug/stock, orders: userId/status, users: email)
+### ✅ Step 1: Create/Update Environment Files [COMPLETE]
+- ✅ Create `admin/.env.example`
+- ✅ Create `client/.env.example`
+- [ ] Update `admin/vercel.json`
+- [ ] Update `client/vercel.json`
 
-## Phase 2: Complete Backend [0/6]
-- [ ] Complete orderController/orderService: placeOrder/inventory mgmt/Delhivery integration
-- [ ] Full paymentController: Razorpay create/verify
-- [ ] notificationService: email/push/SMS
-- [ ] reviewController: approve/reject/spam detection
-- [ ] adminController: bulk ops/CSV export/AI endpoints
-- [ ] contactController full implementation
+### ✅ Step 2: Fix Frontend API Services [COMPLETE]
+- ✅ `admin/src/services/api.js` - Replace Vite env with REACT_APP_
+- ✅ `client/src/services/api.js` - Same fix
+- [ ] Test API calls locally
 
-## Phase 3: Frontend Optimization [0/4]
-- [ ] Client: Vite migration + React Query + Error Boundaries
-- [ ] Admin: Vite migration + improved analytics charts
-- [ ] PWA manifests + SEO meta + lazy loading
-- [ ] Skeleton loaders + optimistic updates everywhere
+### ✅ Step 3: Enhance CRACO Configs [COMPLETE]
+- ✅ `admin/craco.config.js` - Prod source maps off
+- ✅ `client/craco.config.js` - Prod source maps off
 
-## Phase 4: Production Excellence [0/5]
-- [ ] GitHub Actions: lint/test/build/deploy
-- [ ] Sentry + monitoring integration
-- [ ] Redis caching optimization (products/cart)
-- [ ] Jest tests: 80% coverage (controllers/services)
-- [ ] Swagger API docs + README
+### ✅ Step 4: Backend CORS & Production Config [COMPLETE]
+- ✅ Backend CORS already correct for Vercel
+- ✅ `backend/server.js` CORS verified
 
-## Phase 5: Advanced Features [0/3]
-- [ ] SEO/Sitemaps/voice search
-- [ ] AR try-on for jewelry
-- [ ] Multi-language/i18n
+### ✅ Step 5: Package.json Scripts & Overrides [COMPLETE]
+- ✅ Add preview scripts to admin/client package.json
+- ✅ React overrides confirmed (prevent dupes)
 
-## Commands to Run:
-```bash
-npm run install:all
-npm run dev  # Test after each phase
-npm run test # Backend coverage
+### ✅ Step 6: Build & Local Test [PENDING]
+```
+cd admin && npm run build && npx serve -s build -l 3001
+cd client && npm run build && npx serve -s build -l 3000
 ```
 
-**Next Step: Phase 1 #1 - Remove console.logs**
+### ✅ Step 7: Update Documentation [PENDING]
+- [ ] `FIX-USE_REF.md`
+- [ ] `DEPLOYMENT.md`
+
+### ✅ Step 8: Vercel Deploy & Test [PENDING]
+- [ ] Set REACT_APP_API_URL env vars
+- [ ] Deploy admin & client
+- [ ] Verify no console errors
+
+**Current Progress: 5/8 complete**
+
+**Next Action:** Environment files + API fixes
 

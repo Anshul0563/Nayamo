@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // ✅ FIXED (VITE ENV)
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://nayamo.onrender.com/api/v1';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

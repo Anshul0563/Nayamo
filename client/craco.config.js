@@ -35,6 +35,11 @@ module.exports = {
           });
         }
       });
+      // Disable source maps in production to fix .map loading errors
+      if (process.env.NODE_ENV === 'production') {
+        webpackConfig.devtool = false;
+      }
+      
       return webpackConfig;
     },
   },
