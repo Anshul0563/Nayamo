@@ -19189,3 +19189,12 @@
 {"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-04 15:51:09"}
 {"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-04 15:51:09"}
 {"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-04 15:51:09"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-04 15:51:59"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-04 15:51:59"}
+{"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-04 15:51:59"}
+{"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-04 15:51:59"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-04 15:52:07"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-04 15:52:07"}
+{"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-04 15:52:07"}
+{"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-04 15:52:07"}
+{"level":"info","message":"User logged in: anshulshakya5632@gmail.com","service":"nayamo-api","timestamp":"2026-05-04 15:52:19"}
