@@ -1,31 +1,35 @@
-# ✅ NAYAMO PRODUCTION DEPLOYMENT - ALL COMPLETE
+# Fix React useRef Error on Vercel (Admin Panel)
 
-**Status**: 🎉 FULLY FIXED & DEPLOYMENT READY
+## Plan Status: ✅ Approved
 
-## Final Results:
-```
-✓ Vite env → CRA REACT_APP_API_URL (admin/client api.js)
-✓ Prod source maps disabled (CRACO config) 
-✓ React overrides (no dupes)
-✓ Preview scripts added (npm run preview)
-✓ Backend CORS perfect
-✓ Local builds succeed (warnings only - eslint)
-✓ Docs updated (DEPLOYMENT.md, FIX-USE_REF.md)
-```
+## Steps:
 
-## Deploy Now:
-```
-cd admin && npm run preview    # Test localhost:3001
-cd client && npm run preview   # Test localhost:3000
+### 1. [ ] Update admin/package.json
+- Upgrade react-scripts to 5.1.0
+- Add react-error-boundary
 
-# Vercel (set REACT_APP_API_URL=https://nayamo.onrender.com/api/v1)
-vercel --prod
-```
+### 2. [ ] Create admin/src/ErrorBoundary.jsx
+- Global error boundary for React null crashes
 
-**"useRef is null" FIXED. Prod ready. Zero console errors expected.**
+### 3. [ ] Update admin/src/index.js
+- Conditional StrictMode (disable in prod)
 
-**Vercel Checklist**:
-1. Env: REACT_APP_API_URL=https://nayamo.onrender.com/api/v1
-2. Build succeeds
-3. Admin dashboard loads
-4. API calls work (Network tab)
+### 4. [ ] Update admin/craco.config.js
+- Enhanced webpack prod config
+
+### 5. [ ] Update admin/vercel.json
+- Headers + clean install flags
+
+### 6. [ ] Test build: cd admin && npm install && npm run build
+
+### 7. [ ] Deploy & Test
+- Push to Vercel
+- Verify on vercel.app
+
+**Current Progress: Starting Step 1**
+
+---
+
+**Root Cause:** Production chunk loading failure (chunk-EVOBXE3Y.mjs) → React null when useRef called
+**Files Analyzed:** DataTable.jsx, RealTimeFeed.jsx, Header.jsx, StatCard.jsx, App.js, index.js, package.json, craco.config.js
+
