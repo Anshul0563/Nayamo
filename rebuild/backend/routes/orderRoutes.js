@@ -1,21 +1,21 @@
 const express = require("express");
-const router = express.Router({ mergeParams: true });
+const router = express.Router();
 
 const {
-  placeOrder,
-  getOrders,
-  getOrderById,
+  createOrder,
+  getMyOrders,
+  getOrderDetails,
   cancelOrder,
+  returnOrder,
 } = require("../controllers/orderController");
 
 const { protect } = require("../middleware/authMiddleware");
 
-router.use(protect);
-
-router.post("/", placeOrder);
-router.get("/", getOrders);
-router.get("/:id", getOrderById);
-router.put("/:id/cancel", cancelOrder);
+router.post("/", protect, createOrder);
+router.get("/", protect, getMyOrders);
+router.get("/:id", protect, getOrderDetails);
+router.put("/:id/cancel", protect, cancelOrder);
+router.put("/:id/return", protect, returnOrder);
 
 module.exports = router;
 

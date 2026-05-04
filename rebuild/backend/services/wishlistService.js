@@ -1,48 +1,41 @@
 const Wishlist = require("../models/Wishlist");
+const asyncHandler = require("../utils/asyncHandler");
+const logger = require("../config/logger");
 
-class WishlistService {
-  async getWishlist(userId) {
-    let wishlist = await Wishlist.findOne({ user: userId });
-    if (!wishlist) {
-      wishlist = new Wishlist({ user: userId, products: [] });
-      await wishlist.save();
-    }
-    return wishlist.populate("products");
-  }
-
-  async addToWishlist(userId, productId) {
-    const wishlist = await Wishlist.findOne({ user: userId });
-    if (!wishlist) {
-      return await this.createWishlist(userId, productId);
-    }
-
-    if (!wishlist.products.includes(productId)) {
-      wishlist.products.push(productId);
-      await wishlist.save();
-    }
-
-    return wishlist.populate("products");
-  }
-
-  async removeFromWishlist(userId, productId) {
-    const wishlist = await Wishlist.findOne({ user: userId });
-    if (!wishlist) throw new Error("Wishlist not found");
-
-    wishlist.products = wishlist.products.filter(id => id.toString() !== productId);
+exports.addToWishlist = asyncHandler(async (userId, productId) => {
+  let wishlist = await Wishlist.findOne({ user: userId });
+  
+  if (!wishlist) {
+    wishlist = await Wishlist.create({ user: userId, products: [productId] });
+  } else if (!wishlist.products.includes(productId)) {
+    wishlist.products.push(productId);
     await wishlist.save();
-
-    return wishlist.populate("products");
   }
 
-  async createWishlist(userId, productId) {
-    const wishlist = new Wishlist({ 
-      user: userId, 
-      products: [productId] 
-    });
-    await wishlist.save();
-    return wishlist.populate("products");
-  }
-}
+  logger.info(`Product ${productId} added to wishlist for user ${userId}`);
+  
+  return wishlist.populate("products", "title images price");
+});
 
-module.exports = new WishlistService();
+exports.removeFromWishlist = asyncHandler(async (userId, productId) => {
+  const wishlist = await Wishlist.findOne({ user: userId });
+  
+  if (!wishlist) {
+    throw new Error("Wishlist not found");
+  }
+
+  wishlist.products = wishlist.products.filter(p => p.toString() !== productId);
+  await wishlist.save();
+
+  logger.info(`Product ${productId} removed from wishlist for user ${userId}`);
+  
+  return wishlist.populate("products", "title images price");
+});
+
+exports.getWishlist = asyncHandler(async (userId) => {
+  const wishlist = await Wishlist.findOne({ user: userId })
+    .populate("products", "title images price ratings category");
+  
+  return wishlist || { products: [] };
+});
 

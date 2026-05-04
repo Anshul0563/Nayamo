@@ -1,17 +1,8 @@
 const asyncHandler = require("../utils/asyncHandler");
 const wishlistService = require("../services/wishlistService");
 
-exports.getWishlist = asyncHandler(async (req, res) => {
-  const wishlist = await wishlistService.getWishlist(req.user._id);
-  res.json({
-    success: true,
-    data: wishlist,
-  });
-});
-
 exports.addToWishlist = asyncHandler(async (req, res) => {
-  const { productId } = req.body;
-  const wishlist = await wishlistService.addToWishlist(req.user._id, productId);
+  const wishlist = await wishlistService.addToWishlist(req.user._id, req.body.productId);
   res.json({
     success: true,
     message: "Added to wishlist",
@@ -20,11 +11,18 @@ exports.addToWishlist = asyncHandler(async (req, res) => {
 });
 
 exports.removeFromWishlist = asyncHandler(async (req, res) => {
-  const { productId } = req.body;
-  const wishlist = await wishlistService.removeFromWishlist(req.user._id, productId);
+  const wishlist = await wishlistService.removeFromWishlist(req.user._id, req.body.productId);
   res.json({
     success: true,
     message: "Removed from wishlist",
+    data: wishlist,
+  });
+});
+
+exports.getWishlist = asyncHandler(async (req, res) => {
+  const wishlist = await wishlistService.getWishlist(req.user._id);
+  res.json({
+    success: true,
     data: wishlist,
   });
 });

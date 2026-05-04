@@ -1,27 +1,30 @@
 const asyncHandler = require("../utils/asyncHandler");
 const orderService = require("../services/orderService");
 const logger = require("../config/logger");
-const Cart = require("../models/Cart");
 
-exports.placeOrder = asyncHandler(async (req, res) => {
-  const order = await orderService.placeOrder(req.user._id, req.body);
+exports.createOrder = asyncHandler(async (req, res) => {
+  const order = await orderService.createOrder(req.user._id, req.body);
+  
   res.status(201).json({
     success: true,
-    message: "Order placed successfully",
+    message: "Order created successfully",
     data: order,
   });
 });
 
-exports.getOrders = asyncHandler(async (req, res) => {
+exports.getMyOrders = asyncHandler(async (req, res) => {
   const orders = await orderService.getUserOrders(req.user._id, req.query);
+  
   res.json({
     success: true,
-    data: orders,
+    data: orders.orders,
+    pagination: orders.pagination,
   });
 });
 
-exports.getOrderById = asyncHandler(async (req, res) => {
+exports.getOrderDetails = asyncHandler(async (req, res) => {
   const order = await orderService.getOrderById(req.user._id, req.params.id);
+  
   res.json({
     success: true,
     data: order,
@@ -30,9 +33,21 @@ exports.getOrderById = asyncHandler(async (req, res) => {
 
 exports.cancelOrder = asyncHandler(async (req, res) => {
   const order = await orderService.cancelOrder(req.user._id, req.params.id);
+  
   res.json({
     success: true,
-    message: "Order cancelled",
+    message: "Order cancelled successfully",
+    data: order,
+  });
+});
+
+exports.returnOrder = asyncHandler(async (req, res) => {
+  const { reason } = req.body;
+  const order = await orderService.returnOrder(req.user._id, req.params.id, reason);
+  
+  res.json({
+    success: true,
+    message: "Return request submitted",
     data: order,
   });
 });
