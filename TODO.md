@@ -1,15 +1,30 @@
-# TailwindCSS Fix - CRACO/PostCSS Pipeline
-Status: ✅ Approved by user (fix both client + admin)
+# Nayamo Rebuild TODO
 
-## Steps (0/6 completed)
+## Status: Backend 70% (Auth/Products/Cart done)
 
-### 1. Create TODO.md ✅
-### 2. Update client/craco.config.js ✅ 
-### 3. Update admin/craco.config.js ✅ 
-### 4. Test client dev server
-### 5. Test admin dev server  
-### 6. Verify production build & browser CSS
+### [x] Step 1: Project Structure
+- [x] Root files (package.json, README, .env.example)
+- [x] Backend package.json/server.js/PM2/Docker
 
-**Status:** craco.config.js fixed for both projects
+### [x] Step 2: Backend Core
+- [x] All models (User/Product/Order/Cart/Wishlist/Review/Notification/Settings)
+- [x] Config (db/logger/cloudinary/redis)
+- [x] Middleware (auth/admin/error/validate/upload)
+- [x] Utils (asyncHandler/escapeRegex)
+- [x] Products API (GET/POST)
+- [x] Cart API (CRUD)
+- [x] Auth API (register/login/refresh/profile)
 
-**Next:** Edit craco.config.js files
+### [ ] Remaining Backend
+- Orders/Reviews/Admin/Contact/Wishlist/Payment/Delhivery routes/services
+- Jobs/notificationService
+- Test files
+
+### [ ] Step 3: Client Vite Migration
+
+### [ ] Step 4: Admin Vite Migration
+
+### [ ] Step 5: Full Testing
+
+**Next: Backend Orders API (placeOrder/getOrders)**
+
