@@ -3,10 +3,14 @@ const path = require('path');
 module.exports = {
   style: {
     postcss: {
-      plugins: [
-        require('tailwindcss'),
-        require('autoprefixer'),
-      ],
+      loaderOptions: {
+        postcssOptions: {
+          plugins: [
+            require('tailwindcss'),
+            require('autoprefixer'),
+          ],
+        },
+      },
     },
   },
   webpack: {
