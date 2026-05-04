@@ -1,6 +1,14 @@
 const path = require('path');
 
 module.exports = {
+  style: {
+    postcss: {
+      plugins: [
+        require('tailwindcss'),
+        require('autoprefixer'),
+      ],
+    },
+  },
   webpack: {
     configure: (webpackConfig) => {
       // Exclude date-fns from source-map-loader (CRA 5 issue with ESM)
@@ -23,5 +31,4 @@ module.exports = {
       return webpackConfig;
     },
   },
-
 };

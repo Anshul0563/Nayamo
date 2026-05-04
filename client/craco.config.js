@@ -1,6 +1,14 @@
 const path = require('path');
 
 module.exports = {
+  style: {
+    postcss: {
+      plugins: [
+        require('tailwindcss'),
+        require('autoprefixer'),
+      ],
+    },
+  },
   webpack: {
     configure: (webpackConfig) => {
       // Exclude lucide-react and other ESM libs from source-map-loader
@@ -26,5 +34,4 @@ module.exports = {
       return webpackConfig;
     },
   },
-
 };
