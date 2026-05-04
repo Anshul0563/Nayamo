@@ -6,32 +6,31 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies (FIXED)
+RUN npm install --production && npm cache clean --force
 
 # Production stage
 FROM node:20-alpine
 
-# Install dumb-init for proper signal handling
+# Install dumb-init
 RUN apk add --no-cache dumb-init
 
-# Create app directory
 WORKDIR /app
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
-# Copy dependencies from builder
+# Copy dependencies
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
-# Copy app source
+# Copy source code
 COPY --chown=nodejs:nodejs . .
 
 # Create logs directory
 RUN mkdir -p logs && chown -R nodejs:nodejs logs
 
-# Switch to non-root user
+# Switch user
 USER nodejs
 
 # Expose port
@@ -41,8 +40,6 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD node -e "require('http').get('http://localhost:5000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Use dumb-init to handle signals properly
+# Start app
 ENTRYPOINT ["dumb-init", "--"]
-
-# Start the application
 CMD ["node", "server.js"]
