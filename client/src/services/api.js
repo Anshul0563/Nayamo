@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
+// ✅ FIXED (VITE ENV)
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -40,7 +41,16 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // ❗ Skip refresh for login/register
+    const isAuthRoute =
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/register");
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthRoute
+    ) {
       if (isRefreshing) {
         return new Promise((resolve) => {
           addRefreshSubscriber((newToken) => {
@@ -55,9 +65,7 @@ apiClient.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) {
-          throw new Error("No refresh token");
-        }
+        if (!refreshToken) throw new Error("No refresh token");
 
         const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {
           refreshToken,
@@ -73,12 +81,10 @@ apiClient.interceptors.response.use(
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
-      } catch (refreshError) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
+      } catch (err) {
+        localStorage.clear();
         window.location.href = "/login";
-        return Promise.reject(refreshError);
+        return Promise.reject(err);
       } finally {
         isRefreshing = false;
       }
@@ -88,7 +94,8 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Auth APIs
+// ================= APIs =================
+
 export const authAPI = {
   register: (data) => apiClient.post("/auth/register", data),
   login: (data) => apiClient.post("/auth/login", data),
@@ -97,13 +104,11 @@ export const authAPI = {
   logoutAll: () => apiClient.post("/auth/logout-all"),
 };
 
-// Product APIs
 export const productAPI = {
   getProducts: (params) => apiClient.get("/products", { params }),
   getProductById: (id) => apiClient.get(`/products/${id}`),
 };
 
-// Cart APIs
 export const cartAPI = {
   getCart: () => apiClient.get("/cart"),
   addToCart: (productId) => apiClient.post("/cart/add", { productId }),
@@ -113,7 +118,6 @@ export const cartAPI = {
     apiClient.post("/cart/remove", { productId }),
 };
 
-// Wishlist APIs
 export const wishlistAPI = {
   getWishlist: () => apiClient.get("/wishlist"),
   addToWishlist: (productId) =>
@@ -122,7 +126,6 @@ export const wishlistAPI = {
     apiClient.post("/wishlist/remove", { productId }),
 };
 
-// Order APIs
 export const orderAPI = {
   placeOrder: (data) => apiClient.post("/orders", data),
   getOrders: () => apiClient.get("/orders"),
@@ -131,22 +134,20 @@ export const orderAPI = {
   returnOrder: (id) => apiClient.put(`/orders/${id}/return`),
 };
 
-// Payment APIs
 export const paymentAPI = {
   createOrder: (data) => apiClient.post("/payment/create-order", data),
   verifyPayment: (data) => apiClient.post("/payment/verify", data),
 };
 
-// Contact APIs
 export const contactAPI = {
   sendMessage: (data) => apiClient.post("/contact", data),
 };
 
-// Review APIs
 export const reviewAPI = {
-  getProductReviews: (productId, params) => apiClient.get(`/reviews/product/${productId}`, { params }),
-  submitReview: (productId, data) => apiClient.post(`/reviews/product/${productId}`, data),
+  getProductReviews: (productId, params) =>
+    apiClient.get(`/reviews/product/${productId}`, { params }),
+  submitReview: (productId, data) =>
+    apiClient.post(`/reviews/product/${productId}`, data),
 };
 
 export default apiClient;
-
