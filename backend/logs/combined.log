@@ -19181,3 +19181,11 @@
 {"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"nayamo-api","timestamp":"2026-05-03 12:10:02"}
 {"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"nayamo-api","timestamp":"2026-05-03 12:10:04"}
 {"level":"error","message":"Forced shutdown after timeout.","service":"nayamo-api","timestamp":"2026-05-03 12:10:12"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-04 15:51:04"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-04 15:51:04"}
+{"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-04 15:51:04"}
+{"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-04 15:51:04"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-04 15:51:09"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-04 15:51:09"}
+{"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-04 15:51:09"}
+{"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-04 15:51:09"}
