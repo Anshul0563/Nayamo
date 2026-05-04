@@ -23,7 +23,7 @@ class SocketService {
 
 // Admin namespace connection
     this.socket.on('connect', () => {
-      console.log('Socket.IO connected - Admin namespace');
+
       
       // Emit socket connect event for UI state tracking
       window.dispatchEvent(new CustomEvent('socket:connect'));
@@ -42,7 +42,7 @@ class SocketService {
         detail: notification 
       }));
       
-      console.log('New notification:', notification.title);
+
     });
 
     this.socket.on('notifications', (notifications) => {
@@ -85,7 +85,7 @@ class SocketService {
 
     // Disconnect handling
     this.socket.on('disconnect', () => {
-      console.log('Socket.IO disconnected');
+
       window.dispatchEvent(new CustomEvent('socket:disconnect'));
     });
   }
@@ -103,7 +103,7 @@ class SocketService {
       this.notifications = data.data || [];
       this.unreadCount = data.data?.length || 0;
     } catch (err) {
-      console.error('Failed to fetch notifications:', err);
+
     }
   }
 

@@ -70,7 +70,7 @@ export default function Analytics() {
         if (result.status === 'fulfilled') {
           return result.value?.data?.data || result.value?.data || {};
         }
-        console.warn('Analytics API error:', result.reason);
+
         return fallback;
       };
 
@@ -98,7 +98,7 @@ export default function Analytics() {
         growthRate: analytics.growthRate || 0,
       });
     } catch (err) {
-      console.error('Analytics error:', err);
+
       setError('Failed to load analytics data. Please try again.');
     } finally {
       setLoading(false);

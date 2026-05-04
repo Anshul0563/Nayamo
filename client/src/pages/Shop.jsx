@@ -61,7 +61,7 @@ export default function Shop() {
           res.data?.pagination || { currentPage: 1, totalPages: 1 },
         );
       } catch (err) {
-        console.error("Shop error:", err);
+
       } finally {
         setLoading(false);
       }

@@ -29,7 +29,7 @@ export default function Home() {
         const res = await productAPI.getProducts({ page: 1 });
         setProducts(res.data?.data?.products?.slice(0, 6) || []);
       } catch (err) {
-        console.error("Home products error:", err);
+
       }
     };
     fetchProducts();

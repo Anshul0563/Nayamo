@@ -41,7 +41,7 @@ export default function Dashboard() {
       setRecentOrders(data.recentOrders || []);
       setChartData(data.chartData || []);
     } catch (err) {
-      console.error("Dashboard Error:", err);
+
       setError("Failed to load dashboard data");
     } finally {
       setLoading(false);
@@ -58,7 +58,7 @@ export default function Dashboard() {
 
       setChartData(data.chartData || []);
     } catch (err) {
-      console.error("Chart Error:", err);
+
     } finally {
       setChartLoading(false);
     }

@@ -40,10 +40,24 @@ console.log("🚀 Starting Nayamo server...");
 app.set("trust proxy", 1);
 
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGINS?.split(",") || "*",
-  credentials: true
-}));
+
+const corsOrigins = (process.env.CORS_ORIGINS || "").split(",").map((origin) => origin.trim()).filter(Boolean);
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (corsOrigins.length === 0 || corsOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(compression());
 app.use(express.json());
