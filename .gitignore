@@ -3,5 +3,13 @@ backend/node_modules/
 
 .env
 backend/.env
+backend/.env.local
+backend/.env.*.local
+
+admin/.env*.local
+client/.env*.local
+
+.DS_Store
+Thumbs.db
 
 recup_dir.*
