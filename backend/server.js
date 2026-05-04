@@ -41,24 +41,35 @@ app.set("trust proxy", 1);
 
 app.use(helmet());
 
-const corsOrigins = (process.env.CORS_ORIGINS || "").split(",").map((origin) => origin.trim()).filter(Boolean);
+// 🔥 FIXED CORS (PRODUCTION READY)
+const corsOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin) {
-      return callback(null, true);
-    }
+  origin: function (origin, callback) {
+    // allow requests without origin (Postman, mobile apps)
+    if (!origin) return callback(null, true);
+
     if (corsOrigins.length === 0 || corsOrigins.includes(origin)) {
       return callback(null, true);
     }
-    callback(new Error("Not allowed by CORS"));
+
+    console.log("❌ Blocked by CORS:", origin);
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 200,
 };
 
+// ✅ APPLY CORS PROPERLY
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options("*", cors(corsOptions)); // 🔥 preflight fix
 
+// ================= MIDDLEWARE =================
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -69,17 +80,19 @@ app.use(hpp());
 app.use(morgan("dev"));
 
 // ================= RATE LIMIT =================
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 500
-}));
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 500,
+  })
+);
 
 // ================= DB CHECK =================
 const requireDB = (req, res, next) => {
   if (!checkDB()) {
     return res.status(503).json({
       success: false,
-      message: "Database not connected"
+      message: "Database not connected",
     });
   }
   next();
@@ -89,8 +102,11 @@ const requireDB = (req, res, next) => {
 app.get("/health", (req, res) => {
   res.json({
     status: "OK",
-    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-    redis: redis ? "enabled" : "disabled"
+    db:
+      mongoose.connection.readyState === 1
+        ? "connected"
+        : "disconnected",
+    redis: redis ? "enabled" : "disabled",
   });
 });
 
@@ -110,7 +126,7 @@ app.use("/api/v1/admin", requireDB, adminRoutes);
 
 // ================= OPTIONAL SERVICES =================
 
-// Razorpay (optional)
+// Razorpay
 if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
   app.use("/api/v1/payment", requireDB, paymentRoutes);
   logger.info("✅ Razorpay enabled");
@@ -118,7 +134,7 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
   logger.warn("⚠️ Razorpay disabled (no keys)");
 }
 
-// Delhivery (optional)
+// Delhivery
 if (process.env.DELHIVERY_API_KEY) {
   app.use("/api/v1/delhivery", requireDB, delhiveryRoutes);
   logger.info("✅ Delhivery enabled");
@@ -133,26 +149,24 @@ app.use(errorHandler);
 // ================= START SERVER =================
 const startServer = async () => {
   try {
-    // Required env (minimum)
     const required = ["MONGO_URI", "JWT_SECRET"];
-
-    const missing = required.filter(v => !process.env[v]);
+    const missing = required.filter((v) => !process.env[v]);
 
     if (missing.length > 0) {
       console.warn("⚠️ Missing ENV:", missing.join(", "));
     }
 
-    // Connect DB
     const db = await connectDB();
 
     server.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`🌍 Mode: ${process.env.NODE_ENV || "development"}`);
+      console.log("🌐 Allowed Origins:", corsOrigins);
+
       if (!db) {
         console.warn("⚠️ DB not connected");
       }
     });
-
   } catch (err) {
     console.error("❌ Server Crash:", err);
     process.exit(1);
