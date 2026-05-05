@@ -2,7 +2,6 @@ const orderService = require("../services/orderService");
 const adminService = require("../services/adminService");
 const productService = require("../services/productService");
 const cloudinary = require("../config/cloudinary");
-const Product = require("../models/Product");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
@@ -305,28 +304,12 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
     throw new Error("Invalid product ID format");
   }
 
-  const product = await Product.findById(req.params.id);
+  const product = await adminService.deleteProduct(req.params.id);
 
   if (!product) {
     res.status(404);
     throw new Error("Product not found");
   }
-
-  // Delete images from Cloudinary using stored publicIds
-  if (product.images && product.images.length > 0) {
-    for (const img of product.images) {
-      try {
-        if (img.publicId) {
-          await cloudinary.uploader.destroy(img.publicId);
-          logger.info(`Deleted image from Cloudinary: ${img.publicId}`);
-        }
-      } catch (err) {
-        logger.error("Failed to delete image from Cloudinary:", err.message);
-      }
-    }
-  }
-
-  await adminService.deleteProduct(req.params.id);
 
   // Invalidate cache
   await productService.invalidateProductCache();
