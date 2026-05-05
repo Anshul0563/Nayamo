@@ -10,7 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.2",
     "date-fns": "^2.30.0",
-    "framer-motion": "^10.18.1",
+"framer-motion":"^11.3.30"
     "jsbarcode": "^3.11.5",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
