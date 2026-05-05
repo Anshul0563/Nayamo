@@ -27,7 +27,8 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
         const res = await productAPI.getProducts({ page: 1 });
-        setProducts(getProductsFromResponse(res.data).slice(0, 6));
+        const data = getProductsFromResponse(res.data) || [];
+        setProducts(data.slice(0, 6));
       } catch (err) {
 
       }
@@ -88,7 +89,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             >
-<motion.div
+              <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
@@ -228,7 +229,7 @@ export default function Home() {
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
           >
             {[
-                { icon: null, logo: true, title: "Luxury Crafted", desc: "Premium materials" },
+              { icon: null, logo: true, title: "Luxury Crafted", desc: "Premium materials" },
               { icon: Sparkles, title: "Designer Inspired", desc: "Latest trends" },
               { icon: Heart, title: "Comfort First", desc: "All-day wear" },
               { icon: Truck, title: "Swift Delivery", desc: "24hr dispatch" },
