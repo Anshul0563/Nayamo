@@ -1,7 +1,6 @@
 import React from "react";
 import { X, Star, ChevronDown } from "lucide-react";
-import { useFilter } from "../../context/FilterContext";
-
+import { useFilter } from "../context/FilterContext";
 const CATEGORIES = [
   "party",
   "daily",
