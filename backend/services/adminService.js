@@ -315,6 +315,27 @@ exports.getAllProducts = async ({ page = 1, limit = 20, search, category }) => {
 
 // Update product
 exports.updateProduct = async (id, data) => {
+  const currentProduct = await Product.findById(id).lean();
+  if (!currentProduct) return null;
+
+  // Delete images that are no longer in the new data
+  if (data.images && Array.isArray(data.images)) {
+    const newPublicIds = data.images.map(img => img.publicId).filter(Boolean);
+    const oldImages = currentProduct.images || [];
+    const imagesToDelete = oldImages.filter(img => img.publicId && !newPublicIds.includes(img.publicId));
+
+    if (imagesToDelete.length > 0) {
+      const cloudinary = require("../config/cloudinary");
+      for (const img of imagesToDelete) {
+        try {
+          await cloudinary.uploader.destroy(img.publicId);
+        } catch (error) {
+          console.error(`Failed to delete image ${img.publicId} from Cloudinary:`, error.message);
+        }
+      }
+    }
+  }
+
   return await Product.findByIdAndUpdate(id, data, {
     new: true,
     runValidators: true
@@ -323,6 +344,19 @@ exports.updateProduct = async (id, data) => {
 
 // Delete product
 exports.deleteProduct = async (id) => {
+  const product = await Product.findById(id).lean();
+  if (product && product.images && product.images.length > 0) {
+    const cloudinary = require("../config/cloudinary");
+    for (const img of product.images) {
+      if (img.publicId) {
+        try {
+          await cloudinary.uploader.destroy(img.publicId);
+        } catch (error) {
+          console.error(`Failed to delete image ${img.publicId} from Cloudinary:`, error.message);
+        }
+      }
+    }
+  }
   return await Product.findByIdAndDelete(id);
 };
 
