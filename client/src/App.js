@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Routes, Route, BrowserRouter } from "react-router-dom";
+import { Link, Routes, Route } from "react-router-dom";
 
 import ClientLayout from "./components/layout/ClientLayout";
 import Home from "./pages/Home";
@@ -19,7 +19,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
 // Contexts
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { FilterProvider } from "./context/FilterContext";
@@ -41,46 +41,39 @@ function NotFound() {
   );
 }
 
-function AppContent() {
-  return (
-    <Routes>
-      <Route element={<ClientLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/orders" element={<MyOrders />} />
-        <Route path="/orders/:id" element={<OrderDetails />} />
-        <Route path="/track-order" element={<TrackOrder />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
-  );
-}
-
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <FilterProvider>
-              <AppContent />
-            </FilterProvider>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <AuthProvider>
+      <CartProvider>
+        <WishlistProvider>
+          <FilterProvider>
+
+            <Routes>
+              <Route element={<ClientLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/shop" element={<Shop />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/orders" element={<MyOrders />} />
+                <Route path="/orders/:id" element={<OrderDetails />} />
+                <Route path="/track-order" element={<TrackOrder />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+
+          </FilterProvider>
+        </WishlistProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 
 export default App;
-
