@@ -1,18 +1,23 @@
 import axios from "axios";
 
-// ✅ FIXED (VITE ENV)
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://nayamo.onrender.com/api/v1';
+// ✅ Using CRA environment variable
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
+if (!API_BASE_URL) {
+  throw new Error("❌ REACT_APP_API_URL is not defined");
+}
+
+// ✅ Axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
-  withCredentials: true, // ✅ CRITICAL: Allow cookies and credentials in CORS requests
+  withCredentials: true, // IMPORTANT for CORS + cookies
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Request interceptor - attach access token
+// ================= REQUEST INTERCEPTOR =================
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
@@ -24,7 +29,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor - handle token refresh on 401
+// ================= RESPONSE INTERCEPTOR =================
 let isRefreshing = false;
 let refreshSubscribers = [];
 
@@ -40,9 +45,8 @@ const addRefreshSubscriber = (callback) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config || {};
 
-    // ❗ Skip refresh for login/register
     const isAuthRoute =
       originalRequest.url?.includes("/auth/login") ||
       originalRequest.url?.includes("/auth/register");
@@ -68,21 +72,27 @@ apiClient.interceptors.response.use(
         const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) throw new Error("No refresh token");
 
-        const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refreshToken,
-        });
+        const res = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          { refreshToken },
+          { withCredentials: true }
+        );
 
         const { accessToken, refreshToken: newRefreshToken } = res.data;
 
+        // ✅ Save tokens
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", newRefreshToken);
 
-        apiClient.defaults.headers.Authorization = `Bearer ${accessToken}`;
+        // ✅ Update default header properly
+        apiClient.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+
         onTokenRefreshed(accessToken);
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (err) {
+        // ❌ logout fallback
         localStorage.clear();
         window.location.href = "/login";
         return Promise.reject(err);
@@ -97,6 +107,7 @@ apiClient.interceptors.response.use(
 
 // ================= APIs =================
 
+// Auth
 export const authAPI = {
   register: (data) => apiClient.post("/auth/register", data),
   login: (data) => apiClient.post("/auth/login", data),
@@ -105,11 +116,13 @@ export const authAPI = {
   logoutAll: () => apiClient.post("/auth/logout-all"),
 };
 
+// Products
 export const productAPI = {
   getProducts: (params) => apiClient.get("/products", { params }),
   getProductById: (id) => apiClient.get(`/products/${id}`),
 };
 
+// Cart
 export const cartAPI = {
   getCart: () => apiClient.get("/cart"),
   addToCart: (productId) => apiClient.post("/cart/add", { productId }),
@@ -119,6 +132,7 @@ export const cartAPI = {
     apiClient.post("/cart/remove", { productId }),
 };
 
+// Wishlist
 export const wishlistAPI = {
   getWishlist: () => apiClient.get("/wishlist"),
   addToWishlist: (productId) =>
@@ -127,6 +141,7 @@ export const wishlistAPI = {
     apiClient.post("/wishlist/remove", { productId }),
 };
 
+// Orders
 export const orderAPI = {
   placeOrder: (data) => apiClient.post("/orders", data),
   getOrders: () => apiClient.get("/orders"),
@@ -135,15 +150,18 @@ export const orderAPI = {
   returnOrder: (id) => apiClient.put(`/orders/${id}/return`),
 };
 
+// Payments
 export const paymentAPI = {
   createOrder: (data) => apiClient.post("/payment/create-order", data),
   verifyPayment: (data) => apiClient.post("/payment/verify", data),
 };
 
+// Contact
 export const contactAPI = {
   sendMessage: (data) => apiClient.post("/contact", data),
 };
 
+// Reviews
 export const reviewAPI = {
   getProductReviews: (productId, params) =>
     apiClient.get(`/reviews/product/${productId}`, { params }),
