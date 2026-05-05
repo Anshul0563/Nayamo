@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Search } from "lucide-react";
+import { X, Star } from "lucide-react";
 
 const categories = [
   "party",
@@ -10,58 +10,26 @@ const categories = [
   "bridal",
 ];
 
+const ratings = [4, 3, 2];
+
 export default function ProductFilters({
   showFilters,
-  setShowFilters,
   category,
   updateParam,
-  search,
-  setSearch,
+  rating,
+  setRating,
   clearFilters,
 }) {
   if (!showFilters) return null;
 
   return (
-    <div className="w-full max-w-sm bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-      
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 tracking-tight">
-          Filters
-        </h2>
+    <div className="mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-5 py-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-md">
 
-        {(category || search) && (
-          <button
-            onClick={clearFilters}
-            className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1"
-          >
-            <X className="w-4 h-4" />
-            Clear
-          </button>
-        )}
-      </div>
+        {/* Categories */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-zinc-500 mr-2">Category:</span>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-gray-400"
-          />
-        </div>
-      </div>
-
-      {/* Categories */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-3">
-          Category
-        </h3>
-
-        <div className="flex flex-wrap gap-2">
           {categories.map((c) => {
             const active = category === c;
 
@@ -71,10 +39,10 @@ export default function ProductFilters({
                 onClick={() =>
                   updateParam("category", active ? "" : c)
                 }
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                   active
-                    ? "bg-black text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    ? "bg-[#D4A853] text-black shadow-[0_0_10px_rgba(212,168,83,0.4)]"
+                    : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-white"
                 }`}
               >
                 {c}
@@ -82,18 +50,45 @@ export default function ProductFilters({
             );
           })}
         </div>
+
+        {/* Rating */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-zinc-500">Rating:</span>
+
+          {ratings.map((r) => {
+            const active = rating === r;
+
+            return (
+              <button
+                key={r}
+                onClick={() => {
+                  setRating(active ? 0 : r);
+                  updateParam("rating", active ? "" : r);
+                }}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                  active
+                    ? "bg-[#D4A853] text-black"
+                    : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                <Star className="w-3 h-3 fill-current" />
+                {r}+
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Clear */}
+        {(category || rating > 0) && (
+          <button
+            onClick={clearFilters}
+            className="flex items-center gap-1 text-xs text-[#D4A853] hover:text-white transition"
+          >
+            <X className="w-3 h-3" />
+            Reset
+          </button>
+        )}
       </div>
-
-      {/* Divider */}
-      <div className="border-t border-gray-100 my-4" />
-
-      {/* Footer */}
-      <button
-        onClick={clearFilters}
-        className="w-full text-sm py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition"
-      >
-        Reset Filters
-      </button>
     </div>
   );
 }
