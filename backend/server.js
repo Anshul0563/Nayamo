@@ -28,6 +28,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const delhiveryRoutes = require("./routes/delhiveryRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const imageRoutes = require("./routes/imageRoutes");
 
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 
@@ -179,6 +180,7 @@ app.use("/api/v1/orders", requireDB, orderRoutes);
 app.use("/api/v1/reviews", requireDB, reviewRoutes);
 app.use("/api/v1/contact", requireDB, contactRoutes);
 app.use("/api/v1/admin", requireDB, adminRoutes);
+app.use("/api/v1/images", imageRoutes);
 
 if (process.env.RAZORPAY_KEY_ID) {
   app.use("/api/v1/payment", requireDB, paymentRoutes);
