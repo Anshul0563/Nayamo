@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import { adminAPI } from './api';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
+const API_URL = process.env.REACT_APP_API_URL;
 const SOCKET_URL = API_URL.replace(/\/api\/v1\/?$/, '');
 
 class SocketService {

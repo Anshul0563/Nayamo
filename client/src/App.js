@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, Routes, Route } from "react-router-dom";
-import { SpeedInsights } from "@vercel/speed-insights/react";
+
 
 import ClientLayout from "./components/layout/ClientLayout";
 import Home from "./pages/Home";
@@ -60,9 +60,8 @@ function App() {
         </Route>
       </Routes>
 
-      <SpeedInsights />
-    </>
-  );
+    </>);
+
 }
 
 export default App;
