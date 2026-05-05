@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { adminAPI } from '../services/api';
-import { Search, Loader2, Filter, Users as UsersIcon, UserCheck, UserX, Crown, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { Search, Loader2, Users as UsersIcon, UserCheck, UserX, Crown, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { SkeletonTable } from '../components/ui/Skeleton';
 import StatCard from '../components/ui/StatCard';
 import ExportButton from '../components/ExportButton';

@@ -156,7 +156,7 @@ export const adminAPI = {
       headers: { "Content-Type": "multipart/form-data" },
     }),
   createProduct: (data) =>
-    apiClient.post("/products", data),
+    apiClient.post("/admin/products", data),
 
   getUsers: (params = {}) =>
     apiClient.get("/admin/users", { params }),

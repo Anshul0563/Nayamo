@@ -2,7 +2,6 @@ import React from "react";
 import { Heart, ShoppingBag, Eye, Sparkles, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import logo from "../../assets/logo.png";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 
