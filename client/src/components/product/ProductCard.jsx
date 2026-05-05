@@ -1,15 +1,27 @@
 import React from "react";
-import { Heart, ShoppingBag, Eye, Sparkles, Star } from "lucide-react";
+import { Eye, Heart, ShoppingBag, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 
+const PLACEHOLDER_IMAGE = "/placeholder.jpg";
+
+const getProductImage = (product) =>
+  product.images?.[0]?.url ||
+  product.images?.[0] ||
+  product.image ||
+  PLACEHOLDER_IMAGE;
+
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  const inWishlist = isInWishlist(product._id);
+  const productId = product._id || product.id;
+  const title = product.title || product.name || "Exquisite Jewellery";
+  const inWishlist = isInWishlist(productId);
+  const ratingAverage = product.ratings?.average || 0;
+  const ratingCount = product.ratings?.count || 0;
   const discount =
     product.originalPrice && product.originalPrice > product.price
       ? Math.round(
@@ -19,224 +31,129 @@ export default function ProductCard({ product, index = 0 }) {
       : 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.9 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-60px" }}
+    <motion.article
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
       transition={{
-        duration: 0.7,
-        delay: index * 0.12,
-        ease: [0.22, 1, 0.36, 1],
+        duration: 0.34,
+        delay: Math.min(index * 0.04, 0.24),
+        ease: "easeOut",
       }}
-      whileHover={{ y: -8 }}
-      className="group"
+      whileHover={{ y: -4 }}
+      className="group h-full"
     >
-      <div className="relative bg-white/[0.02] border border-white/[0.08] rounded-3xl backdrop-blur-xl overflow-hidden shadow-2xl hover:shadow-[0_20px_60px_rgba(212,168,83,0.15)] transition-all duration-700 hover:border-[#D4A853]/30">
-        {/* Background Glow Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#D4A853]/5 via-transparent to-[#D4A5A5]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-        {/* Image Area */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-[#0A0A0C] to-[#070708]">
-          <Link to={`/product/${product._id}`} className="block w-full h-full">
+      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0F0F11]/80 shadow-[0_14px_44px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:border-[#D4A853]/35 hover:shadow-[0_18px_54px_rgba(212,168,83,0.14)] sm:rounded-3xl">
+        <div className="relative aspect-[4/5] overflow-hidden bg-[#070708]">
+          <Link to={`/product/${productId}`} className="block h-full w-full">
             <motion.img
-              src={
-                product.images?.[0]?.url ||
-                product.images?.[0] ||
-                product.image ||
-                "/placeholder.jpg"
-              }
-              alt={product.title || product.name}
-              className="w-full h-full object-cover"
+              src={getProductImage(product)}
+              alt={title}
+              className="h-full w-full object-cover"
               loading="lazy"
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ scale: 1.04 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
             />
-            {/* Luxury Vignette overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#070708]/80 via-[#070708]/30 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
-            <div className="absolute inset-0 bg-gradient-to-br from-[#D4A853]/10 via-transparent to-[#D4A5A5]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#060607]/78 via-transparent to-transparent opacity-80" />
           </Link>
 
+          {discount > 0 && (
+            <div className="absolute left-2 top-2 rounded-full border border-[#D4A853]/35 bg-[#D4A853] px-2.5 py-1 text-[10px] font-bold text-[#060607] shadow-[0_8px_24px_rgba(212,168,83,0.24)] sm:left-3 sm:top-3 sm:text-xs">
+              {discount}% OFF
+            </div>
+          )}
 
-
-          {/* Action Buttons - Elegant slide animation */}
-          <motion.div
-            className="absolute top-4 right-4 flex flex-col gap-3"
-            initial={{ x: 60, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            transition={{ delay: index * 0.15 + 0.4, duration: 0.6 }}
-          >
-            <motion.button
+          <div className="absolute right-2 top-2 flex flex-col gap-2 sm:right-3 sm:top-3">
+            <button
+              type="button"
+              aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 toggleWishlist(product);
               }}
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-500 overflow-hidden ${
+              className={`flex h-9 w-9 items-center justify-center rounded-full border shadow-lg backdrop-blur-xl transition-all duration-300 sm:h-10 sm:w-10 ${
                 inWishlist
-                  ? "bg-gradient-to-br from-[#D4A5A5] via-[#C48888] to-[#D4A5A5] shadow-[0_8px_32px_rgba(212,165,165,0.4)]"
-                  : "bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] hover:bg-white/[0.15] hover:border-[#D4A5A5]/40 hover:shadow-[0_8px_32px_rgba(212,165,165,0.3)]"
+                  ? "border-[#D4A5A5]/50 bg-[#D4A5A5] text-white"
+                  : "border-white/[0.14] bg-black/35 text-white hover:border-[#D4A5A5]/45 hover:bg-[#D4A5A5]/20"
               }`}
-              whileHover={{ scale: 1.1, rotate: inWishlist ? 360 : 0 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 300 }}
             >
               <Heart
-                className={`w-5 h-5 transition-all duration-300 ${
-                  inWishlist
-                    ? "text-white fill-white scale-110"
-                    : "text-white group-hover:text-[#D4A5A5]"
-                }`}
+                className={`h-4 w-4 ${inWishlist ? "fill-white" : ""}`}
               />
-            </motion.button>
+            </button>
 
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 300 }}
+            <Link
+              to={`/product/${productId}`}
+              aria-label="View product"
+              className="hidden h-10 w-10 items-center justify-center rounded-full border border-white/[0.14] bg-black/35 text-white shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-[#D4A853]/45 hover:bg-[#D4A853]/15 sm:flex"
             >
-              <Link
-                to={`/product/${product._id}`}
-                className="w-11 h-11 rounded-2xl bg-white/[0.08] backdrop-blur-xl border border-white/[0.12] flex items-center justify-center hover:bg-white/[0.15] hover:border-[#D4A853]/40 transition-all duration-500 shadow-xl hover:shadow-[0_8px_32px_rgba(212,168,83,0.3)]"
-              >
-                <Eye className="w-5 h-5 text-white group-hover:text-[#D4A853] transition-colors" />
-              </Link>
-            </motion.div>
-          </motion.div>
+              <Eye className="h-4 w-4" />
+            </Link>
+          </div>
 
-          {/* Luxury Quick Add Button */}
-          <motion.div
-            className="absolute bottom-6 left-6 right-6"
-            initial={{ y: 80, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: index * 0.15 + 0.6, duration: 0.6 }}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addToCart(product, 1);
+            }}
+            className="absolute bottom-2 left-2 right-2 flex h-10 items-center justify-center gap-2 rounded-full bg-[#D4A853] text-xs font-bold text-[#060607] shadow-[0_12px_34px_rgba(212,168,83,0.28)] transition-all duration-300 hover:bg-[#F0D78C] sm:bottom-3 sm:left-3 sm:right-3 sm:h-11 sm:text-sm"
           >
-            <motion.button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                addToCart(product, 1);
-              }}
-              className="w-full py-4 rounded-2xl text-sm font-bold bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] text-black shadow-[0_12px_40px_rgba(212,168,83,0.4)] flex items-center justify-center gap-3 hover:shadow-[0_16px_60px_rgba(212,168,83,0.5)] transition-all duration-500 border-2 border-[#D4A853]/50 overflow-hidden relative group"
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              <ShoppingBag className="w-5 h-5 relative z-10" />
-              <span className="relative z-10">Add to Cart</span>
-              <Sparkles className="w-4 h-4 relative z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </motion.button>
-          </motion.div>
+            <ShoppingBag className="h-4 w-4" />
+            <span className="hidden min-[380px]:inline">Add to Cart</span>
+            <span className="min-[380px]:hidden">Add</span>
+          </button>
         </div>
 
-        {/* Premium Info Section */}
-        <div className="p-6 bg-gradient-to-b from-transparent to-white/[0.02]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.15 + 0.8, duration: 0.5 }}
-          >
-            <h3 className="text-lg font-bold text-white group-hover:text-[#D4A853] transition-colors duration-500 line-clamp-2 mb-2 leading-tight">
-              <Link
-                to={`/product/${product._id}`}
-                className="hover:underline decoration-[#D4A853]/50 underline-offset-4"
-              >
-                {product.title || product.name || "Exquisite Handcrafted Earrings"}
-              </Link>
-            </h3>
+        <div className="flex flex-1 flex-col p-3 sm:p-5">
+          {product.category && (
+            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-normal text-[#D4A853] sm:text-xs">
+              {product.category}
+            </p>
+          )}
 
-            {product.category && (
-              <motion.div
-                className="flex items-center gap-2 mb-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: index * 0.15 + 1 }}
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-[#D4A853]" />
-                <p className="text-xs text-zinc-400 uppercase tracking-widest font-semibold">
-                  {product.category}
-                </p>
-              </motion.div>
-            )}
+          <h3 className="mb-2 line-clamp-2 min-h-[2.4rem] text-sm font-semibold leading-5 text-white transition-colors duration-300 group-hover:text-[#D4A853] sm:min-h-[3rem] sm:text-lg sm:leading-6">
+            <Link to={`/product/${productId}`}>{title}</Link>
+          </h3>
 
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <motion.span
-                  className="text-xl font-bold bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] bg-clip-text text-transparent"
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  transition={{
-                    delay: index * 0.15 + 1.2,
-                    type: "spring",
-                    stiffness: 200,
-                  }}
-                >
-                  ₹{product.price?.toLocaleString("en-IN")}
-                </motion.span>
-                {discount > 0 && (
-                  <motion.span
-                    className="text-sm text-zinc-500 line-through"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.15 + 1.4 }}
-                  >
-                    ₹{product.originalPrice?.toLocaleString("en-IN")}
-                  </motion.span>
-                )}
-              </div>
+          <div className="mt-auto">
+            <div className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-base font-bold text-[#D4A853] sm:text-xl">
+                ₹{product.price?.toLocaleString("en-IN") || "0"}
+              </span>
+              {discount > 0 && (
+                <span className="text-xs text-zinc-500 line-through sm:text-sm">
+                  ₹{product.originalPrice?.toLocaleString("en-IN")}
+                </span>
+              )}
             </div>
 
-            {/* Enhanced Rating Display - Always show if ratings exist */}
-            {product.ratings?.count > 0 && (
-              <motion.div
-                className="flex items-center gap-2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.15 + 1.6, duration: 0.4 }}
-              >
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <motion.svg
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i < Math.floor(product.ratings.average || 0)
-                          ? "fill-[#D4A853] text-[#D4A853]"
-                          : "fill-zinc-600 text-zinc-600"
-                      }`}
-                      viewBox="0 0 20 20"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: index * 0.15 + 1.6 + i * 0.1 }}
-                    >
-                      <path d="M10 15l-5.878 3.09 1.123-6.645L.197 6.015l6.695-.972L10 0l3.108 5.043 6.695.972-5.046 5.43 1.123 6.645z" />
-                    </motion.svg>
-                  ))}
-                </div>
-                <span className="text-sm text-zinc-400 font-medium">
-                  {product.ratings.average?.toFixed(1)}
+            <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+                      i < Math.floor(ratingAverage)
+                        ? "fill-[#D4A853] text-[#D4A853]"
+                        : "text-zinc-650"
+                    }`}
+                  />
+                ))}
+              </div>
+              {ratingCount > 0 ? (
+                <span>
+                  {ratingAverage.toFixed(1)} ({ratingCount})
                 </span>
-                <span className="text-xs text-zinc-500">
-                  ({product.ratings.count})
-                </span>
-              </motion.div>
-            )}
-            {/* Show "No reviews" when count is 0 */}
-            {(!product.ratings?.count || product.ratings.count === 0) && (
-              <motion.div
-                className="flex items-center gap-1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-zinc-600" />
-                  ))}
-                </div>
-                <span className="text-xs text-zinc-500">No reviews</span>
-              </motion.div>
-            )}
-          </motion.div>
+              ) : (
+                <span>No reviews</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </motion.article>
   );
 }
