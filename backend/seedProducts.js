@@ -27,7 +27,7 @@ const seedProducts = async () => {
         price: 8500,
         category: "party",
         stock: 12,
-        images: [{ url: "https://images.unsplash.com/photo-1582359646-ddff92ffe7e8?w=800", publicId: "" }],
+        images: [{ url: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800", publicId: "" }],
         ratings: { average: 4.2, count: 15 }
       },
       {
