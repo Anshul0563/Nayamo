@@ -207,13 +207,13 @@ export default function RefundPolicy() {
 
               {/* PHONE */}
               <a
-                href="tel:+919999999999"
+                href="tel:+919718176159"
                 className="flex items-start gap-4 bg-[#18181C]/60 border border-[#D4A853]/20 rounded-lg p-4 hover:border-[#D4A853]/50 transition-all duration-300"
               >
                 <Phone className="text-[#D4A853] flex-shrink-0 mt-1" size={20} />
                 <div>
                   <p className="font-semibold text-white">Phone</p>
-                  <p className="text-sm text-[#D4A853] hover:text-white">+91-XXXXXXXXXX</p>
+                  <p className="text-sm text-[#D4A853] hover:text-white">+91-9718176159</p>
                 </div>
               </a>
 
