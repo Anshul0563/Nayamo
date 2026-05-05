@@ -57,36 +57,7 @@ export default function ProductCard({ product, index = 0 }) {
             <div className="absolute inset-0 bg-gradient-to-br from-[#D4A853]/10 via-transparent to-[#D4A5A5]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </Link>
 
-          {/* Premium Badge */}
-          <motion.div
-            className="absolute top-4 left-4 flex items-center gap-2"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{
-              delay: index * 0.15 + 0.3,
-              type: "spring",
-              stiffness: 200,
-            }}
-          >
-            <div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] shadow-[0_8px_24px_rgba(212,168,83,0.4)] ring-1 ring-white/20">
-              <motion.img
-                src={logo}
-                alt="Crown"
-                className="w-4 h-4 object-contain"
-                whileHover={{ scale: 1.1 }}
-              />
-            </div>
-            {discount > 0 && (
-              <motion.div
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: index * 0.15 + 0.5 }}
-                className="px-3 py-1.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[#D4A853] to-[#C9963B] text-black shadow-[0_6px_20px_rgba(212,168,83,0.4)] border border-[#D4A853]/50"
-              >
-                {discount}% OFF
-              </motion.div>
-            )}
-          </motion.div>
+
 
           {/* Action Buttons - Elegant slide animation */}
           <motion.div
