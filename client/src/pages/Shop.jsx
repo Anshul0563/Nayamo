@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Sparkles,
   Star,
-
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { productAPI } from "../services/api";
@@ -45,7 +44,7 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [showFilters, setShowFilters] = useState(false);
-  
+
   // New filter states
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [rating, setRating] = useState(0);
@@ -77,12 +76,12 @@ export default function Shop() {
       if (priceRange[0] > 0) params.priceMin = priceRange[0];
       if (priceRange[1] < 50000) params.priceMax = priceRange[1];
       if (rating > 0) params.rating = rating;
-      
+
       const res = await productAPI.getProducts(params);
       setProducts(res.data?.data || []);
       setPagination(res.data?.pagination || { currentPage: 1, totalPages: 1 });
     } catch (err) {
-      console.error('Fetch error:', err);
+      console.error("Fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -92,16 +91,19 @@ export default function Shop() {
     fetchProducts();
   }, [fetchProducts]);
 
-  const updateParam = useCallback((key, value) => {
-    const sp = new URLSearchParams(searchParams);
-    if (value !== '' && value !== null && value !== undefined) {
-      sp.set(key, value);
-    } else {
-      sp.delete(key);
-    }
-    sp.set("page", "1");
-    setSearchParams(sp);
-  }, [searchParams, setSearchParams]);
+  const updateParam = useCallback(
+    (key, value) => {
+      const sp = new URLSearchParams(searchParams);
+      if (value !== "" && value !== null && value !== undefined) {
+        sp.set(key, value);
+      } else {
+        sp.delete(key);
+      }
+      sp.set("page", "1");
+      setSearchParams(sp);
+    },
+    [searchParams, setSearchParams],
+  );
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -121,7 +123,12 @@ export default function Shop() {
     ? `${categories.find((c) => c.value === category)?.label || category} Collection`
     : "Luxury Earrings Collection";
 
-  const activeFiltersCount = (category ? 1 : 0) + (search ? 1 : 0) + (sortFilter ? 1 : 0) + (rating > 0 ? 1 : 0) + ((priceRange[0] > 0 || priceRange[1] < 50000) ? 1 : 0);
+  const activeFiltersCount =
+    (category ? 1 : 0) +
+    (search ? 1 : 0) +
+    (sortFilter ? 1 : 0) +
+    (rating > 0 ? 1 : 0) +
+    (priceRange[0] > 0 || priceRange[1] < 50000 ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#070708] via-[#0A0A0C] to-[#070708]">
@@ -238,7 +245,11 @@ export default function Shop() {
                 className="relative appearance-none px-8 py-5 pr-14 rounded-3xl border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl text-sm font-semibold text-zinc-300 hover:border-[#D4A853]/50 hover:bg-white/[0.06] focus:border-[#D4A853]/60 focus:ring-2 focus:ring-[#D4A853]/20 outline-none cursor-pointer transition-all duration-500"
               >
                 {sortOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-[#0A0A0C] text-white">
+                  <option
+                    key={opt.value}
+                    value={opt.value}
+                    className="bg-[#0A0A0C] text-white"
+                  >
                     {opt.label}
                   </option>
                 ))}
@@ -286,8 +297,12 @@ export default function Shop() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 text-white border border-[#D4A853]/30 shadow-lg"
                 >
                   {categories.find((c) => c.value === category)?.icon}{" "}
-                  {categories.find((c) => c.value === category)?.label || category}
-                  <button onClick={() => updateParam("category", "")} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+                  {categories.find((c) => c.value === category)?.label ||
+                    category}
+                  <button
+                    onClick={() => updateParam("category", "")}
+                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </motion.span>
@@ -319,7 +334,10 @@ export default function Shop() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-white/[0.08] text-zinc-300 border border-white/[0.15]"
                 >
                   {sortOptions.find((s) => s.value === sortFilter)?.label}
-                  <button onClick={() => updateParam("sort", "")} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+                  <button
+                    onClick={() => updateParam("sort", "")}
+                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </motion.span>
@@ -333,25 +351,35 @@ export default function Shop() {
                 >
                   <Star className="w-4 h-4 fill-current" />
                   <span>{rating} &amp; up</span>
-                  <button onClick={() => updateParam("rating", "")} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+                  <button
+                    onClick={() => updateParam("rating", "")}
+                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </motion.span>
               )}
               {(priceRange[0] > 0 || priceRange[1] < 50000) && (
                 <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-nayamo-rose/20 to-nayamo-gold/20 text-nayamo-gold border border-nayamo-rose/30 shadow-lg"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium 
+    bg-[#0F0F11] text-[#D4A853] border border-[#D4A853]/20 
+    hover:border-[#D4A853]/40 transition-all"
                 >
-                  ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}
-                  <button onClick={() => {
-                    setPriceRange([0, 50000]);
-                    updateParam("priceMin", "");
-                    updateParam("priceMax", "");
-                  }} className="hover:bg-white/20 rounded-full p-1 transition-colors">
-                    <X className="w-4 h-4" />
+                  ₹{priceRange[0].toLocaleString()} — ₹
+                  {priceRange[1].toLocaleString()}
+                  <button
+                    onClick={() => {
+                      setPriceRange([0, 50000]);
+                      updateParam("priceMin", "");
+                      updateParam("priceMax", "");
+                    }}
+                    className="ml-1 flex items-center justify-center w-4 h-4 rounded-full 
+      text-[#D4A853] hover:bg-[#D4A853]/20 transition"
+                  >
+                    <X className="w-3 h-3" />
                   </button>
                 </motion.span>
               )}
@@ -423,16 +451,22 @@ export default function Shop() {
                 </motion.button>
 
                 {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                  .filter((p) => Math.abs(p - page) <= 1 || p === 1 || p === pagination.totalPages)
+                  .filter(
+                    (p) =>
+                      Math.abs(p - page) <= 1 ||
+                      p === 1 ||
+                      p === pagination.totalPages,
+                  )
                   .map((p, index, arr) => (
                     <React.Fragment key={p}>
-                      {index > 0 && arr[index - 1] !== p - 1 && <span className="text-zinc-600 px-2">...</span>}
+                      {index > 0 && arr[index - 1] !== p - 1 && (
+                        <span className="text-zinc-600 px-2">...</span>
+                      )}
                       <motion.button
                         onClick={() => updateParam("page", p.toString())}
                         className={`w-14 h-14 rounded-3xl text-sm font-bold transition-all duration-500 ${
                           p === page
                             ? "bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] text-black shadow-[0_12px_40px_rgba(212,168,83,0.4)] border-2 border-[#D4A853]/50"
-
                             : "border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl text-zinc-300 hover:bg-white/[0.06] hover:border-[#D4A853]/40 hover:text-white hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
                         }`}
                         whileHover={{ scale: 1.1, y: -2 }}
@@ -460,4 +494,3 @@ export default function Shop() {
     </div>
   );
 }
-
