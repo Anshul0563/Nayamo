@@ -284,35 +284,40 @@ export default function Shop() {
               animate={{ opacity: 1, height: "auto", y: 0 }}
               exit={{ opacity: 0, height: 0, y: -10 }}
               transition={{ duration: 0.4 }}
-              className="flex flex-wrap items-center gap-3 mb-8 p-4 rounded-3xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl"
+              className="flex flex-wrap items-center gap-2 mb-8 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl"
             >
-              <span className="text-sm font-medium text-zinc-400 mr-2">
+              <span className="text-xs text-zinc-500 mr-2">
                 Active Filters:
               </span>
+
+              {/* CATEGORY */}
               {category && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 text-white border border-[#D4A853]/30 shadow-lg"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium 
+          bg-[#0F0F11] text-[#D4A853] border border-[#D4A853]/20"
                 >
-                  {categories.find((c) => c.value === category)?.icon}{" "}
                   {categories.find((c) => c.value === category)?.label ||
                     category}
                   <button
                     onClick={() => updateParam("category", "")}
-                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-[#D4A853]/20 transition"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3" />
                   </button>
                 </motion.span>
               )}
+
+              {/* SEARCH */}
               {search && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-[#D4A5A5]/20 to-[#D4A853]/20 text-white border border-[#D4A5A5]/30 shadow-lg"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium 
+          bg-[#0F0F11] text-white border border-white/[0.15]"
                 >
                   "{search}"
                   <button
@@ -320,53 +325,60 @@ export default function Shop() {
                       setSearch("");
                       updateParam("search", "");
                     }}
-                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-white/10 transition"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3" />
                   </button>
                 </motion.span>
               )}
+
+              {/* SORT */}
               {sortFilter && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-white/[0.08] text-zinc-300 border border-white/[0.15]"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium 
+          bg-[#0F0F11] text-zinc-300 border border-white/[0.1]"
                 >
                   {sortOptions.find((s) => s.value === sortFilter)?.label}
                   <button
                     onClick={() => updateParam("sort", "")}
-                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-white/10 transition"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3" />
                   </button>
                 </motion.span>
               )}
+
+              {/* RATING */}
               {rating > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-nayamo-gold/20 to-amber-500/20 text-nayamo-gold border border-nayamo-gold/30 shadow-lg"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium 
+          bg-[#0F0F11] text-[#D4A853] border border-[#D4A853]/20"
                 >
-                  <Star className="w-4 h-4 fill-current" />
-                  <span>{rating} &amp; up</span>
+                  <Star className="w-3 h-3 fill-current" />
+                  {rating}+
                   <button
                     onClick={() => updateParam("rating", "")}
-                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-[#D4A853]/20 transition"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3" />
                   </button>
                 </motion.span>
               )}
+
+              {/* PRICE (already good but aligned) */}
               {(priceRange[0] > 0 || priceRange[1] < 50000) && (
                 <motion.span
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
-                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium 
-    bg-[#0F0F11] text-[#D4A853] border border-[#D4A853]/20 
-    hover:border-[#D4A853]/40 transition-all"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium 
+          bg-[#0F0F11] text-[#D4A853] border border-[#D4A853]/20"
                 >
                   ₹{priceRange[0].toLocaleString()} — ₹
                   {priceRange[1].toLocaleString()}
@@ -376,21 +388,20 @@ export default function Shop() {
                       updateParam("priceMin", "");
                       updateParam("priceMax", "");
                     }}
-                    className="ml-1 flex items-center justify-center w-4 h-4 rounded-full 
-      text-[#D4A853] hover:bg-[#D4A853]/20 transition"
+                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-[#D4A853]/20 transition"
                   >
                     <X className="w-3 h-3" />
                   </button>
                 </motion.span>
               )}
-              <motion.button
+
+              {/* CLEAR ALL */}
+              <button
                 onClick={clearFilters}
-                className="text-sm text-zinc-400 hover:text-[#D4A5A5] transition-colors ml-2 underline underline-offset-4"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="text-xs text-zinc-400 hover:text-[#D4A853] ml-2 transition"
               >
                 Clear all
-              </motion.button>
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
