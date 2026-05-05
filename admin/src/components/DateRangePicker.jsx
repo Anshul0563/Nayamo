@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { CalendarIcon, ChevronLeft, ChevronRight } from '@heroicons/react/24/outline';
+import { CalendarIcon } from '@heroicons/react/24/outline';
 
 export default function DateRangePicker({ value, onChange }) {
   const [open, setOpen] = useState(false);
-
-  const today = new Date();
-  const last7Days = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   const presets = [
     { label: 'Today', value: 'today' },
@@ -90,4 +87,3 @@ export default function DateRangePicker({ value, onChange }) {
     </div>
   );
 }
-

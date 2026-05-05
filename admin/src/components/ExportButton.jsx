@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, FileText, Check, AlertCircle } from 'lucide-react';
+import { Download, AlertCircle } from 'lucide-react';
 
 export default function ExportButton({ filename = 'nayamo-analytics', data = [], loading = false, onExport }) {
   const handleExport = () => {
@@ -52,4 +52,3 @@ export default function ExportButton({ filename = 'nayamo-analytics', data = [],
     </button>
   );
 }
-

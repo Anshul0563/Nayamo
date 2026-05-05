@@ -66,8 +66,8 @@ export default function ProductDetails() {
           total: data.pagination?.totalItems || 0,
         });
       }
-    } catch (err) {
-      console.error("Failed to load reviews:", err);
+    } catch (_err) {
+      setReviews([]);
     } finally {
       setReviewsLoading(false);
     }
@@ -92,8 +92,8 @@ export default function ProductDetails() {
         );
         // Fetch reviews after product loads
         await fetchReviews();
-      } catch (err) {
-        console.error("Product detail error:", err);
+      } catch (_err) {
+        setProduct(null);
       } finally {
         setLoading(false);
       }

@@ -13,11 +13,11 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('React Error Boundary caught error:', error, errorInfo);
-    
     // Log to service (optional)
     if (process.env.NODE_ENV === 'production') {
       // window.analytics?.track('react_error', { error: error.message });
+    } else {
+      this.errorInfo = errorInfo;
     }
   }
 
@@ -71,4 +71,3 @@ class ErrorBoundary extends React.Component {
 }
 
 export default ErrorBoundary;
-

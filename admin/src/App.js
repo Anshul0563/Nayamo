@@ -32,11 +32,7 @@ function App() {
 
   // Global real-time event listeners
   useEffect(() => {
-    const handleRealtimeNotification = (e) => {
-      // Trigger toast via event
-      // ToastProvider will catch this
-      console.log('Real-time notification received:', e.detail);
-    };
+    const handleRealtimeNotification = () => {};
 
     const handleRefreshDashboard = () => {};
 
@@ -85,4 +81,3 @@ function App() {
 }
 
 export default App;
-

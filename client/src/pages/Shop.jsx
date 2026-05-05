@@ -100,8 +100,9 @@ export default function Shop() {
       const res = await productAPI.getProducts(params);
       setProducts(getProductsFromResponse(res.data));
       setPagination(getPaginationFromResponse(res.data));
-    } catch (err) {
-      console.error("Fetch error:", err);
+    } catch (_err) {
+      setProducts([]);
+      setPagination({ currentPage: 1, totalPages: 1 });
     } finally {
       setLoading(false);
     }
