@@ -20,7 +20,6 @@ export default function OrderDetails() {
         const res = await orderAPI.getOrderById(id);
         setOrder(res.data?.data);
       } catch (err) {
-        console.error("Order fetch error:", err);
         setError(err.response?.data?.message || "Failed to load order");
       } finally {
         setLoading(false);
@@ -43,7 +42,6 @@ export default function OrderDetails() {
         status: "cancelled",
       }));
     } catch (err) {
-      console.error("Cancel failed:", err);
       alert(err.response?.data?.message || "Failed to cancel order");
     } finally {
       setCancelLoading(false);
@@ -60,7 +58,6 @@ export default function OrderDetails() {
         status: "return_requested",
       }));
     } catch (err) {
-      console.error("Return failed:", err);
       alert(err.response?.data?.message || "Failed to return order");
     } finally {
       setReturnLoading(false);

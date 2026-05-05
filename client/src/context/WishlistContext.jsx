@@ -23,7 +23,8 @@ export function WishlistProvider({ children }) {
       setWishlist(products);
       setWishlistCount(products.length);
     } catch (err) {
-      console.error("Wishlist fetch error:", err);
+      setWishlist([]);
+      setWishlistCount(0);
     }
   }, []);
 
@@ -97,4 +98,3 @@ export function useWishlist() {
   if (!ctx) throw new Error("useWishlist must be used within WishlistProvider");
   return ctx;
 }
-

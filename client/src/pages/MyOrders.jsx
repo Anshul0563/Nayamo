@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import { orderAPI } from "../services/api";
 import Loader from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
@@ -10,7 +9,6 @@ export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -19,7 +17,6 @@ export default function MyOrders() {
         const res = await orderAPI.getOrders();
         setOrders(res.data?.data || []);
       } catch (err) {
-        console.error("Orders error:", err);
         setError(err.response?.data?.message || "Failed to load orders");
       } finally {
         setLoading(false);
@@ -40,7 +37,6 @@ export default function MyOrders() {
         )
       );
     } catch (err) {
-      console.error("Cancel failed:", err);
       alert(err.response?.data?.message || "Failed to cancel order");
     }
   };

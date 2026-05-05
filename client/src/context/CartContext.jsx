@@ -25,7 +25,9 @@ export function CartProvider({ children }) {
       setCartCount(data?.itemCount || 0);
       setCartTotal(data?.total || 0);
     } catch (err) {
-      console.error("Cart fetch error:", err);
+      setCart({ items: [] });
+      setCartCount(0);
+      setCartTotal(0);
     }
   }, []);
 
@@ -103,4 +105,3 @@ export function useCart() {
   if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;
 }
-

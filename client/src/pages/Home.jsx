@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { productAPI } from "../services/api";
 import { getProductsFromResponse } from "../utils/apiResponse";
-import ClientLayout from "../components/layout/ClientLayout";
 import logo from "../assets/logo.png";
 
 export default function Home() {
@@ -305,7 +304,7 @@ export default function Home() {
                 desc: "Traditional & festive",
                 color: "from-[#D4A853] to-[#D4A5A5]",
               },
-            ].map((cat, i) => (
+            ].map((cat) => (
               <motion.div
                 key={cat.name}
                 variants={staggerItem}
@@ -372,7 +371,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {products.slice(0, 6).map((product, i) => (
+            {products.slice(0, 6).map((product) => (
               <motion.div
                 key={product._id}
                 variants={staggerItem}
@@ -382,7 +381,12 @@ export default function Home() {
               >
                 <div className="relative aspect-square rounded-2xl overflow-hidden mb-6 shadow-xl">
                   <img
-                    src={product.images?.[0] || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop&q=80"}
+                    src={
+                      product.images?.[0]?.url ||
+                      product.images?.[0] ||
+                      product.image ||
+                      "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop&q=80"
+                    }
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
