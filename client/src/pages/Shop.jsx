@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import ProductFilters from "../components/product/ProductFilters";
@@ -25,7 +25,7 @@ export default function Shop() {
   );
   const [sortFilter, setSortFilter] = useState("");
 
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
 
   const category = searchParams.get("category") || "";
   const page = Number(searchParams.get("page") || 1);
@@ -68,11 +68,6 @@ export default function Shop() {
     setSearchParams(sp);
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    updateParam("search", search);
-  };
-
   const clearFilters = () => {
     setSearch("");
     setPriceRange([0, 50000]);
@@ -110,9 +105,11 @@ export default function Shop() {
           </p>
         </motion.div>
 
-        {/* 🔥 Search */}
-        <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-10">
-          <div className="relative">
+        {/* 🔥 Search + Filter Button */}
+        <div className="flex items-center gap-3 max-w-xl mx-auto mb-10">
+
+          {/* Search */}
+          <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 w-5" />
             <input
               value={search}
@@ -123,17 +120,38 @@ export default function Shop() {
               focus:outline-none focus:border-[#D4A853]/40 backdrop-blur-lg"
             />
           </div>
-        </form>
 
-        {/* 🔥 Filters */}
-        <ProductFilters
-          showFilters={showFilters}
-          category={category}
-          updateParam={updateParam}
-          rating={rating}
-          setRating={setRating}
-          clearFilters={clearFilters}
-        />
+          {/* Filter Button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="px-5 py-3 rounded-full bg-[#0F0F11] border border-white/[0.08] 
+            text-zinc-300 hover:text-white hover:border-[#D4A853]/40 
+            transition-all duration-300"
+          >
+            Filters
+          </button>
+        </div>
+
+        {/* 🔥 Filters Toggle */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ProductFilters
+                showFilters={true}
+                category={category}
+                updateParam={updateParam}
+                rating={rating}
+                setRating={setRating}
+                clearFilters={clearFilters}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* 🔥 Products */}
         {loading ? (
