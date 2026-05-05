@@ -308,10 +308,6 @@ export default function Footer() {
               </Link>
             </motion.div>
           </div>
-                <div className="absolute -bottom-1 left-0 w-0 h-px bg-[#D4A853] group-hover:w-full transition-all duration-300" />
-              </Link>
-            </motion.div>
-          </div>
         </div>
       </motion.div>
     </footer>
