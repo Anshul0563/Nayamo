@@ -1,1 +1,1 @@
-# Fix Admin Panel craco Issue\n\n- [ ] Step 1: Install dependencies in admin/ directory (`cd admin && npm install`)\n- [ ] Step 2: Verify installation and test `npm run dev`\n- [ ] Step 3: Complete - test successful\n
+- [x] Step 1a: Created TODO.md & attempted install (failed due to framer-motion version)\n- [ ] Step 1b: Fix package.json framer-motion version to ^11.3.30
