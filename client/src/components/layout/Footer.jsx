@@ -199,7 +199,7 @@ export default function Footer() {
                 { to: "/contact", label: "Contact Us" },
                 { to: "/about", label: "About Us" },
                 { to: "#", label: "Shipping Info" },
-                { to: "#", label: "Returns Policy" },
+                { to: "/refund-policy", label: "Refund Policy" },
                 { to: "#", label: "FAQ" },
               ].map((link, index) => (
                 <motion.li
@@ -298,6 +298,16 @@ export default function Footer() {
             <motion.div whileHover={{ scale: 1.05 }}>
               <Link to="/terms-of-service" className="hover:text-zinc-300 transition-colors relative group">
                 Terms of Service
+                <div className="absolute -bottom-1 left-0 w-0 h-px bg-[#D4A853] group-hover:w-full transition-all duration-300" />
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Link to="/refund-policy" className="hover:text-zinc-300 transition-colors relative group">
+                Refund Policy
+                <div className="absolute -bottom-1 left-0 w-0 h-px bg-[#D4A853] group-hover:w-full transition-all duration-300" />
+              </Link>
+            </motion.div>
+          </div>
                 <div className="absolute -bottom-1 left-0 w-0 h-px bg-[#D4A853] group-hover:w-full transition-all duration-300" />
               </Link>
             </motion.div>
