@@ -94,11 +94,11 @@ export default function Footer() {
         whileInView="visible"
         viewport={{ once: true }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
           {/* Brand & Social */}
-          <motion.div className="lg:col-span-1" variants={itemVariants}>
+          <motion.div className="lg:col-span-1 text-center sm:text-left" variants={itemVariants}>
             <motion.div
-              className="mb-6 flex items-center gap-4 group"
+              className="mb-5 md:mb-6 flex items-center gap-4 group"
               whileHover={{ scale: 1.02 }}
             >
               <motion.div
@@ -127,7 +127,7 @@ export default function Footer() {
               studs to statement danglers, each pair is designed to make you
               shine with unparalleled elegance.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 justify-center sm:justify-start">
               {[
                 { icon: FaInstagram, label: "Instagram", href: "https://www.instagram.com/" },
                 { icon: FaFacebookF, label: "Facebook", href: "https://www.facebook.com/" },
@@ -155,7 +155,7 @@ export default function Footer() {
 
           {/* Collections */}
           <motion.div variants={itemVariants}>
-            <h4 className="font-semibold mb-6 text-sm uppercase tracking-[0.2em] text-zinc-300 flex items-center gap-2">
+            <h4 className="font-semibold mb-5 md:mb-6 text-sm uppercase tracking-[0.2em] text-zinc-300 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#D4A853]" />
               Collections
             </h4>
@@ -189,7 +189,7 @@ export default function Footer() {
 
           {/* Support */}
           <motion.div variants={itemVariants}>
-            <h4 className="font-semibold mb-6 text-sm uppercase tracking-[0.2em] text-zinc-300 flex items-center gap-2">
+            <h4 className="font-semibold mb-5 md:mb-6 text-sm uppercase tracking-[0.2em] text-zinc-300 flex items-center gap-2">
               <Heart className="w-4 h-4 text-[#D4A5A5]" />
               Support
             </h4>
@@ -224,11 +224,11 @@ export default function Footer() {
 
           {/* Contact */}
           <motion.div variants={itemVariants}>
-            <h4 className="font-semibold mb-6 text-sm uppercase tracking-[0.2em] text-zinc-300 flex items-center gap-2">
+            <h4 className="font-semibold mb-5 md:mb-6 text-sm uppercase tracking-[0.2em] text-zinc-300 flex items-center gap-2">
               <Mail className="w-4 h-4 text-[#D4A853]" />
               Contact Us
             </h4>
-            <ul className="space-y-5 text-sm text-zinc-400">
+            <ul className="space-y-5 text-sm text-zinc-400 text-center sm:text-left">
               <motion.li
                 className="flex items-start gap-4 group"
                 whileHover={{ x: 5 }}
@@ -281,14 +281,14 @@ export default function Footer() {
         viewport={{ once: true }}
         transition={{ delay: 0.8, duration: 0.6 }}
       >
-        <div className="nayamo-container py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="nayamo-container py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <motion.p
             className="text-xs text-zinc-500"
             whileHover={{ scale: 1.02 }}
           >
             &copy; 2026 Nayamo. All rights reserved. Made with <Heart className="inline w-3 h-3 text-red-400 mx-1" /> for luxury.
           </motion.p>
-          <div className="flex gap-8 text-xs text-zinc-500">
+          <div className="flex flex-wrap justify-center md:justify-end gap-4 md:gap-8 text-xs text-zinc-500">
             <motion.div whileHover={{ scale: 1.05 }}>
               <Link to="/privacy-policy" className="hover:text-zinc-300 transition-colors relative group">
                 Privacy Policy
