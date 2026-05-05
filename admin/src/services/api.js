@@ -1,12 +1,17 @@
 import axios from "axios";
 
-// ✅ FIXED FOR VITE (IMPORTANT)
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://nayamo.onrender.com/api/v1';
+// ✅ STRICT ENV (NO FALLBACK)
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
+if (!API_BASE_URL) {
+  throw new Error("❌ REACT_APP_API_URL is not defined");
+}
+
+// ✅ AXIOS INSTANCE
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
-  withCredentials: true, // ✅ CRITICAL: Allow cookies and credentials in CORS requests
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -40,9 +45,8 @@ const addRefreshSubscriber = (callback) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config || {};
 
-    // ❗ Skip refresh for login/register
     const isAuthEndpoint =
       originalRequest.url?.includes("/auth/login") ||
       originalRequest.url?.includes("/auth/register");
@@ -68,24 +72,28 @@ apiClient.interceptors.response.use(
         const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) throw new Error("No refresh token");
 
-        const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refreshToken,
-        });
+        const res = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          { refreshToken },
+          { withCredentials: true } // ✅ FIXED
+        );
 
         const { accessToken, refreshToken: newRefreshToken } = res.data;
 
+        // ✅ SAVE TOKENS
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", newRefreshToken);
 
-        apiClient.defaults.headers.Authorization = `Bearer ${accessToken}`;
+        // ✅ PROPER HEADER UPDATE
+        apiClient.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+
         onTokenRefreshed(accessToken);
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (err) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("role");
+        // ❌ CLEAN LOGOUT
+        localStorage.clear();
         window.location.href = "/login";
         return Promise.reject(err);
       } finally {
@@ -101,6 +109,7 @@ apiClient.interceptors.response.use(
 export const adminAPI = {
   getDashboard: () => apiClient.get("/admin/dashboard"),
   getStats: () => apiClient.get("/admin/stats"),
+
   getNotifications: (params = {}) =>
     apiClient.get("/admin/notifications", { params }),
   markNotificationRead: (id) =>
@@ -109,6 +118,7 @@ export const adminAPI = {
     apiClient.delete(`/admin/notifications/${id}`),
   deleteAllNotifications: () =>
     apiClient.delete("/admin/notifications/all"),
+
   getRecentActivity: (params = {}) =>
     apiClient.get("/admin/recent-activity", { params }),
   getTopProducts: (params = {}) =>
@@ -147,11 +157,6 @@ export const adminAPI = {
     }),
   createProduct: (data) =>
     apiClient.post("/products", data),
-  exportProducts: (params = {}) =>
-    apiClient.get("/admin/products/export", {
-      params,
-      responseType: "blob",
-    }),
 
   getUsers: (params = {}) =>
     apiClient.get("/admin/users", { params }),
@@ -159,13 +164,6 @@ export const adminAPI = {
     apiClient.put(`/admin/users/${id}`, data),
   deleteUser: (id) =>
     apiClient.delete(`/admin/users/${id}`),
-  getUserStats: () =>
-    apiClient.get("/admin/users/stats"),
-  exportUsers: (params = {}) =>
-    apiClient.get("/admin/users/export", {
-      params,
-      responseType: "blob",
-    }),
 
   getReviews: (params = {}) =>
     apiClient.get("/admin/reviews", { params }),
@@ -175,30 +173,19 @@ export const adminAPI = {
     apiClient.patch(`/admin/reviews/${id}/reject`, { reason }),
   deleteReview: (id) =>
     apiClient.delete(`/admin/reviews/${id}`),
-  getReviewStats: () =>
-    apiClient.get("/admin/reviews/stats"),
 
   getPayments: (params = {}) =>
     apiClient.get("/admin/payments", { params }),
-  getPaymentStats: () =>
-    apiClient.get("/admin/payments/stats"),
 
   getReturns: (params = {}) =>
     apiClient.get("/admin/returns", { params }),
   updateReturnStatus: (id, data) =>
     apiClient.put(`/admin/returns/${id}`, data),
-  getReturnStats: () =>
-    apiClient.get("/admin/returns/stats"),
 
   getSettings: () =>
     apiClient.get("/admin/settings"),
   updateSettings: (data) =>
     apiClient.put("/admin/settings", data),
-  changePassword: (data) =>
-    apiClient.post("/admin/change-password", data),
-
-  getAuditLogs: (params = {}) =>
-    apiClient.get("/admin/audit-logs", { params }),
 };
 
 // ================= AUTH =================
@@ -211,8 +198,13 @@ export const authAPI = {
     apiClient.get("/auth/profile"),
   updateProfile: (data) =>
     apiClient.put("/auth/profile", data),
+
   refresh: (refreshToken) =>
-    axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken }),
+    axios.post(
+      `${API_BASE_URL}/auth/refresh`,
+      { refreshToken },
+      { withCredentials: true } // ✅ FIXED
+    ),
 };
 
 // ================= PUBLIC =================
