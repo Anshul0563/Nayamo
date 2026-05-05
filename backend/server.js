@@ -98,12 +98,6 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-// Apply CORS middleware to all routes
-app.use(cors(corsOptions));
-
-// Handle preflight requests explicitly for all routes
-app.options('*', cors(corsOptions));
-
 const PORT = process.env.PORT || 5000;
 
 logger.info("🚀 Starting Nayamo server...");
@@ -111,8 +105,15 @@ logger.info("🚀 Starting Nayamo server...");
 // ================= SECURITY =================
 app.set("trust proxy", 1);
 
+// ⚠️ CRITICAL: Apply CORS BEFORE any other middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
 app.use(helmet({
   contentSecurityPolicy: false, // Disable for CRA/Craco compatibility
+  crossOriginResourcePolicy: false, // Allow CORS
 }));
 
 // ================= SOCKET.IO SETUP =================

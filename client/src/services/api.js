@@ -6,6 +6,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://nayamo.onrender.c
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
+  withCredentials: true, // ✅ CRITICAL: Allow cookies and credentials in CORS requests
   headers: {
     "Content-Type": "application/json",
   },

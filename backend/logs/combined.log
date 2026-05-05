@@ -19422,3 +19422,29 @@
 {"level":"info","message":"✅ CORS Origins enabled: http://localhost:3000, http://localhost:3001, http://localhost:5173","service":"nayamo-api","timestamp":"2026-05-05 09:29:20"}
 {"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-05 09:29:20"}
 {"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-05 09:29:20"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"🚀 Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"✅ CORS Origins enabled: http://localhost:3000, http://localhost:3001, http://localhost:5173","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"🚀 Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"✅ CORS Origins enabled: http://localhost:3000, http://localhost:3001, http://localhost:5173","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-05 09:30:55"}
+{"level":"info","message":"✅ Server running on port 5000 (development)","service":"nayamo-api","timestamp":"2026-05-05 09:30:56"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"🚀 Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"✅ CORS Origins enabled: http://localhost:3000, http://localhost:3001, http://localhost:5173","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"🚀 Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"✅ CORS Origins enabled: http://localhost:3000, http://localhost:3001, http://localhost:5173","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"✅ Razorpay enabled","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"✅ Delhivery enabled","service":"nayamo-api","timestamp":"2026-05-05 09:30:59"}
+{"level":"info","message":"✅ Server running on port 5000 (development)","service":"nayamo-api","timestamp":"2026-05-05 09:31:00"}

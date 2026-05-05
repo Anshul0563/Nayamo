@@ -158,9 +158,39 @@ Backend can send:
 - `X-Total-Pages` - Total pages
 - `Content-Disposition` - File downloads
 
----
+## 2. ✅ Frontend Configuration (Critical Fix)
 
-## Testing & Verification
+Update your axios client in both `client/` and `admin/` apps:
+
+**File:** `src/services/api.js`
+
+```javascript
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 15000,
+  withCredentials: true,  // ← ADD THIS LINE (CRITICAL!)
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+```
+
+**⚠️ IMPORTANT:** Without `withCredentials: true`, the browser blocks CORS requests with credentials.
+
+### Environment Variables for Vercel
+
+Create `.env.local` in both client and admin folders:
+
+```bash
+REACT_APP_API_URL=https://nayamo.onrender.com/api/v1
+```
+
+**For Vercel Deployment:**
+1. Go to Vercel project → Settings → Environment Variables
+2. Add: `REACT_APP_API_URL=https://nayamo.onrender.com/api/v1`
+3. Redeploy
+
+---
 
 ### 1. Test Preflight Request
 ```bash
@@ -217,28 +247,64 @@ Output should show:
 
 ### Issue: Still getting CORS error
 
-**Cause 1: Wrong environment variable format**
-```bash
-# ❌ Wrong
-CORS_ORIGINS=https://nayamo-client.vercel.app, https://nayamo-admin.vercel.app
+**Cause 1: Missing `withCredentials: true` in frontend (MOST COMMON)**
+```javascript
+// ❌ Wrong
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 15000,
+  headers: { 'Content-Type': 'application/json' }
+});
 
-# ✅ Correct
-CORS_ORIGINS=https://nayamo-client.vercel.app,https://nayamo-admin.vercel.app
+// ✅ Correct
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 15000,
+  withCredentials: true,  // ← MUST ADD
+  headers: { 'Content-Type': 'application/json' }
+});
 ```
 
-**Cause 2: Trailing slash in URL**
+**Cause 2: Environment variable not set on Vercel**
 ```bash
-# ❌ Wrong
-CORS_ORIGINS=https://nayamo-client.vercel.app/
-
-# ✅ Correct
-CORS_ORIGINS=https://nayamo-client.vercel.app
+# Check Vercel dashboard → Settings → Environment Variables
+# Must include:
+REACT_APP_API_URL=https://nayamo.onrender.com/api/v1
 ```
 
-**Cause 3: Missing environment variable**
+**Cause 3: Trailing slash in API URL**
 ```bash
-# Check if CORS_ORIGINS is set
-echo $CORS_ORIGINS
+# ❌ Wrong
+REACT_APP_API_URL=https://nayamo.onrender.com/api/v1/
+
+# ✅ Correct
+REACT_APP_API_URL=https://nayamo.onrender.com/api/v1
+```
+
+**Cause 4: Frontend URL not in Render `CORS_ORIGINS`**
+```bash
+# On Render backend Settings → Environment Variables:
+# Must include the exact Vercel frontend URL
+CORS_ORIGINS=https://nayamo-client.vercel.app,https://nayamo-admin.vercel.app,http://localhost:3000,http://localhost:5173
+```
+
+### Issue: Cookies not being sent
+
+Frontend must explicitly enable credentials:
+
+```javascript
+// Axios (already configured in our fix)
+const apiClient = axios.create({
+  withCredentials: true  // ✅
+});
+
+// Fetch API (if using)
+fetch('/api/v1/auth/login', {
+  method: 'POST',
+  credentials: 'include',  // ✅ MUST ADD
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email, password })
+})
 ```
 
 ### Issue: Cookies not being sent
