@@ -46,41 +46,6 @@ const productSchema = new mongoose.Schema(
       },
     },
 
-    originalPrice: {
-      type: Number,
-      min: [0, "Original price cannot be negative"],
-    },
-
-    material: {
-      type: String,
-      trim: true,
-      maxlength: [100, "Material cannot exceed 100 characters"],
-    },
-
-    color: {
-      type: String,
-      trim: true,
-      maxlength: [100, "Color cannot exceed 100 characters"],
-    },
-
-    finish: {
-      type: String,
-      trim: true,
-      maxlength: [100, "Finish cannot exceed 100 characters"],
-    },
-
-    occasion: {
-      type: String,
-      trim: true,
-      maxlength: [100, "Occasion cannot exceed 100 characters"],
-    },
-
-style: {
-      type: String,
-      trim: true,
-      maxlength: [100, "Style cannot exceed 100 characters"],
-    },
-
     stock: {
       type: Number,
       default: 0,
@@ -93,28 +58,17 @@ style: {
     },
 
     ratings: {
-      average: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 5,
-      },
-      count: {
-        type: Number,
-        default: 0,
-        min: 0,
-      },
+      average: { type: Number, default: 0, min: 0, max: 5 },
+      count: { type: Number, default: 0, min: 0 },
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-// Indexes for performance
-productSchema.index({ category: 1 });
-productSchema.index({ price: 1 });
-productSchema.index({ category: 1, price: 1 }); // Compound index for filtered price queries
-productSchema.index({ title: "text", description: "text" }); // Text search index
-productSchema.index({ createdAt: -1 });
-productSchema.index({ isActive: 1 });
+// Indexes
+productSchema.index({ category: 1, isActive: 1 });
+productSchema.index({ title: "text", description: "text" });
 
 module.exports = mongoose.model("Product", productSchema);
