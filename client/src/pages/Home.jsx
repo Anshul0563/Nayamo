@@ -446,7 +446,7 @@ export default function Home() {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4A853] to-[#D4A5A5] flex items-center justify-center mx-auto mb-8 shadow-xl"
+              className="flex items-center justify-center mx-auto mb-10"
             >
               <motion.img src={logo} alt="Nayamo Premium" className="w-14 h-14 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]" whileHover={{ scale: 1.1 }} />
             </motion.div>
