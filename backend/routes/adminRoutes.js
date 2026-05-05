@@ -90,6 +90,46 @@ const productUpdateValidation = [
     .withMessage("isActive must be a boolean"),
 ];
 
+const productCreateValidation = [
+  body("title")
+    .notEmpty()
+    .withMessage("Title is required")
+    .trim()
+    .isLength({ min: 2, max: 200 })
+    .withMessage("Title must be 2-200 characters"),
+  body("description")
+    .optional()
+    .trim()
+    .isLength({ max: 2000 })
+    .withMessage("Description cannot exceed 2000 characters"),
+  body("price")
+    .notEmpty()
+    .withMessage("Price is required")
+    .isFloat({ min: 0 })
+    .withMessage("Price must be a positive number"),
+  body("category")
+    .notEmpty()
+    .withMessage("Category is required")
+    .isIn(["party", "daily", "traditional", "western", "statement", "bridal"])
+    .withMessage("Category must be party, daily, traditional, western, statement, or bridal"),
+  body("stock")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Stock must be a non-negative integer"),
+  body("images")
+    .optional()
+    .isArray()
+    .withMessage("Images must be an array"),
+  body("images.*.url")
+    .optional()
+    .isURL()
+    .withMessage("Each image must have a valid URL"),
+  body("images.*.publicId")
+    .optional()
+    .isString()
+    .withMessage("Each image must have a publicId"),
+];
+
 router.get("/dashboard", protect, admin, getDashboard);
 router.get("/stats", protect, admin, getDashboardStats);
 router.get("/analytics", protect, admin, getAnalytics);
@@ -111,7 +151,7 @@ router.put("/users/:id", protect, admin, updateUser);
 router.delete("/users/:id", protect, admin, deleteUser);
 
 router.get("/products", protect, admin, getAllProducts);
-router.post("/products", protect, admin, productUpdateValidation, validate, createProduct);
+router.post("/products", protect, admin, productCreateValidation, validate, createProduct);
 router.post("/products/upload", protect, admin, upload.single("image"), uploadProductImage);
 router.put("/products/:id", protect, admin, productUpdateValidation, validate, updateProduct);
 router.delete("/products/:id", protect, admin, deleteProduct);

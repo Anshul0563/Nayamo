@@ -402,7 +402,44 @@ exports.getTopProducts = asyncHandler(async (req, res) => {
 
 // ── NEW: Create Product ─────────────────────────────────────────────
 exports.createProduct = asyncHandler(async (req, res) => {
-  const product = await adminService.createProduct(req.body);
+  const { title, price, category, stock, description, images } = req.body;
+
+  // Validation
+  if (!title || !price || !category) {
+    res.status(400);
+    throw new Error("Title, price, and category are required");
+  }
+
+  if (!["party", "daily", "traditional", "western", "statement", "bridal"].includes(category)) {
+    res.status(400);
+    throw new Error("Category must be party, daily, traditional, western, statement, or bridal");
+  }
+
+  if (price < 0) {
+    res.status(400);
+    throw new Error("Price cannot be negative");
+  }
+
+  if (stock !== undefined && stock < 0) {
+    res.status(400);
+    throw new Error("Stock cannot be negative");
+  }
+
+  if (images && !Array.isArray(images)) {
+    res.status(400);
+    throw new Error("Images must be an array");
+  }
+
+  const product = await adminService.createProduct({
+    title: title.trim(),
+    description: description ? description.trim() : "",
+    price: Number(price),
+    category,
+    stock: stock !== undefined ? Number(stock) : 0,
+    images: images || [],
+    isActive: true,
+  });
+
   logger.info(`Product created: ${product._id}`);
   res.status(201).json({
     success: true,
