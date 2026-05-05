@@ -29,9 +29,7 @@ export default function Home() {
         const res = await productAPI.getProducts({ page: 1 });
         const data = getProductsFromResponse(res.data) || [];
         setProducts(data.slice(0, 6));
-      } catch (err) {
-
-      }
+      } catch (err) {}
     };
     fetchProducts();
   }, []);
@@ -70,7 +68,10 @@ export default function Home() {
           <div className="absolute bottom-[-20%] left-[-15%] w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-[#D4A853]/6 to-[#D4A5A5]/8 blur-[120px]" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] rounded-full bg-[#D4A853]/3 blur-[180px]" />
           <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] rounded-full bg-[#D4A5A5]/5 blur-[80px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-[#D4A853]/4 blur-[60px] animate-pulse" style={{ animationDelay: '2s' }} />
+          <div
+            className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-[#D4A853]/4 blur-[60px] animate-pulse"
+            style={{ animationDelay: "2s" }}
+          />
           {/* Grid pattern overlay */}
           <div
             className="absolute inset-0 opacity-[0.02]"
@@ -95,19 +96,34 @@ export default function Home() {
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/20 text-[#D4A853] text-sm font-medium mb-8 shadow-lg backdrop-blur-sm"
               >
-                <motion.img src={logo} alt="Crown" className="w-4 h-4 object-contain" whileHover={{ scale: 1.1 }} />
+                <motion.img
+                  src={logo}
+                  alt="Crown"
+                  className="w-4 h-4 object-contain"
+                  whileHover={{ scale: 1.1 }}
+                />
                 Luxury Collection 2026
               </motion.div>
               <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif font-bold leading-[0.95] mb-8 text-white">
                 Timeless <br />
-                <span className="nayamo-text-gold bg-gradient-to-r from-[#D4A853] to-[#FFD700] bg-clip-text text-transparent">Elegance</span> <br />
-                <span className="nayamo-text-rose bg-gradient-to-r from-[#D4A5A5] to-[#FF6B9D] bg-clip-text text-transparent">Redefined</span>
+                <span className="nayamo-text-gold bg-gradient-to-r from-[#D4A853] to-[#FFD700] bg-clip-text text-transparent">
+                  Elegance
+                </span>{" "}
+                <br />
+                <span className="nayamo-text-rose bg-gradient-to-r from-[#D4A5A5] to-[#FF6B9D] bg-clip-text text-transparent">
+                  Redefined
+                </span>
               </h1>
               <p className="text-[#A1A1AA] text-lg md:text-xl mb-12 max-w-lg leading-relaxed">
-                Discover exquisite artificial jewellery crafted for the discerning. From sophisticated statement pieces to everyday luxury — elevate your style with unparalleled craftsmanship.
+                Discover exquisite artificial jewellery crafted for the
+                discerning. From sophisticated statement pieces to everyday
+                luxury — elevate your style with unparalleled craftsmanship.
               </p>
               <div className="flex flex-wrap gap-4">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Link
                     to="/shop"
                     className="nayamo-btn-primary inline-flex items-center gap-2 shadow-2xl hover:shadow-[#D4A853]/25 transition-shadow duration-300"
@@ -115,7 +131,10 @@ export default function Home() {
                     Explore Luxury <ArrowRight className="w-4 h-4" />
                   </Link>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Link
                     to="/shop?category=party"
                     className="nayamo-btn-secondary inline-flex items-center gap-2 shadow-xl hover:shadow-[#D4A5A5]/25 transition-shadow duration-300"
@@ -138,7 +157,12 @@ export default function Home() {
                   >
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/15 flex items-center justify-center group-hover:border-[#D4A853]/30 transition-all duration-300">
                       {item.logo ? (
-                        <motion.img src={logo} alt="Premium" className="w-6 h-6 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]" whileHover={{ scale: 1.1 }} />
+                        <motion.img
+                          src={logo}
+                          alt="Premium"
+                          className="w-6 h-6 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]"
+                          whileHover={{ scale: 1.1 }}
+                        />
                       ) : (
                         <item.icon className="w-5 h-5 text-[#D4A853]" />
                       )}
@@ -174,7 +198,9 @@ export default function Home() {
                 <p className="text-xs text-[#A1A1AA] uppercase tracking-widest mb-1">
                   Starting from
                 </p>
-                <p className="text-3xl font-bold nayamo-text-gold bg-gradient-to-r from-[#D4A853] to-[#FFD700] bg-clip-text text-transparent">Rs 299</p>
+                <p className="text-3xl font-bold nayamo-text-gold bg-gradient-to-r from-[#D4A853] to-[#FFD700] bg-clip-text text-transparent">
+                  Rs 299
+                </p>
               </motion.div>
               {/* Floating badge */}
               <motion.div
@@ -185,7 +211,9 @@ export default function Home() {
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_12px_rgba(74,222,128,0.6)] animate-pulse" />
-                  <span className="text-xs text-white font-medium">Limited Edition</span>
+                  <span className="text-xs text-white font-medium">
+                    Limited Edition
+                  </span>
                 </div>
               </motion.div>
               {/* Floating sparkles */}
@@ -229,8 +257,17 @@ export default function Home() {
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
           >
             {[
-              { icon: null, logo: true, title: "Luxury Crafted", desc: "Premium materials" },
-              { icon: Sparkles, title: "Designer Inspired", desc: "Latest trends" },
+              {
+                icon: null,
+                logo: true,
+                title: "Luxury Crafted",
+                desc: "Premium materials",
+              },
+              {
+                icon: Sparkles,
+                title: "Designer Inspired",
+                desc: "Latest trends",
+              },
               { icon: Heart, title: "Comfort First", desc: "All-day wear" },
               { icon: Truck, title: "Swift Delivery", desc: "24hr dispatch" },
             ].map((badge, i) => (
@@ -244,7 +281,12 @@ export default function Home() {
                   className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/15 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D4A853]/20 group-hover:border-[#D4A853]/30 transition-all duration-300 shadow-lg"
                 >
                   {badge.logo ? (
-                    <motion.img src={logo} alt="Luxury" className="w-7 h-7 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]" whileHover={{ scale: 1.15 }} />
+                    <motion.img
+                      src={logo}
+                      alt="Luxury"
+                      className="w-7 h-7 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]"
+                      whileHover={{ scale: 1.15 }}
+                    />
                   ) : (
                     <badge.icon className="w-6 h-6 text-[#D4A853]" />
                   )}
@@ -264,10 +306,7 @@ export default function Home() {
       {/* ===== CATEGORIES ===== */}
       <section className="py-28 bg-[#070708]">
         <div className="nayamo-container">
-          <motion.div
-            {...fadeInUp}
-            className="text-center mb-20"
-          >
+          <motion.div {...fadeInUp} className="text-center mb-20">
             <span className="text-[#D4A5A5] text-sm font-semibold uppercase tracking-[0.2em]">
               Curated Collections
             </span>
@@ -353,10 +392,7 @@ export default function Home() {
           <div className="absolute bottom-20 right-10 h-80 w-80 rounded-full bg-[#D4A5A5] blur-[150px]" />
         </div>
         <div className="nayamo-container relative z-10">
-          <motion.div
-            {...fadeInUp}
-            className="text-center mb-20"
-          >
+          <motion.div {...fadeInUp} className="text-center mb-20">
             <span className="text-[#D4A853] text-sm font-semibold uppercase tracking-[0.2em]">
               Exclusive Selection
             </span>
@@ -444,27 +480,23 @@ export default function Home() {
             {...fadeInUp}
             className="nayamo-glass rounded-[3rem] p-12 md:p-16 text-center border border-white/[0.08] backdrop-blur-xl shadow-2xl"
           >
-           <motion.div
-  animate={{ rotate: 360 }}
-  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-  className="flex items-center justify-center mx-auto mb-8"
->
-  <motion.img
-    src={logo}
-    alt="Nayamo Premium"
-    className="w-16 h-16 object-contain drop-shadow-[0_6px_20px_rgba(212,168,83,0.35)]"
-  />
-</motion.div>
+            <div className="flex items-center justify-center mx-auto mb-10">
+              <img
+                src={logo}
+                alt="Nayamo Premium"
+                className="w-24 h-24 object-contain drop-shadow-[0_10px_30px_rgba(212,168,83,0.4)]"
+              />
+            </div>
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">
-              Experience <span className="nayamo-text-gold">Unparalleled</span> Luxury
+              Experience <span className="nayamo-text-gold">Unparalleled</span>{" "}
+              Luxury
             </h2>
             <p className="text-[#A1A1AA] text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
-              Join thousands of discerning customers who trust Nayamo for their most precious moments. Every piece tells a story of craftsmanship and elegance.
+              Join thousands of discerning customers who trust Nayamo for their
+              most precious moments. Every piece tells a story of craftsmanship
+              and elegance.
             </p>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 to="/shop"
                 className="inline-flex items-center gap-3 nayamo-btn-primary text-lg px-8 py-4 shadow-2xl hover:shadow-[#D4A853]/30 transition-shadow duration-300"
@@ -481,14 +513,13 @@ export default function Home() {
       {/* ===== WHY CHOOSE US ===== */}
       <section className="py-28 bg-[#070708]">
         <div className="nayamo-container">
-          <motion.div
-            {...fadeInUp}
-            className="text-center mb-20"
-          >
+          <motion.div {...fadeInUp} className="text-center mb-20">
             <span className="text-[#D4A5A5] text-sm font-semibold uppercase tracking-[0.2em]">
               Why Nayamo
             </span>
-            <h2 className="nayamo-section-title mt-4">Crafted for Excellence</h2>
+            <h2 className="nayamo-section-title mt-4">
+              Crafted for Excellence
+            </h2>
             <p className="nayamo-section-subtitle mx-auto">
               Discover what makes our jewellery truly exceptional
             </p>
@@ -526,15 +557,15 @@ export default function Home() {
                 whileHover={{ y: -10 }}
                 className="group relative nayamo-glass rounded-3xl p-8 border border-white/[0.06] hover:border-[#D4A853]/15 transition-all duration-500 backdrop-blur-xl"
               >
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300`}>
+                <div
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300`}
+                >
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-serif font-semibold text-white mb-4 group-hover:text-[#D4A853] transition-colors">
                   {feature.title}
                 </h3>
-                <p className="text-[#A1A1AA] leading-relaxed">
-                  {feature.desc}
-                </p>
+                <p className="text-[#A1A1AA] leading-relaxed">{feature.desc}</p>
                 <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#D4A853]/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm" />
               </motion.div>
             ))}
@@ -643,7 +674,8 @@ export default function Home() {
                 Join the <span className="nayamo-text-gold">Elite Circle</span>
               </h2>
               <p className="text-[#A1A1AA] mb-10 max-w-md mx-auto leading-relaxed text-lg">
-                Be the first to discover our exclusive collections, styling secrets, and VIP offers. Luxury awaits.
+                Be the first to discover our exclusive collections, styling
+                secrets, and VIP offers. Luxury awaits.
               </p>
               <form
                 className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
