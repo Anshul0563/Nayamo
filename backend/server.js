@@ -67,21 +67,30 @@ app.use(helmet({
 const corsOrigins = process.env.CORS_ORIGINS?.split(",").map(o => o.trim()).filter(Boolean) || [
   "http://localhost:3000",
   "http://localhost:3001",
-  "https://nayamo-client.vercel.app",
-  "https://nayamo-admin.vercel.app"
+  "http://localhost:5173",
+  process.env.CLIENT_URL || "https://nayamo-client.vercel.app",
+  process.env.ADMIN_URL || "https://nayamo-admin.vercel.app",
+  "https://nayamo.onrender.com"
 ];
 
-app.use(cors({
-  origin: corsOrigins,
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || corsOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS origin denied: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   preflightContinue: false,
   optionsSuccessStatus: 204
-}));
+};
+
+app.use(cors(corsOptions));
 
 // Preflight for all routes
-app.options('*', cors());
+app.options('*', cors(corsOptions));
 
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
