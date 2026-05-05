@@ -129,19 +129,19 @@ export default function Users() {
         <StatCard 
           title="Total Users" 
           value={totalItems} 
-          icon={<UsersIcon size={24} />}
+          icon={UsersIcon}
           trend="up" 
         />
         <StatCard 
           title="Active" 
           value={users.filter(u => u.isActive).length} 
-          icon={<UserCheck size={24} />}
+          icon={UserCheck}
           trend="up" 
         />
         <StatCard 
           title="Banned" 
           value={users.filter(u => !u.isActive).length} 
-          icon={<UserX size={24} />}
+          icon={UserX}
           trend="down" 
         />
       </div>

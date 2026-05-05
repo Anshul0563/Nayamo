@@ -45,6 +45,10 @@ export default function StatCard({
   suffix = "",
   onClick,
 }) {
+  const numericTrend =
+    typeof trend === "number" ? trend : trend === "down" ? -1 : trend === "up" ? 1 : undefined;
+  const isIconElement = React.isValidElement(Icon);
+
   return (
     <motion.div
       onClick={onClick}
@@ -63,7 +67,21 @@ export default function StatCard({
 
         {Icon && (
           <div className="p-2 rounded-lg bg-white/5 group-hover:bg-[#D4A853]/10 transition">
-            <Icon size={18} className="text-gray-400 group-hover:text-[#D4A853]" />
+            {isIconElement
+              ? React.cloneElement(Icon, {
+                  className: [
+                    Icon.props.className,
+                    "text-gray-400 group-hover:text-[#D4A853]",
+                  ]
+                    .filter(Boolean)
+                    .join(" "),
+                })
+              : (
+                <Icon
+                  size={18}
+                  className="text-gray-400 group-hover:text-[#D4A853]"
+                />
+              )}
           </div>
         )}
       </div>
@@ -74,9 +92,9 @@ export default function StatCard({
       </div>
 
       {/* Trend */}
-      {trend !== undefined && (
+      {numericTrend !== undefined && (
         <div className="flex items-center gap-2 text-sm font-medium">
-          {trend >= 0 ? (
+          {numericTrend >= 0 ? (
             <TrendingUp size={16} className="text-emerald-400" />
           ) : (
             <TrendingDown size={16} className="text-rose-400" />
@@ -84,10 +102,10 @@ export default function StatCard({
 
           <span
             className={`${
-              trend >= 0 ? "text-emerald-400" : "text-rose-400"
+              numericTrend >= 0 ? "text-emerald-400" : "text-rose-400"
             }`}
           >
-            {Math.abs(trend)}%
+            {Math.abs(numericTrend)}%
           </span>
 
           <span className="text-gray-500">vs last period</span>
