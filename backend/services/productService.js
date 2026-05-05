@@ -18,6 +18,7 @@ exports.getProducts = async (queryParams) => {
   const {
     search = "",
     category,
+    rating,
     min,
     max,
     sort,
@@ -45,6 +46,10 @@ exports.getProducts = async (queryParams) => {
     if (max) query.price.$lte = Number(max);
   }
 
+  if (rating) {
+    query.rating = { $gte: Number(rating) };
+  }
+
   let sortOption = {};
   if (sort === "low") sortOption.price = 1;
   if (sort === "high") sortOption.price = -1;
@@ -57,7 +62,7 @@ exports.getProducts = async (queryParams) => {
   const skip = (Number(page) - 1) * limit;
 
   // Cache key
-  const cacheKey = `products:list:${JSON.stringify({ search, category, min, max, sort, page })}`;
+  const cacheKey = `products:list:${JSON.stringify({ search, category, rating, min, max, sort, page })}`;
 
   try {
     const cached = await redis.get(cacheKey);
