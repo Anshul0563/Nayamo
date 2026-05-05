@@ -7,7 +7,6 @@ import {
   Package, 
   RotateCcw, 
   X,
-  Check,
   AlertCircle
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";

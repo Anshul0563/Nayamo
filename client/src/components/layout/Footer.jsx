@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { motion } from "framer-motion";
-import logo from "../../assets/logo.png";
 
 export default function Footer() {
   const containerVariants = {

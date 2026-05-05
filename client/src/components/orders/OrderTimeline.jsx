@@ -5,8 +5,7 @@ import {
   CheckCircle, 
   Package, 
   Truck, 
-  Home,
-  Check
+  Home
 } from "lucide-react";
 
 const orderSteps = [
@@ -51,7 +50,6 @@ export default function OrderTimeline({ status }) {
       <div className="flex items-center justify-between md:grid md:grid-cols-6 gap-4">
         {orderSteps.map((step, index) => {
           const StepIcon = step.icon;
-          const stepNumber = getStepNumber(index);
           const isActive = index <= currentIndex && !isCompleted;
           const isCurrent = index === currentIndex && !isCompleted;
           const canShow = index <= currentIndex || index === 0;
