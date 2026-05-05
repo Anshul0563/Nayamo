@@ -56,6 +56,17 @@ const productReveal = {
   },
 };
 
+const getProductsFromResponse = (payload) => {
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.products)) return payload.data.products;
+  if (Array.isArray(payload?.products)) return payload.products;
+  return [];
+};
+
+const getPaginationFromResponse = (payload) =>
+  payload?.pagination ||
+  payload?.data?.pagination || { currentPage: 1, totalPages: 1 };
+
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
@@ -89,13 +100,13 @@ export default function Shop() {
       if (category) params.category = category;
       if (sortFilter) params.sort = sortFilter;
       if (search) params.search = search;
-      if (priceRange[0] > 0) params.priceMin = priceRange[0];
-      if (priceRange[1] < 50000) params.priceMax = priceRange[1];
+      if (priceRange[0] > 0) params.min = priceRange[0];
+      if (priceRange[1] < 50000) params.max = priceRange[1];
       if (rating > 0) params.rating = rating;
 
       const res = await productAPI.getProducts(params);
-      setProducts(res.data?.data || []);
-      setPagination(res.data?.pagination || { currentPage: 1, totalPages: 1 });
+      setProducts(getProductsFromResponse(res.data));
+      setPagination(getPaginationFromResponse(res.data));
     } catch (err) {
       console.error("Fetch error:", err);
     } finally {
