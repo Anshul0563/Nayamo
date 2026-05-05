@@ -444,13 +444,17 @@ export default function Home() {
             {...fadeInUp}
             className="nayamo-glass rounded-[3rem] p-12 md:p-16 text-center border border-white/[0.08] backdrop-blur-xl shadow-2xl"
           >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="flex items-center justify-center mx-auto mb-10"
-            >
-              <motion.img src={logo} alt="Nayamo Premium" className="w-14 h-14 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]" whileHover={{ scale: 1.1 }} />
-            </motion.div>
+           <motion.div
+  animate={{ rotate: 360 }}
+  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+  className="flex items-center justify-center mx-auto mb-8"
+>
+  <motion.img
+    src={logo}
+    alt="Nayamo Premium"
+    className="w-16 h-16 object-contain drop-shadow-[0_6px_20px_rgba(212,168,83,0.35)]"
+  />
+</motion.div>
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">
               Experience <span className="nayamo-text-gold">Unparalleled</span> Luxury
             </h2>
