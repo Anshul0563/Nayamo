@@ -7,6 +7,8 @@ const isExternalImage = (src) => {
   if (typeof src !== "string") return false;
   try {
     const url = new URL(src);
+    // Don't proxy Cloudinary images as they are secure and direct
+    if (url.hostname.includes('cloudinary.com')) return false;
     return url.hostname !== window.location.hostname;
   } catch {
     return false;

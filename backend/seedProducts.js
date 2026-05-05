@@ -18,7 +18,7 @@ const seedProducts = async () => {
         price: 25000,
         category: "bridal",
         stock: 5,
-        images: [{ url: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800", publicId: "" }],
+        images: [{ url: "https://via.placeholder.com/800x1000/1a1a1a/ffffff?text=Nayamo+Jewelry", publicId: "" }],
         ratings: { average: 4.8, count: 23 }
       },
       {
@@ -27,7 +27,7 @@ const seedProducts = async () => {
         price: 8500,
         category: "party",
         stock: 12,
-        images: [{ url: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800", publicId: "" }],
+        images: [{ url: "https://via.placeholder.com/800x1000/1a1a1a/ffffff?text=Nayamo+Jewelry", publicId: "" }],
         ratings: { average: 4.2, count: 15 }
       },
       {
@@ -36,7 +36,7 @@ const seedProducts = async () => {
         price: 3200,
         category: "daily",
         stock: 8,
-        images: [{ url: "https://images.unsplash.com/photo-1606534175805-67c72dfa0714?w=800", publicId: "" }],
+        images: [{ url: "https://via.placeholder.com/800x1000/1a1a1a/ffffff?text=Nayamo+Jewelry", publicId: "" }],
         ratings: { average: 3.9, count: 28 }
       },
       {
@@ -45,7 +45,7 @@ const seedProducts = async () => {
         price: 18000,
         category: "traditional",
         stock: 3,
-        images: [{ url: "https://images.unsplash.com/photo-1594434512195-6073398e1d2e?w=800", publicId: "" }],
+        images: [{ url: "https://via.placeholder.com/800x1000/1a1a1a/ffffff?text=Nayamo+Jewelry", publicId: "" }],
         ratings: { average: 4.5, count: 17 }
       },
       {
@@ -54,7 +54,7 @@ const seedProducts = async () => {
         price: 6500,
         category: "western",
         stock: 10,
-        images: [{ url: "https://images.unsplash.com/photo-1593482497599-d7743b46d37b?w=800", publicId: "" }],
+        images: [{ url: "https://via.placeholder.com/800x1000/1a1a1a/ffffff?text=Nayamo+Jewelry", publicId: "" }],
         ratings: { average: 3.5, count: 12 }
       },
       {
@@ -63,7 +63,7 @@ const seedProducts = async () => {
         price: 12000,
         category: "statement",
         stock: 6,
-        images: [{ url: "https://images.unsplash.com/photo-1607986588901-e5df0d8927f7?w=800", publicId: "" }],
+        images: [{ url: "https://via.placeholder.com/800x1000/1a1a1a/ffffff?text=Nayamo+Jewelry", publicId: "" }],
         ratings: { average: 4.1, count: 9 }
       },
       {
@@ -72,7 +72,7 @@ const seedProducts = async () => {
         price: 1200,
         category: "daily",
         stock: 20,
-        images: [{ url: "https://images.unsplash.com/photo-1617484648044-4629e7a52351?w=800", publicId: "" }],
+        images: [{ url: "https://via.placeholder.com/800x1000/1a1a1a/ffffff?text=Nayamo+Jewelry", publicId: "" }],
         ratings: { average: 2.8, count: 34 }
       },
     ];

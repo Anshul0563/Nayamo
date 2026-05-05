@@ -31,7 +31,8 @@ router.get("/proxy", async (req, res) => {
       'images.unsplash.com',
       'unsplash.com',
       'picsum.photos',
-      'via.placeholder.com'
+      'via.placeholder.com',
+      'res.cloudinary.com'
     ];
 
     if (!allowedDomains.some(domain => parsedUrl.hostname.includes(domain))) {
