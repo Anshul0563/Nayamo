@@ -6,6 +6,7 @@ import { socketService } from "./services/socket";
 import { useEffect } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { ThemeProvider } from "./context/ThemeContext";
+import ErrorBoundary from "./ErrorBoundary";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -51,9 +52,10 @@ function App() {
 
   return (
     <ThemeProvider>
-      <ToastProvider>
-        <BrowserRouter>
-        <Routes>
+      <ErrorBoundary>
+        <ToastProvider>
+          <BrowserRouter>
+          <Routes>
           {/* Public */}
           <Route path="/login" element={<Login />} />
 
@@ -80,8 +82,9 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-    </ToastProvider>
-  </ThemeProvider>
+        </ToastProvider>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 

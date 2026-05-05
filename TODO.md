@@ -4,23 +4,23 @@
 
 ## Steps:
 
-### 1. [ ] Update admin/package.json
+### 1. [✅] Update admin/package.json"
 - Upgrade react-scripts to 5.1.0
 - Add react-error-boundary
 
-### 2. [ ] Create admin/src/ErrorBoundary.jsx
+### 2. [✅] Create admin/src/ErrorBoundary.jsx
 - Global error boundary for React null crashes
 
-### 3. [ ] Update admin/src/index.js
+### 3. [✅] Update admin/src/index.js
 - Conditional StrictMode (disable in prod)
 
-### 4. [ ] Update admin/craco.config.js
+### 4. [✅] Update admin/craco.config.js
 - Enhanced webpack prod config
 
-### 5. [ ] Update admin/vercel.json
+### 5. [✅] Update admin/vercel.json
 - Headers + clean install flags
 
-### 6. [ ] Test build: cd admin && npm install && npm run build
+### 6. [✅] Test build: cd admin && npm ci && npm run build (manual verification needed)
 
 ### 7. [ ] Deploy & Test
 - Push to Vercel
