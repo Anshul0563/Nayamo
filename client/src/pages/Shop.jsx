@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
@@ -10,12 +10,12 @@ import EmptyState from "../components/common/EmptyState";
 import logo from "../assets/logo.png";
 
 const categories = [
-  { value: "party", label: "Party Wear", icon: "🎭" },
-  { value: "daily", label: "Daily Wear", icon: "✨" },
-  { value: "traditional", label: "Traditional", icon: "🪔" },
-  { value: "western", label: "Western", icon: "💎" },
-  { value: "statement", label: "Statement", icon: "👑" },
-  { value: "bridal", label: "Bridal", icon: "💍" },
+  { value: "party", label: "Party Wear" },
+  { value: "daily", label: "Daily Wear" },
+  { value: "traditional", label: "Traditional" },
+  { value: "western", label: "Western" },
+  { value: "statement", label: "Statement" },
+  { value: "bridal", label: "Bridal" },
 ];
 
 export default function Shop() {
@@ -24,7 +24,6 @@ export default function Shop() {
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   
-  // Filter states - managed by ProductFilters via props
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [rating, setRating] = useState(0);
@@ -36,7 +35,6 @@ export default function Shop() {
   const priceMax = Number(searchParams.get("priceMax") || 50000);
   const page = Number(searchParams.get("page") || 1);
 
-  // Sync URL params to state
   useEffect(() => {
     setRating(ratingParam);
     setPriceRange([priceMin, priceMax]);
@@ -82,61 +80,74 @@ export default function Shop() {
   const pageTitle = category ? categories.find((c) => c.value === category)?.label || category : "Luxury Jewellery";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-nayamo-bg-primary">
       {/* Header */}
-      <motion.section className="relative py-20 mb-16 text-center text-white" 
+      <motion.section 
+        className="relative py-24 mb-20 text-center" 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
         <div className="max-w-4xl mx-auto px-4">
           <motion.div className="mb-8" whileHover={{ scale: 1.05 }}>
-            <img src={logo} alt="Nayamo" className="mx-auto h-20 w-20 shadow-2xl drop-shadow-2xl" />
+            <img src={logo} alt="Nayamo" className="mx-auto h-20 w-20 shadow-2xl drop-shadow-2xl nayamo-glow-pulse" />
           </motion.div>
-          <motion.h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-nayamo-gold to-white bg-clip-text text-transparent mb-6"
+          <motion.h1 
+            className="text-5xl md:text-7xl font-serif font-bold bg-gradient-to-r from-white via-nayamo-gold to-white bg-clip-text text-transparent mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
             {pageTitle} Collection
           </motion.h1>
-          <motion.p className="text-xl text-zinc-300 max-w-2xl mx-auto font-light"
+          <motion.p 
+            className="text-xl text-nayamo-text-muted max-w-2xl mx-auto font-light"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            Handcrafted luxury earrings for every occasion
+            Discover exquisite handcrafted jewelry
           </motion.p>
         </div>
       </motion.section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        {/* ProductFilters - Always visible horizontal bar */}
-        <ProductFilters
-          category={category}
-          updateParam={updateParam}
-          search={search}
-          setSearch={setSearch}
-          rating={rating}
-          setRating={setRating}
-          clearFilters={() => {
-            setSearch("");
-            setPriceRange([0, 50000]);
-            setRating(0);
-            setSortFilter("");
-            updateParam("category", "");
-            updateParam("rating", "");
-            updateParam("priceMin", "");
-            updateParam("priceMax", "");
-            updateParam("sort", "");
-          }}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          sortFilter={sortFilter}
-          setSortFilter={setSortFilter}
-        />
+      <div className="max-w-6xl mx-auto px-4 lg:px-8 pb-20">
+        <div className="mb-12">
+          <div className="relative max-w-2xl mx-auto mb-8">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-nayamo-gold" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search luxury jewellery..."
+              className="w-full pl-12 pr-6 py-4 rounded-3xl bg-nayamo-bg-card/80 border border-nayamo-border-light text-nayamo-text-primary placeholder-nayamo-text-muted backdrop-blur-xl focus:ring-2 focus:ring-nayamo-gold/50 focus:border-nayamo-gold transition-all duration-300 shadow-xl hover:shadow-2xl nayamo-input"
+            />
+          </div>
+          <ProductFilters
+            category={category}
+            updateParam={updateParam}
+            search={search}
+            setSearch={setSearch}
+            rating={rating}
+            setRating={setRating}
+            clearFilters={() => {
+              setSearch("");
+              setPriceRange([0, 50000]);
+              setRating(0);
+              setSortFilter("");
+              updateParam("category", "");
+              updateParam("rating", "");
+              updateParam("priceMin", "");
+              updateParam("priceMax", "");
+              updateParam("sort", "");
+            }}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            sortFilter={sortFilter}
+            setSortFilter={setSortFilter}
+          />
+        </div>
 
-        {/* Products Grid */}
         {loading ? (
           <SkeletonGrid count={12} />
         ) : products.length === 0 ? (
@@ -152,7 +163,7 @@ export default function Shop() {
                 key={product._id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.04 }}
+                transition={{ duration: 0.3, delay: index * 0.04 }}
               >
                 <ProductCard product={product} />
               </motion.div>
@@ -160,13 +171,12 @@ export default function Shop() {
           </div>
         )}
 
-        {/* Pagination */}
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-center gap-2">
             <motion.button
               onClick={() => updateParam("page", (page - 1).toString())}
               disabled={page <= 1}
-              className="p-3 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-xl shadow-lg flex items-center justify-center w-12 h-12"
+              className="p-3 rounded-xl border border-nayamo-border-medium bg-nayamo-bg-card text-nayamo-text-secondary hover:bg-nayamo-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-xl shadow-lg flex items-center justify-center w-12 h-12 nayamo-glow-pulse"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -177,10 +187,10 @@ export default function Shop() {
               <motion.button
                 key={p}
                 onClick={() => updateParam("page", p.toString())}
-                className={`w-12 h-12 rounded-xl font-semibold transition-all flex items-center justify-center shadow-lg ${
+                className={`w-12 h-12 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center shadow-lg nayamo-glow-pulse ${
                   p === page
                     ? "bg-nayamo-gold text-black shadow-nayamo-gold/50"
-                    : "border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:shadow-xl"
+                    : "border border-nayamo-border-medium bg-nayamo-bg-card text-nayamo-text-secondary hover:bg-nayamo-bg-hover hover:border-nayamo-border-gold hover:shadow-xl"
                 }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -192,7 +202,7 @@ export default function Shop() {
             <motion.button
               onClick={() => updateParam("page", (page + 1).toString())}
               disabled={page >= pagination.totalPages}
-              className="p-3 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-xl shadow-lg flex items-center justify-center w-12 h-12"
+              className="p-3 rounded-xl border border-nayamo-border-medium bg-nayamo-bg-card text-nayamo-text-secondary hover:bg-nayamo-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-xl shadow-lg flex items-center justify-center w-12 h-12 nayamo-glow-pulse"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
