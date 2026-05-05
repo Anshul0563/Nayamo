@@ -19580,3 +19580,15 @@
 {"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 21:33:22"}
 {"level":"info","message":"✅ CORS Origins: https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000","service":"nayamo-api","timestamp":"2026-05-05 21:33:22"}
 {"level":"info","message":"127.0.0.1 - - [05/May/2026:16:07:32 +0000] \"HEAD /api/v1/images/proxy?url=https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800 HTTP/1.1\" 200 222417 \"-\" \"curl/8.5.0\"","service":"nayamo-api","timestamp":"2026-05-05 21:37:32"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 21:40:01"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 21:40:01"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 21:40:01"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000","service":"nayamo-api","timestamp":"2026-05-05 21:40:01"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 21:40:08"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 21:40:08"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 21:40:08"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000","service":"nayamo-api","timestamp":"2026-05-05 21:40:08"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 21:40:09"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 21:40:09"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 21:40:09"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000","service":"nayamo-api","timestamp":"2026-05-05 21:40:09"}
