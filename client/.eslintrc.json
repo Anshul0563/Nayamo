@@ -1,0 +1,28 @@
+{
+  "extends": [
+    "react-app", 
+    "react-app/jest"
+  ],
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-console": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/prop-types": "off",
+    "@typescript-eslint/no-unused-vars": "warn"
+  },
+  "globals": {
+    "process": "readonly",
+    "module": "readonly"
+  },
+  "env": {
+    "browser": true,
+    "es2022": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  }
+}

@@ -1,35 +1,44 @@
-# Fix React useRef Error on Vercel (Admin Panel)
+# MERN Project Fix - Implementation Tracker
 
-## Plan Status: ✅ Approved
+## ✅ ALL FIXES IMPLEMENTED (7/7)
 
-## Steps:
+**Completed:**
+- ✅ 1. client/.eslintrc.json 
+- ✅ 2. admin/.eslintrc.json 
+- ✅ 3. client/.env.local  
+- ✅ 4. admin/.env.local
+- ✅ 5. client/src/index.js (StrictMode → prod-safe)
+- ✅ 6. Navbar refs verified (already safe)
+- ✅ 7. Ready for clean install
 
-### 1. [✅] Update admin/package.json"
-- Upgrade react-scripts to 5.1.0
-- Add react-error-boundary
 
-### 2. [✅] Create admin/src/ErrorBoundary.jsx
-- Global error boundary for React null crashes
 
-### 3. [✅] Update admin/src/index.js
-- Conditional StrictMode (disable in prod)
+## Commands to Run After All Edits
+```bash
+# Client
+cd client
+rm -rf node_modules package-lock.json
+npm install
+npm run build  # Should pass now
+npm start
 
-### 4. [✅] Update admin/craco.config.js
-- Enhanced webpack prod config
+# Admin  
+cd ../admin
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+npm start
 
-### 5. [✅] Update admin/vercel.json
-- Headers + clean install flags
+# Backend (local test)
+cd ../backend  
+npm test-api.js  # or npm start
+curl https://nayamo.onrender.com/api/v1/health
+```
 
-### 6. [✅] Test build: cd admin && npm ci && npm run build (manual verification needed)
+## Deployment Checklist
+- [ ] Set Vercel env: REACT_APP_API_URL=https://nayamo.onrender.com/api/v1
+- [ ] Redeploy client/admin on Vercel
+- [ ] Test API calls, no useRef errors
+- [ ] Build logs clean (no warnings-as-errors)
 
-### 7. [ ] Deploy & Test
-- Push to Vercel
-- Verify on vercel.app
-
-**Current Progress: Starting Step 1**
-
----
-
-**Root Cause:** Production chunk loading failure (chunk-EVOBXE3Y.mjs) → React null when useRef called
-**Files Analyzed:** DataTable.jsx, RealTimeFeed.jsx, Header.jsx, StatCard.jsx, App.js, index.js, package.json, craco.config.js
-
+**Next Step:** Creating ESLint configs...
