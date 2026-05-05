@@ -1,16 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-  Search,
-  SlidersHorizontal,
-  X,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  Star,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, Search, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import ProductFilters from "../components/product/ProductFilters";
@@ -27,44 +18,30 @@ const categories = [
   { value: "bridal", label: "Bridal", icon: "💍" },
 ];
 
-const sortOptions = [
-  { value: "", label: "Sort By" },
-  { value: "newest", label: "Newest First" },
-  { value: "low", label: "Price: Low to High" },
-  { value: "high", label: "Price: High to Low" },
-];
-
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-  });
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
   const [loading, setLoading] = useState(true);
+  
+  // Filter states - managed by ProductFilters via props
   const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [showFilters, setShowFilters] = useState(false);
-
-  // New filter states
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [rating, setRating] = useState(0);
   const [sortFilter, setSortFilter] = useState("");
 
   const category = searchParams.get("category") || "";
-  const sortParam = searchParams.get("sort") || "";
+  const ratingParam = Number(searchParams.get("rating") || 0);
   const priceMin = Number(searchParams.get("priceMin") || 0);
   const priceMax = Number(searchParams.get("priceMax") || 50000);
-  const ratingParam = Number(searchParams.get("rating") || 0);
-  const page = Number(searchParams.get("page")) || 1;
+  const page = Number(searchParams.get("page") || 1);
 
-  // Sync URL state to component state
+  // Sync URL params to state
   useEffect(() => {
-    const min = priceMin > 0 ? priceMin : 0;
-    const max = priceMax < 50000 ? priceMax : 50000;
-    setPriceRange([min, max]);
     setRating(ratingParam);
-    setSortFilter(sortParam);
-  }, [priceMin, priceMax, ratingParam, sortParam]);
+    setPriceRange([priceMin, priceMax]);
+    setSortFilter(searchParams.get("sort") || "");
+  }, [ratingParam, priceMin, priceMax, searchParams]);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -81,7 +58,7 @@ export default function Shop() {
       setProducts(res.data?.data || []);
       setPagination(res.data?.pagination || { currentPage: 1, totalPages: 1 });
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error('Fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -91,417 +68,140 @@ export default function Shop() {
     fetchProducts();
   }, [fetchProducts]);
 
-  const updateParam = useCallback(
-    (key, value) => {
-      const sp = new URLSearchParams(searchParams);
-      if (value !== "" && value !== null && value !== undefined) {
-        sp.set(key, value);
-      } else {
-        sp.delete(key);
-      }
-      sp.set("page", "1");
-      setSearchParams(sp);
-    },
-    [searchParams, setSearchParams],
-  );
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    updateParam("search", search || "");
+  const updateParam = (key, value) => {
+    const sp = new URLSearchParams(searchParams);
+    if (value) {
+      sp.set(key, value);
+    } else {
+      sp.delete(key);
+    }
+    sp.set("page", "1");
+    setSearchParams(sp);
   };
 
-  const clearFilters = () => {
-    setSearch("");
-    setPriceRange([0, 50000]);
-    setRating(0);
-    setSortFilter("");
-    setShowFilters(false);
-    setSearchParams(new URLSearchParams({ page: "1" }));
-  };
-
-  const pageTitle = category
-    ? `${categories.find((c) => c.value === category)?.label || category} Collection`
-    : "Luxury Earrings Collection";
-
-  const activeFiltersCount =
-    (category ? 1 : 0) +
-    (search ? 1 : 0) +
-    (sortFilter ? 1 : 0) +
-    (rating > 0 ? 1 : 0) +
-    (priceRange[0] > 0 || priceRange[1] < 50000 ? 1 : 0);
+  const pageTitle = category ? categories.find((c) => c.value === category)?.label || category : "Luxury Jewellery";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#070708] via-[#0A0A0C] to-[#070708]">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(212,168,83,0.03),transparent_50%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(212,165,165,0.02),transparent_50%)] pointer-events-none" />
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <motion.div
-        className="relative z-20 border-b border-white/[0.08] backdrop-blur-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+      <motion.section className="relative py-20 mb-16 text-center text-white" 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="nayamo-container py-16 md:py-20">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-center"
-          >
-            <motion.div
-              className="flex items-center justify-center gap-3 mb-6"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-            >
-              <motion.img
-                src={logo}
-                alt="Excellence"
-                className="h-14 w-14 object-contain drop-shadow-[0_12px_40px_rgba(212,168,83,0.4)]"
-                whileHover={{ scale: 1.1 }}
-              />
-            </motion.div>
-            <div>
-              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-[#D4A853] to-white bg-clip-text text-transparent tracking-tight">
-                {pageTitle}
-              </h1>
-              <motion.div
-                className="flex items-center justify-center gap-2 mt-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                <Sparkles className="w-5 h-5 text-[#D4A853]" />
-                <p className="text-zinc-400 text-lg font-medium">
-                  {category
-                    ? `Exquisite ${category} earrings crafted to perfection`
-                    : "Discover handcrafted luxury for every occasion"}
-                </p>
-                <Sparkles className="w-5 h-5 text-[#D4A853]" />
-              </motion.div>
-            </div>
+        <div className="max-w-4xl mx-auto px-4">
+          <motion.div className="mb-8" whileHover={{ scale: 1.05 }}>
+            <img src={logo} alt="Nayamo" className="mx-auto h-20 w-20 shadow-2xl drop-shadow-2xl" />
           </motion.div>
-        </div>
-      </motion.div>
-
-      <div className="relative nayamo-container py-12 z-10">
-        {/* Search & Controls */}
-        <motion.div
-          className="flex flex-col md:flex-row gap-6 mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <motion.form
-            onSubmit={handleSearch}
-            className="flex-1 relative group"
-            whileHover={{ scale: 1.01 }}
-            transition={{ type: "spring", stiffness: 300 }}
+          <motion.h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-nayamo-gold to-white bg-clip-text text-transparent mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#D4A853]/10 via-transparent to-[#D4A5A5]/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative bg-white/[0.02] border border-white/[0.08] rounded-3xl backdrop-blur-xl hover:border-[#D4A853]/30 transition-all duration-500 overflow-hidden">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-hover:text-[#D4A853] transition-colors" />
-              <input
-                type="text"
-                placeholder="Search luxury earrings..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-16 pr-6 py-5 bg-transparent text-white placeholder-zinc-500 outline-none text-lg"
-              />
-            </div>
-          </motion.form>
+            {pageTitle} Collection
+          </motion.h1>
+          <motion.p className="text-xl text-zinc-300 max-w-2xl mx-auto font-light"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            Handcrafted luxury earrings for every occasion
+          </motion.p>
+        </div>
+      </motion.section>
 
-          <div className="flex gap-4 flex-shrink-0">
-            <motion.button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`relative px-8 py-5 rounded-3xl border font-semibold text-sm flex items-center gap-3 transition-all duration-500 overflow-hidden z-10 ${
-                showFilters
-                  ? "border-[#D4A853] text-white bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 shadow-[0_8px_32px_rgba(212,168,83,0.3)]"
-                  : "border-white/[0.15] text-zinc-300 bg-white/[0.02] backdrop-blur-xl hover:border-[#D4A853]/50 hover:bg-white/[0.06] hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <SlidersHorizontal className="w-5 h-5" />
-              Filters
-              {activeFiltersCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-to-r from-nayamo-gold to-amber-500 text-black text-xs font-bold flex items-center justify-center shadow-lg border-2 border-white"
-                >
-                  {activeFiltersCount}
-                </motion.span>
-              )}
-            </motion.button>
-
-            <motion.div className="relative group" whileHover={{ scale: 1.05 }}>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#D4A853]/10 to-[#D4A5A5]/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <select
-                value={sortFilter}
-                onChange={(e) => updateParam("sort", e.target.value)}
-                className="relative appearance-none px-8 py-5 pr-14 rounded-3xl border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl text-sm font-semibold text-zinc-300 hover:border-[#D4A853]/50 hover:bg-white/[0.06] focus:border-[#D4A853]/60 focus:ring-2 focus:ring-[#D4A853]/20 outline-none cursor-pointer transition-all duration-500"
-              >
-                {sortOptions.map((opt) => (
-                  <option
-                    key={opt.value}
-                    value={opt.value}
-                    className="bg-[#0A0A0C] text-white"
-                  >
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 pointer-events-none group-hover:text-[#D4A853] transition-colors" />
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Filters Component */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        {/* ProductFilters - Always visible horizontal bar */}
         <ProductFilters
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
           category={category}
           updateParam={updateParam}
           search={search}
           setSearch={setSearch}
-          clearFilters={clearFilters}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
           rating={rating}
           setRating={setRating}
+          clearFilters={() => {
+            setSearch("");
+            setPriceRange([0, 50000]);
+            setRating(0);
+            setSortFilter("");
+            updateParam("category", "");
+            updateParam("rating", "");
+            updateParam("priceMin", "");
+            updateParam("priceMax", "");
+            updateParam("sort", "");
+          }}
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
           sortFilter={sortFilter}
           setSortFilter={setSortFilter}
         />
 
-        {/* Active Filters Chips */}
-        <AnimatePresence>
-          {activeFiltersCount > 0 && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, y: -10 }}
-              animate={{ opacity: 1, height: "auto", y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -10 }}
-              transition={{ duration: 0.4 }}
-              className="flex flex-wrap items-center gap-2 mb-8 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl"
-            >
-              <span className="text-xs text-zinc-500 mr-2">
-                Active Filters:
-              </span>
-
-              {/* CATEGORY */}
-              {category && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium 
-          bg-[#0F0F11] text-[#D4A853] border border-[#D4A853]/20"
-                >
-                  {categories.find((c) => c.value === category)?.label ||
-                    category}
-                  <button
-                    onClick={() => updateParam("category", "")}
-                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-[#D4A853]/20 transition"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </motion.span>
-              )}
-
-              {/* SEARCH */}
-              {search && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium 
-          bg-[#0F0F11] text-white border border-white/[0.15]"
-                >
-                  "{search}"
-                  <button
-                    onClick={() => {
-                      setSearch("");
-                      updateParam("search", "");
-                    }}
-                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-white/10 transition"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </motion.span>
-              )}
-
-              {/* SORT */}
-              {sortFilter && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium 
-          bg-[#0F0F11] text-zinc-300 border border-white/[0.1]"
-                >
-                  {sortOptions.find((s) => s.value === sortFilter)?.label}
-                  <button
-                    onClick={() => updateParam("sort", "")}
-                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-white/10 transition"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </motion.span>
-              )}
-
-              {/* RATING */}
-              {rating > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium 
-          bg-[#0F0F11] text-[#D4A853] border border-[#D4A853]/20"
-                >
-                  <Star className="w-3 h-3 fill-current" />
-                  {rating}+
-                  <button
-                    onClick={() => updateParam("rating", "")}
-                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-[#D4A853]/20 transition"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </motion.span>
-              )}
-
-              {/* PRICE (already good but aligned) */}
-              {(priceRange[0] > 0 || priceRange[1] < 50000) && (
-                <motion.span
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium 
-          bg-[#0F0F11] text-[#D4A853] border border-[#D4A853]/20"
-                >
-                  ₹{priceRange[0].toLocaleString()} — ₹
-                  {priceRange[1].toLocaleString()}
-                  <button
-                    onClick={() => {
-                      setPriceRange([0, 50000]);
-                      updateParam("priceMin", "");
-                      updateParam("priceMax", "");
-                    }}
-                    className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-[#D4A853]/20 transition"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </motion.span>
-              )}
-
-              {/* CLEAR ALL */}
-              <button
-                onClick={clearFilters}
-                className="text-xs text-zinc-400 hover:text-[#D4A853] ml-2 transition"
-              >
-                Clear all
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Results */}
+        {/* Products Grid */}
         {loading ? (
-          <SkeletonGrid count={8} />
+          <SkeletonGrid count={12} />
         ) : products.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <EmptyState
-              type="search"
-              title="No luxury pieces found"
-              description="Try adjusting your filters or search for different styles."
-              actionText="Browse All Collections"
-              actionLink="/shop"
-            />
-          </motion.div>
+          <EmptyState
+            title="No Jewellery Found"
+            description="Try adjusting your filters or search for different styles."
+            type="filter"
+          />
         ) : (
-          <>
-            <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              {products.map((product, i) => (
-                <motion.div
-                  key={product._id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1, duration: 0.5 }}
-                >
-                  <ProductCard product={product} index={i} />
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-20">
+            {products.map((product, index) => (
               <motion.div
-                className="flex items-center justify-center gap-4"
-                initial={{ opacity: 0, y: 20 }}
+                key={product._id}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
+                transition={{ delay: index * 0.05 }}
               >
-                <motion.button
-                  onClick={() => updateParam("page", (page - 1).toString())}
-                  disabled={page <= 1}
-                  className="p-4 rounded-3xl border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/[0.06] hover:border-[#D4A853]/40 text-white transition-all duration-500 hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
-                  whileHover={{ scale: page > 1 ? 1.1 : 1 }}
-                  whileTap={{ scale: page > 1 ? 0.95 : 1 }}
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </motion.button>
-
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                  .filter(
-                    (p) =>
-                      Math.abs(p - page) <= 1 ||
-                      p === 1 ||
-                      p === pagination.totalPages,
-                  )
-                  .map((p, index, arr) => (
-                    <React.Fragment key={p}>
-                      {index > 0 && arr[index - 1] !== p - 1 && (
-                        <span className="text-zinc-600 px-2">...</span>
-                      )}
-                      <motion.button
-                        onClick={() => updateParam("page", p.toString())}
-                        className={`w-14 h-14 rounded-3xl text-sm font-bold transition-all duration-500 ${
-                          p === page
-                            ? "bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] text-black shadow-[0_12px_40px_rgba(212,168,83,0.4)] border-2 border-[#D4A853]/50"
-                            : "border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl text-zinc-300 hover:bg-white/[0.06] hover:border-[#D4A853]/40 hover:text-white hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
-                        }`}
-                        whileHover={{ scale: 1.1, y: -2 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        {p}
-                      </motion.button>
-                    </React.Fragment>
-                  ))}
-
-                <motion.button
-                  onClick={() => updateParam("page", (page + 1).toString())}
-                  disabled={page >= pagination.totalPages}
-                  className="p-4 rounded-3xl border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/[0.06] hover:border-[#D4A853]/40 text-white transition-all duration-500 hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
-                  whileHover={{ scale: page < pagination.totalPages ? 1.1 : 1 }}
-                  whileTap={{ scale: page < pagination.totalPages ? 0.95 : 1 }}
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </motion.button>
+                <ProductCard product={product} />
               </motion.div>
-            )}
-          </>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2">
+            <motion.button
+              onClick={() => updateParam("page", (page - 1).toString())}
+              disabled={page <= 1}
+              className="p-3 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-xl shadow-lg flex items-center justify-center w-12 h-12"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </motion.button>
+
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+              <motion.button
+                key={p}
+                onClick={() => updateParam("page", p.toString())}
+                className={`w-12 h-12 rounded-xl font-semibold transition-all flex items-center justify-center shadow-lg ${
+                  p === page
+                    ? "bg-nayamo-gold text-black shadow-nayamo-gold/50"
+                    : "border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:shadow-xl"
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {p}
+              </motion.button>
+            ))}
+
+            <motion.button
+              onClick={() => updateParam("page", (page + 1).toString())}
+              disabled={page >= pagination.totalPages}
+              className="p-3 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-xl shadow-lg flex items-center justify-center w-12 h-12"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </motion.button>
+          </div>
         )}
       </div>
     </div>
   );
 }
+
