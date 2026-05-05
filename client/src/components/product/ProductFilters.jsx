@@ -185,7 +185,8 @@ export default function ProductFilters({
                       max="50000"
                       value={localPriceRange[0]}
                       onChange={(e) => handlePriceChange(([min]) => [Number(e.target.value), localPriceRange[1]])}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-gold"
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-gold [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-nayamo-gold [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-grab active:cursor-grabbing [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-nayamo-gold [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb:active]:cursor-grabbing"
+
                     />
                     <input
                       type="range"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Search,
@@ -8,10 +8,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Star,
+
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
+import ProductFilters from "../components/product/ProductFilters";
 import { SkeletonGrid } from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
 import logo from "../assets/logo.png";
@@ -42,57 +45,83 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [showFilters, setShowFilters] = useState(false);
+  
+  // New filter states
+  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [rating, setRating] = useState(0);
+  const [sortFilter, setSortFilter] = useState("");
 
   const category = searchParams.get("category") || "";
-  const sort = searchParams.get("sort") || "";
+  const sortParam = searchParams.get("sort") || "";
+  const priceMin = Number(searchParams.get("priceMin") || 0);
+  const priceMax = Number(searchParams.get("priceMax") || 50000);
+  const ratingParam = Number(searchParams.get("rating") || 0);
   const page = Number(searchParams.get("page")) || 1;
 
+  // Sync URL state to component state
   useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
-      try {
-        const params = { page };
-        if (category) params.category = category;
-        if (sort) params.sort = sort;
-        if (search) params.search = search;
-        const res = await productAPI.getProducts(params);
-        setProducts(res.data?.data || []);
-        setPagination(
-          res.data?.pagination || { currentPage: 1, totalPages: 1 },
-        );
-      } catch (err) {
+    const min = priceMin > 0 ? priceMin : 0;
+    const max = priceMax < 50000 ? priceMax : 50000;
+    setPriceRange([min, max]);
+    setRating(ratingParam);
+    setSortFilter(sortParam);
+  }, [priceMin, priceMax, ratingParam, sortParam]);
 
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetch();
-  }, [category, sort, page, search]);
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = { page };
+      if (category) params.category = category;
+      if (sortFilter) params.sort = sortFilter;
+      if (search) params.search = search;
+      if (priceRange[0] > 0) params.priceMin = priceRange[0];
+      if (priceRange[1] < 50000) params.priceMax = priceRange[1];
+      if (rating > 0) params.rating = rating;
+      
+      const res = await productAPI.getProducts(params);
+      setProducts(res.data?.data || []);
+      setPagination(res.data?.pagination || { currentPage: 1, totalPages: 1 });
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [category, sortFilter, search, priceRange, rating, page]);
 
-  const updateParam = (key, value) => {
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const updateParam = useCallback((key, value) => {
     const sp = new URLSearchParams(searchParams);
-    if (value) sp.set(key, value);
-    else sp.delete(key);
+    if (value !== '' && value !== null && value !== undefined) {
+      sp.set(key, value);
+    } else {
+      sp.delete(key);
+    }
     sp.set("page", "1");
     setSearchParams(sp);
-  };
+  }, [searchParams, setSearchParams]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    updateParam("search", search);
+    updateParam("search", search || "");
   };
 
   const clearFilters = () => {
     setSearch("");
-    setSearchParams(new URLSearchParams());
+    setPriceRange([0, 50000]);
+    setRating(0);
+    setSortFilter("");
+    setShowFilters(false);
+    setSearchParams(new URLSearchParams({ page: "1" }));
   };
 
   const pageTitle = category
     ? `${categories.find((c) => c.value === category)?.label || category} Collection`
     : "Luxury Earrings Collection";
 
-  const activeFiltersCount =
-    (category ? 1 : 0) + (search ? 1 : 0) + (sort ? 1 : 0);
+  const activeFiltersCount = (category ? 1 : 0) + (search ? 1 : 0) + (sortFilter ? 1 : 0) + (rating > 0 ? 1 : 0) + ((priceRange[0] > 0 || priceRange[1] < 50000) ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#070708] via-[#0A0A0C] to-[#070708]">
@@ -102,7 +131,7 @@ export default function Shop() {
 
       {/* Header */}
       <motion.div
-        className="relative border-b border-white/[0.08] backdrop-blur-sm"
+        className="relative z-20 border-b border-white/[0.08] backdrop-blur-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -150,7 +179,7 @@ export default function Shop() {
         </div>
       </motion.div>
 
-      <div className="relative nayamo-container py-12">
+      <div className="relative nayamo-container py-12 z-10">
         {/* Search & Controls */}
         <motion.div
           className="flex flex-col md:flex-row gap-6 mb-10"
@@ -177,10 +206,10 @@ export default function Shop() {
             </div>
           </motion.form>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-shrink-0">
             <motion.button
               onClick={() => setShowFilters(!showFilters)}
-              className={`relative px-8 py-5 rounded-3xl border font-semibold text-sm flex items-center gap-3 transition-all duration-500 overflow-hidden ${
+              className={`relative px-8 py-5 rounded-3xl border font-semibold text-sm flex items-center gap-3 transition-all duration-500 overflow-hidden z-10 ${
                 showFilters
                   ? "border-[#D4A853] text-white bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 shadow-[0_8px_32px_rgba(212,168,83,0.3)]"
                   : "border-white/[0.15] text-zinc-300 bg-white/[0.02] backdrop-blur-xl hover:border-[#D4A853]/50 hover:bg-white/[0.06] hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
@@ -194,30 +223,22 @@ export default function Shop() {
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="w-6 h-6 rounded-full bg-gradient-to-r from-[#D4A853] to-[#FFD700] text-black text-xs font-bold flex items-center justify-center shadow-lg"
+                  className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-to-r from-nayamo-gold to-amber-500 text-black text-xs font-bold flex items-center justify-center shadow-lg border-2 border-white"
                 >
                   {activeFiltersCount}
                 </motion.span>
               )}
             </motion.button>
 
-            <motion.div
-              className="relative group"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
+            <motion.div className="relative group" whileHover={{ scale: 1.05 }}>
               <div className="absolute inset-0 bg-gradient-to-r from-[#D4A853]/10 to-[#D4A5A5]/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <select
-                value={sort}
+                value={sortFilter}
                 onChange={(e) => updateParam("sort", e.target.value)}
                 className="relative appearance-none px-8 py-5 pr-14 rounded-3xl border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl text-sm font-semibold text-zinc-300 hover:border-[#D4A853]/50 hover:bg-white/[0.06] focus:border-[#D4A853]/60 focus:ring-2 focus:ring-[#D4A853]/20 outline-none cursor-pointer transition-all duration-500"
               >
                 {sortOptions.map((opt) => (
-                  <option
-                    key={opt.value}
-                    value={opt.value}
-                    className="bg-[#0A0A0C] text-white"
-                  >
+                  <option key={opt.value} value={opt.value} className="bg-[#0A0A0C] text-white">
                     {opt.label}
                   </option>
                 ))}
@@ -227,9 +248,26 @@ export default function Shop() {
           </div>
         </motion.div>
 
-        {/* Active Filters */}
+        {/* Filters Component */}
+        <ProductFilters
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          category={category}
+          updateParam={updateParam}
+          search={search}
+          setSearch={setSearch}
+          clearFilters={clearFilters}
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          rating={rating}
+          setRating={setRating}
+          sortFilter={sortFilter}
+          setSortFilter={setSortFilter}
+        />
+
+        {/* Active Filters Chips */}
         <AnimatePresence>
-          {(category || search || sort) && (
+          {activeFiltersCount > 0 && (
             <motion.div
               initial={{ opacity: 0, height: 0, y: -10 }}
               animate={{ opacity: 1, height: "auto", y: 0 }}
@@ -248,12 +286,8 @@ export default function Shop() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 text-white border border-[#D4A853]/30 shadow-lg"
                 >
                   {categories.find((c) => c.value === category)?.icon}{" "}
-                  {categories.find((c) => c.value === category)?.label ||
-                    category}
-                  <button
-                    onClick={() => updateParam("category", "")}
-                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
-                  >
+                  {categories.find((c) => c.value === category)?.label || category}
+                  <button onClick={() => updateParam("category", "")} className="hover:bg-white/20 rounded-full p-1 transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </motion.span>
@@ -277,18 +311,46 @@ export default function Shop() {
                   </button>
                 </motion.span>
               )}
-              {sort && (
+              {sortFilter && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-white/[0.08] text-zinc-300 border border-white/[0.15]"
                 >
-                  {sortOptions.find((s) => s.value === sort)?.label}
-                  <button
-                    onClick={() => updateParam("sort", "")}
-                    className="hover:bg-white/20 rounded-full p-1 transition-colors"
-                  >
+                  {sortOptions.find((s) => s.value === sortFilter)?.label}
+                  <button onClick={() => updateParam("sort", "")} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </motion.span>
+              )}
+              {rating > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="inline-flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-nayamo-gold/20 to-amber-500/20 text-nayamo-gold border border-nayamo-gold/30 shadow-lg"
+                >
+                  <Star className="w-4 h-4 fill-current" />
+                  <span>{rating} &amp; up</span>
+                  <button onClick={() => updateParam("rating", "")} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </motion.span>
+              )}
+              {(priceRange[0] > 0 || priceRange[1] < 50000) && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-nayamo-rose/20 to-nayamo-gold/20 text-nayamo-gold border border-nayamo-rose/30 shadow-lg"
+                >
+                  ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}
+                  <button onClick={() => {
+                    setPriceRange([0, 50000]);
+                    updateParam("priceMin", "");
+                    updateParam("priceMax", "");
+                  }} className="hover:bg-white/20 rounded-full p-1 transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </motion.span>
@@ -301,164 +363,6 @@ export default function Shop() {
               >
                 Clear all
               </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Filter Panel */}
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, y: -40 }}
-              animate={{ opacity: 1, height: "auto", y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -40 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden mb-20"
-            >
-              <motion.div
-                className="group relative"
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{
-                  delay: 0.2,
-                  duration: 0.5,
-                  type: "spring",
-                  stiffness: 250,
-                }}
-              >
-                {/* Outer Glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e]/60 via-[#16213e]/70 to-[#0f0f23]/60 rounded-3xl blur-3xl shadow-2xl shadow-[#D4A853]/25 opacity-90" />
-
-                {/* Main Panel */}
-                <div className="relative p-10 rounded-3xl bg-gradient-to-br from-slate-900/95 via-slate-800/98 to-slate-900/95 border border-[#D4A853]/20 backdrop-blur-3xl shadow-[0_35px_100px_rgba(0,0,0,0.8)] shadow-[#1e3a8a]/30">
-                  {/* Header */}
-                  <div className="flex items-center gap-6 mb-12 pb-8 border-b border-[#D4A853]/10 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#D4A853]/5 via-transparent to-[#D4A853]/5 animate-shimmer" />
-
-                    <motion.div
-                      className="relative p-3 bg-gradient-to-br from-[#D4A853]/20 to-[#1e40af]/20 rounded-2xl backdrop-blur-xl border border-[#D4A853]/30 shadow-2xl shadow-[#D4A853]/30"
-                      whileHover={{ scale: 1.2, rotate: 180 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <img
-                        src={logo}
-                        alt="Premium"
-                        className="w-8 h-8 object-contain drop-shadow-xl"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] rounded-2xl blur-xl opacity-70 animate-pulse" />
-                    </motion.div>
-
-                    <div>
-                      <h3 className="text-3xl font-black bg-gradient-to-r from-zinc-200 via-[#D4A853] to-[#FFD700] bg-clip-text text-transparent tracking-tight">
-                        Master Categories
-                      </h3>
-                      <p className="text-zinc-500 text-lg mt-1 font-light">
-                        Curated collections
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Categories Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-                    {categories.map((c, index) => (
-                      <motion.button
-                        key={c.value}
-                        onClick={() =>
-                          updateParam(
-                            "category",
-                            category === c.value ? "" : c.value,
-                          )
-                        }
-                        className={`group relative h-28 p-6 rounded-2xl font-bold text-lg overflow-hidden transition-all duration-700 shadow-xl border backdrop-blur-xl ${
-                          category === c.value
-                            ? "bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] text-black shadow-[0_25px_60px_rgba(212,168,83,0.6)] shadow-[#D4A853]/50 border-[#D4A853]/70 scale-[1.02] rotate-[1deg]"
-                            : "bg-gradient-to-br from-slate-800/70 to-slate-900/60 border-white/[0.1] hover:border-[#D4A853]/50 hover:bg-gradient-to-br hover:from-slate-700/80 hover:to-[#D4A853]/10 hover:shadow-[0_25px_60px_rgba(212,168,83,0.4)] hover:shadow-[#D4A853]/40 hover:scale-[1.08] hover:rotate-[2deg] text-zinc-300"
-                        }`}
-                        whileHover={{
-                          scale: category === c.value ? 1.03 : 1.1,
-                          y: -8,
-                          rotateX: category === c.value ? 0 : 8,
-                          rotateY: category === c.value ? 0 : 8,
-                        }}
-                        whileTap={{ scale: 0.96 }}
-                        initial={{ opacity: 0, y: 40, scale: 0.8 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{
-                          delay: index * 0.08,
-                          duration: 0.6,
-                          type: "spring",
-                          stiffness: 300,
-                        }}
-                      >
-                        {/* Dynamic Background */}
-                        <div
-                          className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-0 group-hover:opacity-60 blur-sm transition-all duration-700`}
-                        />
-
-                        {/* Shine Effect */}
-                        {category === c.value && (
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-white/40 -skew-x-12 animate-shimmer-fast"
-                            initial={{ x: "-120%" }}
-                            animate={{ x: "120%" }}
-                            transition={{
-                              duration: 1.5,
-                              repeat: Infinity,
-                              repeatDelay: 2.5,
-                            }}
-                          />
-                        )}
-
-                        {/* Content */}
-                        <div className="relative z-20 flex flex-col items-center justify-center h-full gap-3">
-                          <motion.span
-                            className={`text-3xl drop-shadow-2xl transition-all duration-500 ${
-                              category === c.value
-                                ? "text-black/95 drop-shadow-[0_8px_25px_rgba(212,168,83,0.8)] scale-110"
-                                : "text-zinc-300 group-hover:text-[#D4A853] group-hover:scale-125"
-                            }`}
-                            whileHover={{ scale: 1.4, rotate: 360 }}
-                            transition={{ duration: 0.4 }}
-                          >
-                            {c.icon}
-                          </motion.span>
-
-                          <span
-                            className={`text-sm lg:text-base font-black tracking-wide leading-tight transition-all duration-500 ${
-                              category === c.value
-                                ? "bg-gradient-to-r from-white via-[#D4A853] to-[#FFD700] bg-clip-text text-transparent drop-shadow-lg"
-                                : "text-zinc-400 group-hover:text-zinc-200"
-                            }`}
-                          >
-                            {c.label}
-                          </span>
-
-                          {/* Active Badge */}
-                          {category === c.value && (
-                            <motion.div
-                              className="w-16 h-1.5 bg-gradient-to-r from-[#FFD700] via-[#D4A853] to-[#FFD700] rounded-full shadow-md shadow-[#D4A853]/50 mx-auto"
-                              initial={{ scaleX: 0 }}
-                              animate={{ scaleX: 1 }}
-                              transition={{ delay: 0.3, duration: 0.6 }}
-                            />
-                          )}
-
-                          {/* Hover Sparkle */}
-                          {!category === c.value && (
-                            <motion.div
-                              className="absolute -top-4 -right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                              initial={{ scale: 0 }}
-                              whileHover={{ scale: 1 }}
-                            >
-                              <Sparkles className="w-6 h-6 text-[#D4A853] animate-pulse" />
-                            </motion.div>
-                          )}
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -500,6 +404,7 @@ export default function Shop() {
               ))}
             </motion.div>
 
+            {/* Pagination */}
             {pagination.totalPages > 1 && (
               <motion.div
                 className="flex items-center justify-center gap-4"
@@ -508,35 +413,26 @@ export default function Shop() {
                 transition={{ delay: 0.4, duration: 0.6 }}
               >
                 <motion.button
-                  onClick={() => updateParam("page", String(page - 1))}
+                  onClick={() => updateParam("page", (page - 1).toString())}
                   disabled={page <= 1}
                   className="p-4 rounded-3xl border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/[0.06] hover:border-[#D4A853]/40 text-white transition-all duration-500 hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
                   whileHover={{ scale: page > 1 ? 1.1 : 1 }}
-                  whileTap={{ scale: page > 1 ? 0.9 : 1 }}
+                  whileTap={{ scale: page > 1 ? 0.95 : 1 }}
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </motion.button>
 
                 {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                  .filter((p) => {
-                    const distance = Math.abs(p - page);
-                    return (
-                      distance === 0 ||
-                      distance === 1 ||
-                      p === 1 ||
-                      p === pagination.totalPages
-                    );
-                  })
+                  .filter((p) => Math.abs(p - page) <= 1 || p === 1 || p === pagination.totalPages)
                   .map((p, index, arr) => (
                     <React.Fragment key={p}>
-                      {index > 0 && arr[index - 1] !== p - 1 && (
-                        <span className="text-zinc-600 px-2">...</span>
-                      )}
+                      {index > 0 && arr[index - 1] !== p - 1 && <span className="text-zinc-600 px-2">...</span>}
                       <motion.button
-                        onClick={() => updateParam("page", String(p))}
+                        onClick={() => updateParam("page", p.toString())}
                         className={`w-14 h-14 rounded-3xl text-sm font-bold transition-all duration-500 ${
                           p === page
                             ? "bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] text-black shadow-[0_12px_40px_rgba(212,168,83,0.4)] border-2 border-[#D4A853]/50"
+
                             : "border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl text-zinc-300 hover:bg-white/[0.06] hover:border-[#D4A853]/40 hover:text-white hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
                         }`}
                         whileHover={{ scale: 1.1, y: -2 }}
@@ -548,11 +444,11 @@ export default function Shop() {
                   ))}
 
                 <motion.button
-                  onClick={() => updateParam("page", String(page + 1))}
+                  onClick={() => updateParam("page", (page + 1).toString())}
                   disabled={page >= pagination.totalPages}
                   className="p-4 rounded-3xl border border-white/[0.15] bg-white/[0.02] backdrop-blur-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/[0.06] hover:border-[#D4A853]/40 text-white transition-all duration-500 hover:shadow-[0_8px_32px_rgba(212,168,83,0.2)]"
                   whileHover={{ scale: page < pagination.totalPages ? 1.1 : 1 }}
-                  whileTap={{ scale: page < pagination.totalPages ? 0.9 : 1 }}
+                  whileTap={{ scale: page < pagination.totalPages ? 0.95 : 1 }}
                 >
                   <ChevronRight className="w-6 h-6" />
                 </motion.button>
@@ -564,3 +460,4 @@ export default function Shop() {
     </div>
   );
 }
+

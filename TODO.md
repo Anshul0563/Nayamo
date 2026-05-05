@@ -5,9 +5,10 @@ Redesign ProductFilters.jsx to classy/light luxury theme. Add price/range, ratin
 
 ## Steps
 - [x] Step 1: Redesign ProductFilters.jsx (light glass, elegant cards, sliders, animations)
-- [ ] Step 2: Update Shop.jsx (add priceRange, rating state/params, fetch/update active filters)
-- [ ] Step 3: Test filters in dev server (`cd client && npm start`)
-- [ ] Step 4: Verify responsive/URL persistence/API calls
+- [x] Step 2: Update Shop.jsx (add priceRange, rating state/params, fetch/update active filters)
+- [x] Step 3: Fixed ESLint errors (import Star, typo, slider styles)
+- [ ] Step 4: Test filters in dev server (`cd client && npm start`)
+- [ ] Step 5: Verify responsive/URL persistence/API calls
 - [ ] COMPLETE
 
-**Current Progress:** Step 1 complete. Proceeding to Step 2.
+**Current Progress:** Steps 1-3 complete. Ready for testing.
