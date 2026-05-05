@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
+import SafeImage from "../common/SafeImage";
 
 const PLACEHOLDER_IMAGE = "/placeholder.jpg";
 
@@ -46,13 +47,10 @@ export default function ProductCard({ product, index = 0 }) {
       <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0F0F11]/80 shadow-[0_14px_44px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:border-[#D4A853]/35 hover:shadow-[0_18px_54px_rgba(212,168,83,0.14)] sm:rounded-3xl">
         <div className="relative aspect-[4/5] overflow-hidden bg-[#070708]">
           <Link to={`/product/${productId}`} className="block h-full w-full">
-            <motion.img
+            <SafeImage
               src={getProductImage(product)}
               alt={title}
               className="h-full w-full object-cover"
-              loading="lazy"
-              whileHover={{ scale: 1.04 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#060607]/78 via-transparent to-transparent opacity-80" />
           </Link>
