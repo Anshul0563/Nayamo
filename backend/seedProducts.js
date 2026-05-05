@@ -18,7 +18,7 @@ const seedProducts = async () => {
         price: 25000,
         category: "bridal",
         stock: 5,
-        images: [{ url: "https://images.unsplash.com/photo-1574194119193-0d8b12d48d30?w=800", publicId: "" }],
+        images: [{ url: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800", publicId: "" }],
         ratings: { average: 4.8, count: 23 }
       },
       {
