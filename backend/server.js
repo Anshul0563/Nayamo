@@ -49,17 +49,15 @@ if (missingEnv.length) {
 
 // ================= CORS =================
 const corsOrigins = process.env.CORS_ORIGINS.split(",")
-  .map((o) => o.trim())
+  .map((o) => o.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {
     console.log("🌐 Origin:", origin);
 
-    // ✅ Allow requests with no origin (Postman, mobile apps, etc.)
     if (!origin) return callback(null, true);
 
-    // ✅ Normalize origin (remove trailing slash if any)
     const normalizedOrigin = origin.replace(/\/$/, "");
 
     if (corsOrigins.includes(normalizedOrigin)) {
@@ -72,15 +70,14 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ["Content-Length"],
   optionsSuccessStatus: 204,
 };
 
-// 🔥 APPLY CORS FIRST (VERY IMPORTANT)
+// 🔥 APPLY FIRST
 app.use(cors(corsOptions));
-
-// 🔥 HANDLE PREFLIGHT PROPERLY
 app.options("*", cors(corsOptions));
+
+logger.info(`✅ CORS Origins: ${corsOrigins.join(", ")}`);
 
 // ================= SECURITY =================
 app.set("trust proxy", 1);
@@ -142,6 +139,14 @@ const requireDB = (req, res, next) => {
   }
   next();
 };
+
+// ================= ROOT (IMPORTANT) =================
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "🚀 Nayamo API is running",
+  });
+});
 
 // ================= HEALTH =================
 app.get("/health", (req, res) => {
