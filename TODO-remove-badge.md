@@ -1,1 +1,0 @@
-- [x] Step 1: Remove the entire Premium Badge motion.div block from ProductCard.jsx
