@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Package, TrendingUp, TrendingDown, Star, ArrowRight, Tag, Eye, Heart, ShoppingCart } from 'lucide-react';
+import { Package, TrendingUp, ArrowRight, Tag, ShoppingCart } from 'lucide-react';
 
 export default function ProductAnalytics({ data = {} }) {
   const {
@@ -11,7 +11,6 @@ export default function ProductAnalytics({ data = {} }) {
     lowStockCount = 0,
     topProducts = [],
     categoryData = [],
-    recentProducts = [],
     weeklyTrend = [],
   } = data;
 

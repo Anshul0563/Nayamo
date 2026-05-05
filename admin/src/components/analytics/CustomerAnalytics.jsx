@@ -1,13 +1,6 @@
 import React, { useMemo } from 'react';
 import { Users, UserPlus, UserMinus, Crown, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 
-const colorMap = {
-  gold: "text-gold-400 border-gold-500/20 bg-gold-500/10",
-  emerald: "text-emerald-400 border-emerald-500/20 bg-emerald-500/10",
-  blue: "text-blue-400 border-blue-500/20 bg-blue-500/10",
-  violet: "text-violet-400 border-violet-500/20 bg-violet-500/10",
-};
-
 export default function CustomerAnalytics({ data = {} }) {
   const {
     totalCustomers = 0,

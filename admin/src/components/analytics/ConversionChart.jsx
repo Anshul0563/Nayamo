@@ -34,7 +34,7 @@ export default function ConversionChart({ data = [] }) {
       <div className="space-y-4">
         {normalized.length === 0 ? (
           <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 text-center text-luxury-dim">No conversion data yet</div>
-        ) : normalized.map((item, index) => (
+        ) : normalized.map((item) => (
           <div key={item.stage} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/[0.02] transition-colors">
             {/* Icon */}
             <div className={`p-2 rounded-xl bg-white/5 border border-white/10 ${item.color}`}>

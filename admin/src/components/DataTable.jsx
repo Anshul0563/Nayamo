@@ -11,7 +11,6 @@ const DataTable = ({
   total,
   filters,
   onSearch,
-  onFilter,
   enableSelection = false,
   selected,
   onSelect,

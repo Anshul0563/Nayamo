@@ -45,8 +45,7 @@ export default function Header({
   onMenuToggle, 
   onRefresh, 
   pageTitle,
-  adminName = "Admin",
-  collapsed = false
+  adminName = "Admin"
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
