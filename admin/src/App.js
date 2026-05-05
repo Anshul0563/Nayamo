@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { ToastProvider } from "./components/ui/ToastProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/layout/AdminLayout";
@@ -19,7 +19,6 @@ import Users from "./pages/Users";
 import Reviews from "./pages/Reviews";
 import Returns from "./pages/Returns";
 import Settings from "./pages/Settings";
-
 
 function App() {
   const { token } = useAuth();
@@ -54,7 +53,6 @@ function App() {
     <ThemeProvider>
       <ErrorBoundary>
         <ToastProvider>
-          <BrowserRouter>
           <Routes>
           {/* Public */}
           <Route path="/login" element={<Login />} />
@@ -73,15 +71,13 @@ function App() {
             <Route path="inventory" element={<Inventory />} />
             <Route path="add-product" element={<AddProduct />} />
             <Route path="payments" element={<Payments />} />
-<Route path="analytics" element={<Analytics />} />
+            <Route path="analytics" element={<Analytics />} />
             <Route path="users" element={<Users />} />
             <Route path="reviews" element={<Reviews />} />
             <Route path="returns" element={<Returns />} />
             <Route path="settings" element={<Settings />} />
-
           </Route>
         </Routes>
-      </BrowserRouter>
         </ToastProvider>
       </ErrorBoundary>
     </ThemeProvider>
@@ -89,3 +85,4 @@ function App() {
 }
 
 export default App;
+
