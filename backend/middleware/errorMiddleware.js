@@ -3,6 +3,8 @@
  * Centralizes all error responses for consistency and security
  */
 
+const logger = require("../config/logger");
+
 const errorHandler = (err, req, res, _next) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message;
@@ -41,8 +43,10 @@ const errorHandler = (err, req, res, _next) => {
 
   // Log error for debugging (but not in test environment)
   if (process.env.NODE_ENV !== "test") {
-    console.error(`[ERROR] ${statusCode} - ${message}`);
-    console.error(err.stack);
+    logger.error(`${statusCode} - ${message}`);
+    if (process.env.NODE_ENV === "development" && err.stack) {
+      logger.error(err.stack);
+    }
   }
 
   res.status(statusCode).json({

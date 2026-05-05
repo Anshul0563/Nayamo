@@ -15,6 +15,10 @@ import ProductCard from "../components/product/ProductCard";
 import { SkeletonGrid } from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
 import logo from "../assets/logo.png";
+import {
+  getPaginationFromResponse,
+  getProductsFromResponse,
+} from "../utils/apiResponse";
 
 const categories = [
   { value: "party", label: "Party Wear" },
@@ -56,17 +60,6 @@ const productReveal = {
   },
 };
 
-const getProductsFromResponse = (payload) => {
-  if (Array.isArray(payload?.data)) return payload.data;
-  if (Array.isArray(payload?.data?.products)) return payload.data.products;
-  if (Array.isArray(payload?.products)) return payload.products;
-  return [];
-};
-
-const getPaginationFromResponse = (payload) =>
-  payload?.pagination ||
-  payload?.data?.pagination || { currentPage: 1, totalPages: 1 };
-
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
@@ -83,8 +76,8 @@ export default function Shop() {
 
   const category = searchParams.get("category") || "";
   const ratingParam = Number(searchParams.get("rating") || 0);
-  const priceMin = Number(searchParams.get("priceMin") || 0);
-  const priceMax = Number(searchParams.get("priceMax") || 50000);
+  const priceMin = Number(searchParams.get("min") || searchParams.get("priceMin") || 0);
+  const priceMax = Number(searchParams.get("max") || searchParams.get("priceMax") || 50000);
   const page = Number(searchParams.get("page") || 1);
 
   useEffect(() => {
@@ -135,7 +128,7 @@ export default function Shop() {
 
   const clearFilters = () => {
     const sp = new URLSearchParams(searchParams);
-    ["category", "rating", "priceMin", "priceMax", "sort", "search"].forEach(
+    ["category", "rating", "min", "max", "priceMin", "priceMax", "sort", "search"].forEach(
       (key) => sp.delete(key),
     );
     sp.set("page", "1");

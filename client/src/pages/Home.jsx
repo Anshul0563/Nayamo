@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { productAPI } from "../services/api";
+import { getProductsFromResponse } from "../utils/apiResponse";
 import ClientLayout from "../components/layout/ClientLayout";
 import logo from "../assets/logo.png";
 
@@ -27,7 +28,7 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
         const res = await productAPI.getProducts({ page: 1 });
-        setProducts(res.data?.data?.products?.slice(0, 6) || []);
+        setProducts(getProductsFromResponse(res.data).slice(0, 6));
       } catch (err) {
 
       }

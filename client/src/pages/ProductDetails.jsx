@@ -24,6 +24,7 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 import ProductCard from "../components/product/ProductCard";
+import { getProductsFromResponse } from "../utils/apiResponse";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -85,7 +86,7 @@ export default function ProductDetails() {
           page: 1,
         });
         setRelated(
-          (relRes.data?.data?.products || [])
+          getProductsFromResponse(relRes.data)
             .filter((p) => p._id !== id)
             .slice(0, 4),
         );

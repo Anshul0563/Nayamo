@@ -36,10 +36,10 @@ const server = http.createServer(app);
 
 const PORT = process.env.PORT || 5000;
 
-logger.info("🚀 Starting Nayamo server...");
+logger.info("Starting Nayamo server...");
 
 // ================= ENV VALIDATION =================
-const requiredEnv = ["MONGO_URI", "JWT_SECRET", "CORS_ORIGINS"];
+const requiredEnv = ["MONGO_URI", "JWT_SECRET", "JWT_REFRESH_SECRET"];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 
 if (missingEnv.length) {
@@ -48,23 +48,36 @@ if (missingEnv.length) {
 }
 
 // ================= CORS =================
-const corsOrigins = process.env.CORS_ORIGINS.split(",")
+const defaultCorsOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:3001",
+];
+
+const corsOrigins = (process.env.CORS_ORIGINS || defaultCorsOrigins.join(","))
+  .split(",")
   .map((o) => o.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {
-    console.log("🌐 Origin:", origin);
-
     if (!origin) return callback(null, true);
 
     const normalizedOrigin = origin.replace(/\/$/, "");
 
-    if (corsOrigins.includes(normalizedOrigin)) {
+    let hostname = "";
+    try {
+      hostname = new URL(normalizedOrigin).hostname;
+    } catch (_err) {
+      return callback(new Error("Invalid CORS origin"));
+    }
+
+    if (corsOrigins.includes(normalizedOrigin) || /\.vercel\.app$/.test(hostname)) {
       return callback(null, true);
     }
 
-    console.log("❌ BLOCKED:", origin);
+    logger.warn(`Blocked by CORS: ${origin}`);
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
