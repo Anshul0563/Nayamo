@@ -54,26 +54,33 @@ const corsOrigins = process.env.CORS_ORIGINS.split(",")
 
 const corsOptions = {
   origin: (origin, callback) => {
+    console.log("🌐 Origin:", origin);
+
+    // ✅ Allow requests with no origin (Postman, mobile apps, etc.)
     if (!origin) return callback(null, true);
 
-    if (corsOrigins.includes(origin)) {
+    // ✅ Normalize origin (remove trailing slash if any)
+    const normalizedOrigin = origin.replace(/\/$/, "");
+
+    if (corsOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
 
-    logger.warn(`❌ CORS blocked: ${origin}`);
-    return callback(new Error("CORS not allowed"));
+    console.log("❌ BLOCKED:", origin);
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  maxAge: 86400,
+  exposedHeaders: ["Content-Length"],
   optionsSuccessStatus: 204,
 };
 
+// 🔥 APPLY CORS FIRST (VERY IMPORTANT)
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 
-logger.info(`✅ CORS Origins: ${corsOrigins.join(", ")}`);
+// 🔥 HANDLE PREFLIGHT PROPERLY
+app.options("*", cors(corsOptions));
 
 // ================= SECURITY =================
 app.set("trust proxy", 1);

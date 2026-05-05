@@ -19460,3 +19460,13 @@
 {"level":"info","message":"🚀 Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 17:36:37"}
 {"level":"info","message":"✅ CORS Origins: https://nayamo-2.onrender.com, https://nayamo-3.onrender.com","service":"nayamo-api","timestamp":"2026-05-05 17:36:37"}
 {"level":"info","message":"✅ Server running on port 5000 (development)","service":"nayamo-api","timestamp":"2026-05-05 17:36:39"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 17:43:12"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 17:43:12"}
+{"level":"info","message":"🚀 Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 17:43:12"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 17:43:14"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 17:43:14"}
+{"level":"info","message":"🚀 Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 17:43:14"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-05 17:43:18"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-05 17:43:18"}
+{"level":"info","message":"🚀 Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-05 17:43:18"}
+{"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-05-05 17:43:19"}
