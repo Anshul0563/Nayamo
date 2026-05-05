@@ -146,13 +146,13 @@ export default function Shop() {
             type="filter"
           />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-20">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-20">
             {products.map((product, index) => (
               <motion.div
                 key={product._id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: index * 0.04 }}
               >
                 <ProductCard product={product} />
               </motion.div>
