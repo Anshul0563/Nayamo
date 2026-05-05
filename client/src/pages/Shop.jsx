@@ -19,13 +19,15 @@ export default function Shop() {
 
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [priceRange, setPriceRange] = useState([0, 50000]);
   const [rating, setRating] = useState(
     Number(searchParams.get("rating") || 0)
   );
+  const [sortFilter, setSortFilter] = useState(
+    searchParams.get("sort") || ""
+  );
 
   const [showFilters, setShowFilters] = useState(false);
-  const [showPrice, setShowPrice] = useState(false);
+  const [showSort, setShowSort] = useState(false);
 
   const category = searchParams.get("category") || "";
   const page = Number(searchParams.get("page") || 1);
@@ -38,9 +40,8 @@ export default function Shop() {
 
       if (category) params.category = category;
       if (search) params.search = search;
-      if (priceRange[0] > 0) params.priceMin = priceRange[0];
-      if (priceRange[1] < 50000) params.priceMax = priceRange[1];
       if (rating > 0) params.rating = rating;
+      if (sortFilter) params.sort = sortFilter;
 
       const res = await productAPI.getProducts(params);
 
@@ -51,7 +52,7 @@ export default function Shop() {
     } finally {
       setLoading(false);
     }
-  }, [category, search, priceRange, rating, page]);
+  }, [category, search, rating, sortFilter, page]);
 
   useEffect(() => {
     fetchProducts();
@@ -67,8 +68,8 @@ export default function Shop() {
 
   const clearFilters = () => {
     setSearch("");
-    setPriceRange([0, 50000]);
     setRating(0);
+    setSortFilter("");
     setSearchParams({});
   };
 
@@ -107,30 +108,30 @@ export default function Shop() {
             />
           </div>
 
-          {/* Filters Button */}
+          {/* Filters */}
           <button
             onClick={() => {
               setShowFilters(!showFilters);
-              setShowPrice(false);
+              setShowSort(false);
             }}
             className="px-4 py-3 rounded-full bg-[#0F0F11] border border-white/[0.08] text-zinc-300"
           >
             Filters
           </button>
 
-          {/* Price Button */}
+          {/* Sort */}
           <button
             onClick={() => {
-              setShowPrice(!showPrice);
+              setShowSort(!showSort);
               setShowFilters(false);
             }}
             className="px-4 py-3 rounded-full bg-[#D4A853]/10 text-[#D4A853] border border-[#D4A853]/30"
           >
-            Price
+            Sort
           </button>
         </div>
 
-        {/* 🔥 Filters Panel */}
+        {/* 🔥 Filter Panel */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
@@ -150,35 +151,53 @@ export default function Shop() {
           )}
         </AnimatePresence>
 
-        {/* 🔥 Price Panel */}
+        {/* 🔥 Sort Panel */}
         <AnimatePresence>
-          {showPrice && (
+          {showSort && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               className="mb-8 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08]"
             >
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap gap-3">
 
-                <span className="text-sm text-zinc-400">Price Range</span>
-
-                <input
-                  type="range"
-                  min="0"
-                  max="50000"
-                  value={priceRange[1]}
-                  onChange={(e) => {
-                    const value = Number(e.target.value);
-                    setPriceRange([0, value]);
-                    updateParam("priceMax", value);
+                <button
+                  onClick={() => {
+                    setSortFilter("price-asc");
+                    updateParam("sort", "price-asc");
                   }}
-                  className="w-full accent-[#D4A853]"
-                />
+                  className={`px-4 py-2 rounded-full ${
+                    sortFilter === "price-asc"
+                      ? "bg-[#D4A853] text-black"
+                      : "bg-white/[0.05] text-zinc-400"
+                  }`}
+                >
+                  Price: Low → High
+                </button>
 
-                <div className="text-xs text-zinc-400">
-                  ₹0 — ₹{priceRange[1].toLocaleString()}
-                </div>
+                <button
+                  onClick={() => {
+                    setSortFilter("price-desc");
+                    updateParam("sort", "price-desc");
+                  }}
+                  className={`px-4 py-2 rounded-full ${
+                    sortFilter === "price-desc"
+                      ? "bg-[#D4A853] text-black"
+                      : "bg-white/[0.05] text-zinc-400"
+                  }`}
+                >
+                  Price: High → Low
+                </button>
+
+                {/* 🔥 Clear Button */}
+                <button
+                  onClick={clearFilters}
+                  className="ml-auto px-4 py-2 text-sm text-red-400 hover:text-red-300"
+                >
+                  Clear All
+                </button>
+
               </div>
             </motion.div>
           )}
