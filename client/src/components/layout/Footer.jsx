@@ -52,7 +52,7 @@ export default function Footer() {
         transition={{ duration: 0.8 }}
       >
         <div className="nayamo-container py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {[
               { icon: Truck, title: "Free Shipping", desc: "On orders above Rs 999" },
               { icon: Shield, title: "Hypoallergenic", desc: "Skin-safe materials" },
