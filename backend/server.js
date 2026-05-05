@@ -36,71 +36,73 @@ const server = http.createServer(app);
 
 // ================= CORS CONFIGURATION =================
 // Production CORS - multi-origin + credentials + preflight
-const corsOrigins = process.env.CORS_ORIGINS?.split(",").map(o => o.trim()).filter(Boolean) || [
-  // Local development
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://localhost:5173",
-  "http://127.0.0.1:3000",
-  "http://127.0.0.1:5173",
-  // Production
-  process.env.CLIENT_URL || "https://nayamo-client.vercel.app",
-  process.env.ADMIN_URL || "https://nayamo-admin.vercel.app",
-  "https://nayamo.onrender.com"
-];
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim()).filter(Boolean)
+  : [
+      // Local development
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://127.0.0.1:3000",
+      "http://127.0.0.1:5173",
+      // Production
+      "https://nayamo-client.vercel.app",
+      "https://nayamo-admin.vercel.app",
+    ];
 
 const corsOptions = {
   // Dynamic origin validation (not wildcard "*")
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests without origin (server-to-server, mobile clients)
     if (!origin) {
       return callback(null, true);
     }
-    
     if (corsOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
-    // Log denied origins for debugging
     logger.warn(`CORS origin denied: ${origin}`);
     return callback(new Error(`CORS origin not allowed: ${origin}`));
   },
-  
+
   // Allow credentials (cookies, authorization headers)
   credentials: true,
-  
+
   // Allowed HTTP methods
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
-  
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+
   // Allowed request headers
   allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'X-CSRF-Token',
-    'Accept',
-    'Accept-Language',
-    'Content-Language'
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Accept-Language",
+    "Content-Language",
+    "X-CSRF-Token",
   ],
-  
-  // Expose response headers to frontend
+
+  // Expose response headers to frontend if needed
   exposedHeaders: [
-    'X-Total-Count',
-    'X-Page-Number',
-    'X-Total-Pages',
-    'X-Total-Count',
-    'Content-Disposition'
+    "X-Total-Count",
+    "X-Page-Number",
+    "X-Total-Pages",
+    "Content-Disposition",
   ],
-  
+
   // Preflight caching (in seconds)
   maxAge: 86400, // 24 hours
-  
-  // Don't pass CORS pre-flight response to next handler
+
+  // Don't pass CORS preflight response to next handler
   preflightContinue: false,
-  
+
   // HTTP 204 for successful OPTIONS requests
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
 };
+
+// Apply CORS middleware to all routes
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly for all routes
+app.options('*', cors(corsOptions));
 
 const PORT = process.env.PORT || 5000;
 
@@ -113,35 +115,19 @@ app.use(helmet({
   contentSecurityPolicy: false, // Disable for CRA/Craco compatibility
 }));
 
-// Apply CORS middleware to all routes
-app.use(cors(corsOptions));
-
-// Handle preflight requests explicitly for all routes
-// This ensures OPTIONS requests return proper CORS headers
-app.options('*', cors(corsOptions));
-
-// Additional CORS logging middleware (optional but helpful for debugging)
-app.use((req, res, next) => {
-  const origin = req.get('origin');
-  if (origin && corsOrigins.includes(origin)) {
-    // Set CORS headers manually as fallback
-    res.set('Access-Control-Allow-Origin', origin);
-    res.set('Access-Control-Allow-Credentials', 'true');
-  }
-  next();
-});
-
 // ================= SOCKET.IO SETUP =================
 // Socket.IO CORS must align with Express CORS
 const io = socketIo(server, {
   cors: {
     origin: (origin, callback) => {
-      // Use same origin validation as Express
-      if (!origin || corsOrigins.includes(origin)) {
+      if (!origin) {
+        return callback(null, true);
+      }
+      if (corsOrigins.includes(origin)) {
         return callback(null, true);
       }
       logger.warn(`Socket.IO CORS origin denied: ${origin}`);
-      return callback(new Error(`Socket.IO CORS origin not allowed`));
+      return callback(new Error(`Socket.IO CORS origin not allowed: ${origin}`));
     },
     methods: ['GET', 'POST'],
     credentials: true,
