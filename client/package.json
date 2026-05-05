@@ -6,9 +6,8 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "@vercel/speed-insights": "^1.0.2",
     "axios": "^1.7.2",
-    "framer-motion": "^10.18.1",
+    "framer-motion": "^10.16.4",
     "lucide-react": "^0.263.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -19,33 +18,22 @@
     "recharts": "^2.12.7",
     "web-vitals": "^2.1.4"
   },
-  "overrides": {
-    "react": "$react",
-    "react-dom": "$react-dom"
-  },
   "scripts": {
-    "start": "craco start",
-    "dev": "craco start",
-    "build": "craco build",
+    "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "preview": "serve -s build -p 3000"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
+    "extends": ["react-app", "react-app/jest"],
     "rules": {
       "no-unused-vars": "warn"
     }
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -53,7 +41,6 @@
     ]
   },
   "devDependencies": {
-    "@craco/craco": "^7.1.0",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.10"
