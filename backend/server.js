@@ -34,23 +34,73 @@ const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 const app = express();
 const server = http.createServer(app);
 
-// Socket.IO setup with CORS
-const io = socketIo(server, {
-  cors: {
-    origin: process.env.CORS_ORIGINS?.split(",") || ["http://localhost:3000", "http://localhost:3001", "https://nayamo-client.vercel.app", "https://nayamo-admin.vercel.app"],
-    methods: ["GET", "POST"],
-    credentials: true
+// ================= CORS CONFIGURATION =================
+// Production CORS - multi-origin + credentials + preflight
+const corsOrigins = process.env.CORS_ORIGINS?.split(",").map(o => o.trim()).filter(Boolean) || [
+  // Local development
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:5173",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:5173",
+  // Production
+  process.env.CLIENT_URL || "https://nayamo-client.vercel.app",
+  process.env.ADMIN_URL || "https://nayamo-admin.vercel.app",
+  "https://nayamo.onrender.com"
+];
+
+const corsOptions = {
+  // Dynamic origin validation (not wildcard "*")
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    if (corsOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Log denied origins for debugging
+    logger.warn(`CORS origin denied: ${origin}`);
+    return callback(new Error(`CORS origin not allowed: ${origin}`));
   },
-  path: '/socket.io'
-});
-
-// Global emit helper
-global.emitToAdmins = (event, data) => {
-  io.of('/admin').emit(event, data);
+  
+  // Allow credentials (cookies, authorization headers)
+  credentials: true,
+  
+  // Allowed HTTP methods
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+  
+  // Allowed request headers
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'X-CSRF-Token',
+    'Accept',
+    'Accept-Language',
+    'Content-Language'
+  ],
+  
+  // Expose response headers to frontend
+  exposedHeaders: [
+    'X-Total-Count',
+    'X-Page-Number',
+    'X-Total-Pages',
+    'X-Total-Count',
+    'Content-Disposition'
+  ],
+  
+  // Preflight caching (in seconds)
+  maxAge: 86400, // 24 hours
+  
+  // Don't pass CORS pre-flight response to next handler
+  preflightContinue: false,
+  
+  // HTTP 204 for successful OPTIONS requests
+  optionsSuccessStatus: 204
 };
-
-// Make io available globally
-global.io = io;
 
 const PORT = process.env.PORT || 5000;
 
@@ -63,35 +113,55 @@ app.use(helmet({
   contentSecurityPolicy: false, // Disable for CRA/Craco compatibility
 }));
 
-// Production CORS - multi-origin + credentials + preflight
-const corsOrigins = process.env.CORS_ORIGINS?.split(",").map(o => o.trim()).filter(Boolean) || [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://localhost:5173",
-  process.env.CLIENT_URL || "https://nayamo-client.vercel.app",
-  process.env.ADMIN_URL || "https://nayamo-admin.vercel.app",
-  "https://nayamo.onrender.com"
-];
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || corsOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error(`CORS origin denied: ${origin}`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-};
-
+// Apply CORS middleware to all routes
 app.use(cors(corsOptions));
 
-// Preflight for all routes
+// Handle preflight requests explicitly for all routes
+// This ensures OPTIONS requests return proper CORS headers
 app.options('*', cors(corsOptions));
 
+// Additional CORS logging middleware (optional but helpful for debugging)
+app.use((req, res, next) => {
+  const origin = req.get('origin');
+  if (origin && corsOrigins.includes(origin)) {
+    // Set CORS headers manually as fallback
+    res.set('Access-Control-Allow-Origin', origin);
+    res.set('Access-Control-Allow-Credentials', 'true');
+  }
+  next();
+});
+
+// ================= SOCKET.IO SETUP =================
+// Socket.IO CORS must align with Express CORS
+const io = socketIo(server, {
+  cors: {
+    origin: (origin, callback) => {
+      // Use same origin validation as Express
+      if (!origin || corsOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      logger.warn(`Socket.IO CORS origin denied: ${origin}`);
+      return callback(new Error(`Socket.IO CORS origin not allowed`));
+    },
+    methods: ['GET', 'POST'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+  },
+  path: '/socket.io',
+  transports: ['websocket', 'polling']
+});
+
+// Global emit helper
+global.emitToAdmins = (event, data) => {
+  io.of('/admin').emit(event, data);
+};
+
+// Make io available globally
+global.io = io;
+
+logger.info(`✅ CORS Origins enabled: ${corsOrigins.join(', ')}`);
+
+// ================= BODY PARSERS & SECURITY =================
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
