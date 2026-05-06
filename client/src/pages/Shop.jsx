@@ -228,32 +228,34 @@ export default function Shop() {
             className="rounded-[2rem] border border-white/[0.08] bg-[#0F0F11]/80 px-4 py-4 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:px-5"
           >
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                <span className="mr-2 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-normal text-zinc-500">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 md:flex-nowrap md:gap-3 lg:overflow-visible">
+                <span className="mr-2 hidden sm:inline-flex items-center gap-2 text-xs font-medium uppercase tracking-normal text-zinc-500">
                   <SlidersHorizontal className="h-3.5 w-3.5 text-[#D4A853]" />
                   Category
                 </span>
 
-                {categories.map((item) => {
-                  const active = category === item.value;
+                <div className="flex flex-wrap gap-2 md:gap-2 lg:gap-3 -order-1 md:order-none flex-1 min-w-0">
+                  {categories.map((item) => {
+                    const active = category === item.value;
 
-                  return (
-                    <button
-                      key={item.value}
-                      type="button"
-                      onClick={() =>
-                        updateParam("category", active ? "" : item.value)
-                      }
-                      className={`rounded-full border px-4 py-2 text-xs font-medium transition-all duration-300 sm:text-sm ${
-                        active
-                          ? "border-[#D4A853] bg-[#D4A853] text-[#060607] shadow-[0_10px_30px_rgba(212,168,83,0.18)]"
-                          : "border-white/[0.08] bg-white/[0.03] text-zinc-300 hover:border-[#D4A853]/40 hover:bg-[#D4A853]/10 hover:text-white"
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  );
-                })}
+                    return (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() =>
+                          updateParam("category", active ? "" : item.value)
+                        }
+                        className={`rounded-full border px-3 py-2 text-xs font-medium transition-all duration-300 flex-shrink-0 sm:px-4 sm:text-sm ${
+                          active
+                            ? "border-[#D4A853] bg-[#D4A853] text-[#060607] shadow-[0_10px_30px_rgba(212,168,83,0.18)]"
+                            : "border-white/[0.08] bg-white/[0.03] text-zinc-300 hover:border-[#D4A853]/40 hover:bg-[#D4A853]/10 hover:text-white"
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">

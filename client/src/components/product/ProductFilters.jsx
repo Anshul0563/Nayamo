@@ -116,7 +116,7 @@ export default function ProductFilters() {
                 Category
               </div>
 
-              <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:flex-wrap">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap gap-2 lg:gap-3 pb-1">
                 {CATEGORIES.map((category) => {
                   const active = filters.category === category.value;
 
@@ -130,7 +130,7 @@ export default function ProductFilters() {
                           active ? "" : category.value,
                         )
                       }
-                      className={`relative h-10 shrink-0 rounded-full border px-4 text-xs font-medium transition-all duration-300 sm:text-sm ${
+                      className={`relative h-10 rounded-full border px-3 text-xs font-medium transition-all duration-300 sm:px-4 sm:text-sm ${
                         active
                           ? "border-[#D4A853] bg-[#D4A853] text-[#060607] shadow-[0_10px_28px_rgba(212,168,83,0.20)]"
                           : "border-white/[0.08] bg-white/[0.035] text-zinc-300 hover:border-[#D4A853]/40 hover:bg-[#D4A853]/10 hover:text-white"
