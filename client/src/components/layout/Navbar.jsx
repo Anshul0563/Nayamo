@@ -7,7 +7,7 @@ import {
   Heart,
   ShoppingBag,
   User,
- LogOut,
+  LogOut,
   ChevronDown,
   Sparkles,
   Package,
@@ -71,8 +71,7 @@ export default function Navbar() {
       passive: true,
     });
 
-    return () =>
-      window.removeEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -83,25 +82,18 @@ export default function Navbar() {
 
   useEffect(() => {
     const close = (e) => {
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(e.target)
-      ) {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
       }
 
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(e.target)
-      ) {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
         setSearchOpen(false);
       }
     };
 
     document.addEventListener("mousedown", close);
 
-    return () =>
-      document.removeEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, []);
 
   const submitSearch = (e) => {
@@ -127,9 +119,7 @@ export default function Navbar() {
     <>
       <motion.header
         style={{
-          backgroundColor: scrolled
-            ? "rgba(9,9,9,0.88)"
-            : "rgba(7,7,8,0.25)",
+          backgroundColor: scrolled ? "rgba(9,9,9,0.88)" : "rgba(7,7,8,0.25)",
           backdropFilter: `blur(${navbarBlur}px)`,
         }}
         initial={{ y: -100 }}
@@ -204,21 +194,21 @@ export default function Navbar() {
                 >
                   <Link
                     to={item.path}
-                    className={`relative overflow-hidden px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-500 group ${
+                    className={`relative z-10 overflow-hidden px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-500 group ${
                       isActive(item.path)
                         ? "text-white bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 border border-[#D4A853]/30"
                         : "text-zinc-400 hover:text-white"
                     }`}
                   >
                     <motion.span
-                      className="absolute inset-0 bg-gradient-to-r from-[#D4A853]/10 to-[#FFD700]/10 opacity-0 group-hover:opacity-100"
-                      whileHover={{ scale: 1.2 }}
-                      transition={{ duration: 0.4 }}
+                      className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                      style={{
+                        background:
+                          "radial-gradient(circle at center, rgba(212,168,83,0.12), transparent 70%)",
+                      }}
                     />
 
-                    <span className="relative z-10">
-                      {item.name}
-                    </span>
+                    <span className="relative z-10">{item.name}</span>
 
                     {isActive(item.path) && (
                       <>
@@ -244,10 +234,7 @@ export default function Navbar() {
             {/* RIGHT SIDE */}
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               {/* SEARCH */}
-              <div
-                className="relative hidden lg:block"
-                ref={searchRef}
-              >
+              <div className="relative hidden lg:block" ref={searchRef}>
                 <AnimatePresence>
                   {searchOpen && (
                     <motion.form
@@ -270,9 +257,7 @@ export default function Navbar() {
                       <input
                         autoFocus
                         value={query}
-                        onChange={(e) =>
-                          setQuery(e.target.value)
-                        }
+                        onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search jewellery..."
                         className="h-12 w-full rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-4 text-sm text-white outline-none backdrop-blur-2xl focus:border-[#D4A853]/60"
                       />
@@ -282,23 +267,14 @@ export default function Navbar() {
 
                 <button
                   className={iconBtn}
-                  onClick={() =>
-                    setSearchOpen(!searchOpen)
-                  }
+                  onClick={() => setSearchOpen(!searchOpen)}
                 >
-                  {searchOpen ? (
-                    <X size={20} />
-                  ) : (
-                    <Search size={20} />
-                  )}
+                  {searchOpen ? <X size={20} /> : <Search size={20} />}
                 </button>
               </div>
 
               {/* WISHLIST */}
-              <Link
-                to="/wishlist"
-                className={`${iconBtn} hidden sm:flex`}
-              >
+              <Link to="/wishlist" className={`${iconBtn} hidden sm:flex`}>
                 <Heart size={20} />
 
                 {wishlistCount > 0 && (
@@ -309,10 +285,7 @@ export default function Navbar() {
               </Link>
 
               {/* CART */}
-              <Link
-                to="/cart"
-                className={`${iconBtn} hidden sm:flex`}
-              >
+              <Link to="/cart" className={`${iconBtn} hidden sm:flex`}>
                 <ShoppingBag size={20} />
 
                 {cartCount > 0 && (
@@ -324,34 +297,23 @@ export default function Navbar() {
 
               {/* AUTH */}
               {isAuthenticated ? (
-                <div
-                  className="relative hidden md:block"
-                  ref={profileRef}
-                >
+                <div className="relative hidden md:block" ref={profileRef}>
                   <button
-                    onClick={() =>
-                      setProfileOpen(!profileOpen)
-                    }
+                    onClick={() => setProfileOpen(!profileOpen)}
                     className="flex items-center gap-2 h-11 rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-3 transition-all hover:border-[#D4A853]/40"
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#D4A853] to-[#D4A5A5]">
-                      <User
-                        size={16}
-                        className="text-white"
-                      />
+                      <User size={16} className="text-white" />
                     </div>
 
                     <span className="max-w-[80px] truncate text-sm font-medium capitalize text-zinc-300">
-                      {user?.name?.split(" ")[0] ||
-                        "Account"}
+                      {user?.name?.split(" ")[0] || "Account"}
                     </span>
 
                     <ChevronDown
                       size={14}
                       className={`text-zinc-400 transition-transform duration-300 ${
-                        profileOpen
-                          ? "rotate-180"
-                          : ""
+                        profileOpen ? "rotate-180" : ""
                       }`}
                     />
                   </button>
@@ -391,9 +353,7 @@ export default function Navbar() {
                             <Link
                               key={item.path}
                               to={item.path}
-                              onClick={() =>
-                                setProfileOpen(false)
-                              }
+                              onClick={() => setProfileOpen(false)}
                               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-zinc-300 transition-all hover:bg-white/5 hover:text-white"
                             >
                               <item.icon size={16} />
@@ -450,9 +410,7 @@ export default function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() =>
-                setMobileOpen(false)
-              }
+              onClick={() => setMobileOpen(false)}
             />
 
             {/* PANEL */}
@@ -468,14 +426,10 @@ export default function Navbar() {
             >
               {/* HEADER */}
               <div className="mb-6 flex items-center justify-between">
-                <p className="text-lg font-semibold text-white">
-                  Menu
-                </p>
+                <p className="text-lg font-semibold text-white">Menu</p>
 
                 <button
-                  onClick={() =>
-                    setMobileOpen(false)
-                  }
+                  onClick={() => setMobileOpen(false)}
                   className="rounded-xl bg-white/10 p-2"
                 >
                   <X size={20} />
@@ -486,19 +440,13 @@ export default function Navbar() {
               <div className="mb-6">
                 {isAuthenticated ? (
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="font-medium text-white">
-                      {user?.name}
-                    </p>
+                    <p className="font-medium text-white">{user?.name}</p>
 
-                    <p className="text-xs text-zinc-400">
-                      {user?.email}
-                    </p>
+                    <p className="text-xs text-zinc-400">{user?.email}</p>
 
                     <Link
                       to="/profile"
-                      onClick={() =>
-                        setMobileOpen(false)
-                      }
+                      onClick={() => setMobileOpen(false)}
                       className="mt-3 flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D4A853] to-[#FFD700] font-semibold text-black"
                     >
                       <User size={16} />
@@ -508,9 +456,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to="/login"
-                    onClick={() =>
-                      setMobileOpen(false)
-                    }
+                    onClick={() => setMobileOpen(false)}
                     className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4A853] to-[#FFD700] font-bold text-black"
                   >
                     <Sparkles size={16} />
@@ -525,9 +471,7 @@ export default function Navbar() {
                   <Link
                     key={item.name}
                     to={item.path}
-                    onClick={() =>
-                      setMobileOpen(false)
-                    }
+                    onClick={() => setMobileOpen(false)}
                     className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-all ${
                       isActive(item.path)
                         ? "bg-[#D4A853]/20 text-white"
@@ -543,9 +487,7 @@ export default function Navbar() {
               <div className="mt-6 flex gap-3">
                 <Link
                   to="/wishlist"
-                  onClick={() =>
-                    setMobileOpen(false)
-                  }
+                  onClick={() => setMobileOpen(false)}
                   className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-white"
                 >
                   <Heart size={16} />
@@ -554,9 +496,7 @@ export default function Navbar() {
 
                 <Link
                   to="/cart"
-                  onClick={() =>
-                    setMobileOpen(false)
-                  }
+                  onClick={() => setMobileOpen(false)}
                   className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-white"
                 >
                   <ShoppingBag size={16} />
