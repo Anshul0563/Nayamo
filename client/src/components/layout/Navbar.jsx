@@ -7,12 +7,13 @@ import {
   Heart,
   ShoppingBag,
   User,
-  LogOut,
+ LogOut,
   ChevronDown,
   Sparkles,
   Package,
   Settings,
 } from "lucide-react";
+
 import {
   motion,
   AnimatePresence,
@@ -41,6 +42,7 @@ const userMenuItems = [
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
+
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
 
@@ -65,9 +67,12 @@ export default function Navbar() {
       setScrolled(window.scrollY > 20);
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, {
+      passive: true,
+    });
 
-    return () => window.removeEventListener("scroll", onScroll);
+    return () =>
+      window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -116,7 +121,7 @@ export default function Navbar() {
       : location.pathname.startsWith(path);
 
   const iconBtn =
-    "relative overflow-hidden flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 text-zinc-200 transition-all duration-500 hover:-translate-y-1 hover:scale-105 hover:border-[#D4A853]/60 hover:text-white hover:shadow-[0_10px_40px_rgba(212,168,83,0.35)] backdrop-blur-xl active:scale-95";
+    "relative overflow-hidden flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 text-zinc-200 transition-all duration-500 hover:-translate-y-1 hover:scale-105 hover:border-[#D4A853]/60 hover:text-white hover:shadow-[0_10px_40px_rgba(212,168,83,0.35)] backdrop-blur-xl active:scale-95";
 
   return (
     <>
@@ -129,7 +134,7 @@ export default function Navbar() {
         }}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="fixed top-4 inset-x-0 mx-auto z-50 w-[calc(100%-24px)] max-w-[1500px] rounded-[2rem] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
+        className="fixed top-4 inset-x-0 mx-auto z-50 w-[94%] max-w-[1500px] rounded-[2rem] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
       >
         {/* TOP LIGHT */}
         <div className="absolute top-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent" />
@@ -145,17 +150,17 @@ export default function Navbar() {
         </div>
 
         <div className="nayamo-container relative z-10">
-          <div className="flex h-24 items-center justify-between gap-4">
+          <div className="flex h-20 sm:h-24 items-center justify-between gap-3 px-3 sm:px-0">
             {/* LOGO */}
             <Link
               to="/"
-              className="flex items-center gap-4 group"
+              className="flex min-w-0 items-center gap-2 sm:gap-4 group"
             >
-              <motion.div className="flex h-14 w-14 items-center justify-center rounded-3xl">
+              <motion.div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-3xl flex-shrink-0">
                 <motion.img
                   src={logo}
                   alt="Nayamo Logo"
-                  className="h-12 w-12 object-contain drop-shadow-[0_8px_24px_rgba(212,168,83,0.3)]"
+                  className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-[0_8px_24px_rgba(212,168,83,0.3)]"
                   whileHover={{
                     scale: 1.12,
                     rotate: 5,
@@ -167,7 +172,7 @@ export default function Navbar() {
                 />
               </motion.div>
 
-              <div className="hidden sm:block">
+              <div className="block flex-1 min-w-0">
                 <p className="bg-gradient-to-r from-white to-[#D4A853] bg-clip-text text-sm sm:text-lg font-bold tracking-[0.18em] sm:tracking-[0.3em] text-transparent whitespace-nowrap">
                   NAYAMO
                 </p>
@@ -176,7 +181,7 @@ export default function Navbar() {
                   Luxury Jewellery
                 </p>
 
-                <div className="mt-1 flex items-center gap-2">
+                <div className="hidden sm:flex mt-1 items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
 
                   <span className="text-[10px] uppercase tracking-[0.3em] text-zinc-500">
@@ -236,11 +241,11 @@ export default function Navbar() {
               ))}
             </nav>
 
-            {/* RIGHT */}
-            <div className="flex items-center gap-3">
+            {/* RIGHT SIDE */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               {/* SEARCH */}
               <div
-                className="relative hidden md:block"
+                className="relative hidden lg:block"
                 ref={searchRef}
               >
                 <AnimatePresence>
@@ -290,7 +295,10 @@ export default function Navbar() {
               </div>
 
               {/* WISHLIST */}
-              <Link to="/wishlist" className={iconBtn}>
+              <Link
+                to="/wishlist"
+                className={`${iconBtn} hidden sm:flex`}
+              >
                 <Heart size={20} />
 
                 {wishlistCount > 0 && (
@@ -301,7 +309,10 @@ export default function Navbar() {
               </Link>
 
               {/* CART */}
-              <Link to="/cart" className={iconBtn}>
+              <Link
+                to="/cart"
+                className={`${iconBtn} hidden sm:flex`}
+              >
                 <ShoppingBag size={20} />
 
                 {cartCount > 0 && (
@@ -314,14 +325,14 @@ export default function Navbar() {
               {/* AUTH */}
               {isAuthenticated ? (
                 <div
-                  className="relative"
+                  className="relative hidden md:block"
                   ref={profileRef}
                 >
                   <button
                     onClick={() =>
                       setProfileOpen(!profileOpen)
                     }
-                    className="hidden md:flex items-center gap-2 h-12 rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-3 transition-all hover:border-[#D4A853]/40"
+                    className="flex items-center gap-2 h-11 rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-3 transition-all hover:border-[#D4A853]/40"
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#D4A853] to-[#D4A5A5]">
                       <User
@@ -345,7 +356,6 @@ export default function Navbar() {
                     />
                   </button>
 
-                  {/* DROPDOWN */}
                   <AnimatePresence>
                     {profileOpen && (
                       <motion.div
@@ -387,7 +397,6 @@ export default function Navbar() {
                               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-zinc-300 transition-all hover:bg-white/5 hover:text-white"
                             >
                               <item.icon size={16} />
-
                               {item.name}
                             </Link>
                           ))}
@@ -412,16 +421,16 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="hidden md:flex items-center h-12 rounded-2xl bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] px-6 font-bold text-black shadow-[0_10px_30px_rgba(212,168,83,0.4)] transition-all hover:scale-105"
+                  className="hidden md:flex items-center h-11 rounded-2xl bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] px-6 font-bold text-black shadow-[0_10px_30px_rgba(212,168,83,0.4)] transition-all hover:scale-105"
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
                   Sign In
                 </Link>
               )}
 
-              {/* MOBILE BUTTON */}
+              {/* MOBILE MENU BUTTON */}
               <button
-                className="lg:hidden flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 backdrop-blur-xl"
+                className="lg:hidden flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10 backdrop-blur-xl"
                 onClick={() => setMobileOpen(true)}
               >
                 <Menu size={22} />
@@ -574,7 +583,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      <div className="h-32" />
+      <div className="h-28 sm:h-32" />
     </>
   );
 }
