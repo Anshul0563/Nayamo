@@ -23,16 +23,49 @@ import { adminAPI } from "../../services/api";
 import { socketService } from "../../services/socket";
 
 const notificationStyles = {
-  order: { icon: Package, color: "text-emerald-400", bgColor: "bg-emerald-500/10", borderColor: "border-emerald-500/20" },
-  payment: { icon: IndianRupee, color: "text-gold-400", bgColor: "bg-gold-500/10", borderColor: "border-gold-500/20" },
-  inventory: { icon: Boxes, color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/20" },
-  user: { icon: Users, color: "text-cyan-400", bgColor: "bg-cyan-500/10", borderColor: "border-cyan-500/20" },
-  security: { icon: ShieldAlert, color: "text-rose-400", bgColor: "bg-rose-500/10", borderColor: "border-rose-500/20" },
-  review: { icon: Package, color: "text-violet-400", bgColor: "bg-violet-500/10", borderColor: "border-violet-500/20" },
+  order: {
+    icon: Package,
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    borderColor: "border-emerald-500/20",
+  },
+  payment: {
+    icon: IndianRupee,
+    color: "text-gold-400",
+    bgColor: "bg-gold-500/10",
+    borderColor: "border-gold-500/20",
+  },
+  inventory: {
+    icon: Boxes,
+    color: "text-orange-400",
+    bgColor: "bg-orange-500/10",
+    borderColor: "border-orange-500/20",
+  },
+  user: {
+    icon: Users,
+    color: "text-cyan-400",
+    bgColor: "bg-cyan-500/10",
+    borderColor: "border-cyan-500/20",
+  },
+  security: {
+    icon: ShieldAlert,
+    color: "text-rose-400",
+    bgColor: "bg-rose-500/10",
+    borderColor: "border-rose-500/20",
+  },
+  review: {
+    icon: Package,
+    color: "text-violet-400",
+    bgColor: "bg-violet-500/10",
+    borderColor: "border-violet-500/20",
+  },
 };
 
 const timeAgo = (date) => {
-  const seconds = Math.max(1, Math.floor((Date.now() - new Date(date).getTime()) / 1000));
+  const seconds = Math.max(
+    1,
+    Math.floor((Date.now() - new Date(date).getTime()) / 1000),
+  );
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
@@ -41,11 +74,11 @@ const timeAgo = (date) => {
   return `${Math.floor(hours / 24)}d ago`;
 };
 
-export default function Header({ 
-  onMenuToggle, 
-  onRefresh, 
+export default function Header({
+  onMenuToggle,
+  onRefresh,
   pageTitle,
-  adminName = "Admin"
+  adminName = "Admin",
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -53,16 +86,17 @@ export default function Header({
   const [profileOpen, setProfileOpen] = useState(false);
   const { darkMode, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState([]);
-  
+
   const notifRef = useRef(null);
   const profileRef = useRef(null);
   const searchRef = useRef(null);
 
-  const unreadCount = notifications.filter(n => !(n.isRead || n.read)).length;
+  const unreadCount = notifications.filter((n) => !(n.isRead || n.read)).length;
 
   useEffect(() => {
     let mounted = true;
-    adminAPI.getNotifications({ limit: 20 })
+    adminAPI
+      .getNotifications({ limit: 20 })
       .then((res) => {
         if (mounted) setNotifications(res.data.data || []);
       })
@@ -72,7 +106,9 @@ export default function Header({
       const notification = event.detail;
       setNotifications((prev) => [notification, ...prev].slice(0, 30));
       if (localStorage.getItem("adminSound") !== "off") {
-        const audio = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=");
+        const audio = new Audio(
+          "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=",
+        );
         audio.play().catch(() => {});
       }
     };
@@ -85,7 +121,10 @@ export default function Header({
     window.addEventListener("notifications:sync", handleSync);
     return () => {
       mounted = false;
-      window.removeEventListener("realtime-notification", handleNewNotification);
+      window.removeEventListener(
+        "realtime-notification",
+        handleNewNotification,
+      );
       window.removeEventListener("notifications:sync", handleSync);
     };
   }, []);
@@ -102,20 +141,27 @@ export default function Header({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
+  }, []);
 
   const markAllRead = () => {
     adminAPI.markNotificationRead("all").catch(() => {});
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
+    setNotifications((prev) =>
+      prev.map((n) => ({ ...n, isRead: true, read: true })),
+    );
   };
 
   const markAsRead = (id) => {
     socketService.markAsRead(id).catch(() => {});
-    setNotifications(prev => prev.map(n => (n._id || n.id) === id ? { ...n, isRead: true, read: true } : n));
+    setNotifications((prev) =>
+      prev.map((n) =>
+        (n._id || n.id) === id ? { ...n, isRead: true, read: true } : n,
+      ),
+    );
   };
 
   const clearNotifications = () => {
-    adminAPI.deleteAllNotifications()
+    adminAPI
+      .deleteAllNotifications()
       .then(() => {
         setNotifications([]);
       })
@@ -136,17 +182,17 @@ export default function Header({
           >
             <Menu size={20} />
           </button>
-          
+
           <div className="min-w-0">
             <h1 className="text-lg md:text-xl font-display font-semibold text-luxury-text truncate">
               {pageTitle}
             </h1>
             <p className="text-xs text-luxury-dim hidden sm:block">
-              {new Date().toLocaleDateString("en-IN", { 
-                weekday: "long", 
-                year: "numeric", 
-                month: "long", 
-                day: "numeric" 
+              {new Date().toLocaleDateString("en-IN", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </p>
           </div>
@@ -155,18 +201,16 @@ export default function Header({
         {/* Right Section */}
         <div className="flex items-center gap-2">
           {/* Search Bar */}
-          <div 
+          <div
             ref={searchRef}
-            className={`hidden md:flex items-center transition-all duration-300 ${
-              searchFocused ? "w-80" : "w-56"
-            }`}
+            className="hidden md:flex items-center transition-all duration-300 w-full max-w-full"
           >
             <div className="relative w-full">
-              <Search 
-                size={16} 
+              <Search
+                size={16}
                 className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${
                   searchFocused ? "text-gold-400" : "text-luxury-dim"
-                }`} 
+                }`}
               />
               <input
                 type="text"
@@ -216,12 +260,11 @@ export default function Header({
               className="relative p-2.5 rounded-xl nav-link-hover text-luxury-muted hover:text-luxury-text transition-colors"
             >
               <Bell size={18} />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-gold-gradient text-black text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-theme-bg">
-                      {unreadCount}
-                    </span>
-                  )}
-
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-gold-gradient text-black text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-theme-bg">
+                  {unreadCount}
+                </span>
+              )}
             </button>
 
             {/* Notifications Dropdown */}
@@ -230,7 +273,9 @@ export default function Header({
                 {/* Header */}
                 <div className="p-4 border-b border-luxury-border flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-luxury-text">Notifications</h3>
+                    <h3 className="font-semibold text-luxury-text">
+                      Notifications
+                    </h3>
                     <p className="text-xs text-luxury-dim">
                       {unreadCount} unread
                     </p>
@@ -257,12 +302,17 @@ export default function Header({
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.length === 0 ? (
                     <div className="p-8 text-center">
-                      <Bell size={32} className="mx-auto text-luxury-dim mb-3" />
+                      <Bell
+                        size={32}
+                        className="mx-auto text-luxury-dim mb-3"
+                      />
                       <p className="text-luxury-muted">No notifications</p>
                     </div>
                   ) : (
                     notifications.map((notif) => {
-                      const style = notificationStyles[notif.type] || notificationStyles.order;
+                      const style =
+                        notificationStyles[notif.type] ||
+                        notificationStyles.order;
                       const Icon = style.icon;
                       const read = notif.isRead || notif.read;
                       const id = notif._id || notif.id;
@@ -275,20 +325,28 @@ export default function Header({
                           }`}
                         >
                           <div className="flex items-start gap-3">
-                            <div className={`p-2 rounded-lg ${style.bgColor} ${style.borderColor} border shrink-0`}>
+                            <div
+                              className={`p-2 rounded-lg ${style.bgColor} ${style.borderColor} border shrink-0`}
+                            >
                               <Icon size={16} className={style.color} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <h4 className={`text-sm font-medium ${!read ? "text-luxury-text" : "text-luxury-muted"}`}>
+                                <h4
+                                  className={`text-sm font-medium ${!read ? "text-luxury-text" : "text-luxury-muted"}`}
+                                >
                                   {notif.title}
                                 </h4>
                                 {!read && (
                                   <div className="w-2 h-2 bg-gold-400 rounded-full shrink-0 mt-1.5" />
                                 )}
                               </div>
-                              <p className="text-xs text-luxury-dim mt-1">{notif.message}</p>
-                              <p className="text-[10px] text-luxury-dim mt-2">{timeAgo(notif.createdAt || notif.time)}</p>
+                              <p className="text-xs text-luxury-dim mt-1">
+                                {notif.message}
+                              </p>
+                              <p className="text-[10px] text-luxury-dim mt-2">
+                                {timeAgo(notif.createdAt || notif.time)}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -315,9 +373,9 @@ export default function Header({
               <span className="hidden lg:block text-sm text-luxury-text font-medium">
                 {adminName}
               </span>
-              <ChevronDown 
-                size={14} 
-                className={`hidden lg:block text-luxury-dim transition-transform ${profileOpen ? "rotate-180" : ""}`} 
+              <ChevronDown
+                size={14}
+                className={`hidden lg:block text-luxury-dim transition-transform ${profileOpen ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -330,14 +388,19 @@ export default function Header({
                       <User size={24} className="text-gold-400" />
                     </div>
                     <div>
-                      <p className="font-semibold text-luxury-text">{adminName}</p>
+                      <p className="font-semibold text-luxury-text">
+                        {adminName}
+                      </p>
                       <p className="text-xs text-gold-400">Administrator</p>
                     </div>
                   </div>
                 </div>
                 <div className="p-2">
                   <button
-                    onClick={() => { window.location.href = "/settings"; setProfileOpen(false); }}
+                    onClick={() => {
+                      window.location.href = "/settings";
+                      setProfileOpen(false);
+                    }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-luxury-muted hover:text-luxury-text nav-link-hover transition-colors text-sm"
                   >
                     <Settings size={16} />

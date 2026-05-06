@@ -207,13 +207,13 @@ export default function ProductDetails() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(212,168,83,0.05),transparent_50%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(212,165,165,0.03),transparent_50%)] pointer-events-none" />
 
-      <div className="relative nayamo-container py-12">
+      <div className="relative nayamo-container py-6 sm:py-12 px-4 sm:px-0 overflow-hidden">
         {/* Premium Breadcrumb */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="flex items-center justify-between mb-12"
+          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-12"
         >
           <motion.button
             onClick={() => navigate(-1)}

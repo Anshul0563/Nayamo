@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { Search, Filter, Loader2, Download } from 'lucide-react';
-import { SkeletonRow } from './ui/Skeleton';
+import React, { useState, useCallback, useRef } from "react";
+import { Search, Filter, Loader2, Download } from "lucide-react";
+import { SkeletonRow } from "./ui/Skeleton";
 
 const DataTable = ({
   columns,
@@ -15,32 +15,39 @@ const DataTable = ({
   selected,
   onSelect,
   exportData,
-  className = '',
+  className = "",
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const observer = useRef();
-  const lastRowRef = useCallback(node => {
-    if (loading) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        loadMore();
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [loading, hasMore, loadMore]);
+  const lastRowRef = useCallback(
+    (node) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadMore();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore, loadMore],
+  );
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
     onSearch?.(e.target.value);
   };
 
-  const getValue = (row, key) => key.split('.').reduce((value, part) => value?.[part], row);
+  const getValue = (row, key) =>
+    key.split(".").reduce((value, part) => value?.[part], row);
 
-  const filteredData = data.filter(row => {
+  const filteredData = data.filter((row) => {
     // Simple search across all columns
-    return columns.some(col => 
-      getValue(row, col.key)?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    return columns.some((col) =>
+      getValue(row, col.key)
+        ?.toString()
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()),
     );
   });
 
@@ -56,7 +63,7 @@ const DataTable = ({
               value={searchTerm}
               onChange={handleSearch}
               placeholder="Search records..."
-              className="pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-luxury-border w-64 text-sm focus:border-gold-500/50"
+              className="pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-luxury-border w-full sm:w-64 text-sm focus:border-gold-500/50"
             />
           </div>
           {filters && (
@@ -68,12 +75,17 @@ const DataTable = ({
             </div>
           )}
           {exportData && (
-            <button onClick={exportData} className="luxury-btn luxury-btn-secondary px-4 py-2 flex items-center gap-2">
+            <button
+              onClick={exportData}
+              className="luxury-btn luxury-btn-secondary px-4 py-2 flex items-center gap-2"
+            >
               <Download size={16} />
               Export
             </button>
           )}
-          <span className="text-sm text-luxury-dim lg:ml-auto">{filteredData.length} of {total} results</span>
+          <span className="text-sm text-luxury-dim lg:ml-auto">
+            {filteredData.length} of {total} results
+          </span>
         </div>
       </div>
 
@@ -82,9 +94,19 @@ const DataTable = ({
         <table className="w-full">
           <thead>
             <tr className="border-b border-luxury-border">
-              {enableSelection && <th className="p-4 w-12"><input type="checkbox" className="w-4 h-4 rounded text-gold-500" /></th>}
-              {columns.map(col => (
-                <th key={col.key} className="p-4 text-left font-semibold text-luxury-text text-sm uppercase tracking-wide">
+              {enableSelection && (
+                <th className="p-4 w-12">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded text-gold-500"
+                  />
+                </th>
+              )}
+              {columns.map((col) => (
+                <th
+                  key={col.key}
+                  className="p-4 text-left font-semibold text-luxury-text text-sm uppercase tracking-wide"
+                >
                   {col.label}
                 </th>
               ))}
@@ -93,23 +115,36 @@ const DataTable = ({
           <tbody>
             {loading && (
               <>
-                {Array.from({length: 10}).map((_, i) => <SkeletonRow key={i} />)}
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <SkeletonRow key={i} />
+                ))}
               </>
             )}
             {filteredData.map((row, index) => (
-              <tr 
-                key={row._id || row.id || index} 
-                ref={hasMore && index === filteredData.length - 1 ? lastRowRef : null}
+              <tr
+                key={row._id || row.id || index}
+                ref={
+                  hasMore && index === filteredData.length - 1
+                    ? lastRowRef
+                    : null
+                }
                 className="border-b border-luxury-border/50 hover:bg-white/[0.02] transition-colors group"
               >
                 {enableSelection && (
                   <td className="p-4">
-                    <input type="checkbox" checked={selected?.includes(row._id || row.id)} onChange={() => onSelect?.(row._id || row.id)} className="w-4 h-4 rounded text-gold-500" />
+                    <input
+                      type="checkbox"
+                      checked={selected?.includes(row._id || row.id)}
+                      onChange={() => onSelect?.(row._id || row.id)}
+                      className="w-4 h-4 rounded text-gold-500"
+                    />
                   </td>
                 )}
-                {columns.map(col => (
+                {columns.map((col) => (
                   <td key={col.key} className="p-4 text-luxury-text">
-                    {col.render ? col.render(getValue(row, col.key), row) : getValue(row, col.key) || '—'}
+                    {col.render
+                      ? col.render(getValue(row, col.key), row)
+                      : getValue(row, col.key) || "—"}
                   </td>
                 ))}
               </tr>
