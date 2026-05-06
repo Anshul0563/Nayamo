@@ -13,7 +13,12 @@ import {
   Package,
   Settings,
 } from "lucide-react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo.png";
 import { useCart } from "../../context/CartContext";
@@ -64,8 +69,10 @@ export default function Navbar() {
 
   useEffect(() => {
     const close = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
-      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target))
+        setProfileOpen(false);
+      if (searchRef.current && !searchRef.current.contains(e.target))
+        setSearchOpen(false);
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
@@ -80,7 +87,9 @@ export default function Navbar() {
   };
 
   const isActive = (path) =>
-    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+    path === "/"
+      ? location.pathname === "/"
+      : location.pathname.startsWith(path);
 
   const iconBtn =
     "relative flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 text-zinc-200 transition-all duration-500 hover:-translate-y-1 hover:border-[#D4A853]/60 hover:text-white hover:shadow-[0_10px_40px_rgba(212,168,83,0.35)] backdrop-blur-xl";
@@ -101,12 +110,9 @@ export default function Navbar() {
 
         <div className="nayamo-container">
           <div className="flex h-24 items-center justify-between gap-4">
-
             {/* LOGO */}
             <Link to="/" className="flex items-center gap-4 group">
-              <motion.div
-                className="flex h-14 w-14 items-center justify-center rounded-3xl"
-              >
+              <motion.div className="flex h-14 w-14 items-center justify-center rounded-3xl">
                 <motion.img
                   src={logo}
                   alt="Nayamo Logo"
@@ -168,7 +174,6 @@ export default function Navbar() {
 
             {/* RIGHT SIDE */}
             <div className="flex items-center gap-3">
-
               {/* SEARCH */}
               <div className="relative hidden md:block" ref={searchRef}>
                 <AnimatePresence>
@@ -191,7 +196,10 @@ export default function Navbar() {
                   )}
                 </AnimatePresence>
 
-                <button className={iconBtn} onClick={() => setSearchOpen(!searchOpen)}>
+                <button
+                  className={iconBtn}
+                  onClick={() => setSearchOpen(!searchOpen)}
+                >
                   {searchOpen ? <X size={20} /> : <Search size={20} />}
                 </button>
               </div>
@@ -306,33 +314,119 @@ export default function Navbar() {
       </motion.header>
 
       {/* MOBILE MENU */}
+      {/* MOBILE MENU */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div className="fixed inset-0 z-[60] lg:hidden">
-            <div
-              className="absolute inset-0 bg-black/80"
+            {/* BACKDROP */}
+            <motion.div
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
             />
 
+            {/* SIDE PANEL */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              className="absolute right-0 top-0 h-full w-[90vw] max-w-sm bg-black p-6"
+              transition={{ type: "spring", damping: 25 }}
+              className="absolute right-0 top-0 h-full w-[85vw] max-w-sm bg-[#0A0A0C] border-l border-white/10 shadow-2xl p-6 flex flex-col"
             >
-              <button onClick={() => setMobileOpen(false)}>
-                <X />
-              </button>
-
-              {links.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className="block py-4 text-white"
+              {/* HEADER */}
+              <div className="flex items-center justify-between mb-6">
+                <p className="text-white text-lg font-semibold">Menu</p>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="p-2 rounded-xl bg-white/10"
                 >
-                  {item.name}
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* AUTH SECTION */}
+              <div className="mb-6">
+                {isAuthenticated ? (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                    <p className="text-white font-medium">{user?.name}</p>
+                    <p className="text-xs text-zinc-400">{user?.email}</p>
+
+                    <Link
+                      to="/profile"
+                      onClick={() => setMobileOpen(false)}
+                      className="mt-3 flex items-center justify-center gap-2 h-10 rounded-xl bg-gradient-to-r from-[#D4A853] to-[#FFD700] text-black font-semibold"
+                    >
+                      <User size={16} />
+                      My Profile
+                    </Link>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-gradient-to-r from-[#D4A853] to-[#FFD700] text-black font-bold"
+                  >
+                    <Sparkles size={16} />
+                    Sign In
+                  </Link>
+                )}
+              </div>
+
+              {/* NAV LINKS */}
+              <div className="flex flex-col gap-2">
+                {links.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all ${
+                      isActive(item.path)
+                        ? "bg-[#D4A853]/20 text-white"
+                        : "text-zinc-400 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+
+              {/* EXTRA ACTIONS */}
+              <div className="mt-6 flex gap-3">
+                <Link
+                  to="/wishlist"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white/5 border border-white/10 text-white"
+                >
+                  <Heart size={16} />
+                  Wishlist
                 </Link>
-              ))}
+
+                <Link
+                  to="/cart"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-white/5 border border-white/10 text-white"
+                >
+                  <ShoppingBag size={16} />
+                  Cart
+                </Link>
+              </div>
+
+              {/* LOGOUT */}
+              {isAuthenticated && (
+                <button
+                  onClick={() => {
+                    logout();
+                    navigate("/");
+                    setMobileOpen(false);
+                  }}
+                  className="mt-6 flex items-center justify-center gap-2 h-11 rounded-xl bg-red-500/10 text-red-400"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              )}
             </motion.div>
           </motion.div>
         )}
