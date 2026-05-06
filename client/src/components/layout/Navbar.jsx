@@ -113,7 +113,7 @@ export default function Navbar() {
       : location.pathname.startsWith(path);
 
   const iconBtn =
-    "relative overflow-hidden flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 text-zinc-200 transition-all duration-500 hover:-translate-y-1 hover:scale-105 hover:border-[#D4A853]/60 hover:text-white hover:shadow-[0_10px_40px_rgba(212,168,83,0.35)] backdrop-blur-xl active:scale-95";
+    "relative flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 text-zinc-200 transition-all duration-500 hover:-translate-y-1 hover:scale-105 hover:border-[#D4A853]/60 hover:text-white hover:shadow-[0_10px_40px_rgba(212,168,83,0.35)] backdrop-blur-xl active:scale-95";
 
   return (
     <>
