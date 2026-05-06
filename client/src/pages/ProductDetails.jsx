@@ -115,8 +115,14 @@ export default function ProductDetails() {
     }
   }, [id]);
 
-  // Fetch Product
+  // Fetch Product + reset scroll to top when arriving (fix mobile redirect to bottom)
   useEffect(() => {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    } catch {
+      window.scrollTo(0, 0);
+    }
+
     const fetch = async () => {
       setLoading(true);
 
