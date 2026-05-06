@@ -232,7 +232,7 @@ export default function ProductDetails() {
             transition={{ delay: 0.3 }}
           >
             <Link to="/" className="hover:text-[#D4A853] transition-colors">
-              Home
+              Homere
             </Link>
             <span>/</span>
             <Link to="/shop" className="hover:text-[#D4A853] transition-colors">
