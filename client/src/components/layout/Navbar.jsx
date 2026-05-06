@@ -129,7 +129,7 @@ export default function Navbar() {
         }}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="fixed top-4 left-1/2 z-50 w-[95%] max-w-[1500px] -translate-x-1/2 rounded-[2rem] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
+        className="fixed top-4 inset-x-0 mx-auto z-50 w-[calc(100%-24px)] max-w-[1500px] rounded-[2rem] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
       >
         {/* TOP LIGHT */}
         <div className="absolute top-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent" />
