@@ -101,7 +101,7 @@ export default function Navbar() {
           backgroundColor: scrolled ? "rgba(9,9,9,0.9)" : "rgba(7,7,8,0.2)",
           backdropFilter: `blur(${navbarBlur}px)`,
         }}
-        className="fixed top-0 inset-x-0 z-50 border-b border-white/10 shadow-2xl"
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1500px] rounded-[2rem] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
       >
