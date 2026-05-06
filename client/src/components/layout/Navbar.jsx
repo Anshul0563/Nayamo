@@ -168,11 +168,11 @@ export default function Navbar() {
               </motion.div>
 
               <div className="hidden sm:block">
-                <p className="bg-gradient-to-r from-white to-[#D4A853] bg-clip-text text-lg font-bold tracking-[0.3em] text-transparent">
+                <p className="bg-gradient-to-r from-white to-[#D4A853] bg-clip-text text-sm sm:text-lg font-bold tracking-[0.18em] sm:tracking-[0.3em] text-transparent whitespace-nowrap">
                   NAYAMO
                 </p>
 
-                <p className="text-[11px] uppercase tracking-[0.4em] text-[#D4A853]">
+                <p className="text-[8px] sm:text-[11px] uppercase tracking-[0.22em] sm:tracking-[0.4em] text-[#D4A853] whitespace-nowrap">
                   Luxury Jewellery
                 </p>
 
