@@ -1,10 +1,10 @@
-# TODO - Admin panel responsiveness
-
-## Plan (approved)
-- Update admin layout and key shared components to remove small-screen overflow, tighten responsive spacing, and ensure controls stack/wrap correctly.
+# TODO - Client forgot password
 
 ## Steps
-1. Add/adjust responsive layout utilities in `admin/src/components/layout/AdminLayout.jsx` (main container sizing, min-w-0, overflow rules).
+1. Update `client/src/services/api.js` to add placeholder auth endpoints for forgot/reset password.
+2. Update `client/src/context/AuthContext.jsx` with `forgotPassword` and/or `resetPassword` helpers (client-side only).
+3. Update `client/src/pages/Login.jsx` to add a **Forgot password** UI and flow toggle.
+4. Run client lint/build/tests to confirm no JSX errors.
 2. Update `admin/src/components/layout/Header.jsx` to avoid fixed-width search (w-56/w-80) overflowing; ensure dropdown widths and spacing behave on small screens.
 3. Update `admin/src/components/layout/Sidebar.jsx` to ensure collapsed/overlay sidebar works smoothly with viewport height and avoids layout shift.
 4. Make `admin/src/components/DataTable.jsx` more responsive: remove fixed `w-64` search width, ensure header wraps on small screens, and keep horizontal scrolling contained.
