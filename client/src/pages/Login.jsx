@@ -9,9 +9,12 @@ import Loader from "../components/common/Loader";
 export default function Login() {
   const [isRegister, setIsRegister] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [mode, setMode] = useState("login"); // login | register | forgot
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [forgotEmail, setForgotEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login, register, user } = useAuth();
+  const { login, register, forgotPassword, user } = useAuth();
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,6 +31,22 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
+    if (mode === "forgot") {
+      if (!forgotEmail) {
+        setLoading(false);
+        return;
+      }
+      const res = await forgotPassword(forgotEmail);
+      if (res.success) {
+        setMode("login");
+        setIsRegister(false);
+        setForm({ name: "", email: "", password: "" });
+        setForgotEmail("");
+      }
+      setLoading(false);
+      return;
+    }
+
     if (isRegister) {
       if (!form.name || !form.email || !form.password) {
         setLoading(false);
@@ -43,8 +62,10 @@ export default function Login() {
       const res = await login(form.email, form.password);
       if (res.success) navigate("/");
     }
+
     setLoading(false);
   };
+
 
   return (
     <div className="min-h-screen bg-[#070708] flex items-center justify-center py-12 px-4 relative overflow-hidden">
@@ -63,18 +84,25 @@ export default function Login() {
             <Logo size="2xl" showText={false} glow={true} className="justify-center" />
           </div>
           <h1 className="text-3xl font-serif font-bold text-white mb-2">
-            {isRegister ? "Create Account" : "Welcome Back"}
+            {mode === "forgot"
+              ? "Reset Password"
+              : isRegister
+                ? "Create Account"
+                : "Welcome Back"}
           </h1>
           <p className="text-[#A1A1AA]">
-            {isRegister
-              ? "Join Nayamo for exclusive jewellery"
-              : "Sign in to your Nayamo account"}
+            {mode === "forgot"
+              ? "Enter your email and we'll send reset instructions."
+              : isRegister
+                ? "Join Nayamo for exclusive jewellery"
+                : "Sign in to your Nayamo account"}
           </p>
+
         </div>
 
         <div className="nayamo-card p-8 md:p-10 border border-white/[0.05]">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {isRegister && (
+            {mode !== "forgot" && isRegister && (
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
                 <input
@@ -89,42 +117,59 @@ export default function Login() {
               </div>
             )}
 
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
-              <input
-                name="email"
-                type="email"
-                placeholder="Email address"
-                value={form.email}
-                onChange={handleChange}
-                className="nayamo-input pl-11"
-                required
-              />
-            </div>
+            {mode === "forgot" ? (
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Email address"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="nayamo-input pl-11"
+                  required
+                />
+              </div>
+            ) : (
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Email address"
+                  value={form.email}
+                  onChange={handleChange}
+                  className="nayamo-input pl-11"
+                  required
+                />
+              </div>
+            )}
 
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
-              <input
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
-                className="nayamo-input pl-11 pr-11"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white transition-colors"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </button>
-            </div>
+            {mode !== "forgot" && (
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="nayamo-input pl-11 pr-11"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-white transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            )}
 
             <button
               type="submit"
@@ -133,28 +178,63 @@ export default function Login() {
             >
               {loading ? (
                 <Loader size={20} />
+              ) : mode === "forgot" ? (
+                "Send Reset Link"
               ) : isRegister ? (
                 "Create Account"
               ) : (
                 "Sign In"
               )}
             </button>
+
+            {mode !== "forgot" && !isRegister && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("forgot");
+                    setIsRegister(false);
+                  }}
+                  className="text-sm text-[#D4A853] font-semibold hover:text-[#F0D78C] transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-[#A1A1AA]">
-              {isRegister
-                ? "Already have an account?"
-                : "Don't have an account?"}{" "}
-              <button
-                onClick={() => setIsRegister(!isRegister)}
-                className="text-[#D4A853] font-semibold hover:text-[#F0D78C] transition-colors"
-              >
-                {isRegister ? "Sign In" : "Create Account"}
-              </button>
-            </p>
+            {mode === "forgot" ? (
+              <p className="text-sm text-[#A1A1AA]">
+                <button
+                  onClick={() => {
+                    setMode("login");
+                    setIsRegister(false);
+                  }}
+                  className="text-[#D4A853] font-semibold hover:text-[#F0D78C] transition-colors"
+                >
+                  Back to Sign In
+                </button>
+              </p>
+            ) : (
+              <p className="text-sm text-[#A1A1AA]">
+                {isRegister
+                  ? "Already have an account?"
+                  : "Don't have an account?"}{" "}
+                <button
+                  onClick={() => {
+                    setIsRegister(!isRegister);
+                    setMode("login");
+                  }}
+                  className="text-[#D4A853] font-semibold hover:text-[#F0D78C] transition-colors"
+                >
+                  {isRegister ? "Sign In" : "Create Account"}
+                </button>
+              </p>
+            )}
           </div>
         </div>
+
       </motion.div>
     </div>
   );

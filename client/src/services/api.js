@@ -114,7 +114,12 @@ export const authAPI = {
   getProfile: () => apiClient.get("/auth/profile"),
   logout: () => apiClient.post("/auth/logout"),
   logoutAll: () => apiClient.post("/auth/logout-all"),
+
+  // Forgot/Reset Password (placeholders - backend must implement these endpoints)
+  forgotPassword: (data) => apiClient.post("/auth/forgot-password", data),
+  resetPassword: (data) => apiClient.post("/auth/reset-password", data),
 };
+
 
 // Products
 export const productAPI = {
