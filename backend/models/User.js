@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema(
 
     emailVerificationToken: String,
     emailVerificationExpires: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
 
     refreshTokens: {
       type: [
@@ -81,5 +83,6 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 userSchema.index({ role: 1 });
 userSchema.index({ createdAt: -1 });
 userSchema.index({ "refreshTokens.tokenHash": 1 });
+userSchema.index({ passwordResetToken: 1 });
 
 module.exports = mongoose.model("User", userSchema);
