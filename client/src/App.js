@@ -18,6 +18,7 @@ import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
+import ResetPassword from "./pages/ResetPassword";
 
 // Contexts
 import { AuthProvider } from "./context/AuthContext";
@@ -57,6 +58,7 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/orders" element={<MyOrders />} />
                 <Route path="/orders/:id" element={<OrderDetails />} />
