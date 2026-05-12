@@ -4,14 +4,17 @@ const crypto = require("crypto");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
 const { getSmtpConfig, isConfigured } = require("../config/env");
-const { emitUserNotification, emitNotification } = require("../services/notificationService");
+const {
+  emitUserNotification,
+  emitNotification,
+} = require("../services/notificationService");
 
 // 🔐 Generate Access Token (short-lived)
 const generateAccessToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role, type: "access" },
     process.env.JWT_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "15m" },
   );
 };
 
@@ -20,7 +23,7 @@ const generateRefreshToken = (user) => {
   return jwt.sign(
     { id: user._id, type: "refresh" },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 };
 
@@ -30,7 +33,8 @@ const hashToken = (token) =>
 
 // Password validation - strong requirements
 const isPasswordStrong = (password) => {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return regex.test(password);
 };
 
@@ -51,7 +55,7 @@ exports.register = asyncHandler(async (req, res) => {
   if (!isPasswordStrong(password)) {
     res.status(400);
     throw new Error(
-      "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     );
   }
 
@@ -67,7 +71,10 @@ exports.register = asyncHandler(async (req, res) => {
     name: name.trim(),
     email: email.toLowerCase().trim(),
     password,
-    emailVerificationToken: crypto.createHash("sha256").update(verificationToken).digest("hex"),
+    emailVerificationToken: crypto
+      .createHash("sha256")
+      .update(verificationToken)
+      .digest("hex"),
     emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
   });
 
@@ -84,7 +91,7 @@ exports.register = asyncHandler(async (req, res) => {
 
   logger.info(`User registered: ${user.email}`);
   emitUserNotification(user, "new_registration").catch((err) =>
-    logger.error("Registration notification failed:", err.message)
+    logger.error("Registration notification failed:", err.message),
   );
 
   res.status(201).json({
@@ -111,7 +118,9 @@ exports.login = asyncHandler(async (req, res) => {
     throw new Error("Email and password are required");
   }
 
-  const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
+  const user = await User.findOne({ email: email.toLowerCase() }).select(
+    "+password",
+  );
 
   if (!user) {
     res.status(401);
@@ -123,15 +132,24 @@ exports.login = asyncHandler(async (req, res) => {
     throw new Error("Account is deactivated");
   }
 
-  const isMatch = await user.comparePassword
+  const isMatch = (await user.comparePassword)
     ? await user.comparePassword(password)
     : require("bcryptjs").compare(password, user.password);
 
   if (!isMatch) {
-    emitNotification(null, "Failed Admin Login Attempt", `Failed login attempt for ${email}`, "security", "error", {
-      email,
-      path: "/settings"
-    }).catch((err) => logger.error("Security notification failed:", err.message));
+    emitNotification(
+      null,
+      "Failed Admin Login Attempt",
+      `Failed login attempt for ${email}`,
+      "security",
+      "error",
+      {
+        email,
+        path: "/settings",
+      },
+    ).catch((err) =>
+      logger.error("Security notification failed:", err.message),
+    );
     res.status(401);
     throw new Error("Invalid email or password");
   }
@@ -195,7 +213,7 @@ exports.refreshToken = asyncHandler(async (req, res) => {
     const tokenHash = hashToken(refreshToken);
     const tokens = Array.isArray(user.refreshTokens) ? user.refreshTokens : [];
     const tokenExists = tokens.some(
-      (t) => t.tokenHash === tokenHash && t.expiresAt > new Date()
+      (t) => t.tokenHash === tokenHash && t.expiresAt > new Date(),
     );
 
     if (!tokenExists) {
@@ -278,7 +296,8 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   if (!user) {
     return res.status(200).json({
       success: true,
-      message: "If an account with that email exists, a password reset link has been sent.",
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
     });
   }
 
@@ -290,28 +309,33 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   const clientUrl =
-    process.env.CLIENT_URL || process.env.FRONTEND_URL ||
+    process.env.CLIENT_URL ||
+    process.env.FRONTEND_URL ||
     `${process.env.APP_URL || "https://nayamo.onrender.com"}`;
   const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
 
   const smtp = getSmtpConfig();
 
   if (
-    !isConfigured(smtp.host) ||
-    !isConfigured(smtp.port) ||
-    !isConfigured(smtp.user) ||
-    !isConfigured(smtp.pass)
-  ) {
+  !isConfigured(smtp.host) ||
+  !isConfigured(smtp.port) ||
+  !isConfigured(smtp.user) ||
+  !isConfigured(smtp.pass) ||
+  !isConfigured(smtp.fromEmail)
+) {
     logger.error("SMTP credentials not configured for password reset email");
     return res.status(200).json({
       success: true,
-      message: "If an account with that email exists, a password reset link has been sent.",
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
     });
   }
 
   const transporter = require("nodemailer").createTransport({
   host: smtp.host,
   port: Number(smtp.port),
+
+  // Automatically handle SSL
   secure: Number(smtp.port) === 465,
 
   auth: {
@@ -319,6 +343,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     pass: smtp.pass,
   },
 
+  // Prevent hanging requests
   connectionTimeout: 10000,
   greetingTimeout: 10000,
   socketTimeout: 10000,
@@ -346,6 +371,11 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   };
 
   try {
+
+    // Check SMTP connection
+    await transporter.verify();
+    console.log("SMTP server is ready");
+
     await transporter.sendMail(mailOptions);
     logger.info(`Password reset email sent to ${user.email}`);
   } catch (error) {
@@ -354,12 +384,15 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     logger.error("Failed to send password reset email:", error.message);
-    throw new Error("Unable to send password reset email. Please try again later.");
+    throw new Error(
+      "Unable to send password reset email. Please try again later.",
+    );
   }
 
   res.status(200).json({
     success: true,
-    message: "If an account with that email exists, a password reset link has been sent.",
+    message:
+      "If an account with that email exists, a password reset link has been sent.",
   });
 });
 
@@ -375,7 +408,7 @@ exports.resetPassword = asyncHandler(async (req, res) => {
   if (!isPasswordStrong(password)) {
     res.status(400);
     throw new Error(
-      "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     );
   }
 
@@ -407,7 +440,9 @@ exports.resetPassword = asyncHandler(async (req, res) => {
 
 // �👤 GET PROFILE
 exports.getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password -refreshTokens");
+  const user = await User.findById(req.user._id).select(
+    "-password -refreshTokens",
+  );
 
   if (!user) {
     res.status(404);
