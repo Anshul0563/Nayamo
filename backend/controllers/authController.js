@@ -335,26 +335,32 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     text: `Reset your password by visiting this link: ${resetUrl}`,
   };
 
-  try {
-    await sendMail(mailOptions);
-    logger.info(`Password reset email sent to ${user.email}`);
-  } catch (error) {
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-
-    logger.error(`Failed to send password reset email: ${error.message}`);
-    return res.status(503).json({
-      success: false,
-      message: "Email service is temporarily unavailable. Please try again shortly.",
-    });
-  }
-
   res.status(200).json({
     success: true,
     message:
       "If an account with that email exists, a password reset link has been sent.",
   });
+
+  sendMail(mailOptions)
+    .then(() => {
+      logger.info(`Password reset email sent to ${user.email}`);
+    })
+    .catch(async (error) => {
+      logger.error(`Failed to send password reset email: ${error.message}`);
+
+      try {
+        await User.findByIdAndUpdate(user._id, {
+          $unset: {
+            passwordResetToken: "",
+            passwordResetExpires: "",
+          },
+        });
+      } catch (cleanupError) {
+        logger.error(
+          `Failed to clear password reset token after email failure: ${cleanupError.message}`,
+        );
+      }
+    });
 });
 
 // 🔄 RESET PASSWORD
