@@ -303,6 +303,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     let user;
 
     try {
+      logger.info(`Password reset background job started for ${normalizedEmail}`);
       user = await User.findOne({ email: normalizedEmail });
 
       if (!user) {
@@ -316,12 +317,14 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
       user.passwordResetToken = resetTokenHash;
       user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
       await user.save({ validateBeforeSave: false });
+      logger.info(`Password reset token stored for user ${user._id}`);
 
       const clientUrl =
         process.env.CLIENT_URL ||
         process.env.FRONTEND_URL ||
         `${process.env.APP_URL || "https://nayamo.onrender.com"}`;
       const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
+      logger.info(`Password reset URL generated for ${user._id}: ${clientUrl.replace(/\/$/, "")}/reset-password?token=[redacted]`);
 
       await sendMail({
         to: user.email,
@@ -345,7 +348,15 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
 
       logger.info(`Password reset email sent to ${user.email}`);
     } catch (error) {
-      logger.error(`Failed to send password reset email: ${error.message}`);
+      logger.error(
+        `Failed to process password reset email: ${JSON.stringify({
+          message: error.message,
+          code: error.code,
+          command: error.command,
+          response: error.response,
+          responseCode: error.responseCode,
+        })}`,
+      );
 
       if (user?._id) {
         await User.findByIdAndUpdate(user._id, {

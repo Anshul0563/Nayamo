@@ -5,8 +5,26 @@ const { getSmtpConfig, isConfigured } = require("../config/env");
 let transporter;
 let verifiedAt = 0;
 
+const maskEmail = (email = "") => {
+  const [name, domain] = String(email).split("@");
+  if (!name || !domain) return "unknown";
+  return `${name.slice(0, 2)}***@${domain}`;
+};
+
+const getErrorDetails = (error) => ({
+  message: error.message,
+  code: error.code,
+  command: error.command,
+  response: error.response,
+  responseCode: error.responseCode,
+});
+
 const getTransporter = () => {
   const smtp = getSmtpConfig();
+
+  logger.info(
+    `SMTP config loaded host=${smtp.host || "missing"} port=${smtp.port || "missing"} secure=${smtp.secure} user=${maskEmail(smtp.user)} from=${maskEmail(smtp.fromEmail)} timeout=${smtp.timeout}`,
+  );
 
   if (
     !isConfigured(smtp.host) ||
@@ -21,6 +39,7 @@ const getTransporter = () => {
   }
 
   if (!transporter) {
+    logger.info("Creating SMTP transporter");
     transporter = nodemailer.createTransport({
       host: smtp.host,
       port: smtp.port,
@@ -35,7 +54,11 @@ const getTransporter = () => {
       pool: true,
       maxConnections: 2,
       maxMessages: 50,
+      logger: process.env.SMTP_DEBUG === "true",
+      debug: process.env.SMTP_DEBUG === "true",
     });
+  } else {
+    logger.info("Reusing existing SMTP transporter");
   }
 
   return { smtp, transporter };
@@ -47,7 +70,15 @@ const verifySmtp = async () => {
 
   if (now - verifiedAt < 5 * 60 * 1000) return;
 
-  await mailer.verify();
+  logger.info("Starting SMTP transporter.verify()");
+  try {
+    await mailer.verify();
+  } catch (error) {
+    logger.error(
+      `SMTP transporter.verify() failed: ${JSON.stringify(getErrorDetails(error))}`,
+    );
+    throw error;
+  }
   verifiedAt = now;
   logger.info("SMTP connection verified");
 };
@@ -55,9 +86,12 @@ const verifySmtp = async () => {
 const sendMail = async ({ to, subject, html, text, replyTo }) => {
   const { smtp, transporter: mailer } = getTransporter();
 
+  logger.info(`Preparing email to=${maskEmail(to)} subject="${subject}"`);
   await verifySmtp();
 
-  return mailer.sendMail({
+  logger.info(`Calling transporter.sendMail() to=${maskEmail(to)}`);
+  try {
+    const info = await mailer.sendMail({
     from: `"Nayamo Support" <${smtp.fromEmail}>`,
     to,
     subject,
@@ -65,6 +99,18 @@ const sendMail = async ({ to, subject, html, text, replyTo }) => {
     text,
     ...(replyTo ? { replyTo } : {}),
   });
+
+    logger.info(
+      `transporter.sendMail() accepted messageId=${info.messageId || "none"} accepted=${JSON.stringify(info.accepted || [])} rejected=${JSON.stringify(info.rejected || [])} response=${info.response || "none"}`,
+    );
+
+    return info;
+  } catch (error) {
+    logger.error(
+      `transporter.sendMail() failed: ${JSON.stringify(getErrorDetails(error))}`,
+    );
+    throw error;
+  }
 };
 
 module.exports = {
