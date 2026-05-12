@@ -85,6 +85,12 @@ reviewSchema.statics.calcAverageRating = async function (productId) {
       "ratings.average": stats[0].avgRating,
       "ratings.count": stats[0].numReviews
     });
+  } else {
+    const Product = require("./Product");
+    await Product.findByIdAndUpdate(productId, {
+      "ratings.average": 0,
+      "ratings.count": 0
+    });
   }
 };
 

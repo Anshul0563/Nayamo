@@ -21,10 +21,24 @@ exports.submitReview = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Invalid product ID");
   }
+
+  const normalizedProductId = new mongoose.Types.ObjectId(productId);
+
+  const product = await Product.findById(normalizedProductId).select("_id title");
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  const normalizedComment = comment?.trim();
+  if (!normalizedComment) {
+    res.status(400);
+    throw new Error("Review comment is required");
+  }
   
   // Check if user already reviewed this product
   const existingReview = await Review.findOne({
-    product: productId,
+    product: normalizedProductId,
     user: req.user._id
   });
   
@@ -36,17 +50,17 @@ exports.submitReview = asyncHandler(async (req, res) => {
 // Create review
   const review = await Review.create({
     user: req.user._id,
-    product: productId,
+    product: normalizedProductId,
     rating: Number(rating),
-    comment: comment?.trim() || "",
-    title: title || comment?.substring(0,30) || "User Review",
+    comment: normalizedComment,
+    title: title?.trim() || normalizedComment.substring(0, 30) || "User Review",
     isApproved: true,  // Auto-approve for now (change to false for production)
     status: "approved"
   });
   
   // Immediately update product ratings
   const stats = await Review.aggregate([
-    { $match: { product: productId, isApproved: true } },
+    { $match: { product: normalizedProductId, isApproved: true } },
     {
       $group: {
         _id: null,
@@ -56,7 +70,7 @@ exports.submitReview = asyncHandler(async (req, res) => {
     }
   ]);
   
-  await Product.findByIdAndUpdate(productId, {
+  await Product.findByIdAndUpdate(normalizedProductId, {
     "ratings.average": Math.round((stats[0]?.avgRating || 0) * 10) / 10,
     "ratings.count": stats[0]?.count || 0
   });
@@ -81,7 +95,7 @@ exports.submitReview = asyncHandler(async (req, res) => {
 
 // GET ALL REVIEWS (Admin)
 exports.getAllReviews = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, status, search, rating, product } = req.query;
+  const { page = 1, limit = 20, status, search, rating, product, dateFrom, dateTo } = req.query;
   
   const query = {};
   if (status) {
@@ -91,6 +105,15 @@ exports.getAllReviews = asyncHandler(async (req, res) => {
   }
   if (rating) query.rating = Number(rating);
   if (product) query.product = product;
+  if (dateFrom || dateTo) {
+    query.createdAt = {};
+    if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+    if (dateTo) {
+      const endDate = new Date(dateTo);
+      endDate.setHours(23, 59, 59, 999);
+      query.createdAt.$lte = endDate;
+    }
+  }
 
   const skip = (page - 1) * limit;
   
@@ -236,6 +259,8 @@ exports.rejectReview = asyncHandler(async (req, res) => {
 
   logger.info(`Review ${req.params.id} rejected by admin`);
 
+  await Review.calcAverageRating(review.product?._id || review.product);
+
   res.json({
     success: true,
     message: "Review rejected",
@@ -253,6 +278,8 @@ exports.deleteReview = asyncHandler(async (req, res) => {
   }
 
   logger.info(`Review ${req.params.id} deleted by admin`);
+
+  await Review.calcAverageRating(review.product);
 
   res.json({
     success: true,
@@ -280,6 +307,9 @@ exports.bulkApprove = asyncHandler(async (req, res) => {
 
   logger.info(`${result.modifiedCount} reviews approved by admin`);
 
+  const productIds = await Review.distinct("product", { _id: { $in: ids } });
+  await Promise.all(productIds.map((productId) => Review.calcAverageRating(productId)));
+
   res.json({
     success: true,
     message: `${result.modifiedCount} reviews approved`,
@@ -291,21 +321,28 @@ exports.bulkApprove = asyncHandler(async (req, res) => {
 exports.getProductReviews = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   const { page = 1, limit = 20 } = req.query;
+
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    res.status(400);
+    throw new Error("Invalid product ID");
+  }
+
+  const normalizedProductId = new mongoose.Types.ObjectId(productId);
   
   const skip = (page - 1) * limit;
 
-  const reviews = await Review.find({ product: productId, isApproved: true })
+  const reviews = await Review.find({ product: normalizedProductId, isApproved: true })
     .populate("user", "name")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(Number(limit))
     .lean();
   
-  const totalItems = await Review.countDocuments({ product: productId, isApproved: true });
+  const totalItems = await Review.countDocuments({ product: normalizedProductId, isApproved: true });
 
   // Get stats for this product
   const statsResult = await Review.aggregate([
-    { $match: { product: productId, isApproved: true } },
+    { $match: { product: normalizedProductId, isApproved: true } },
     {
       $group: {
         _id: null,
