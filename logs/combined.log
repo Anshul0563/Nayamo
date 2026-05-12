@@ -1,1 +1,12 @@
 {"level":"info","message":"Redis connected","service":"nayamo-api","timestamp":"2026-04-29 09:09:59"}
+{"level":"info","message":"SMTP config loaded host=smtpout.secureserver.net port=465 secure=true user=su***@nayamo.in from=su***@nayamo.in timeout=10000","service":"nayamo-api","timestamp":"2026-05-12 21:11:56"}
+{"level":"info","message":"Creating SMTP transporter","service":"nayamo-api","timestamp":"2026-05-12 21:11:56"}
+{"level":"info","message":"Starting SMTP transporter.verify()","service":"nayamo-api","timestamp":"2026-05-12 21:11:56"}
+{"level":"info","message":"SMTP connection verified","service":"nayamo-api","timestamp":"2026-05-12 21:12:00"}
+{"level":"info","message":"SMTP config loaded host=smtpout.secureserver.net port=465 secure=true user=su***@nayamo.in from=su***@nayamo.in timeout=10000","service":"nayamo-api","timestamp":"2026-05-12 21:12:00"}
+{"level":"info","message":"Reusing existing SMTP transporter","service":"nayamo-api","timestamp":"2026-05-12 21:12:00"}
+{"level":"info","message":"Preparing email to=su***@nayamo.in subject=\"Nayamo SMTP delivery test\"","service":"nayamo-api","timestamp":"2026-05-12 21:12:00"}
+{"level":"info","message":"SMTP config loaded host=smtpout.secureserver.net port=465 secure=true user=su***@nayamo.in from=su***@nayamo.in timeout=10000","service":"nayamo-api","timestamp":"2026-05-12 21:12:00"}
+{"level":"info","message":"Reusing existing SMTP transporter","service":"nayamo-api","timestamp":"2026-05-12 21:12:00"}
+{"level":"info","message":"Calling transporter.sendMail() to=su***@nayamo.in","service":"nayamo-api","timestamp":"2026-05-12 21:12:00"}
+{"level":"info","message":"transporter.sendMail() accepted messageId=<17c88ea7-a820-5d1c-66a7-fa0112a7e086@nayamo.in> accepted=[\"support@nayamo.in\"] rejected=[] response=250 MpFAw0ZTNTdDT mail accepted for delivery","service":"nayamo-api","timestamp":"2026-05-12 21:12:07"}
