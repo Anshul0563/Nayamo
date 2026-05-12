@@ -10,7 +10,6 @@ import {
   Star,
   Minus,
   Plus,
-  User,
   MessageSquare,
   Sparkles,
   Gem,
@@ -29,10 +28,6 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 
-import ProductCard from "../components/product/ProductCard";
-
-import { getProductsFromResponse } from "../utils/apiResponse";
-
 export default function ProductDetails() {
   const { id } = useParams();
 
@@ -49,8 +44,6 @@ export default function ProductDetails() {
   const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState(null);
-
-  const [related, setRelated] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -136,19 +129,6 @@ export default function ProductDetails() {
 
         setQty(1);
 
-        const relRes =
-          await productAPI.getProducts({
-            category:
-              res.data?.data?.category,
-            page: 1,
-          });
-
-        setRelated(
-          getProductsFromResponse(relRes.data)
-            .filter((p) => p._id !== id)
-            .slice(0, 4),
-        );
-
         await fetchReviews();
       } catch (_err) {
         setProduct(null);
@@ -204,9 +184,7 @@ export default function ProductDetails() {
     }
 
     const payload = {
-      title:
-        comment.substring(0, 30) ||
-        "User Review",
+      title: newReview.title.trim() || comment.substring(0, 30) || "User Review",
 
       rating: Number(newReview.rating),
 
@@ -847,6 +825,221 @@ export default function ProductDetails() {
             </motion.div>
           </motion.div>
         </div>
+
+        {/* REVIEWS */}
+        <motion.section
+          className="mb-14 sm:mb-20 border-t border-white/[0.08] pt-10 sm:pt-14"
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="mb-3 inline-flex items-center gap-2 rounded-2xl border border-[#D4A853]/30 bg-[#D4A853]/10 px-4 py-2 text-sm font-semibold text-[#F0D78C]">
+                <MessageSquare className="h-4 w-4" />
+                Customer Reviews
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                Loved by Nayamo customers
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm sm:text-base text-zinc-400">
+                Read honest notes from buyers, or share your experience after signing in.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  navigate("/login", { state: { from: { pathname: `/product/${id}` } } });
+                  return;
+                }
+                setShowReviewForm((value) => !value);
+                setReviewError("");
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#F0D78C]"
+            >
+              <Star className="h-4 w-4 fill-black" />
+              Write a Review
+            </button>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-[300px_1fr]">
+            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-6">
+              <div className="text-5xl font-bold text-white">
+                {Number(product.ratings?.average || reviewStats.avgRating || 0).toFixed(1)}
+              </div>
+              <div className="mt-3 flex items-center gap-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-5 w-5 ${
+                      i < Math.round(product.ratings?.average || reviewStats.avgRating || 0)
+                        ? "fill-[#D4A853] text-[#D4A853]"
+                        : "text-zinc-600"
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="mt-3 text-sm text-zinc-400">
+                Based on {product.ratings?.count || reviewStats.total || 0} approved reviews.
+              </p>
+            </div>
+
+            <div className="space-y-5">
+              <AnimatePresence>
+                {showReviewForm && (
+                  <motion.form
+                    onSubmit={handleSubmitReview}
+                    className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-5 sm:p-6"
+                    initial={{ opacity: 0, y: -12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                  >
+                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <h3 className="text-lg font-bold text-white">Share your review</h3>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => {
+                          const ratingValue = i + 1;
+                          return (
+                            <button
+                              key={ratingValue}
+                              type="button"
+                              onClick={() =>
+                                setNewReview((current) => ({
+                                  ...current,
+                                  rating: ratingValue,
+                                }))
+                              }
+                              className="p-1"
+                              aria-label={`${ratingValue} star rating`}
+                            >
+                              <Star
+                                className={`h-6 w-6 ${
+                                  ratingValue <= Number(newReview.rating)
+                                    ? "fill-[#D4A853] text-[#D4A853]"
+                                    : "text-zinc-600"
+                                }`}
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <input
+                      value={newReview.title}
+                      onChange={(e) =>
+                        setNewReview((current) => ({
+                          ...current,
+                          title: e.target.value,
+                        }))
+                      }
+                      placeholder="Review title"
+                      className="mb-3 w-full rounded-2xl border border-white/[0.08] bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-[#D4A853]/60"
+                      maxLength={120}
+                    />
+                    <textarea
+                      value={newReview.comment}
+                      onChange={(e) =>
+                        setNewReview((current) => ({
+                          ...current,
+                          comment: e.target.value,
+                        }))
+                      }
+                      placeholder="Tell us what you liked, how it looked, and how it felt to wear."
+                      className="min-h-32 w-full resize-y rounded-2xl border border-white/[0.08] bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-[#D4A853]/60"
+                      maxLength={2000}
+                      required
+                    />
+
+                    {reviewError && (
+                      <p className="mt-3 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                        {reviewError}
+                      </p>
+                    )}
+
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setShowReviewForm(false)}
+                        className="rounded-2xl border border-white/[0.08] px-5 py-3 text-sm font-semibold text-zinc-300 transition hover:text-white"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={submittingReview}
+                        className="rounded-2xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#F0D78C] disabled:opacity-50"
+                      >
+                        {submittingReview ? "Submitting..." : "Submit Review"}
+                      </button>
+                    </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+
+              <div className="space-y-4">
+                {reviewsLoading ? (
+                  <div className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-8 text-center">
+                    <Loader size={28} />
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-8 text-center">
+                    <MessageSquare className="mx-auto mb-3 h-8 w-8 text-zinc-600" />
+                    <p className="font-semibold text-white">No reviews yet</p>
+                    <p className="mt-1 text-sm text-zinc-400">
+                      Be the first to review this piece.
+                    </p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <article
+                      key={review._id}
+                      className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-5 sm:p-6"
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="grid h-10 w-10 place-items-center rounded-full bg-[#D4A853]/15 text-sm font-bold text-[#F0D78C]">
+                            {(review.user?.name || "N").charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-white">
+                              {review.user?.name || "Nayamo Customer"}
+                            </p>
+                            <p className="text-xs text-zinc-500">
+                              {formatDate(review.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < review.rating
+                                  ? "fill-[#D4A853] text-[#D4A853]"
+                                  : "text-zinc-600"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {review.title && (
+                        <h3 className="mt-4 text-base font-bold text-white">
+                          {review.title}
+                        </h3>
+                      )}
+                      <p className="mt-2 leading-relaxed text-zinc-300">
+                        {review.comment}
+                      </p>
+                    </article>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.section>
       </div>
     </div>
   );
