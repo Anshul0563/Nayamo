@@ -310,17 +310,22 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   }
 
   const transporter = require("nodemailer").createTransport({
-    host: smtp.host,
-    port: Number(smtp.port),
-    secure: smtp.secure,
-    auth: {
-      user: smtp.user,
-      pass: smtp.pass,
-    },
-  });
+  host: smtp.host,
+  port: Number(smtp.port),
+  secure: Number(smtp.port) === 465,
+
+  auth: {
+    user: smtp.user,
+    pass: smtp.pass,
+  },
+
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
+});
 
   const mailOptions = {
-    from: `"Nayamo Support" <${smtp.fromEmail}>`,
+    from: `"Nayamo Support" <${smtp.fromEmail || smtp.user}>`,
     to: user.email,
     subject: "Nayamo Password Reset Request",
     html: `
