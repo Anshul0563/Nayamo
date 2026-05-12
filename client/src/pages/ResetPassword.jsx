@@ -37,11 +37,13 @@ export default function ResetPassword() {
     }
 
     setLoading(true);
-    const res = await resetPassword({ token, newPassword: password });
+    const res = await resetPassword({ token, password });
     setLoading(false);
 
     if (res.success) {
       navigate("/login");
+    } else {
+      setError(res.message || "Password reset failed.");
     }
   };
 

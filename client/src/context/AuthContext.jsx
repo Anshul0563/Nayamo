@@ -84,9 +84,9 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const resetPassword = useCallback(async ({ token, newPassword }) => {
+  const resetPassword = useCallback(async ({ token, password }) => {
     try {
-      await authAPI.resetPassword({ token, newPassword });
+      await authAPI.resetPassword({ token, password });
       toast.success("Password updated successfully. Please sign in.");
       return { success: true };
     } catch (err) {
@@ -136,4 +136,3 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
-
