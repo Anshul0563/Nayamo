@@ -121,7 +121,7 @@ export default function TermsOfService() {
               For any questions regarding these terms, please contact us at:
             </p>
             <p className="mt-2 text-[#D4A853] font-medium">
-              support@nayamo.com
+              support@nayamo.in
             </p>
           </section>
 

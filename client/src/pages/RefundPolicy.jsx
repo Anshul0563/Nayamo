@@ -201,7 +201,7 @@ export default function RefundPolicy() {
                 <Mail className="text-[#D4A853] flex-shrink-0 mt-1" size={20} />
                 <div>
                   <p className="font-semibold text-white">Email</p>
-                  <p className="text-sm text-[#D4A853] hover:text-white">support@nayamo.com</p>
+                  <p className="text-sm text-[#D4A853] hover:text-white">support@nayamo.in</p>
                 </div>
               </a>
 
