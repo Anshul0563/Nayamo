@@ -4,6 +4,15 @@ import toast from "react-hot-toast";
 
 const AuthContext = createContext(null);
 
+const getAuthErrorMessage = (err, fallback) => {
+  if (err.response?.data?.message) return err.response.data.message;
+  if (err.code === "ECONNABORTED") return "Request timed out. Please try again.";
+  if (err.request) {
+    return "Unable to reach the server. Please check the API URL or CORS settings.";
+  }
+  return err.message || fallback;
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -69,16 +78,16 @@ export function AuthProvider({ children }) {
 
   const forgotPassword = useCallback(async (email) => {
     try {
-      // Intentionally generic - backend may be missing these routes for now.
       await authAPI.forgotPassword({ email });
       toast.success(
         "If an account exists, we sent password reset instructions to your email."
       );
       return { success: true };
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        "Password reset is not available right now";
+      const message = getAuthErrorMessage(
+        err,
+        "Password reset is not available right now"
+      );
       toast.error(message);
       return { success: false, message };
     }
@@ -90,9 +99,7 @@ export function AuthProvider({ children }) {
       toast.success("Password updated successfully. Please sign in.");
       return { success: true };
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        "Password reset failed";
+      const message = getAuthErrorMessage(err, "Password reset failed");
       toast.error(message);
       return { success: false, message };
     }
