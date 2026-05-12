@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
+const { getSmtpConfig, isConfigured } = require("../config/env");
 const { emitUserNotification, emitNotification } = require("../services/notificationService");
 
 // 🔐 Generate Access Token (short-lived)
@@ -293,14 +294,14 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     `${process.env.APP_URL || "https://nayamo.onrender.com"}`;
   const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
 
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = process.env.SMTP_PORT;
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const smtpSecure = process.env.SMTP_SECURE === "true";
-  const fromEmail = smtpUser || process.env.EMAIL_USER;
+  const smtp = getSmtpConfig();
 
-  if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
+  if (
+    !isConfigured(smtp.host) ||
+    !isConfigured(smtp.port) ||
+    !isConfigured(smtp.user) ||
+    !isConfigured(smtp.pass)
+  ) {
     logger.error("SMTP credentials not configured for password reset email");
     return res.status(200).json({
       success: true,
@@ -309,17 +310,17 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   }
 
   const transporter = require("nodemailer").createTransport({
-    host: smtpHost,
-    port: Number(smtpPort),
-    secure: smtpSecure,
+    host: smtp.host,
+    port: Number(smtp.port),
+    secure: smtp.secure,
     auth: {
-      user: smtpUser,
-      pass: smtpPass,
+      user: smtp.user,
+      pass: smtp.pass,
     },
   });
 
   const mailOptions = {
-    from: `"Nayamo Support" <${fromEmail}>`,
+    from: `"Nayamo Support" <${smtp.fromEmail}>`,
     to: user.email,
     subject: "Nayamo Password Reset Request",
     html: `

@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
+const { getSmtpConfig, isConfigured } = require("../config/env");
 
 /**
  * @desc   Send contact form message via email
@@ -25,14 +26,15 @@ const sendContactMessage = asyncHandler(async (req, res) => {
     });
   }
 
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = process.env.SMTP_PORT;
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const smtpSecure = process.env.SMTP_SECURE === "true";
-  const toEmail = process.env.CONTACT_EMAIL || smtpUser;
+  const smtp = getSmtpConfig();
+  const toEmail = process.env.CONTACT_EMAIL || smtp.user;
 
-  if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
+  if (
+    !isConfigured(smtp.host) ||
+    !isConfigured(smtp.port) ||
+    !isConfigured(smtp.user) ||
+    !isConfigured(smtp.pass)
+  ) {
     logger.error("SMTP credentials not configured");
     return res.status(500).json({
       success: false,
@@ -41,17 +43,17 @@ const sendContactMessage = asyncHandler(async (req, res) => {
   }
 
   const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: Number(smtpPort),
-    secure: smtpSecure,
+    host: smtp.host,
+    port: Number(smtp.port),
+    secure: smtp.secure,
     auth: {
-      user: smtpUser,
-      pass: smtpPass,
+      user: smtp.user,
+      pass: smtp.pass,
     },
   });
 
   const mailOptions = {
-    from: `"Nayamo Contact Form" <${smtpUser}>`,
+    from: `"Nayamo Contact Form" <${smtp.fromEmail}>`,
     to: toEmail,
     replyTo: email,
     subject: `New Contact Message: ${subject}`,
@@ -97,4 +99,3 @@ const sendContactMessage = asyncHandler(async (req, res) => {
 module.exports = {
   sendContactMessage,
 };
-

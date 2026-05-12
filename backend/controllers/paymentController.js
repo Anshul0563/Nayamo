@@ -3,12 +3,16 @@ const Order = require("../models/Order");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
+const { isConfigured } = require("../config/env");
 
 // Initialize Razorpay if keys are available
 let razorpay;
 try {
   const Razorpay = require("razorpay");
-  if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  if (
+    isConfigured(process.env.RAZORPAY_KEY_ID) &&
+    isConfigured(process.env.RAZORPAY_KEY_SECRET)
+  ) {
     razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -83,7 +87,7 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
   }
 
   // If Razorpay is configured, verify signature
-  if (razorpay && process.env.RAZORPAY_KEY_SECRET) {
+  if (razorpay && isConfigured(process.env.RAZORPAY_KEY_SECRET)) {
     const body = orderId + "|" + razorpayPaymentId;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)

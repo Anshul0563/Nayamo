@@ -1,9 +1,12 @@
 const axios = require("axios");
+const { getDelhiveryBaseUrl, getDelhiveryToken } = require("../config/env");
+
+const delhiveryToken = getDelhiveryToken();
 
 const api = axios.create({
-  baseURL: process.env.DELHIVERY_BASE_URL,
+  baseURL: getDelhiveryBaseUrl(),
   headers: {
-    Authorization: `Token ${process.env.DELHIVERY_TOKEN}`,
+    ...(delhiveryToken ? { Authorization: `Token ${delhiveryToken}` } : {}),
     "Content-Type": "application/json"
   }
 });

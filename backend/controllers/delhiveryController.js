@@ -1,11 +1,12 @@
 const api = require("../utils/axiosInstance");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
+const { getDelhiveryToken } = require("../config/env");
 
 // Generate Waybill
 exports.generateWaybill = asyncHandler(async (req, res) => {
   const response = await api.get("/api/v1/packages/json/", {
-    params: { token: process.env.DELHIVERY_TOKEN }
+    params: { token: getDelhiveryToken() }
   });
   res.json({
     success: true,
@@ -84,7 +85,7 @@ exports.trackShipment = asyncHandler(async (req, res) => {
   const response = await api.get("/api/v1/packages/json/", {
     params: {
       waybill,
-      token: process.env.DELHIVERY_TOKEN
+      token: getDelhiveryToken()
     }
   });
   res.json({

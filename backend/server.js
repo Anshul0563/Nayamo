@@ -16,6 +16,7 @@ const logger = require("./config/logger");
 const connectDB = require("./config/db");
 const { checkDB } = require("./config/db");
 const redis = require("./config/redis");
+const { getDelhiveryToken, isConfigured } = require("./config/env");
 
 // Routes
 const productRoutes = require("./routes/productRoutes");
@@ -182,11 +183,14 @@ app.use("/api/v1/contact", requireDB, contactRoutes);
 app.use("/api/v1/admin", requireDB, adminRoutes);
 app.use("/api/v1/images", imageRoutes);
 
-if (process.env.RAZORPAY_KEY_ID) {
+if (
+  isConfigured(process.env.RAZORPAY_KEY_ID) &&
+  isConfigured(process.env.RAZORPAY_KEY_SECRET)
+) {
   app.use("/api/v1/payment", requireDB, paymentRoutes);
 }
 
-if (process.env.DELHIVERY_API_KEY) {
+if (isConfigured(getDelhiveryToken())) {
   app.use("/api/v1/delhivery", requireDB, delhiveryRoutes);
 }
 
