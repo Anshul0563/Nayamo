@@ -266,7 +266,7 @@ export default function Footer() {
                 >
                   <Mail className="w-4 h-4 text-[#D4A853]" />
                 </motion.div>
-                <span className="group-hover:text-zinc-300 transition-colors">support@nayamo.com</span>
+                <span className="group-hover:text-zinc-300 transition-colors">support@nayamo.in</span>
               </motion.li>
             </ul>
           </motion.div>

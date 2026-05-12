@@ -27,7 +27,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email Us",
-    lines: ["support@nayamo.com", "care@nayamo.com"],
+    lines: ["support@nayamo.in"],
   },
 ];
 
