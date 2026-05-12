@@ -1,7 +1,7 @@
-const nodemailer = require("nodemailer");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
 const { getSmtpConfig, isConfigured } = require("../config/env");
+const { sendMail } = require("../services/emailService");
 
 /**
  * @desc   Send contact form message via email
@@ -42,18 +42,7 @@ const sendContactMessage = asyncHandler(async (req, res) => {
     });
   }
 
-  const transporter = nodemailer.createTransport({
-    host: smtp.host,
-    port: Number(smtp.port),
-    secure: smtp.secure,
-    auth: {
-      user: smtp.user,
-      pass: smtp.pass,
-    },
-  });
-
   const mailOptions = {
-    from: `"Nayamo Contact Form" <${smtp.fromEmail}>`,
     to: toEmail,
     replyTo: email,
     subject: `New Contact Message: ${subject}`,
@@ -86,7 +75,7 @@ const sendContactMessage = asyncHandler(async (req, res) => {
     text: `New Contact Form Submission\n\nName: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendMail(mailOptions);
 
   logger.info(`Contact form message sent from ${email}`);
 

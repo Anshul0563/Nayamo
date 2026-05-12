@@ -66,8 +66,11 @@ const forgotPasswordValidation = [
 
 const resetPasswordValidation = [
   body("token")
+    .trim()
     .notEmpty()
-    .withMessage("Reset token is required"),
+    .withMessage("Reset token is required")
+    .isLength({ min: 32, max: 256 })
+    .withMessage("Reset token is invalid"),
   body("password")
     .notEmpty()
     .withMessage("Password is required")

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
-const { getSmtpConfig, isConfigured } = require("../config/env");
+const { sendMail } = require("../services/emailService");
 const {
   emitUserNotification,
   emitNotification,
@@ -132,9 +132,10 @@ exports.login = asyncHandler(async (req, res) => {
     throw new Error("Account is deactivated");
   }
 
-  const isMatch = (await user.comparePassword)
-    ? await user.comparePassword(password)
-    : require("bcryptjs").compare(password, user.password);
+  const isMatch =
+    typeof user.comparePassword === "function"
+      ? await user.comparePassword(password)
+      : await require("bcryptjs").compare(password, user.password);
 
   if (!isMatch) {
     emitNotification(
@@ -314,43 +315,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     `${process.env.APP_URL || "https://nayamo.onrender.com"}`;
   const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
 
-  const smtp = getSmtpConfig();
-
-  if (
-  !isConfigured(smtp.host) ||
-  !isConfigured(smtp.port) ||
-  !isConfigured(smtp.user) ||
-  !isConfigured(smtp.pass) ||
-  !isConfigured(smtp.fromEmail)
-) {
-    logger.error("SMTP credentials not configured for password reset email");
-    return res.status(200).json({
-      success: true,
-      message:
-        "If an account with that email exists, a password reset link has been sent.",
-    });
-  }
-
-  const transporter = require("nodemailer").createTransport({
-  host: smtp.host,
-  port: Number(smtp.port),
-
-  // Automatically handle SSL
-  secure: Number(smtp.port) === 465,
-
-  auth: {
-    user: smtp.user,
-    pass: smtp.pass,
-  },
-
-  // Prevent hanging requests
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
-
   const mailOptions = {
-    from: `"Nayamo Support" <${smtp.fromEmail || smtp.user}>`,
     to: user.email,
     subject: "Nayamo Password Reset Request",
     html: `
@@ -371,22 +336,18 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   };
 
   try {
-
-    // Check SMTP connection
-    await transporter.verify();
-    console.log("SMTP server is ready");
-
-    await transporter.sendMail(mailOptions);
+    await sendMail(mailOptions);
     logger.info(`Password reset email sent to ${user.email}`);
   } catch (error) {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
 
-    logger.error("Failed to send password reset email:", error.message);
-    throw new Error(
-      "Unable to send password reset email. Please try again later.",
-    );
+    logger.error(`Failed to send password reset email: ${error.message}`);
+    return res.status(503).json({
+      success: false,
+      message: "Email service is temporarily unavailable. Please try again shortly.",
+    });
   }
 
   res.status(200).json({

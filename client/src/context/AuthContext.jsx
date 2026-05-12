@@ -13,6 +13,12 @@ const getAuthErrorMessage = (err, fallback) => {
   return err.message || fallback;
 };
 
+const clearAuthStorage = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("user");
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -53,7 +59,7 @@ export function AuthProvider({ children }) {
       toast.success("Welcome back!");
       return { success: true };
     } catch (err) {
-      const message = err.response?.data?.message || "Login failed";
+      const message = getAuthErrorMessage(err, "Login failed");
       toast.error(message);
       return { success: false, message };
     }
@@ -70,7 +76,7 @@ export function AuthProvider({ children }) {
       toast.success("Account created successfully!");
       return { success: true };
     } catch (err) {
-      const message = err.response?.data?.message || "Registration failed";
+      const message = getAuthErrorMessage(err, "Registration failed");
       toast.error(message);
       return { success: false, message };
     }
@@ -106,14 +112,13 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
     try {
-      await authAPI.logout();
+      await authAPI.logout(refreshToken ? { refreshToken } : undefined);
     } catch (err) {
       // Ignore errors - still clear local state
     }
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    clearAuthStorage();
     setUser(null);
     toast.success("Logged out");
     window.location.href = "/";

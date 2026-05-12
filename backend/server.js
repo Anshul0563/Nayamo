@@ -62,6 +62,8 @@ const corsOrigins = (process.env.CORS_ORIGINS || defaultCorsOrigins.join(","))
   .map((o) => o.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
+const allowVercelPreview = process.env.ALLOW_VERCEL_PREVIEW_ORIGINS === "true";
+
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
@@ -75,7 +77,10 @@ const corsOptions = {
       return callback(new Error("Invalid CORS origin"));
     }
 
-    if (corsOrigins.includes(normalizedOrigin) || /\.vercel\.app$/.test(hostname)) {
+    if (
+      corsOrigins.includes(normalizedOrigin) ||
+      (allowVercelPreview && /\.vercel\.app$/.test(hostname))
+    ) {
       return callback(null, true);
     }
 
@@ -125,6 +130,15 @@ const authLimiter = rateLimit({
   message: { success: false, message: "Too many login attempts" },
 });
 
+const passwordResetLimiter = rateLimit({
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 900000,
+  max: Number(process.env.PASSWORD_RESET_RATE_LIMIT_MAX) || 5,
+  message: {
+    success: false,
+    message: "Too many password reset attempts. Please try again later.",
+  },
+});
+
 const apiLimiter = rateLimit({
   windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 900000,
   max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 500,
@@ -132,6 +146,10 @@ const apiLimiter = rateLimit({
 
 app.use("/api/v1/auth/login", authLimiter);
 app.use("/api/v1/auth/register", authLimiter);
+app.use("/api/v1/auth/forgot-password", passwordResetLimiter);
+app.use("/api/v1/auth/forgotPassword", passwordResetLimiter);
+app.use("/api/v1/auth/reset-password", passwordResetLimiter);
+app.use("/api/v1/auth/resetPassword", passwordResetLimiter);
 app.use("/api/v1", apiLimiter);
 
 // ================= SOCKET.IO =================
