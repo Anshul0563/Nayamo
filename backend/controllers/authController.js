@@ -286,54 +286,12 @@ exports.logoutAll = asyncHandler(async (req, res) => {
 // � FORGOT PASSWORD
 exports.forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
+  const normalizedEmail = email?.toLowerCase().trim();
 
-  if (!email) {
+  if (!normalizedEmail) {
     res.status(400);
     throw new Error("Email is required");
   }
-
-  const user = await User.findOne({ email: email.toLowerCase() });
-
-  if (!user) {
-    return res.status(200).json({
-      success: true,
-      message:
-        "If an account with that email exists, a password reset link has been sent.",
-    });
-  }
-
-  const resetToken = crypto.randomBytes(32).toString("hex");
-  const resetTokenHash = hashToken(resetToken);
-
-  user.passwordResetToken = resetTokenHash;
-  user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
-  await user.save({ validateBeforeSave: false });
-
-  const clientUrl =
-    process.env.CLIENT_URL ||
-    process.env.FRONTEND_URL ||
-    `${process.env.APP_URL || "https://nayamo.onrender.com"}`;
-  const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
-
-  const mailOptions = {
-    to: user.email,
-    subject: "Nayamo Password Reset Request",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #D4A853;">Password Reset Request</h2>
-        <p>We received a request to reset your Nayamo password.</p>
-        <p>
-          Click the button below to reset your password. This link will expire in 1 hour.
-        </p>
-        <p style="text-align: center; margin: 30px 0;">
-          <a href="${resetUrl}" style="background: #D4A853; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Reset Password</a>
-        </p>
-        <p>If you did not request a password reset, you can safely ignore this email.</p>
-        <p style="color: #888; font-size: 12px;">Reset link: <a href="${resetUrl}">${resetUrl}</a></p>
-      </div>
-    `,
-    text: `Reset your password by visiting this link: ${resetUrl}`,
-  };
 
   res.status(200).json({
     success: true,
@@ -341,26 +299,68 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
       "If an account with that email exists, a password reset link has been sent.",
   });
 
-  sendMail(mailOptions)
-    .then(() => {
+  setImmediate(async () => {
+    let user;
+
+    try {
+      user = await User.findOne({ email: normalizedEmail });
+
+      if (!user) {
+        logger.info(`Password reset requested for unknown email: ${normalizedEmail}`);
+        return;
+      }
+
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const resetTokenHash = hashToken(resetToken);
+
+      user.passwordResetToken = resetTokenHash;
+      user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+      await user.save({ validateBeforeSave: false });
+
+      const clientUrl =
+        process.env.CLIENT_URL ||
+        process.env.FRONTEND_URL ||
+        `${process.env.APP_URL || "https://nayamo.onrender.com"}`;
+      const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
+
+      await sendMail({
+        to: user.email,
+        subject: "Nayamo Password Reset Request",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #D4A853;">Password Reset Request</h2>
+            <p>We received a request to reset your Nayamo password.</p>
+            <p>
+              Click the button below to reset your password. This link will expire in 1 hour.
+            </p>
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="background: #D4A853; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Reset Password</a>
+            </p>
+            <p>If you did not request a password reset, you can safely ignore this email.</p>
+            <p style="color: #888; font-size: 12px;">Reset link: <a href="${resetUrl}">${resetUrl}</a></p>
+          </div>
+        `,
+        text: `Reset your password by visiting this link: ${resetUrl}`,
+      });
+
       logger.info(`Password reset email sent to ${user.email}`);
-    })
-    .catch(async (error) => {
+    } catch (error) {
       logger.error(`Failed to send password reset email: ${error.message}`);
 
-      try {
+      if (user?._id) {
         await User.findByIdAndUpdate(user._id, {
           $unset: {
             passwordResetToken: "",
             passwordResetExpires: "",
           },
+        }).catch((cleanupError) => {
+          logger.error(
+            `Failed to clear password reset token after email failure: ${cleanupError.message}`,
+          );
         });
-      } catch (cleanupError) {
-        logger.error(
-          `Failed to clear password reset token after email failure: ${cleanupError.message}`,
-        );
       }
-    });
+    }
+  });
 });
 
 // 🔄 RESET PASSWORD

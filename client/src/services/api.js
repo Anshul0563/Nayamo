@@ -10,7 +10,7 @@ if (!API_BASE_URL) {
 // ✅ Axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000,
+  timeout: 30000,
   withCredentials: true, // IMPORTANT for CORS + cookies
   headers: {
     "Content-Type": "application/json",
