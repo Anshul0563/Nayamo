@@ -47,9 +47,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config || {};
 
-    const isAuthEndpoint =
-      originalRequest.url?.includes("/auth/login") ||
-      originalRequest.url?.includes("/auth/register");
+    const isAuthEndpoint = originalRequest.url?.includes("/auth/");
 
     if (
       error.response?.status === 401 &&

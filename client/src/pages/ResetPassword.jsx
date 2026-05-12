@@ -16,6 +16,7 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const { resetPassword } = useAuth();
   const navigate = useNavigate();
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +34,13 @@ export default function ResetPassword() {
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+
+    if (!passwordPattern.test(password)) {
+      setError(
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
+      );
       return;
     }
 

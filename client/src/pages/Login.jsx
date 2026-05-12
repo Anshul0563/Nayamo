@@ -17,6 +17,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
   if (user) {
     const from = location.state?.from?.pathname || "/";
@@ -31,39 +32,35 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    if (mode === "forgot") {
-      if (!forgotEmail) {
-        setLoading(false);
+    try {
+      if (mode === "forgot") {
+        if (!forgotEmail) return;
+        const res = await forgotPassword(forgotEmail.trim());
+        if (res.success) {
+          setMode("login");
+          setIsRegister(false);
+          setForm({ name: "", email: "", password: "" });
+          setForgotEmail("");
+        }
         return;
       }
-      const res = await forgotPassword(forgotEmail);
-      if (res.success) {
-        setMode("login");
-        setIsRegister(false);
-        setForm({ name: "", email: "", password: "" });
-        setForgotEmail("");
+
+      if (isRegister) {
+        if (!form.name || !form.email || !form.password) return;
+        if (!passwordPattern.test(form.password)) {
+          window.alert("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+          return;
+        }
+        const res = await register(form.name.trim(), form.email.trim(), form.password);
+        if (res.success) navigate("/");
+      } else {
+        if (!form.email || !form.password) return;
+        const res = await login(form.email.trim(), form.password);
+        if (res.success) navigate("/");
       }
+    } finally {
       setLoading(false);
-      return;
     }
-
-    if (isRegister) {
-      if (!form.name || !form.email || !form.password) {
-        setLoading(false);
-        return;
-      }
-      const res = await register(form.name, form.email, form.password);
-      if (res.success) navigate("/");
-    } else {
-      if (!form.email || !form.password) {
-        setLoading(false);
-        return;
-      }
-      const res = await login(form.email, form.password);
-      if (res.success) navigate("/");
-    }
-
-    setLoading(false);
   };
 
 
