@@ -18,6 +18,9 @@ try {
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
     logger.info("Razorpay initialized");
+    if (!razorpay) {
+      logger.warn("⚠ Razorpay running in mock mode");
+    }
   }
 } catch (err) {
   logger.warn("Razorpay not initialized:", err.message);
@@ -79,7 +82,8 @@ exports.createPaymentOrder = asyncHandler(async (req, res) => {
 
 // VERIFY PAYMENT (Client-side callback - additional server-side webhook at /webhook/razorpay)
 exports.verifyPayment = asyncHandler(async (req, res) => {
-  const { orderId, razorpayPaymentId, razorpaySignature, mongoOrderId } = req.body;
+  const { orderId, razorpayPaymentId, razorpaySignature, mongoOrderId } =
+    req.body;
 
   if (!orderId || !razorpayPaymentId) {
     res.status(400);

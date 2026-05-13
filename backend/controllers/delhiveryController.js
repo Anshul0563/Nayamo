@@ -1,13 +1,10 @@
 const api = require("../utils/axiosInstance");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
-const { getDelhiveryToken } = require("../config/env");
 
 // Generate Waybill
 exports.generateWaybill = asyncHandler(async (req, res) => {
-  const response = await api.get("/api/v1/packages/json/", {
-    params: { token: getDelhiveryToken() }
-  });
+  const response = await api.get("/api/v1/packages/json/");
   res.json({
     success: true,
     data: response.data,
@@ -16,7 +13,17 @@ exports.generateWaybill = asyncHandler(async (req, res) => {
 
 // Create Shipment
 exports.createShipment = asyncHandler(async (req, res) => {
-  const { name, address, pin, city, state, phone, orderId, paymentMode, amount } = req.body;
+  const {
+    name,
+    address,
+    pin,
+    city,
+    state,
+    phone,
+    orderId,
+    paymentMode,
+    amount,
+  } = req.body;
 
   // Validation
   if (!name || !address || !pin || !city || !state || !phone) {
@@ -38,33 +45,39 @@ exports.createShipment = asyncHandler(async (req, res) => {
 
   // Validate amount
   const totalAmount = Number(amount);
+  if (paymentMode === "COD" && totalAmount <= 0) {
+    res.status(400);
+    throw new Error("COD amount required");
+  }
   if (isNaN(totalAmount) || totalAmount < 0) {
     res.status(400);
     throw new Error("Invalid amount");
   }
 
   const shipmentData = {
-    shipments: [{
-      name: name.trim(),
-      add: address.trim(),
-      pin: pin.trim(),
-      city: city.trim(),
-      state: state.trim(),
-      country: "India",
-      phone: phone.trim(),
-      order: orderId,
-      payment_mode: paymentMode || "Prepaid",
-      total_amount: totalAmount,
-      quantity: "1",
-      weight: "0.5"
-    }],
+    shipments: [
+      {
+        name: name.trim(),
+        add: address.trim(),
+        pin: pin.trim(),
+        city: city.trim(),
+        state: state.trim(),
+        country: "India",
+        phone: phone.trim(),
+        order: orderId,
+        payment_mode: paymentMode || "Prepaid",
+        total_amount: totalAmount,
+        quantity: Number(req.body.quantity || 1),
+        weight: Number(req.body.weight || 0.5),
+      },
+    ],
     pickup_location: {
-      name: "Nayamo Warehouse"
-    }
+      name: "Nayamo Warehouse",
+    },
   };
 
   const response = await api.post("/api/cmu/create.json", shipmentData);
-  
+
   logger.info(`Shipment created for order: ${orderId}`);
 
   res.json({
@@ -83,10 +96,7 @@ exports.trackShipment = asyncHandler(async (req, res) => {
   }
 
   const response = await api.get("/api/v1/packages/json/", {
-    params: {
-      waybill,
-      token: getDelhiveryToken()
-    }
+    params: { waybill },
   });
   res.json({
     success: true,
@@ -105,7 +115,7 @@ exports.cancelShipment = asyncHandler(async (req, res) => {
 
   const response = await api.post("/api/p/edit", {
     waybill,
-    cancellation: true
+    cancellation: true,
   });
 
   logger.info(`Shipment cancelled: ${waybill}`);
