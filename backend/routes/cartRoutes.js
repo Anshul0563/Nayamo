@@ -17,23 +17,24 @@ const validate = require("../middleware/validateMiddleware");
 const cartValidation = [
   body("productId")
     .notEmpty()
-    .withMessage("Product ID is required")
+    .withMessage("productId is required")
     .isMongoId()
-    .withMessage("Invalid product ID"),
+    .withMessage("Invalid productId"),
 ];
 
 const quantityValidation = [
   body("productId")
     .notEmpty()
-    .withMessage("Product ID is required")
+    .withMessage("productId is required")
     .isMongoId()
-    .withMessage("Invalid product ID"),
+    .withMessage("Invalid productId"),
   body("quantity")
     .notEmpty()
-    .withMessage("Quantity is required")
+    .withMessage("quantity is required")
     .isInt({ min: 1 })
-    .withMessage("Quantity must be at least 1"),
+    .withMessage("quantity must be at least 1"),
 ];
+
 
 router.post("/add", protect, cartValidation, validate, addToCart);
 router.put("/update", protect, quantityValidation, validate, updateQuantity);

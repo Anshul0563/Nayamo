@@ -51,8 +51,21 @@ export function CartProvider({ children }) {
           return;
         }
 
+        const normalizedProductId = String(productId);
+        console.log("[CartContext.addToCart] productId:", {
+          raw: productId,
+          normalizedProductId,
+          quantity,
+        });
+
+        // Prevent backend 400s from invalid ids
+        if (!/^[a-fA-F0-9]{24}$/.test(normalizedProductId)) {
+          toast.error("Invalid product id");
+          return;
+        }
+
         await cartAPI.addToCart({
-          productId,
+          productId: normalizedProductId,
           quantity: Number(quantity),
         });
 
