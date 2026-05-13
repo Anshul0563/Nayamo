@@ -14,3 +14,6 @@
 {"0":"R","1":"e","10":"i","11":"l","12":"e","13":"d","14":" ","15":"w","16":"i","17":"t","18":"h","19":" ","2":"q","20":"s","21":"t","22":"a","23":"t","24":"u","25":"s","26":" ","27":"c","28":"o","29":"d","3":"u","30":"e","31":" ","32":"4","33":"0","34":"4","4":"e","5":"s","6":"t","7":" ","8":"f","9":"a","level":"error","message":"Image proxy error:","service":"nayamo-api","timestamp":"2026-05-05 21:30:59"}
 {"0":"R","1":"e","10":"i","11":"l","12":"e","13":"d","14":" ","15":"w","16":"i","17":"t","18":"h","19":" ","2":"q","20":"s","21":"t","22":"a","23":"t","24":"u","25":"s","26":" ","27":"c","28":"o","29":"d","3":"u","30":"e","31":" ","32":"4","33":"0","34":"4","4":"e","5":"s","6":"t","7":" ","8":"f","9":"a","level":"error","message":"Image proxy error:","service":"nayamo-api","timestamp":"2026-05-05 21:31:17"}
 {"level":"error","message":"404 - Not Found - /api/auth/forgot-password","service":"nayamo-api","timestamp":"2026-05-13 09:51:52"}
+{"level":"error","message":"404 - Not Found - /auth/forgot-password","service":"nayamo-api","timestamp":"2026-05-13 09:53:05"}
+{"level":"error","message":"404 - Not Found - /api/forgot-password","service":"nayamo-api","timestamp":"2026-05-13 09:53:10"}
+{"level":"error","message":"404 - Not Found - /api/users/forgot-password","service":"nayamo-api","timestamp":"2026-05-13 09:53:15"}
