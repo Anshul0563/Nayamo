@@ -317,6 +317,15 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
 
       const resetToken = crypto.randomBytes(32).toString("hex");
       const resetTokenHash = hashToken(resetToken);
+      console.log("========== FORGOT PASSWORD DEBUG ==========");
+
+      console.log("RAW RESET TOKEN:");
+      console.log(resetToken);
+
+      console.log("HASHED RESET TOKEN:");
+      console.log(resetTokenHash);
+
+      console.log("===========================================");
 
       user.passwordResetToken = resetTokenHash;
       user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
