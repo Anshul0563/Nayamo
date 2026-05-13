@@ -406,7 +406,7 @@ export default function ProductDetails() {
               <div className="group relative aspect-square overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#0A0A0C] to-[#070708] shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#D4A853]/10 via-transparent to-[#D4A5A5]/10 opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
 
-                <motion.img
+<motion.img
                   key={selectedImage}
                   src={getImageUrl(
                     product,
@@ -414,6 +414,12 @@ export default function ProductDetails() {
                   )}
                   alt={product.title}
                   className="h-full w-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  width={600}
+                  height={600}
+                  style={{ objectFit: "cover" }}
                   initial={{
                     scale: 1.1,
                     opacity: 0,
@@ -466,12 +472,14 @@ export default function ProductDetails() {
                         scale: 0.9,
                       }}
                     >
-                      <img
+<img
                         src={
                           img?.url || img
                         }
                         alt=""
                         className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </motion.button>
                   ),

@@ -96,11 +96,13 @@ export default function Home() {
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/20 text-[#D4A853] text-sm font-medium mb-8 shadow-lg backdrop-blur-sm"
               >
-                <motion.img
+<motion.img
                   src={logo}
                   alt="Crown"
                   className="w-4 h-4 object-contain"
                   whileHover={{ scale: 1.1 }}
+                  loading="lazy"
+                  decoding="async"
                 />
                 Luxury Collection 2026
               </motion.div>
@@ -180,10 +182,16 @@ export default function Home() {
               className="relative"
             >
               <div className="relative aspect-[4/5] max-w-lg mx-auto rounded-[2.5rem] overflow-hidden shadow-[0_32px_100px_rgba(0,0,0,0.9)] border border-white/[0.08] group">
-                <img
-                  src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&h=750&fit=crop&q=80"
+<img
+                  src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1200&h=1500&fit=crop&q=80"
                   alt="Luxury earrings collection"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  width={900}
+                  height={1125}
+                  style={{ objectFit: "cover" }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#070708]/60 via-transparent to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-br from-[#D4A853]/5 via-transparent to-[#D4A5A5]/5" />
@@ -417,7 +425,7 @@ export default function Home() {
                 className="group relative nayamo-glass rounded-3xl p-6 shadow-2xl border border-white/[0.08] hover:border-[#D4A853]/20 transition-all duration-500 backdrop-blur-xl"
               >
                 <div className="relative aspect-square rounded-2xl overflow-hidden mb-6 shadow-xl">
-                  <img
+<img
                     src={
                       product.images?.[0]?.url ||
                       product.images?.[0] ||
@@ -426,6 +434,8 @@ export default function Home() {
                     }
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#070708]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <motion.div
