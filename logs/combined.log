@@ -106,3 +106,6 @@
 {"level":"info","message":"Preparing email to=su***@nayamo.in subject=\"Reset Your Nayamo Password\"","service":"nayamo-api","timestamp":"2026-05-13 12:49:56"}
 {"level":"info","message":"Calling transporter.sendMail() to=su***@nayamo.in","service":"nayamo-api","timestamp":"2026-05-13 12:49:56"}
 {"level":"info","message":"transporter.sendMail() accepted messageId=<83559bee-8fe1-e1cb-21fd-16c196f53c52@nayamo.in> accepted=[\"support@nayamo.in\"] rejected=[] response=250 N3sqwISKRSHdj mail accepted for delivery","service":"nayamo-api","timestamp":"2026-05-13 12:50:01"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-13 13:29:31"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-13 13:29:31"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo-client.vercel.app, https://nayamo-admin.vercel.app","service":"nayamo-api","timestamp":"2026-05-13 13:29:31"}
