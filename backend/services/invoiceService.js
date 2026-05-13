@@ -71,12 +71,12 @@ exports.generateInvoice = (order, res) => {
         166
       )
       .text(
-        "+91 XXXXXXXXXX",
+        "+91 9718176159",
         40,
         184
       )
       .text(
-        "GSTIN: YOUR_GST_NUMBER",
+        "GSTIN: 07TCRPS8655B1ZK",
         40,
         202
       );
