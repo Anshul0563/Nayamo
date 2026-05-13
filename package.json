@@ -35,5 +35,8 @@
   "homepage": "https://github.com/Anshul0563/Nayamo#readme",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "resend": "^6.12.3"
   }
 }

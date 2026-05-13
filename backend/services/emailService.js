@@ -1,120 +1,82 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const logger = require("../config/logger");
-const { getSmtpConfig, isConfigured } = require("../config/env");
 
-let transporter;
-let verifiedAt = 0;
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const maskEmail = (email = "") => {
   const [name, domain] = String(email).split("@");
+
   if (!name || !domain) return "unknown";
+
   return `${name.slice(0, 2)}***@${domain}`;
 };
 
 const getErrorDetails = (error) => ({
   message: error.message,
-  code: error.code,
-  command: error.command,
+  name: error.name,
+  statusCode: error.statusCode,
   response: error.response,
-  responseCode: error.responseCode,
 });
 
-const getTransporter = () => {
-  const smtp = getSmtpConfig();
+const verifySmtp = async () => {
+  if (!process.env.RESEND_API_KEY) {
+    const error = new Error("RESEND_API_KEY is missing");
+    error.code = "RESEND_NOT_CONFIGURED";
+    throw error;
+  }
+
+  logger.info("Resend configuration verified");
+};
+
+const sendMail = async ({
+  to,
+  subject,
+  html,
+  text,
+  replyTo,
+}) => {
 
   logger.info(
-    `SMTP config loaded host=${smtp.host || "missing"} port=${smtp.port || "missing"} secure=${smtp.secure} user=${maskEmail(smtp.user)} from=${maskEmail(smtp.fromEmail)} timeout=${smtp.timeout}`,
+    `Preparing Resend email to=${maskEmail(to)} subject="${subject}"`
   );
 
-  if (
-    !isConfigured(smtp.host) ||
-    !isConfigured(smtp.port) ||
-    !isConfigured(smtp.user) ||
-    !isConfigured(smtp.pass) ||
-    !isConfigured(smtp.fromEmail)
-  ) {
-    const error = new Error("SMTP credentials are not configured");
-    error.code = "SMTP_NOT_CONFIGURED";
-    throw error;
-  }
-
-  if (!transporter) {
-    logger.info("Creating SMTP transporter");
-    transporter = nodemailer.createTransport({
-      host: smtp.host,
-      port: smtp.port,
-      secure: smtp.secure,
-      auth: {
-        user: smtp.user,
-        pass: smtp.pass,
-      },
-      connectionTimeout: smtp.timeout,
-      greetingTimeout: smtp.timeout,
-      socketTimeout: smtp.timeout,
-      pool: true,
-      maxConnections: 2,
-      maxMessages: 50,
-      logger: process.env.SMTP_DEBUG === "true",
-      debug: process.env.SMTP_DEBUG === "true",
-    });
-  } else {
-    logger.info("Reusing existing SMTP transporter");
-  }
-
-  return { smtp, transporter };
-};
-
-const verifySmtp = async () => {
-  const { transporter: mailer } = getTransporter();
-  const now = Date.now();
-
-  if (now - verifiedAt < 5 * 60 * 1000) return;
-
-  logger.info("Starting SMTP transporter.verify()");
-  try {
-    await mailer.verify();
-  } catch (error) {
-    logger.error(
-      `SMTP transporter.verify() failed: ${JSON.stringify(getErrorDetails(error))}`,
-    );
-    throw error;
-  }
-  verifiedAt = now;
-  logger.info("SMTP connection verified");
-};
-
-const sendMail = async ({ to, subject, html, text, replyTo }) => {
-  const { smtp, transporter: mailer } = getTransporter();
-
-  logger.info(`Preparing email to=${maskEmail(to)} subject="${subject}"`);
   await verifySmtp();
 
-  logger.info(`Calling transporter.sendMail() to=${maskEmail(to)}`);
   try {
 
-    const info = await mailer.sendMail({
+    const response = await resend.emails.send({
 
-      from: `"Nayamo Support" <${smtp.fromEmail}>`,
-      to,
+      from: "Nayamo <support@nayamo.in>",
+
+      to: Array.isArray(to) ? to : [to],
+
       subject,
+
       html,
+
       text,
-      ...(replyTo ? { replyTo } : {}),
+
+      ...(replyTo ? { reply_to: replyTo } : {}),
     });
 
-    console.log("========== MAIL SENT INFO ==========");
-    console.log(JSON.stringify(info, null, 2));
-    console.log("====================================");
+    console.log("========== RESEND MAIL INFO ==========");
+    console.log(JSON.stringify(response, null, 2));
+    console.log("======================================");
 
     logger.info(
-      `transporter.sendMail() accepted messageId=${info.messageId || "none"} accepted=${JSON.stringify(info.accepted || [])} rejected=${JSON.stringify(info.rejected || [])} response=${info.response || "none"}`,
+      `Resend email sent successfully id=${response?.data?.id || "unknown"}`
     );
 
-    return info;
+    return response;
+
   } catch (error) {
+
     logger.error(
-      `transporter.sendMail() failed: ${JSON.stringify(getErrorDetails(error))}`,
+      `Resend email failed: ${JSON.stringify(
+        getErrorDetails(error)
+      )}`
     );
+
     throw error;
   }
 };
