@@ -46,25 +46,25 @@ const getTransporter = () => {
 
     transporter = nodemailer.createTransport({
 
-      host: smtp.host,
-      port: smtp.port,
-      secure: smtp.secure,
+  host: smtp.host,
+  port: smtp.port,
+  secure: smtp.secure,
 
-      auth: {
-        user: smtp.user,
-        pass: smtp.pass,
-      },
+  auth: {
+    user: smtp.user,
+    pass: smtp.pass,
+  },
 
-      // Increased timeouts for Render production
-      connectionTimeout: smtp.timeout,
-      greetingTimeout: smtp.timeout,
-      socketTimeout: smtp.timeout,
+  // Increased timeouts for Render production
+  connectionTimeout: smtp.timeout,
+  greetingTimeout: smtp.timeout,
+  socketTimeout: smtp.timeout,
 
-      // Debugging
-      logger: process.env.SMTP_DEBUG === "true",
-      debug: process.env.SMTP_DEBUG === "true",
+  // Debugging
+  logger: process.env.SMTP_DEBUG === "true",
+  debug: process.env.SMTP_DEBUG === "true",
 
-    });
+});
 
   } else {
 
