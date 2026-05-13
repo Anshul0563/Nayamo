@@ -1,6 +1,9 @@
 const orderService = require("../services/orderService");
 const asyncHandler = require("../utils/asyncHandler");
 const paymentService = require("../services/paymentService");
+const invoiceService = require("../services/invoiceService");
+
+const Order = require("../models/Order");
 const mongoose = require("mongoose");
 
 // PLACE ORDER
@@ -130,3 +133,32 @@ exports.returnOrder = asyncHandler(async (req, res) => {
     data: order,
   });
 });
+//Invoice 
+exports.downloadInvoice =
+  asyncHandler(
+    async (req, res) => {
+      const order =
+        await Order.findById(
+          req.params.id
+        )
+          .populate(
+            "user"
+          )
+          .populate(
+            "items.product"
+          );
+
+      if (!order) {
+        res.status(404);
+
+        throw new Error(
+          "Order not found"
+        );
+      }
+
+      invoiceService.generateInvoice(
+        order,
+        res
+      );
+    }
+  );

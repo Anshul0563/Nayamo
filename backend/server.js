@@ -20,6 +20,7 @@ const { getDelhiveryToken, isConfigured } = require("./config/env");
 
 // Routes
 const productRoutes = require("./routes/productRoutes");
+const shippingRoutes = require("./routes/shippingRoutes");
 const authRoutes = require("./routes/authRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
@@ -32,6 +33,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const imageRoutes = require("./routes/imageRoutes");
 const webhookRoutes = require("./routes/webhookRoutes");
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
+const startPaymentCleanupJob = require("./cron/paymentCleanupJob");
 
 const app = express();
 const server = http.createServer(app);
@@ -143,11 +145,17 @@ app.use(
   helmet({
     contentSecurityPolicy: false,
     crossOriginResourcePolicy: false,
-  })
+  }),
 );
 
 app.use(compression());
-app.use("/api/v1/webhook", webhookRoutes);
+app.use(
+  "/api/v1/webhook/razorpay",
+  express.raw({
+    type: "application/json",
+  }),
+);
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -158,7 +166,7 @@ app.use(hpp());
 app.use(
   morgan("combined", {
     stream: { write: (msg) => logger.info(msg.trim()) },
-  })
+  }),
 );
 
 // ================= RATE LIMIT =================
@@ -238,6 +246,8 @@ app.use("/api/v1/reviews", requireDB, reviewRoutes);
 app.use("/api/v1/contact", requireDB, contactRoutes);
 app.use("/api/v1/admin", requireDB, adminRoutes);
 app.use("/api/v1/images", imageRoutes);
+app.use("/api/v1/webhook",webhookRoutes);
+app.use("/api/v1/shipping",requireDB,shippingRoutes);
 
 if (
   isConfigured(process.env.RAZORPAY_KEY_ID) &&
@@ -264,7 +274,7 @@ const startServer = async () => {
 
     server.listen(PORT, "0.0.0.0", () => {
       logger.info(
-        `✅ Server running on port ${PORT} (${process.env.NODE_ENV})`
+        `✅ Server running on port ${PORT} (${process.env.NODE_ENV})`,
       );
     });
   } catch (err) {
@@ -272,7 +282,7 @@ const startServer = async () => {
     process.exit(1);
   }
 };
-
+startPaymentCleanupJob();
 startServer();
 
 // ================= SHUTDOWN =================

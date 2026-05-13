@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+import axios from "axios";
 import DataTable from "../components/DataTable.jsx";
 import OrderDetailModal from "../components/orders/OrderDetailModal.jsx";
 import ExportButton from "../components/ExportButton.jsx";
@@ -46,29 +47,32 @@ export default function Orders() {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const loadOrders = useCallback(async (currentPage = 1) => {
-    try {
-      setLoading(true);
-      setError("");
+  const loadOrders = useCallback(
+    async (currentPage = 1) => {
+      try {
+        setLoading(true);
+        setError("");
 
-      const res = await adminAPI.getOrders({
-        page: currentPage,
-        limit: 20,
-        status: tab !== "all" ? tab : undefined,
-        search: debouncedSearch || undefined,
-        includeArchived: showArchived,
-      });
+        const res = await adminAPI.getOrders({
+          page: currentPage,
+          limit: 20,
+          status: tab !== "all" ? tab : undefined,
+          search: debouncedSearch || undefined,
+          includeArchived: showArchived,
+        });
 
-      const result = res.data;
-      setOrders(result.data || result.orders || []);
-      setTotalPages(result.pagination?.totalPages || 1);
-      setPage(result.pagination?.currentPage || 1);
-    } catch (error) {
-      setError(error.response?.data?.message || "Failed to load orders");
-    } finally {
-      setLoading(false);
-    }
-  }, [tab, debouncedSearch, showArchived]);
+        const result = res.data;
+        setOrders(result.data || result.orders || []);
+        setTotalPages(result.pagination?.totalPages || 1);
+        setPage(result.pagination?.currentPage || 1);
+      } catch (error) {
+        setError(error.response?.data?.message || "Failed to load orders");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [tab, debouncedSearch, showArchived],
+  );
 
   const loadStats = useCallback(async () => {
     try {
@@ -79,7 +83,7 @@ export default function Orders() {
     }
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     loadOrders(1);
     loadStats();
   }, [loadOrders, loadStats]);
@@ -88,16 +92,16 @@ useEffect(() => {
   useEffect(() => {
     const handleStatusUpdate = (event) => {
       const { orderId, status, eventType } = event.detail;
-      console.log('Order status update received:', orderId, status);
+      console.log("Order status update received:", orderId, status);
       // Reload orders and stats to reflect the change
       loadOrders(page);
       loadStats();
     };
 
-    window.addEventListener('order:status_updated', handleStatusUpdate);
+    window.addEventListener("order:status_updated", handleStatusUpdate);
 
     return () => {
-      window.removeEventListener('order:status_updated', handleStatusUpdate);
+      window.removeEventListener("order:status_updated", handleStatusUpdate);
     };
   }, [loadOrders, loadStats, page]);
 
@@ -124,7 +128,7 @@ useEffect(() => {
 
   const toggleSelect = (id) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
@@ -144,7 +148,9 @@ useEffect(() => {
     }
     try {
       setActionLoading("bulk");
-      await Promise.all(selected.map((id) => adminAPI.updateOrderStatus(id, { status })));
+      await Promise.all(
+        selected.map((id) => adminAPI.updateOrderStatus(id, { status })),
+      );
       setSelected([]);
       await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {
@@ -168,7 +174,9 @@ useEffect(() => {
       status: order.status,
       amount: order.totalPrice,
       paymentStatus: order.paymentStatus,
-      items: (order.items || []).map((i) => `${i.quantity}x ${i.product?.title || i.name}`).join(", "),
+      items: (order.items || [])
+        .map((i) => `${i.quantity}x ${i.product?.title || i.name}`)
+        .join(", "),
       address: order.address || order.shippingAddress || "",
       date: new Date(order.createdAt).toLocaleDateString("en-IN"),
     }));
@@ -189,7 +197,9 @@ useEffect(() => {
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
           <AlertCircle size={16} />
           {error}
-          <button onClick={() => setError("")} className="ml-auto underline">Dismiss</button>
+          <button onClick={() => setError("")} className="ml-auto underline">
+            Dismiss
+          </button>
         </div>
       )}
 
@@ -197,7 +207,9 @@ useEffect(() => {
       <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
         <div className="min-w-0">
           <h1 className="text-2xl md:text-4xl font-bold">Orders Management</h1>
-          <p className="text-zinc-400 mt-1">Manage all orders professionally.</p>
+          <p className="text-zinc-400 mt-1">
+            Manage all orders professionally.
+          </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto min-w-0">
@@ -259,7 +271,9 @@ useEffect(() => {
       {/* Bulk Actions */}
       {selected.length > 0 && (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium">{selected.length} selected</span>
+          <span className="text-sm font-medium">
+            {selected.length} selected
+          </span>
           <select
             value=""
             onChange={(e) => e.target.value && bulkStatusUpdate(e.target.value)}
@@ -267,7 +281,9 @@ useEffect(() => {
           >
             <option value="">Bulk Update Status</option>
             {TABS.map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
+              <option key={key} value={key}>
+                {label}
+              </option>
             ))}
           </select>
           <button
@@ -290,42 +306,84 @@ useEffect(() => {
       {/* Orders */}
       <DataTable
         columns={[
-          { key: '_id', label: 'Order ID', render: (id) => `#${id.slice(-6)}` },
-          { key: 'user.name', label: 'Customer' },
-          { key: 'totalPrice', label: 'Amount', render: (price) => `₹${price}` },
-          { key: 'status', label: 'Status', render: (status) => (
-            <span className={`px-3 py-1 rounded-full text-xs capitalize bg-white/10`}>
-              {status.replaceAll('_', ' ')}
-            </span>
-          )},
-          { key: 'actions', label: 'Actions', render: (_, row) => (
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setDetailOrder(row)}
-                className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
+          { key: "_id", label: "Order ID", render: (id) => `#${id.slice(-6)}` },
+          { key: "user.name", label: "Customer" },
+          {
+            key: "totalPrice",
+            label: "Amount",
+            render: (price) => `₹${price}`,
+          },
+          {
+            key: "status",
+            label: "Status",
+            render: (status) => (
+              <span
+                className={`px-3 py-1 rounded-full text-xs capitalize bg-white/10`}
               >
-                <Eye size={14} />
-                View
-              </button>
-              <select
-                value={row.status}
-                disabled={actionLoading === row._id}
-                onChange={(event) => updateStatus(row._id, event.target.value)}
-                className="px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs outline-none"
-              >
-                {TABS.map(([key, label]) => (
-                  <option key={key} value={key}>{label}</option>
-                ))}
-              </select>
-              <button
-                onClick={() => invoice(row._id)}
-                className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
-              >
-                <FileText size={14} />
-                Invoice
-              </button>
-            </div>
-          ) }
+                {status.replaceAll("_", " ")}
+              </span>
+            ),
+          },
+          {
+            key: "actions",
+            label: "Actions",
+            render: (_, row) => (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setDetailOrder(row)}
+                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
+                >
+                  <Eye size={14} />
+                  View
+                </button>
+                <select
+                  value={row.status}
+                  disabled={actionLoading === row._id}
+                  onChange={(event) =>
+                    updateStatus(row._id, event.target.value)
+                  }
+                  className="px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs outline-none"
+                >
+                  {TABS.map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => invoice(row._id)}
+                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
+                >
+                  <FileText size={14} />
+                  Invoice
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem("accessToken");
+
+                      await axios.post(
+                        `https://nayamo.onrender.com/api/v1/shipping/create/${row._id}`,
+                        {},
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        },
+                      );
+
+                      loadOrders(page);
+                    } catch (err) {
+                      console.error(err);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-green-500 text-black font-medium"
+                >
+                  Create Shipment
+                </button>
+              </div>
+            ),
+          },
         ]}
         data={orders}
         loadMore={() => loadOrders(page + 1)}
@@ -335,7 +393,9 @@ useEffect(() => {
         enableSelection={true}
         selected={selected}
         onSelect={toggleSelect}
-        exportData={() => {/* handled by ExportButton above */}}
+        exportData={() => {
+          /* handled by ExportButton above */
+        }}
         className="min-h-[400px]"
       />
 
