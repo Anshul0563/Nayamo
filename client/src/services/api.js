@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // ✅ Using CRA environment variable
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 if (!API_BASE_URL) {
   throw new Error("❌ REACT_APP_API_URL is not defined");
