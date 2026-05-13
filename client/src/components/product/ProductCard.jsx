@@ -95,7 +95,7 @@ export default function ProductCard({ product, index = 0 }) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addToCart(product, 1);
+              addToCart(productId);
             }}
             className="absolute bottom-2 left-2 right-2 flex h-10 items-center justify-center gap-2 rounded-full bg-[#D4A853] text-xs font-bold text-[#060607] shadow-[0_12px_34px_rgba(212,168,83,0.28)] transition-all duration-300 hover:bg-[#F0D78C] sm:bottom-3 sm:left-3 sm:right-3 sm:h-11 sm:text-sm"
           >
