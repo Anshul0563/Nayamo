@@ -101,7 +101,7 @@ exports.createShipment = async (order) => {
     const qs = require("querystring");
 
     const response = await api.post(
-      "/api/cmu/create.json",
+      "/cmu/create.json",
       qs.stringify({
         format: "json",
         data: JSON.stringify(payload),
@@ -113,7 +113,6 @@ exports.createShipment = async (order) => {
         },
       },
     );
-
     console.log("[DELHIVERY RESPONSE]", JSON.stringify(response.data, null, 2));
 
     // =========================
