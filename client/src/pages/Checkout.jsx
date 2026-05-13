@@ -93,6 +93,9 @@ export default function Checkout() {
       return;
     }
 
+    // Prevent duplicate clicks/orders
+    if (loading) return;
+
     setLoading(true);
     try {
       const orderData = {
@@ -101,50 +104,100 @@ export default function Checkout() {
         paymentMethod: form.paymentMethod,
       };
 
-      const res = await orderAPI.placeOrder(orderData);
-      const order = res.data?.data;
+      // COD: place order immediately and redirect
+      if (form.paymentMethod === "cod") {
+        const res = await orderAPI.placeOrder(orderData);
+        const order = res.data?.data;
+        toast.success("Order placed successfully!");
+        clearCart();
+        // Keep behavior consistent even if backend returns null-ish data
+        if (order) {
+          navigate("/orders");
+        } else {
+          navigate("/orders");
+        }
+        return;
+      }
 
-      if (form.paymentMethod === "online" && order) {
+      // ONLINE: create Mongo order, create Razorpay order, open popup
+      if (form.paymentMethod === "online") {
+        const res = await orderAPI.placeOrder(orderData);
+        const order = res.data?.data;
+
+        if (!order?._id) {
+          throw new Error("Order creation failed");
+        }
+
         const paymentRes = await paymentAPI.createOrder({
           amount: cartTotal,
           orderId: order._id,
         });
+
         const paymentOrder =
           paymentRes.data?.order || paymentRes.data?.data?.order;
 
-        if (window.Razorpay && paymentOrder?.id) {
-          const options = {
-            key: process.env.REACT_APP_RAZORPAY_KEY,
-            amount: paymentOrder.amount,
-            currency: paymentOrder.currency,
-            name: "Nayamo",
-            description: "Jewellery Order",
-            order_id: paymentOrder.id,
-            handler: async (response) => {
+        // Razorpay script must be loaded globally (window.Razorpay)
+        if (!window.Razorpay) {
+          throw new Error("Razorpay is not loaded. Please refresh the page.");
+        }
+
+        if (!paymentOrder?.id) {
+          throw new Error("Failed to create Razorpay order");
+        }
+
+        const options = {
+          key: process.env.REACT_APP_RAZORPAY_KEY,
+          amount: paymentOrder.amount,
+          currency: paymentOrder.currency,
+          name: "Nayamo",
+          description: "Jewellery Order",
+          order_id: paymentOrder.id,
+          prefill: {
+            contact: form.phone,
+            name: form.name,
+          },
+          theme: { color: "#D4A853" },
+          handler: async (response) => {
+            // Only after successful verification, update UI and redirect
+            try {
               await paymentAPI.verifyPayment({
                 orderId: paymentOrder.id,
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpaySignature: response.razorpay_signature,
                 mongoOrderId: order._id,
               });
+
               toast.success("Payment successful!");
               clearCart();
               navigate("/orders");
+            } catch (verifyErr) {
+              const msg =
+                verifyErr?.response?.data?.message ||
+                verifyErr?.message ||
+                "Payment verification failed";
+              toast.error(msg);
+              // Keep user on checkout; order should remain unpaid/pending
+            }
+          },
+          modal: {
+            ondismiss: () => {
+              // Payment popup closed/cancelled
+              toast.error("Payment cancelled");
             },
-            theme: { color: "#D4A853" },
-          };
-          const rzp = new window.Razorpay(options);
-          rzp.open();
-          setLoading(false);
-          return;
-        }
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+
+        // Keep loader while user interacts with Razorpay; don't clear cart/navigate here.
+        // We'll stop the loading state once Razorpay popup is dismissed.
+        return;
       }
 
-      toast.success("Order placed successfully!");
-      clearCart();
-      navigate("/orders");
+      throw new Error("Invalid payment method");
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to place order";
+      const msg = err.response?.data?.message || err.message || "Failed to place order";
       toast.error(msg);
     } finally {
       setLoading(false);
