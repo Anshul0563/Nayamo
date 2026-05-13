@@ -414,6 +414,15 @@ exports.resetPassword = asyncHandler(async (req, res) => {
 
   // Hash incoming token
   const hashedToken = hashToken(token);
+  console.log("========== RESET PASSWORD DEBUG ==========");
+
+  console.log("INCOMING TOKEN:");
+  console.log(token);
+
+  console.log("HASHED INCOMING TOKEN:");
+  console.log(hashedToken);
+
+  console.log("==========================================");
 
   // Find user by token
   const user = await User.findOne({
