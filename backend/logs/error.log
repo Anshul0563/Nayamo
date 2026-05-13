@@ -22,3 +22,5 @@
 {"level":"error","message":"500 - Timeout","service":"nayamo-api","timestamp":"2026-05-13 11:39:18"}
 {"level":"error","message":"transporter.sendMail() failed: {\"message\":\"Timeout\",\"code\":\"ETIMEDOUT\",\"command\":\"CONN\"}","service":"nayamo-api","timestamp":"2026-05-13 11:40:05"}
 {"level":"error","message":"500 - Timeout","service":"nayamo-api","timestamp":"2026-05-13 11:40:05"}
+{"level":"error","message":"transporter.sendMail() failed: {\"message\":\"Timeout\",\"code\":\"ETIMEDOUT\",\"command\":\"CONN\"}","service":"nayamo-api","timestamp":"2026-05-13 11:49:42"}
+{"level":"error","message":"500 - Timeout","service":"nayamo-api","timestamp":"2026-05-13 11:49:42"}
