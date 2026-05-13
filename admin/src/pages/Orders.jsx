@@ -170,6 +170,50 @@ export default function Orders() {
     if (!window.confirm(`Cancel ${selected.length} selected orders?`)) return;
     await bulkStatusUpdate("cancelled");
   };
+  
+// =========================
+// BULK CREATE SHIPMENT
+// =========================
+const bulkCreateShipment = async () => {
+  if (!selected.length) return;
+
+  try {
+    setActionLoading("bulk-shipment");
+
+    const token =
+      localStorage.getItem("accessToken");
+
+    await Promise.all(
+      selected.map((id) =>
+        axios.post(
+          `https://nayamo.onrender.com/api/v1/shipping/create/${id}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        ),
+      ),
+    );
+
+    setSelected([]);
+
+    await Promise.all([
+      loadOrders(page),
+      loadStats(),
+    ]);
+  } catch (error) {
+    console.error(error);
+
+    setError(
+      error.response?.data?.message ||
+        "Bulk shipment creation failed"
+    );
+  } finally {
+    setActionLoading(null);
+  }
+};
 
   const exportData = useMemo(() => {
     return orders.map((order) => ({
