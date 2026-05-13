@@ -8,7 +8,10 @@ import Logo from "../components/common/Logo";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token") || "";
+  const token =
+decodeURIComponent(
+  searchParams.get("token") || ""
+);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

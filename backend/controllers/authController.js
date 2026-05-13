@@ -303,11 +303,15 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     let user;
 
     try {
-      logger.info(`Password reset background job started for ${normalizedEmail}`);
+      logger.info(
+        `Password reset background job started for ${normalizedEmail}`,
+      );
       user = await User.findOne({ email: normalizedEmail });
 
       if (!user) {
-        logger.info(`Password reset requested for unknown email: ${normalizedEmail}`);
+        logger.info(
+          `Password reset requested for unknown email: ${normalizedEmail}`,
+        );
         return;
       }
 
@@ -323,8 +327,12 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
         process.env.CLIENT_URL ||
         process.env.FRONTEND_URL ||
         `${process.env.APP_URL || "https://nayamo.onrender.com"}`;
-      const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
-      logger.info(`Password reset URL generated for ${user._id}: ${clientUrl.replace(/\/$/, "")}/reset-password?token=[redacted]`);
+      const encodedToken = encodeURIComponent(resetToken);
+
+      const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${encodedToken}`;
+      logger.info(
+        `Password reset URL generated for ${user._id}: ${clientUrl.replace(/\/$/, "")}/reset-password?token=[redacted]`,
+      );
 
       await sendMail({
         to: user.email,
@@ -376,7 +384,6 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
 
 // 🔄 RESET PASSWORD (hardened: atomic token consumption to prevent replay)
 exports.resetPassword = asyncHandler(async (req, res) => {
-
   const { token, password } = req.body;
 
   if (
@@ -392,7 +399,7 @@ exports.resetPassword = asyncHandler(async (req, res) => {
   if (!isPasswordStrong(password)) {
     res.status(400);
     throw new Error(
-      "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     );
   }
 
@@ -434,7 +441,6 @@ exports.resetPassword = asyncHandler(async (req, res) => {
     message: "Password has been reset successfully.",
   });
 });
-
 
 // �👤 GET PROFILE
 exports.getProfile = asyncHandler(async (req, res) => {
