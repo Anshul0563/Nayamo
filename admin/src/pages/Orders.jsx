@@ -362,30 +362,6 @@ export default function Orders() {
                   <FileText size={14} />
                   Invoice
                 </button>
-                <button
-                  onClick={async () => {
-                    try {
-                      const token = localStorage.getItem("accessToken");
-
-                      await axios.post(
-                        `https://nayamo.onrender.com/api/v1/shipping/create/${row._id}`,
-                        {},
-                        {
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                        },
-                      );
-
-                      loadOrders(page);
-                    } catch (err) {
-                      console.error(err);
-                    }
-                  }}
-                  className="px-4 py-2 rounded-xl bg-green-500 text-black font-medium"
-                >
-                  Create Shipment
-                </button>
               </div>
             ),
           },
