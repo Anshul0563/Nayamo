@@ -42,37 +42,69 @@ exports.placeOrder = async (userId, data) => {
   session.startTransaction();
 
   try {
-    let total = 0;
+    let subtotal = 0;
+
     const orderItems = [];
 
-    // Deduct stock for each item
+    // =========================
+    // DEDUCT STOCK
+    // =========================
     for (const item of cart.items) {
       const product = await Product.findById(item.product._id).session(session);
 
       product.stock -= item.quantity;
-      await product.save({ session });
+
+      await product.save({
+        session,
+      });
 
       orderItems.push({
         product: item.product._id,
+
         quantity: item.quantity,
+
         price: product.price,
       });
 
-      total += product.price * item.quantity;
+      subtotal += product.price * item.quantity;
     }
 
-    // Create order with idempotency key (unique index handles race conditions)
+    // =========================
+    // GST
+    // =========================
+    const GST_RATE = 0.12;
+
+    const gstAmount = subtotal * GST_RATE;
+
+    const total = subtotal + gstAmount;
+
+    // =========================
+    // CREATE ORDER
+    // =========================
     let order;
+
     try {
       [order] = await Order.create(
         [
           {
             user: userId,
+
             items: orderItems,
+
+            subtotal,
+
+            gstAmount,
+
+            gstRate: 12,
+
             totalPrice: total,
+
             address: address.trim(),
+
             phone,
+
             paymentMethod: paymentMethod || "cod",
+
             idempotencyKey: idempotencyKey || null,
           },
         ],
@@ -80,27 +112,40 @@ exports.placeOrder = async (userId, data) => {
       );
     } catch (err) {
       if (err.code === 11000 && err.keyPattern?.idempotencyKey) {
-        // Duplicate idempotency key - return existing order
         await session.abortTransaction();
+
         session.endSession();
+
         logger.info(
           `Duplicate order prevented for idempotencyKey: ${idempotencyKey}`,
         );
-        return Order.findOne({ idempotencyKey }).lean();
+
+        return Order.findOne({
+          idempotencyKey,
+        }).lean();
       }
+
       throw err;
     }
 
-    // Clear cart
+    // =========================
+    // CLEAR CART
+    // =========================
     if (paymentMethod === "cod") {
       cart.items = [];
-      await cart.save({ session });
+
+      await cart.save({
+        session,
+      });
     }
 
-    // Commit transaction
+    // =========================
+    // COMMIT
+    // =========================
     await session.commitTransaction();
 
     logger.info(`Order placed: ${order._id} by user ${userId}`);
+
     emitOrderNotification(order, "new").catch((err) =>
       logger.error("Order notification failed:", err.message),
     );
@@ -108,6 +153,7 @@ exports.placeOrder = async (userId, data) => {
     return order;
   } catch (error) {
     await session.abortTransaction();
+
     throw error;
   } finally {
     session.endSession();
