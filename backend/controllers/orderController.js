@@ -133,32 +133,17 @@ exports.returnOrder = asyncHandler(async (req, res) => {
     data: order,
   });
 });
-//Invoice 
-exports.downloadInvoice =
-  asyncHandler(
-    async (req, res) => {
-      const order =
-        await Order.findById(
-          req.params.id
-        )
-          .populate(
-            "user"
-          )
-          .populate(
-            "items.product"
-          );
+//Invoice
+exports.downloadInvoice = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id)
+    .populate("user")
+    .populate("items.product");
 
-      if (!order) {
-        res.status(404);
+  if (!order) {
+    res.status(404);
 
-        throw new Error(
-          "Order not found"
-        );
-      }
+    throw new Error("Order not found");
+  }
 
-      invoiceService.generateInvoice(
-        order,
-        res
-      );
-    }
-  );
+  invoiceService.generateInvoice(order, res);
+});
