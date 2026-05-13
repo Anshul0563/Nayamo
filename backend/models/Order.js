@@ -35,6 +35,21 @@ const orderSchema = new mongoose.Schema(
       min: [0, "Total price cannot be negative"],
     },
 
+    subtotal: {
+      type: Number,
+      default: 0,
+    },
+
+    gstAmount: {
+      type: Number,
+      default: 0,
+    },
+
+    gstRate: {
+      type: Number,
+      default: 12,
+    },
+
     address: {
       type: String,
       required: [true, "Delivery address is required"],
