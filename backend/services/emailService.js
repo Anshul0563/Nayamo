@@ -96,7 +96,7 @@ const sendMail = async ({ to, subject, html, text, replyTo }) => {
 
     const info = await mailer.sendMail({
 
-      from: `"Nayamo Support" <${smtp.fromEmail}>`,
+      from: `"Nayamo" <${smtp.fromEmail}>`,
       to,
       subject,
       html,
