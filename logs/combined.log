@@ -101,3 +101,8 @@
 {"level":"info","message":"Preparing email to=unknown subject=\"Reset Your Nayamo Password\"","service":"nayamo-api","timestamp":"2026-05-13 12:08:35"}
 {"level":"info","message":"Calling transporter.sendMail() to=unknown","service":"nayamo-api","timestamp":"2026-05-13 12:08:35"}
 {"level":"error","message":"transporter.sendMail() failed: {\"message\":\"No recipients defined\",\"code\":\"EENVELOPE\",\"command\":\"API\"}","service":"nayamo-api","timestamp":"2026-05-13 12:08:37"}
+{"level":"info","message":"SMTP config loaded host=smtpout.secureserver.net port=587 secure=false user=su***@nayamo.in from=su***@nayamo.in timeout=60000","service":"nayamo-api","timestamp":"2026-05-13 12:49:56"}
+{"level":"info","message":"Creating SMTP transporter","service":"nayamo-api","timestamp":"2026-05-13 12:49:56"}
+{"level":"info","message":"Preparing email to=su***@nayamo.in subject=\"Reset Your Nayamo Password\"","service":"nayamo-api","timestamp":"2026-05-13 12:49:56"}
+{"level":"info","message":"Calling transporter.sendMail() to=su***@nayamo.in","service":"nayamo-api","timestamp":"2026-05-13 12:49:56"}
+{"level":"info","message":"transporter.sendMail() accepted messageId=<83559bee-8fe1-e1cb-21fd-16c196f53c52@nayamo.in> accepted=[\"support@nayamo.in\"] rejected=[] response=250 N3sqwISKRSHdj mail accepted for delivery","service":"nayamo-api","timestamp":"2026-05-13 12:50:01"}
