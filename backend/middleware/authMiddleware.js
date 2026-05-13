@@ -17,6 +17,12 @@ const protect = async (req, res, next) => {
       });
     }
 
+    const queryToken = req.query.token;
+
+    if (queryToken && !req.headers.authorization) {
+      req.headers.authorization = `Bearer ${queryToken}`;
+    }
+
     const authHeader = req.headers.authorization;
     console.log("[authMiddleware] Authorization header:", authHeader);
     logger.info("[authMiddleware] Authorization header:", authHeader);
@@ -60,7 +66,9 @@ const protect = async (req, res, next) => {
     }
 
     // Fetch user from database (excludes password and refresh tokens)
-    const user = await User.findById(decoded.id).select("-password -refreshTokens");
+    const user = await User.findById(decoded.id).select(
+      "-password -refreshTokens",
+    );
 
     if (!user) {
       return res.status(401).json({
@@ -78,7 +86,10 @@ const protect = async (req, res, next) => {
     }
 
     // Check if password was changed after token was issued
-    if (user.passwordChangedAt && decoded.iat * 1000 < user.passwordChangedAt.getTime()) {
+    if (
+      user.passwordChangedAt &&
+      decoded.iat * 1000 < user.passwordChangedAt.getTime()
+    ) {
       return res.status(401).json({
         success: false,
         message: "Password recently changed. Please login again.",
@@ -87,9 +98,12 @@ const protect = async (req, res, next) => {
 
     // Attach user to request
     req.user = user;
-    logger.info("[authMiddleware] req.user:", { id: req.user?._id, email: req.user?.email, role: req.user?.role });
+    logger.info("[authMiddleware] req.user:", {
+      id: req.user?._id,
+      email: req.user?.email,
+      role: req.user?.role,
+    });
     next();
-
   } catch (error) {
     if (error.name === "JsonWebTokenError") {
       return res.status(401).json({
