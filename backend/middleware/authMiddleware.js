@@ -18,6 +18,12 @@ const protect = async (req, res, next) => {
     }
 
     const authHeader = req.headers.authorization;
+    logger.info("[authMiddleware] Authorization header:", authHeader);
+    logger.info("[authMiddleware] Incoming headers:", {
+      authorization: authHeader,
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+    });
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
@@ -37,6 +43,12 @@ const protect = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    logger.info("[authMiddleware] Decoded token (safe):", {
+      type: decoded?.type,
+      id: decoded?.id,
+      iat: decoded?.iat,
+      exp: decoded?.exp,
+    });
 
     // Ensure this is an access token, not a refresh token
     if (decoded.type !== "access") {
@@ -74,6 +86,7 @@ const protect = async (req, res, next) => {
 
     // Attach user to request
     req.user = user;
+    logger.info("[authMiddleware] req.user:", { id: req.user?._id, email: req.user?.email, role: req.user?.role });
     next();
 
   } catch (error) {

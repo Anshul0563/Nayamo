@@ -73,6 +73,8 @@ export default function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
+    const idempotencyKey = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
     if (
       !form.name ||
       !form.phone ||
@@ -103,6 +105,7 @@ export default function Checkout() {
         address: `${form.name}, ${form.address}, ${form.city}, ${form.state} - ${form.pin}`,
         phone: form.phone,
         paymentMethod: form.paymentMethod,
+        idempotencyKey,
       };
 
       // COD: place order immediately and redirect
@@ -132,7 +135,7 @@ export default function Checkout() {
         }
 
         const paymentRes = await paymentAPI.createOrder({
-          amount: cartTotal,
+          // amount is intentionally NOT trusted from frontend
           orderId: order._id,
         });
 
@@ -204,6 +207,8 @@ export default function Checkout() {
       const msg = err.response?.data?.message || err.message || "Failed to place order";
       toast.error(msg);
     } finally {
+      // For online payments we keep cart/order in backend; loader should stop after modal close.
+      // COD completes immediately.
       setLoading(false);
     }
   };
