@@ -17,3 +17,4 @@
 {"level":"error","message":"404 - Not Found - /auth/forgot-password","service":"nayamo-api","timestamp":"2026-05-13 09:53:05"}
 {"level":"error","message":"404 - Not Found - /api/forgot-password","service":"nayamo-api","timestamp":"2026-05-13 09:53:10"}
 {"level":"error","message":"404 - Not Found - /api/users/forgot-password","service":"nayamo-api","timestamp":"2026-05-13 09:53:15"}
+{"level":"error","message":"404 - Not Found - /api/v1","service":"nayamo-api","timestamp":"2026-05-13 10:31:44"}
