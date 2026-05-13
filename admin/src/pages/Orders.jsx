@@ -170,50 +170,45 @@ export default function Orders() {
     if (!window.confirm(`Cancel ${selected.length} selected orders?`)) return;
     await bulkStatusUpdate("cancelled");
   };
-  
-// =========================
-// BULK CREATE SHIPMENT
-// =========================
-const bulkCreateShipment = async () => {
-  if (!selected.length) return;
 
-  try {
-    setActionLoading("bulk-shipment");
+  // =========================
+  // BULK CREATE SHIPMENT
+  // =========================
+  const bulkCreateShipment = async () => {
+    if (!selected.length) return;
 
-    const token =
-      localStorage.getItem("accessToken");
+    try {
+      setActionLoading("bulk-shipment");
 
-    await Promise.all(
-      selected.map((id) =>
-        axios.post(
-          `https://nayamo.onrender.com/api/v1/shipping/create/${id}`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
+      const token = localStorage.getItem("accessToken");
+
+      await Promise.all(
+        selected.map((id) =>
+          axios.post(
+            `https://nayamo.onrender.com/api/v1/shipping/create/${id}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             },
-          },
+          ),
         ),
-      ),
-    );
+      );
 
-    setSelected([]);
+      setSelected([]);
 
-    await Promise.all([
-      loadOrders(page),
-      loadStats(),
-    ]);
-  } catch (error) {
-    console.error(error);
+      await Promise.all([loadOrders(page), loadStats()]);
+    } catch (error) {
+      console.error(error);
 
-    setError(
-      error.response?.data?.message ||
-        "Bulk shipment creation failed"
-    );
-  } finally {
-    setActionLoading(null);
-  }
-};
+      setError(
+        error.response?.data?.message || "Bulk shipment creation failed",
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   const exportData = useMemo(() => {
     return orders.map((order) => ({
@@ -323,18 +318,36 @@ const bulkCreateShipment = async () => {
           <span className="text-sm font-medium">
             {selected.length} selected
           </span>
+
           <select
             value=""
             onChange={(e) => e.target.value && bulkStatusUpdate(e.target.value)}
             className="px-4 py-2 rounded-xl bg-black/40 border border-white/10 text-sm outline-none"
           >
             <option value="">Bulk Update Status</option>
+
             {TABS.map(([key, label]) => (
               <option key={key} value={key}>
                 {label}
               </option>
             ))}
           </select>
+
+          {/* =========================
+        BULK CREATE SHIPMENT
+    ========================= */}
+          {tab === "ready_to_ship" && (
+            <button
+              onClick={bulkCreateShipment}
+              disabled={actionLoading === "bulk-shipment"}
+              className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-black text-sm font-semibold disabled:opacity-50"
+            >
+              {actionLoading === "bulk-shipment"
+                ? "Creating..."
+                : "Create Shipments"}
+            </button>
+          )}
+
           <button
             onClick={bulkCancel}
             disabled={actionLoading === "bulk"}
@@ -343,6 +356,7 @@ const bulkCreateShipment = async () => {
             <XSquare size={14} />
             Bulk Cancel
           </button>
+
           <button
             onClick={() => setSelected([])}
             className="text-sm text-zinc-400 hover:text-white ml-auto underline"
