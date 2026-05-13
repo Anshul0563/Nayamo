@@ -7,9 +7,11 @@ export default function SEO({
   description,
   image,
   url,
+  schema,
 }) {
   return (
     <Helmet>
+      {/* Basic */}
       <title>
         {title}
       </title>
@@ -77,6 +79,15 @@ export default function SEO({
         rel="canonical"
         href={url}
       />
+
+      {/* JSON LD */}
+      {schema && (
+        <script type="application/ld+json">
+          {JSON.stringify(
+            schema
+          )}
+        </script>
+      )}
     </Helmet>
   );
 }

@@ -259,6 +259,51 @@ export default function ProductDetails() {
         }
         image={product.images?.[0]?.url}
         url={`https://nayamo.in/product/${product._id}`}
+        schema={{
+          "@context": "https://schema.org",
+
+          "@type": "Product",
+
+          name: product.title,
+
+          image: product.images?.map((img) => img?.url || img) || [],
+
+          description: product.description,
+
+          sku: product._id,
+
+          brand: {
+            "@type": "Brand",
+
+            name: "Nayamo",
+          },
+
+          offers: {
+            "@type": "Offer",
+
+            url: `https://nayamo.in/product/${product._id}`,
+
+            priceCurrency: "INR",
+
+            price: product.price,
+
+            availability:
+              product.stock > 0
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+          },
+
+          aggregateRating:
+            product.ratings?.count > 0
+              ? {
+                  "@type": "AggregateRating",
+
+                  ratingValue: product.ratings.average,
+
+                  reviewCount: product.ratings.count,
+                }
+              : undefined,
+        }}
       />
       <div className="min-h-screen overflow-hidden bg-gradient-to-br from-[#070708] via-[#0A0A0C] to-[#070708]">
         {/* BG */}
