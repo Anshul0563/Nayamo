@@ -109,6 +109,33 @@ app.use((req, res, next) => {
 
 logger.info(`✅ CORS Origins: ${corsOrigins.join(", ")}`);
 
+// Temporary stabilization for production Render: if no CORS origins are configured,
+// allow the Render domain automatically. This prevents hard failures during auth.
+// (Keeps existing allow-list logic when CORS_ORIGINS is provided.)
+if (!process.env.CORS_ORIGINS) {
+  corsOptions.origin = (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const normalizedOrigin = origin.replace(/\/$/, "");
+
+    try {
+      const hostname = new URL(normalizedOrigin).hostname;
+      if (/\.onrender\.com$/.test(hostname)) {
+        return callback(null, true);
+      }
+    } catch (_) {
+      // ignore
+    }
+
+    // fallback to default behaviour
+    if (corsOrigins.includes(normalizedOrigin)) {
+      return callback(null, true);
+    }
+
+    logger.warn(`Blocked by CORS: ${origin}`);
+    return callback(new Error("Not allowed by CORS"));
+  };
+}
+
 // ================= SECURITY =================
 app.set("trust proxy", 1);
 
