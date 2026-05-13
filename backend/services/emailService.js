@@ -64,11 +64,10 @@ const getTransporter = () => {
         servername: "smtpout.secureserver.net",
       },
 
-      connectionTimeout: 120000,
-      greetingTimeout: 120000,
-      socketTimeout: 120000,
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
 
-      dnsTimeout: 120000,
 
       family: 4,
 
