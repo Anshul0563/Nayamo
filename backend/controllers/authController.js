@@ -285,11 +285,9 @@ exports.logoutAll = asyncHandler(async (req, res) => {
 
 // � FORGOT PASSWORD
 exports.forgotPassword = asyncHandler(async (req, res) => {
-
   const { email } = req.body;
 
-  const normalizedEmail =
-    email?.toLowerCase().trim();
+  const normalizedEmail = email?.toLowerCase().trim();
 
   if (!normalizedEmail) {
     res.status(400);
@@ -308,51 +306,192 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     });
   }
 
-  const resetToken =
-    crypto.randomBytes(32).toString("hex");
+  const resetToken = crypto.randomBytes(32).toString("hex");
 
-  const resetTokenHash =
-    hashToken(resetToken);
+  const resetTokenHash = hashToken(resetToken);
 
-  user.passwordResetToken =
-    resetTokenHash;
+  user.passwordResetToken = resetTokenHash;
 
-  user.passwordResetExpires =
-    Date.now() + 60 * 60 * 1000;
+  user.passwordResetExpires = Date.now() + 60 * 60 * 1000;
 
   await user.save({
     validateBeforeSave: false,
   });
 
-  const clientUrl =
-    process.env.CLIENT_URL;
+  const clientUrl = process.env.CLIENT_URL;
 
-  const encodedToken =
-    encodeURIComponent(resetToken);
+  const encodedToken = encodeURIComponent(resetToken);
 
-  const resetUrl =
-`${clientUrl.replace(/\/$/, "")}/reset-password?token=${encodedToken}`;
+  const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${encodedToken}`;
 
   await sendMail({
     to: user.email,
+
     subject: "Reset Your Nayamo Password",
 
     html: `
-      <h2>Reset Your Password</h2>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reset Password</title>
+  </head>
 
-      <p>
-        Click below to reset your password:
-      </p>
+  <body style="
+    margin:0;
+    padding:0;
+    background:#0B0B0C;
+    font-family:Arial,sans-serif;
+  ">
 
-      <a href="${resetUrl}">
-        Reset Password
-      </a>
-    `,
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center" style="padding:40px 16px;">
 
-    text:
-`Reset your password:
+          <table
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              max-width:560px;
+              background:#111214;
+              border-radius:20px;
+              overflow:hidden;
+            "
+          >
 
-${resetUrl}`,
+            <!-- Header -->
+            <tr>
+              <td align="center" style="padding:40px 32px 20px 32px;">
+
+                <h1 style="
+                  margin:0;
+                  color:#D4A853;
+                  font-size:34px;
+                  font-weight:700;
+                ">
+                  Nayamo
+                </h1>
+
+                <p style="
+                  margin:12px 0 0 0;
+                  color:#A1A1AA;
+                  font-size:15px;
+                ">
+                  Luxury Jewellery & Accessories
+                </p>
+
+              </td>
+            </tr>
+
+            <!-- Main -->
+            <tr>
+              <td style="padding:10px 32px 40px 32px;">
+
+                <h2 style="
+                  margin:0 0 18px 0;
+                  color:#ffffff;
+                  font-size:28px;
+                ">
+                  Reset Your Password
+                </h2>
+
+                <p style="
+                  color:#D4D4D8;
+                  font-size:16px;
+                  line-height:1.7;
+                  margin:0 0 24px 0;
+                ">
+                  We received a request to reset your Nayamo account password.
+                  Click the button below to securely create a new password.
+                </p>
+
+                <!-- Button -->
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td
+                      align="center"
+                      bgcolor="#D4A853"
+                      style="border-radius:12px;"
+                    >
+                      <a
+                        href="${resetUrl}"
+                        style="
+                          display:inline-block;
+                          padding:16px 32px;
+                          color:#111111;
+                          font-size:16px;
+                          font-weight:700;
+                          text-decoration:none;
+                        "
+                      >
+                        Reset Password
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="
+                  color:#71717A;
+                  font-size:14px;
+                  line-height:1.7;
+                  margin:28px 0 0 0;
+                ">
+                  This reset link will expire automatically for security reasons.
+                </p>
+
+                <p style="
+                  color:#71717A;
+                  font-size:14px;
+                  line-height:1.7;
+                  margin:12px 0 0 0;
+                ">
+                  If you didn’t request this password reset,
+                  you can safely ignore this email.
+                </p>
+
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                align="center"
+                style="
+                  padding:24px;
+                  background:#0F1012;
+                "
+              >
+
+                <p style="
+                  margin:0;
+                  color:#71717A;
+                  font-size:13px;
+                ">
+                  © 2026 Nayamo. All rights reserved.
+                </p>
+
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
+  </html>
+  `,
+
+    text: `
+Reset your Nayamo password:
+
+${resetUrl}
+
+If you did not request this, you can safely ignore this email.
+  `,
   });
 
   res.status(200).json({
