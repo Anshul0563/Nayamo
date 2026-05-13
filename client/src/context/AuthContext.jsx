@@ -82,9 +82,11 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const forgotPassword = useCallback(async (email) => {
+  const forgotPassword = useCallback(async (payload) => {
     try {
+      const email = typeof payload === "string" ? payload : payload?.email;
       await authAPI.forgotPassword({ email });
+
       toast.success(
         "If an account exists, we sent password reset instructions to your email."
       );

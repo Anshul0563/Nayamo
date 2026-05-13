@@ -30,12 +30,16 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
+
 
     try {
       if (mode === "forgot") {
         if (!forgotEmail) return;
-        const res = await forgotPassword(forgotEmail.trim());
+        const res = await forgotPassword({ email: forgotEmail.trim() });
+
+
         if (res.success) {
           setMode("login");
           setIsRegister(false);
