@@ -54,8 +54,6 @@ export default function Contact() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    // keep phone optional for compatibility with existing backend
-    phone: "",
     subject: "",
     message: "",
   });
@@ -79,7 +77,6 @@ export default function Contact() {
         setForm({
           name: "",
           email: "",
-          phone: "",
           subject: "",
           message: "",
         });
