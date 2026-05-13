@@ -189,9 +189,14 @@ exports.login = asyncHandler(async (req, res) => {
 
 // 🔄 REFRESH TOKEN
 exports.refreshToken = asyncHandler(async (req, res) => {
+  console.log("[REFRESH TOKEN API HIT]");
+  console.log("[REFRESH TOKEN BODY]:", req.body);
+
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
+    console.log("[REFRESH ERROR]: No refresh token");
+
     res.status(401);
     throw new Error("Refresh token is required");
   }
@@ -199,44 +204,63 @@ exports.refreshToken = asyncHandler(async (req, res) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
+    console.log("[REFRESH DECODED]:", decoded);
+
     if (decoded.type !== "refresh") {
+      console.log("[REFRESH ERROR]: Invalid token type");
+
       res.status(401);
       throw new Error("Invalid token type");
     }
 
     const user = await User.findById(decoded.id);
+
+    console.log("[REFRESH USER]:", user?._id);
+
     if (!user || !user.isActive) {
+      console.log("[REFRESH ERROR]: User inactive or missing");
+
       res.status(401);
       throw new Error("User not found or inactive");
     }
 
-    // Verify token exists in user's stored tokens
     const tokenHash = hashToken(refreshToken);
+
     const tokens = Array.isArray(user.refreshTokens) ? user.refreshTokens : [];
+
     const tokenExists = tokens.some(
       (t) => t.tokenHash === tokenHash && t.expiresAt > new Date(),
     );
 
+    console.log("[TOKEN EXISTS]:", tokenExists);
+
     if (!tokenExists) {
+      console.log("[REFRESH ERROR]: Token revoked");
+
       res.status(401);
       throw new Error("Refresh token revoked or expired");
     }
 
-    // Remove old token and issue new one (rotation)
     user.refreshTokens = tokens.filter((t) => t.tokenHash !== tokenHash);
 
     const newAccessToken = generateAccessToken(user);
+
     const newRefreshToken = generateRefreshToken(user);
+
     const newTokenHash = hashToken(newRefreshToken);
 
     if (user.refreshTokens.length >= 5) {
       user.refreshTokens = user.refreshTokens.slice(-4);
     }
+
     user.refreshTokens.push({
       tokenHash: newTokenHash,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
+
     await user.save();
+
+    console.log("[REFRESH SUCCESS]");
 
     res.json({
       success: true,
@@ -244,7 +268,10 @@ exports.refreshToken = asyncHandler(async (req, res) => {
       refreshToken: newRefreshToken,
     });
   } catch (error) {
+    console.log("[REFRESH TOKEN ERROR]:", error);
+
     res.status(401);
+
     throw new Error("Invalid or expired refresh token");
   }
 });
