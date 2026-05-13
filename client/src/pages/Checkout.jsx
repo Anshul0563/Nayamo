@@ -99,7 +99,13 @@ export default function Checkout() {
     if (loading) return;
 
     setLoading(true);
-    console.log("[Checkout] placeOrder click payload", { paymentMethod: form.paymentMethod, cartTotal, cartCount: items?.length, token: localStorage.getItem("accessToken") ? "present" : "missing" });
+  console.log("[Checkout] placeOrder click payload", {
+      paymentMethod: form.paymentMethod,
+      cartTotal,
+      cartCount: items?.length,
+      token: localStorage.getItem("accessToken") ? "present" : "missing",
+      idempotencyKey,
+    });
     try {
       const orderData = {
         address: `${form.name}, ${form.address}, ${form.city}, ${form.state} - ${form.pin}`,
@@ -134,10 +140,14 @@ export default function Checkout() {
           throw new Error("Order creation failed");
         }
 
+        console.log("[Checkout] create Razorpay order payload", { orderId: order._id, idempotencyKey });
+
         const paymentRes = await paymentAPI.createOrder({
           // amount is intentionally NOT trusted from frontend
           orderId: order._id,
         });
+
+        console.log("[Checkout] create Razorpay order response", paymentRes.data);
 
         const paymentOrder =
           paymentRes.data?.order || paymentRes.data?.data?.order;

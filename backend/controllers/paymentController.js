@@ -30,11 +30,39 @@ try {
 exports.createPaymentOrder = asyncHandler(async (req, res) => {
   console.log("[paymentController] createPaymentOrder body:", req.body);
   console.log("[paymentController] createPaymentOrder auth user:", req.user?._id);
-  const { amount, orderId: mongoOrderId } = req.body;
+  const { orderId: mongoOrderId } = req.body;
 
-  if (!amount || amount <= 0) {
+  if (!mongoOrderId) {
     res.status(400);
-    throw new Error("Valid amount is required");
+    throw new Error("orderId is required");
+  }
+
+
+  const order = await Order.findOne({ _id: mongoOrderId, user: req.user._id });
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  if (!order.totalPrice || order.totalPrice <= 0) {
+    res.status(400);
+    throw new Error("Order totalPrice is invalid");
+  }
+
+  // Never trust frontend amount. Use backend order.totalPrice as the source of truth.
+  const amount = order.totalPrice;
+
+  // Idempotency: if razorpayOrderId already exists for this order, return it.
+  if (order.razorpayOrderId && razorpay) {
+    return res.json({
+      success: true,
+      order: {
+        id: order.razorpayOrderId,
+        amount: Math.round(amount * 100),
+        currency: "INR",
+      },
+      idempotent: true,
+    });
   }
 
   // If Razorpay is configured, create real order
@@ -69,16 +97,22 @@ exports.createPaymentOrder = asyncHandler(async (req, res) => {
 
   // Fallback: mock order for development (NO REAL PAYMENT)
   logger.warn("Razorpay not configured - returning mock order");
-  const fakeOrderId = "order_" + Date.now();
+  const fakeOrderId = order.razorpayOrderId || "order_" + Date.now();
+
+  // Update order with the (mock) razorpayOrderId if not already set
+  if (!order.razorpayOrderId) {
+    await Order.findByIdAndUpdate(mongoOrderId, { razorpayOrderId: fakeOrderId });
+  }
 
   res.json({
     success: true,
     order: {
       id: fakeOrderId,
-      amount: amount * 100,
+      amount: Math.round(amount * 100),
       currency: "INR",
     },
     warning: "Razorpay not configured - this is a mock order",
+    idempotent: !!order.razorpayOrderId,
   });
 });
 
@@ -86,6 +120,9 @@ exports.createPaymentOrder = asyncHandler(async (req, res) => {
 exports.verifyPayment = asyncHandler(async (req, res) => {
   const { orderId, razorpayPaymentId, razorpaySignature, mongoOrderId } =
     req.body;
+
+  console.log("[paymentController] verifyPayment body:", req.body);
+  console.log("[paymentController] verifyPayment auth user:", req.user?._id);
 
   if (!orderId || !razorpayPaymentId) {
     res.status(400);
@@ -112,10 +149,10 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
   // Find and update order using mongoOrderId (Razorpay orderId != MongoDB _id)
   let order;
   if (mongoOrderId && mongoose.Types.ObjectId.isValid(mongoOrderId)) {
-    order = await Order.findById(mongoOrderId);
+    order = await Order.findOne({ _id: mongoOrderId, user: req.user._id });
   } else {
     // Fallback: try to find by razorpayOrderId
-    order = await Order.findOne({ razorpayOrderId: orderId });
+    order = await Order.findOne({ razorpayOrderId: orderId, user: req.user._id });
   }
 
   if (!order) {

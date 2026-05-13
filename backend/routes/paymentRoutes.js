@@ -11,13 +11,9 @@ const {
 } = require("../controllers/paymentController");
 
 const createOrderValidation = [
-  body("amount")
-    .notEmpty()
-    .withMessage("Amount is required")
-    .isFloat({ min: 1 })
-    .withMessage("Amount must be at least 1"),
   body("orderId")
-    .optional()
+    .notEmpty()
+    .withMessage("orderId is required")
     .isMongoId()
     .withMessage("Invalid order ID"),
 ];
