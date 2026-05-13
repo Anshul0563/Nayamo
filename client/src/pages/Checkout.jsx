@@ -128,265 +128,196 @@ export default function Checkout() {
   // =========================
   // PLACE ORDER
   // =========================
-  const handlePlaceOrder =
-    async () => {
-      const idempotencyKey = `${Date.now()}_${Math.random()
-        .toString(16)
-        .slice(2)}`;
+  const handlePlaceOrder = async () => {
+  const idempotencyKey = `${Date.now()}_${Math.random()
+    .toString(16)
+    .slice(2)}`;
 
-      if (
-        !form.name ||
-        !form.phone ||
-        !form.address ||
-        !form.city ||
-        !form.state ||
-        !form.pin
-      ) {
+  if (
+    !form.name ||
+    !form.phone ||
+    !form.address ||
+    !form.city ||
+    !form.state ||
+    !form.pin
+  ) {
+    toast.error("Please fill all shipping details");
+    return;
+  }
+
+  if (!/^\d{10}$/.test(form.phone)) {
+    toast.error("Phone must be 10 digits");
+    return;
+  }
+
+  if (!/^\d{6}$/.test(form.pin)) {
+    toast.error("PIN must be 6 digits");
+    return;
+  }
+
+  if (loading) return;
+
+  setLoading(true);
+
+  try {
+    const orderData = {
+      address: `${form.name}, ${form.address}, ${form.city}, ${form.state} - ${form.pin}`,
+      phone: form.phone,
+      paymentMethod: form.paymentMethod,
+      idempotencyKey,
+    };
+
+    // COD
+    if (form.paymentMethod === "cod") {
+      await orderAPI.placeOrder(orderData);
+
+      toast.success("Order placed successfully!");
+
+      clearCart();
+
+      navigate("/orders");
+
+      return;
+    }
+
+    // ONLINE
+    if (form.paymentMethod === "online") {
+      const razorpayLoaded =
+        await loadRazorpayScript();
+
+      if (!razorpayLoaded) {
         toast.error(
-          "Please fill all shipping details"
+          "Failed to load Razorpay SDK"
         );
-
         return;
       }
 
-      if (
-        !/^\d{10}$/.test(
-          form.phone
-        )
-      ) {
-        toast.error(
-          "Phone must be 10 digits"
-        );
+      const orderRes =
+        await orderAPI.placeOrder(orderData);
 
-        return;
+      const order =
+        orderRes.data?.data;
+
+      if (!order?._id) {
+        throw new Error(
+          "Order creation failed"
+        );
       }
 
-      if (
-        !/^\d{6}$/.test(form.pin)
-      ) {
-        toast.error(
-          "PIN must be 6 digits"
-        );
+      const paymentRes =
+        await paymentAPI.createOrder({
+          orderId: order._id,
+        });
 
-        return;
+      const paymentOrder =
+        paymentRes.data?.order ||
+        paymentRes.data?.data?.order;
+
+      if (!paymentOrder?.id) {
+        throw new Error(
+          "Failed to create Razorpay order"
+        );
       }
 
-      if (loading) return;
+      const options = {
+        key:
+          process.env
+            .REACT_APP_RAZORPAY_KEY_ID ||
+          "",
 
-      setLoading(true);
+        amount:
+          paymentOrder.amount,
 
-      try {
-        const orderData = {
-          address: `${form.name}, ${form.address}, ${form.city}, ${form.state} - ${form.pin}`,
+        currency:
+          paymentOrder.currency,
 
-          phone: form.phone,
+        name: "Nayamo",
 
-          paymentMethod:
-            form.paymentMethod,
+        description:
+          "Jewellery Order",
 
-          idempotencyKey,
-        };
+        order_id:
+          paymentOrder.id,
 
-        // =========================
-        // COD FLOW
-        // =========================
-        if (
-          form.paymentMethod ===
-          "cod"
-        ) {
-          await orderAPI.placeOrder(
-            orderData
-          );
+        prefill: {
+          name: form.name,
+          contact: form.phone,
+          email: user?.email || "",
+        },
 
-          toast.success(
-            "Order placed successfully!"
-          );
+        theme: {
+          color: "#D4A853",
+        },
 
-          clearCart();
-
-          navigate("/orders");
-
-          return;
-        }
-
-        // =========================
-        // ONLINE FLOW
-        // =========================
-        if (
-          form.paymentMethod ===
-          "online"
-        ) {
-          const razorpayLoaded =
-            await loadRazorpayScript();
-
-          if (!razorpayLoaded) {
-            toast.error(
-              "Failed to load Razorpay SDK"
-            );
-
-            return;
-          }
-
-          // Create Mongo Order
-          const orderRes =
-            await orderAPI.placeOrder(
-              orderData
-            );
-
-          const order =
-            orderRes.data?.data;
-
-          if (!order?._id) {
-            throw new Error(
-              "Order creation failed"
-            );
-          }
-
-          // Create Razorpay Order
-          const paymentRes =
-            await paymentAPI.createOrder(
+        handler: async (
+          response
+        ) => {
+          try {
+            await paymentAPI.verifyPayment(
               {
                 orderId:
+                  paymentOrder.id,
+
+                razorpayPaymentId:
+                  response.razorpay_payment_id,
+
+                razorpaySignature:
+                  response.razorpay_signature,
+
+                mongoOrderId:
                   order._id,
               }
             );
 
-          const paymentOrder =
-            paymentRes.data?.order ||
-            paymentRes.data?.data
-              ?.order;
-
-          if (!paymentOrder?.id) {
-            throw new Error(
-              "Failed to create Razorpay order"
+            toast.success(
+              "Payment successful!"
             );
+
+            clearCart();
+
+            navigate("/orders");
+          } catch (verifyErr) {
+            const msg =
+              verifyErr?.response?.data
+                ?.message ||
+              verifyErr?.message ||
+              "Payment verification failed";
+
+            toast.error(msg);
           }
+        },
 
-          if (!window.Razorpay) {
-            throw new Error(
-              "Razorpay SDK not available"
+        modal: {
+          ondismiss: () => {
+            toast.error(
+              "Payment cancelled"
             );
-          }
+          },
+        },
+      };
 
-          // =========================
-          // RAZORPAY OPTIONS
-          // =========================
-          const options = {
-            key:
-              process.env
-                .REACT_APP_RAZORPAY_KEY_ID ||
-              "",
+      const rzp =
+        new window.Razorpay(options);
 
-            amount:
-              paymentOrder.amount,
+      rzp.open();
 
-            currency:
-              paymentOrder.currency,
+      return;
+    }
 
-            name: "Nayamo",
+    throw new Error(
+      "Invalid payment method"
+    );
+  } catch (err) {
+    const msg =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to place order";
 
-            description:
-              "Jewellery Order",
-
-            order_id:
-              paymentOrder.id,
-
-            prefill: {
-              name: form.name,
-
-              contact:
-                form.phone,
-
-              email:
-                user?.email ||
-                "",
-            },
-
-            theme: {
-              color: "#D4A853",
-            },
-
-            handler:
-              async (
-                response
-              ) => {
-                try {
-                  await paymentAPI.verifyPayment(
-                    {
-                      orderId:
-                        paymentOrder.id,
-
-                      razorpayPaymentId:
-                        response.razorpay_payment_id,
-
-                      razorpaySignature:
-                        response.razorpay_signature,
-
-                      mongoOrderId:
-                        order._id,
-                    }
-                  );
-
-                  toast.success(
-                    "Payment successful!"
-                  );
-
-                  clearCart();
-
-                  navigate(
-                    "/orders"
-                  );
-                } catch (
-                  verifyErr
-                ) {
-                  const msg =
-                    verifyErr
-                      ?.response
-                      ?.data
-                      ?.message ||
-                    verifyErr?.message ||
-                    "Payment verification failed";
-
-                  toast.error(
-                    msg
-                  );
-                }
-              },
-
-            modal: {
-              ondismiss: () => {
-                toast.error(
-                  "Payment cancelled"
-                );
-              },
-            },
-          };
-
-          const rzp =
-            new window.Razorpay(
-              options
-            );
-
-          rzp.open();
-
-          return;
-        }
-
-        throw new Error(
-          "Invalid payment method"
-        );
-      } catch (err) {
-        const msg =
-          err?.response?.data
-            ?.message ||
-          err?.message ||
-          "Failed to place order";
-
-        toast.error(msg);
-      } finally {
-        setLoading(false);
-      }
-    };
+    toast.error(msg);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // =========================
   // LOADING
