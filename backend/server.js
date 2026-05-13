@@ -110,6 +110,7 @@ app.use(
 );
 
 app.use(compression());
+app.use("/api/v1/webhook", webhookRoutes);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
