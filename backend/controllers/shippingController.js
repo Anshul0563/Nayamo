@@ -7,7 +7,7 @@ const asyncHandler =
   require("../utils/asyncHandler");
 
 // =========================
-// CREATE SHIPMENT
+// CREATE SHIPMENT (ADMIN ONLY)
 // =========================
 exports.createShipment = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate("user", "name");
@@ -36,8 +36,8 @@ exports.createShipment = asyncHandler(async (req, res) => {
     pickupRequested: order.delhivery?.pickupRequested || false,
   };
 
-  // Shipment lifecycle: set to confirmed once label/waybill exists
-  order.status = order.status === "pending" ? "confirmed" : "confirmed";
+  // Update order status when shipment is created
+  order.status = "confirmed";
 
   await order.save();
 
