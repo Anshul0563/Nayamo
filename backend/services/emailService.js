@@ -87,9 +87,11 @@ const sendMail = async ({ to, subject, html, text, replyTo }) => {
   const { smtp, transporter: mailer } = getTransporter();
 
   logger.info(`Preparing email to=${maskEmail(to)} subject="${subject}"`);
-  await verifySmtp();
+
+  // await verifySmtp();
 
   logger.info(`Calling transporter.sendMail() to=${maskEmail(to)}`);
+
   try {
 
     const info = await mailer.sendMail({
@@ -111,10 +113,13 @@ const sendMail = async ({ to, subject, html, text, replyTo }) => {
     );
 
     return info;
+
   } catch (error) {
+
     logger.error(
       `transporter.sendMail() failed: ${JSON.stringify(getErrorDetails(error))}`,
     );
+
     throw error;
   }
 };
