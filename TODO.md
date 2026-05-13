@@ -1,29 +1,24 @@
-# TODO: Production-harden forgot-password + reset-password (MERN)
+# Nayamo - Implementation Tracker
 
-## Step 1 — Gather context (already done)
-- Read frontend forgot/reset pages, AuthContext, api client.
-- Read backend auth controller, auth routes, email service, env, user model, server.
+## Phase A: Razorpay webhook automation + Delhivery shipment automation (approved)
+- [ ] Create production-grade Razorpay webhook handler
+      - verify signature using RAZORPAY_WEBHOOK_SECRET
+      - handle payment.captured, payment.failed, order.paid
+      - update Order: isPaid/paymentStatus/paidAt/razorpayPaymentId/razorpaySignature
+      - idempotency/replay protection (store processed payment/webhook identifiers)
+- [ ] Trigger Delhivery shipment creation after successful payment
+      - call Delhivery createShipment with order shipping details
+      - generate waybill if required by API flow
+      - persist shipment fields in Order.delhivery (waybill, labelUrl, trackingUrl, courier)
+      - store full Delhivery response for debugging
+      - implement retry on temporary API failures
+- [ ] Harden logging & error handling throughout webhook handler
+- [ ] Update Delhivery controller only as needed to support DB persistence inputs/outputs
+- [ ] Local testing plan + Postman checklist for webhook replay
 
-## Step 2 — Plan (need approval)
-- Fix frontend payload mismatch for forgot-password (Login.jsx + AuthContext usage if needed).
-- Ensure forgot-reset token extraction is correct (ResetPassword.jsx already extracts token from query param).
-- Harden frontend UX + validation and prevent duplicate requests.
-- Harden backend: ensure password reset token is correctly hashed + validated, and refresh token revocation is correct.
-- Ensure rate limiting and generic messaging; add missing protection against user enumeration and slow SMTP.
-
-## Step 3 — Implement code changes (after approval)
-- Edit client/src/pages/Login.jsx to send {email} object to forgotPassword.
-- Verify/adjust client/src/pages/ForgotPassword.jsx and AuthContext forgotPassword signature.
-- Improve ResetPassword.jsx UX: loading, error handling, success state.
-- Edit backend/controllers/authController.js: enforce strong validation, ensure refresh token revocation correctly; avoid double responses; remove sensitive logs.
-- Edit backend/services/emailService.js: ensure transporter pool settings safe; add timeouts.
-- Edit backend/routes/authRoutes.js/server.js if needed for correct limiter paths.
-
-## Step 4 — Testing
-- Run backend unit/integration tests if any.
-- Run manual flow tests: request reset, open link, reset password, login.
-- Verify no 400/401 from payload mismatch.
-
-## Step 5 — Deliverables
-- Summarize each issue: explanation, root cause, production/security impact, and provide complete corrected code blocks.
+## Phase B onwards (not started)
+- [ ] Inventory refactor to payment-driven stock deduction + restore on cancel/refund
+- [ ] Refund system + invoice + email automation + tracking sync
+- [ ] BullMQ queues + background jobs
+- [ ] Admin endpoints + security hardening + env validation
 
