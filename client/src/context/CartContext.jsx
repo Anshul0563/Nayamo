@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { cartAPI } from "../services/api";
 import toast from "react-hot-toast";
 
@@ -35,45 +41,71 @@ export function CartProvider({ children }) {
     fetchCart();
   }, [fetchCart]);
 
-  const addToCart = useCallback(async (productId) => {
-    setLoading(true);
-    try {
-      await cartAPI.addToCart(productId);
-      await fetchCart();
-      toast.success("Added to cart");
-    } catch (err) {
-      const msg = err.response?.data?.message || "Failed to add to cart";
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCart]);
+  const addToCart = useCallback(
+    async (productId, quantity = 1) => {
+      setLoading(true);
 
-  const updateQuantity = useCallback(async (productId, quantity) => {
-    setLoading(true);
-    try {
-      await cartAPI.updateQuantity(productId, quantity);
-      await fetchCart();
-    } catch (err) {
-      const msg = err.response?.data?.message || "Failed to update";
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCart]);
+      try {
+        if (!productId) {
+          toast.error("Product ID missing");
+          return;
+        }
 
-  const removeFromCart = useCallback(async (productId) => {
-    setLoading(true);
-    try {
-      await cartAPI.removeFromCart(productId);
-      await fetchCart();
-      toast.success("Removed from cart");
-    } catch (err) {
-      toast.error("Failed to remove");
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCart]);
+        await cartAPI.addToCart({
+          productId,
+          quantity: Number(quantity),
+        });
+
+        await fetchCart();
+
+        toast.success("Added to cart");
+      } catch (err) {
+        console.error("Add to cart error:", err);
+
+        const msg =
+          err?.response?.data?.errors?.[0]?.message ||
+          err?.response?.data?.message ||
+          "Failed to add to cart";
+
+        toast.error(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCart],
+  );
+
+  const updateQuantity = useCallback(
+    async (productId, quantity) => {
+      setLoading(true);
+      try {
+        await cartAPI.updateQuantity(productId, quantity);
+        await fetchCart();
+      } catch (err) {
+        const msg = err.response?.data?.message || "Failed to update";
+        toast.error(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCart],
+  );
+
+  const removeFromCart = useCallback(
+    async (productId) => {
+      setLoading(true);
+      try {
+        await cartAPI.removeFromCart(productId);
+        await fetchCart();
+        toast.success("Removed from cart");
+      } catch (err) {
+        toast.error("Failed to remove");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCart],
+  );
 
   const clearCart = useCallback(() => {
     setCart({ items: [] });
