@@ -35,9 +35,11 @@ const orderValidation = [
 
 router.post("/", protect, orderValidation, validate, placeOrder);
 router.get("/", protect, getOrders);
-router.get("/:id", protect, getOrderById);
-router.put("/:id/cancel", protect, cancelOrder);
-router.put("/:id/return", protect, returnOrder);
 router.get("/:id/invoice", protect, downloadInvoice);
 
+router.put("/:id/cancel", protect, cancelOrder);
+
+router.put("/:id/return", protect, returnOrder);
+
+router.get("/:id", protect, getOrderById);
 module.exports = router;
