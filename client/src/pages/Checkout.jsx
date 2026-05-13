@@ -97,6 +97,7 @@ export default function Checkout() {
     if (loading) return;
 
     setLoading(true);
+    console.log("[Checkout] placeOrder click payload", { paymentMethod: form.paymentMethod, cartTotal, cartCount: items?.length, token: localStorage.getItem("accessToken") ? "present" : "missing" });
     try {
       const orderData = {
         address: `${form.name}, ${form.address}, ${form.city}, ${form.state} - ${form.pin}`,
@@ -106,6 +107,7 @@ export default function Checkout() {
 
       // COD: place order immediately and redirect
       if (form.paymentMethod === "cod") {
+        console.log("[Checkout] COD flow starting");
         const res = await orderAPI.placeOrder(orderData);
         const order = res.data?.data;
         toast.success("Order placed successfully!");
@@ -121,6 +123,7 @@ export default function Checkout() {
 
       // ONLINE: create Mongo order, create Razorpay order, open popup
       if (form.paymentMethod === "online") {
+        console.log("[Checkout] ONLINE flow starting");
         const res = await orderAPI.placeOrder(orderData);
         const order = res.data?.data;
 
@@ -197,6 +200,7 @@ export default function Checkout() {
 
       throw new Error("Invalid payment method");
     } catch (err) {
+      console.error("[Checkout] placeOrder failed", err);
       const msg = err.response?.data?.message || err.message || "Failed to place order";
       toast.error(msg);
     } finally {
