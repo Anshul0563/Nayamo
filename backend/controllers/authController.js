@@ -376,6 +376,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
 
 // 🔄 RESET PASSWORD (hardened: atomic token consumption to prevent replay)
 exports.resetPassword = asyncHandler(async (req, res) => {
+
   const { token, password } = req.body;
 
   if (
@@ -391,37 +392,40 @@ exports.resetPassword = asyncHandler(async (req, res) => {
   if (!isPasswordStrong(password)) {
     res.status(400);
     throw new Error(
-      "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+      "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
     );
   }
 
+  // Hash incoming token
   const hashedToken = hashToken(token);
 
-  // Atomic consumption: update only if token+expiry match.
-  const user = await User.findOneAndUpdate(
-    {
-      passwordResetToken: hashedToken,
-      passwordResetExpires: { $gt: Date.now() },
-    },
-    {
-      $set: { password },
-      $unset: {
-        passwordResetToken: "",
-        passwordResetExpires: "",
-      },
-    },
-    { new: true },
-  ).select("+password");
+  // Find user by token
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  }).select("+password");
 
   if (!user) {
     res.status(400);
     throw new Error("Invalid or expired password reset token");
   }
 
-  // revoke refresh tokens after successful reset
-  user.passwordChangedAt = Date.now();
+  // Update password
+  user.password = password;
+
+  // Clear reset token
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+
+  // Logout all sessions
   user.refreshTokens = [];
-  await user.save({ validateBeforeSave: false });
+
+  // Password changed timestamp
+  user.passwordChangedAt = Date.now();
+
+  // IMPORTANT:
+  // save() triggers password hashing middleware
+  await user.save();
 
   logger.info(`Password reset completed for userId=${user._id}`);
 
