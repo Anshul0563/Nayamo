@@ -118,7 +118,12 @@ export default function Orders() {
   };
 
   const invoice = (id) => {
-    window.open(`/api/v1/orders/${id}/invoice`, "_blank");
+    const token = localStorage.getItem("accessToken");
+
+    window.open(
+      `https://nayamo.onrender.com/api/v1/orders/${id}/invoice?token=${token}`,
+      "_blank",
+    );
   };
 
   const getStatusCount = (key) => {
