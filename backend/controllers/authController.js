@@ -374,11 +374,16 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔄 RESET PASSWORD
+// 🔄 RESET PASSWORD (hardened: atomic token consumption to prevent replay)
 exports.resetPassword = asyncHandler(async (req, res) => {
   const { token, password } = req.body;
 
-  if (!token || !password) {
+  if (
+    !token ||
+    typeof token !== "string" ||
+    !password ||
+    typeof password !== "string"
+  ) {
     res.status(400);
     throw new Error("Token and new password are required");
   }
@@ -391,30 +396,41 @@ exports.resetPassword = asyncHandler(async (req, res) => {
   }
 
   const hashedToken = hashToken(token);
-  const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() },
-  }).select("+password");
+
+  // Atomic consumption: update only if token+expiry match.
+  const user = await User.findOneAndUpdate(
+    {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    },
+    {
+      $set: { password },
+      $unset: {
+        passwordResetToken: "",
+        passwordResetExpires: "",
+      },
+    },
+    { new: true },
+  ).select("+password");
 
   if (!user) {
     res.status(400);
     throw new Error("Invalid or expired password reset token");
   }
 
-  user.password = password;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
+  // revoke refresh tokens after successful reset
   user.passwordChangedAt = Date.now();
   user.refreshTokens = [];
-  await user.save();
+  await user.save({ validateBeforeSave: false });
 
-  logger.info(`Password reset completed for ${user.email}`);
+  logger.info(`Password reset completed for userId=${user._id}`);
 
   res.json({
     success: true,
     message: "Password has been reset successfully.",
   });
 });
+
 
 // �👤 GET PROFILE
 exports.getProfile = asyncHandler(async (req, res) => {
