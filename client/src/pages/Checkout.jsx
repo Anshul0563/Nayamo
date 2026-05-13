@@ -5,7 +5,7 @@ import {
   CreditCard,
   Truck,
   CheckCircle,
- ChevronRight,
+  ChevronRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -13,10 +13,7 @@ import toast from "react-hot-toast";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
-import {
-  orderAPI,
-  paymentAPI,
-} from "../services/api";
+import { orderAPI, paymentAPI } from "../services/api";
 
 import EmptyState from "../components/common/EmptyState";
 import Loader from "../components/common/Loader";
@@ -26,21 +23,18 @@ import Loader from "../components/common/Loader";
 // =========================
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
-    const existingScript =
-      document.getElementById("razorpay-sdk");
+    const existingScript = document.getElementById("razorpay-sdk");
 
     if (existingScript) {
       resolve(true);
       return;
     }
 
-    const script =
-      document.createElement("script");
+    const script = document.createElement("script");
 
     script.id = "razorpay-sdk";
 
-    script.src =
-      "https://checkout.razorpay.com/v1/checkout.js";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
 
     script.async = true;
 
@@ -72,24 +66,15 @@ const steps = [
 ];
 
 export default function Checkout() {
-  const {
-    cart,
-    cartTotal,
-    clearCart,
-  } = useCart();
+  const { cart, cartTotal, clearCart } = useCart();
 
-  const {
-    user,
-    loading: authLoading,
-  } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const navigate = useNavigate();
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [step, setStep] =
-    useState(1);
+  const [step, setStep] = useState(1);
 
   const [form, setForm] = useState({
     name: "",
@@ -107,8 +92,7 @@ export default function Checkout() {
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]:
-        e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -117,9 +101,7 @@ export default function Checkout() {
   // =========================
   useEffect(() => {
     if (!authLoading && !user) {
-      toast.error(
-        "Please login to checkout"
-      );
+      toast.error("Please login to checkout");
     }
   }, [authLoading, user]);
 
@@ -129,195 +111,159 @@ export default function Checkout() {
   // PLACE ORDER
   // =========================
   const handlePlaceOrder = async () => {
-  const idempotencyKey = `${Date.now()}_${Math.random()
-    .toString(16)
-    .slice(2)}`;
+    const idempotencyKey = `${Date.now()}_${Math.random()
+      .toString(16)
+      .slice(2)}`;
 
-  if (
-    !form.name ||
-    !form.phone ||
-    !form.address ||
-    !form.city ||
-    !form.state ||
-    !form.pin
-  ) {
-    toast.error("Please fill all shipping details");
-    return;
-  }
-
-  if (!/^\d{10}$/.test(form.phone)) {
-    toast.error("Phone must be 10 digits");
-    return;
-  }
-
-  if (!/^\d{6}$/.test(form.pin)) {
-    toast.error("PIN must be 6 digits");
-    return;
-  }
-
-  if (loading) return;
-
-  setLoading(true);
-
-  try {
-    const orderData = {
-      address: `${form.name}, ${form.address}, ${form.city}, ${form.state} - ${form.pin}`,
-      phone: form.phone,
-      paymentMethod: form.paymentMethod,
-      idempotencyKey,
-    };
-
-    // COD
-    if (form.paymentMethod === "cod") {
-      await orderAPI.placeOrder(orderData);
-
-      toast.success("Order placed successfully!");
-
-      clearCart();
-
-      navigate("/orders");
-
+    if (
+      !form.name ||
+      !form.phone ||
+      !form.address ||
+      !form.city ||
+      !form.state ||
+      !form.pin
+    ) {
+      toast.error("Please fill all shipping details");
       return;
     }
 
-    // ONLINE
-    if (form.paymentMethod === "online") {
-      const razorpayLoaded =
-        await loadRazorpayScript();
+    if (!/^\d{10}$/.test(form.phone)) {
+      toast.error("Phone must be 10 digits");
+      return;
+    }
 
-      if (!razorpayLoaded) {
-        toast.error(
-          "Failed to load Razorpay SDK"
-        );
+    if (!/^\d{6}$/.test(form.pin)) {
+      toast.error("PIN must be 6 digits");
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+
+    try {
+      const orderData = {
+        address: `${form.name}, ${form.address}, ${form.city}, ${form.state} - ${form.pin}`,
+        phone: form.phone,
+        paymentMethod: form.paymentMethod,
+        idempotencyKey,
+      };
+
+      // COD
+      if (form.paymentMethod === "cod") {
+        await orderAPI.placeOrder(orderData);
+
+        toast.success("Order placed successfully!");
+
+        clearCart();
+
+        navigate("/orders");
+
         return;
       }
 
-      const orderRes =
-        await orderAPI.placeOrder(orderData);
+      // ONLINE
+      if (form.paymentMethod === "online") {
+        const razorpayLoaded = await loadRazorpayScript();
 
-      const order =
-        orderRes.data?.data;
+        if (!razorpayLoaded) {
+          toast.error("Failed to load Razorpay SDK");
+          return;
+        }
 
-      if (!order?._id) {
-        throw new Error(
-          "Order creation failed"
-        );
-      }
+        const orderRes = await orderAPI.placeOrder(orderData);
 
-      const paymentRes =
-        await paymentAPI.createOrder({
+        const order = orderRes.data?.data;
+
+        if (!order?._id) {
+          throw new Error("Order creation failed");
+        }
+
+        const paymentRes = await paymentAPI.createOrder({
           orderId: order._id,
         });
 
-      const paymentOrder =
-        paymentRes.data?.order ||
-        paymentRes.data?.data?.order;
+        const paymentOrder =
+          paymentRes.data?.order || paymentRes.data?.data?.order;
 
-      if (!paymentOrder?.id) {
-        throw new Error(
-          "Failed to create Razorpay order"
-        );
+        if (!paymentOrder?.id) {
+          throw new Error("Failed to create Razorpay order");
+        }
+
+        const options = {
+          key: process.env.REACT_APP_RAZORPAY_KEY_ID || "",
+
+          amount: paymentOrder.amount,
+
+          currency: paymentOrder.currency,
+
+          name: "Nayamo",
+
+          description: "Jewellery Order",
+
+          order_id: paymentOrder.id,
+
+          prefill: {
+            name: form.name,
+            contact: form.phone,
+            email: user?.email || "",
+          },
+
+          theme: {
+            color: "#D4A853",
+          },
+
+          handler: async (response) => {
+            try {
+              await paymentAPI.verifyPayment({
+                orderId: paymentOrder.id,
+
+                razorpayPaymentId: response.razorpay_payment_id,
+
+                razorpaySignature: response.razorpay_signature,
+
+                mongoOrderId: order._id,
+              });
+
+              toast.success("Payment successful!");
+
+              clearCart();
+
+              navigate("/orders");
+            } catch (verifyErr) {
+              const msg =
+                verifyErr?.response?.data?.message ||
+                verifyErr?.message ||
+                "Payment verification failed";
+
+              toast.error(msg);
+            }
+          },
+
+          modal: {
+            ondismiss: () => {
+              toast.error("Payment cancelled");
+            },
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+
+        rzp.open();
+
+        return;
       }
 
-      const options = {
-        key:
-          process.env
-            .REACT_APP_RAZORPAY_KEY_ID ||
-          "",
+      throw new Error("Invalid payment method");
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message || err?.message || "Failed to place order";
 
-        amount:
-          paymentOrder.amount,
-
-        currency:
-          paymentOrder.currency,
-
-        name: "Nayamo",
-
-        description:
-          "Jewellery Order",
-
-        order_id:
-          paymentOrder.id,
-
-        prefill: {
-          name: form.name,
-          contact: form.phone,
-          email: user?.email || "",
-        },
-
-        theme: {
-          color: "#D4A853",
-        },
-
-        handler: async (
-          response
-        ) => {
-          try {
-            await paymentAPI.verifyPayment(
-              {
-                orderId:
-                  paymentOrder.id,
-
-                razorpayPaymentId:
-                  response.razorpay_payment_id,
-
-                razorpaySignature:
-                  response.razorpay_signature,
-
-                mongoOrderId:
-                  order._id,
-              }
-            );
-
-            toast.success(
-              "Payment successful!"
-            );
-
-            clearCart();
-
-            navigate("/orders");
-          } catch (verifyErr) {
-            const msg =
-              verifyErr?.response?.data
-                ?.message ||
-              verifyErr?.message ||
-              "Payment verification failed";
-
-            toast.error(msg);
-          }
-        },
-
-        modal: {
-          ondismiss: () => {
-            toast.error(
-              "Payment cancelled"
-            );
-          },
-        },
-      };
-
-      const rzp =
-        new window.Razorpay(options);
-
-      rzp.open();
-
-      return;
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
-
-    throw new Error(
-      "Invalid payment method"
-    );
-  } catch (err) {
-    const msg =
-      err?.response?.data?.message ||
-      err?.message ||
-      "Failed to place order";
-
-    toast.error(msg);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // =========================
   // LOADING
@@ -340,8 +286,7 @@ export default function Checkout() {
         replace
         state={{
           from: {
-            pathname:
-              "/checkout",
+            pathname: "/checkout",
           },
         }}
       />
@@ -387,18 +332,13 @@ export default function Checkout() {
             Checkout
           </h1>
 
-          <p className="text-[#A1A1AA]">
-            Complete your purchase
-          </p>
+          <p className="text-[#A1A1AA]">Complete your purchase</p>
         </motion.div>
 
         {/* Steps */}
         <div className="flex items-center gap-3 mb-10">
           {steps.map((s, i) => (
-            <div
-              key={s.num}
-              className="flex items-center gap-3"
-            >
+            <div key={s.num} className="flex items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                   step >= s.num
@@ -406,25 +346,18 @@ export default function Checkout() {
                     : "bg-[#131316] text-[#52525B]"
                 }`}
               >
-                {step > s.num ? (
-                  <CheckCircle className="w-4 h-4" />
-                ) : (
-                  s.num
-                )}
+                {step > s.num ? <CheckCircle className="w-4 h-4" /> : s.num}
               </div>
 
               <span
                 className={`text-sm font-medium ${
-                  step >= s.num
-                    ? "text-white"
-                    : "text-[#52525B]"
+                  step >= s.num ? "text-white" : "text-[#52525B]"
                 }`}
               >
                 {s.label}
               </span>
 
-              {i <
-                steps.length - 1 && (
+              {i < steps.length - 1 && (
                 <ChevronRight className="w-4 h-4 text-[#52525B]" />
               )}
             </div>
