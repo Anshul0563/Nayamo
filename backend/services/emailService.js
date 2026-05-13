@@ -48,12 +48,14 @@ const getTransporter = () => {
 
       port: Number(smtp.port),
 
-      secure: true,
+      secure: false,
 
       auth: {
         user: smtp.user,
         pass: smtp.pass,
       },
+
+      requireTLS: true,
 
       tls: {
         rejectUnauthorized: false,

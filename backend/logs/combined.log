@@ -20187,3 +20187,15 @@
 {"level":"info","message":"Calling transporter.sendMail() to=an***@gmail.com","service":"nayamo-api","timestamp":"2026-05-13 11:26:09"}
 {"level":"info","message":"transporter.sendMail() accepted messageId=<1a399df8-15c0-870d-93cb-f31597d3780a@nayamo.in> accepted=[\"anshulshakya5632@gmail.com\"] rejected=[] response=250 N2Zmw2ERIB4Zw mail accepted for delivery","service":"nayamo-api","timestamp":"2026-05-13 11:26:14"}
 {"level":"info","message":"127.0.0.1 - - [13/May/2026:05:56:14 +0000] \"POST /api/v1/auth/forgot-password HTTP/1.1\" 200 103 \"http://localhost:3000/\" \"Mozilla/5.0 (X11; Linux x86_64; rv:151.0) Gecko/20100101 Firefox/151.0\"","service":"nayamo-api","timestamp":"2026-05-13 11:26:14"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-13 11:35:36"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-13 11:35:36"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-05-13 11:35:36"}
+{"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-05-13 11:35:37"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-13 11:35:47"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-13 11:35:47"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-05-13 11:35:47"}
+{"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-05-13 11:35:47"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-13 11:35:50"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-13 11:35:50"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-05-13 11:35:50"}
+{"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-05-13 11:35:50"}
