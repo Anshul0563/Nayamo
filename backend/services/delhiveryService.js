@@ -67,16 +67,11 @@ exports.createShipment = async (order) => {
 
           order: order._id.toString(),
 
-          payment_mode:
-            order.paymentMethod === "cod"
-              ? "COD"
-              : "Prepaid",
+          payment_mode: order.paymentMethod === "cod" ? "COD" : "Prepaid",
 
           total_amount: order.totalPrice,
 
-          quantity: Array.isArray(order.items)
-            ? order.items.length
-            : 1,
+          quantity: Array.isArray(order.items) ? order.items.length : 1,
 
           waybill: "",
 
@@ -91,72 +86,63 @@ exports.createShipment = async (order) => {
     // =========================
     // DEBUG LOGS
     // =========================
-    console.log(
-      "[DELHIVERY BASE URL]",
-      process.env.DELHIVERY_BASE_URL
-    );
+    console.log("[DELHIVERY BASE URL]", process.env.DELHIVERY_BASE_URL);
 
     console.log(
       "[DELHIVERY FINAL URL]",
-      `${process.env.DELHIVERY_BASE_URL}/cmu/create.json`
+      `${process.env.DELHIVERY_BASE_URL}/cmu/create.json`,
     );
 
-    console.log(
-      "[DELHIVERY PAYLOAD]",
-      JSON.stringify(payload, null, 2)
-    );
+    console.log("[DELHIVERY PAYLOAD]", JSON.stringify(payload, null, 2));
 
     // =========================
     // API REQUEST
     // =========================
+    const qs = require("querystring");
+
     const response = await api.post(
-      "/cmu/create.json",
-      payload
+      "/api/cmu/create.json",
+      qs.stringify({
+        format: "json",
+        data: JSON.stringify(payload),
+      }),
+      {
+        headers: {
+          Authorization: `Token ${process.env.DELHIVERY_TOKEN}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      },
     );
 
-    console.log(
-      "[DELHIVERY RESPONSE]",
-      JSON.stringify(response.data, null, 2)
-    );
+    console.log("[DELHIVERY RESPONSE]", JSON.stringify(response.data, null, 2));
 
     // =========================
     // RESPONSE PARSING
     // =========================
-    const packageData =
-      response.data?.packages?.[0] || {};
+    const packageData = response.data?.packages?.[0] || {};
 
-    const waybill =
-      packageData.waybill || "";
+    const waybill = packageData.waybill || "";
 
     if (!waybill) {
       throw new Error(
         `Delhivery returned no waybill. Response: ${JSON.stringify(
-          response.data
-        ).slice(0, 1000)}`
+          response.data,
+        ).slice(0, 1000)}`,
       );
     }
 
     return {
       waybill,
 
-      trackingUrl:
-        `https://www.delhivery.com/track/package/${waybill}`,
+      trackingUrl: `https://www.delhivery.com/track/package/${waybill}`,
 
-      labelUrl:
-        packageData?.label_url ||
-        packageData?.labelUrl ||
-        null,
+      labelUrl: packageData?.label_url || packageData?.labelUrl || null,
     };
   } catch (err) {
-    console.error(
-      "[DELHIVERY ERROR]",
-      err.response?.data || err.message
-    );
+    console.error("[DELHIVERY ERROR]", err.response?.data || err.message);
 
     throw new Error(
-      err.response?.data?.message ||
-        err.message ||
-        "Shipment creation failed"
+      err.response?.data?.message || err.message || "Shipment creation failed",
     );
   }
 };
@@ -171,22 +157,15 @@ exports.trackShipment = async (waybill) => {
 
   try {
     const response = await api.get(
-      `/v1/packages/json/?waybill=${encodeURIComponent(
-        waybill
-      )}`
+      `/v1/packages/json/?waybill=${encodeURIComponent(waybill)}`,
     );
 
     return response.data;
   } catch (err) {
-    console.error(
-      "[TRACK ERROR]",
-      err.response?.data || err.message
-    );
+    console.error("[TRACK ERROR]", err.response?.data || err.message);
 
     throw new Error(
-      err.response?.data?.message ||
-        err.message ||
-        "Tracking failed"
+      err.response?.data?.message || err.message || "Tracking failed",
     );
   }
 };
