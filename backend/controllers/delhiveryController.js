@@ -11,16 +11,14 @@ exports.generateWaybill = asyncHandler(async (req, res) => {
   });
 });
 
-// Create Shipment (aligned with shippingController)
+// Create Shipment (admin controlled)
 exports.createShipment = asyncHandler(async (req, res) => {
-  // Expect either { orderId } or { id }
   const orderId = req.body?.orderId || req.body?.id;
   if (!orderId) {
     res.status(400);
     throw new Error("orderId is required");
   }
 
-  // Use the same persistence/lifecycle approach as shippingController
   const Order = require("../models/Order");
   const delhiveryService = require("../services/delhiveryService");
 
@@ -47,6 +45,7 @@ exports.createShipment = asyncHandler(async (req, res) => {
     createdAt: new Date(),
     pickupRequested: order.delhivery?.pickupRequested || false,
   };
+
   order.status = "confirmed";
 
   await order.save();
@@ -59,6 +58,7 @@ exports.createShipment = asyncHandler(async (req, res) => {
     data: order,
   });
 });
+
 
 
 // Track Shipment (aligned with delhiveryService)
