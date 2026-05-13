@@ -47,7 +47,9 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config || {};
 
-    const isAuthRoute = originalRequest.url?.includes("/auth/");
+    // Robust auth-route detection to prevent refresh/ retry loops
+    const fullUrl = `${originalRequest.baseURL || ""}${originalRequest.url || ""}`;
+    const isAuthRoute = fullUrl.includes("/auth/") || fullUrl.includes("/auth");
 
     if (
       error.response?.status === 401 &&

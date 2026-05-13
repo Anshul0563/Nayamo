@@ -97,6 +97,16 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
+// Debug: surface CORS origin failures in logs (important for Render)
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") return next();
+  const origin = req.headers.origin;
+  if (origin) {
+    logger.info(`[CORS] origin=${origin}`);
+  }
+  next();
+});
+
 logger.info(`✅ CORS Origins: ${corsOrigins.join(", ")}`);
 
 // ================= SECURITY =================
@@ -208,6 +218,9 @@ if (
 ) {
   app.use("/api/v1/payment", requireDB, paymentRoutes);
 }
+
+// Ensure auth routes are always mounted under /api/v1/auth (used by frontend refresh)
+// (No-op here; kept as documentation anchor)
 
 if (isConfigured(getDelhiveryToken())) {
   app.use("/api/v1/delhivery", requireDB, delhiveryRoutes);

@@ -20461,3 +20461,13 @@
 {"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-13 14:27:27"}
 {"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-05-13 14:27:27"}
 {"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-05-13 14:27:27"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-13 14:39:13"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-13 14:39:13"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-13 14:39:13"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-05-13 14:39:13"}
+{"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-05-13 14:39:14"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-05-13 14:39:16"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-05-13 14:39:16"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-05-13 14:39:16"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-05-13 14:39:16"}
+{"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-05-13 14:39:16"}
