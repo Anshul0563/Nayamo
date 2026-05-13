@@ -1,24 +1,34 @@
-# Nayamo - Implementation Tracker
+# TODO - Checkout/Order/Payment MERN Fix
 
-## Phase A: Razorpay webhook automation + Delhivery shipment automation (approved)
-- [ ] Create production-grade Razorpay webhook handler
-      - verify signature using RAZORPAY_WEBHOOK_SECRET
-      - handle payment.captured, payment.failed, order.paid
-      - update Order: isPaid/paymentStatus/paidAt/razorpayPaymentId/razorpaySignature
-      - idempotency/replay protection (store processed payment/webhook identifiers)
-- [ ] Trigger Delhivery shipment creation after successful payment
-      - call Delhivery createShipment with order shipping details
-      - generate waybill if required by API flow
-      - persist shipment fields in Order.delhivery (waybill, labelUrl, trackingUrl, courier)
-      - store full Delhivery response for debugging
-      - implement retry on temporary API failures
-- [ ] Harden logging & error handling throughout webhook handler
-- [ ] Update Delhivery controller only as needed to support DB persistence inputs/outputs
-- [ ] Local testing plan + Postman checklist for webhook replay
+## Plan-approved steps
 
-## Phase B onwards (not started)
-- [ ] Inventory refactor to payment-driven stock deduction + restore on cancel/refund
-- [ ] Refund system + invoice + email automation + tracking sync
-- [ ] BullMQ queues + background jobs
-- [ ] Admin endpoints + security hardening + env validation
+- ✅ Approved
+
+1. Update frontend `Checkout.jsx`:
+   - Add stable `idempotencyKey` per click for COD and online
+   - Pass it to `orderAPI.placeOrder`
+   - Stop trusting frontend amount for online (backend will recompute)
+   - Fix Razorpay loading/early-return behavior
+   - Add required debug logs for payload, headers, token state
+
+2. Backend auth debugging:
+   - Add deep logs in `backend/middleware/authMiddleware.js` for `req.headers.authorization`, decoded payload (safe), and `req.user`
+
+3. Tighten order idempotency:
+   - Update `backend/services/orderService.js` so duplicate `idempotencyKey` reliably returns the existing order and does not double-clear cart
+
+4. Backend payment flow fixes:
+   - Update `backend/controllers/paymentController.js` to recompute payable amount from the created Mongo Order
+   - Ignore/stop validating client-sent `amount`
+   - Ensure idempotent Razorpay order creation for the same Mongo Order
+
+5. Add deep debugging logs in:
+   - `backend/controllers/orderController.js`
+   - `backend/services/orderService.js`
+   - `backend/controllers/paymentController.js`
+
+6. Verify end-to-end:
+   - COD works once, cart clears once
+   - Online creates order + Razorpay order, verifies signature, marks paid, redirects
+   - Duplicate clicks / duplicate payment verification do not create duplicates
 
