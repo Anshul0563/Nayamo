@@ -44,31 +44,33 @@ const getTransporter = () => {
     logger.info("Creating SMTP transporter");
 
     transporter = nodemailer.createTransport({
-      host: smtp.host,
+      host: "smtpout.secureserver.net",
 
-      port: Number(smtp.port),
+      port: 587,
 
       secure: false,
 
       auth: {
-        user: smtp.user,
-        pass: smtp.pass,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
 
       requireTLS: true,
 
       tls: {
         rejectUnauthorized: false,
+        servername: "smtpout.secureserver.net",
       },
+
+      connectionTimeout: 120000,
+      greetingTimeout: 120000,
+      socketTimeout: 120000,
+
+      dnsTimeout: 120000,
 
       family: 4,
 
-      connectionTimeout: 60000,
-      greetingTimeout: 60000,
-      socketTimeout: 60000,
-
-      logger: process.env.SMTP_DEBUG === "true",
-      debug: process.env.SMTP_DEBUG === "true",
+      pool: false,
     });
   } else {
     logger.info("Reusing existing SMTP transporter");
