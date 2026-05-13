@@ -91,16 +91,20 @@ const sendMail = async ({ to, subject, html, text, replyTo }) => {
 
   logger.info(`Calling transporter.sendMail() to=${maskEmail(to)}`);
   try {
+
     const info = await mailer.sendMail({
-      console.log("MAIL SENT FULL INFO:");
-console.log(JSON.stringify(info, null, 2));
-    from: `"Nayamo Support" <${smtp.fromEmail}>`,
-    to,
-    subject,
-    html,
-    text,
-    ...(replyTo ? { replyTo } : {}),
-  });
+
+      from: `"Nayamo Support" <${smtp.fromEmail}>`,
+      to,
+      subject,
+      html,
+      text,
+      ...(replyTo ? { replyTo } : {}),
+    });
+
+    console.log("========== MAIL SENT INFO ==========");
+    console.log(JSON.stringify(info, null, 2));
+    console.log("====================================");
 
     logger.info(
       `transporter.sendMail() accepted messageId=${info.messageId || "none"} accepted=${JSON.stringify(info.accepted || [])} rejected=${JSON.stringify(info.rejected || [])} response=${info.response || "none"}`,
