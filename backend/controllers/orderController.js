@@ -1,5 +1,6 @@
 const orderService = require("../services/orderService");
 const asyncHandler = require("../utils/asyncHandler");
+const paymentService = require("../services/paymentService");
 const mongoose = require("mongoose");
 
 // PLACE ORDER
@@ -41,7 +42,7 @@ exports.getOrders = asyncHandler(async (req, res) => {
   const result = await orderService.getUserOrders(
     req.user._id,
     Number(page),
-    Number(limit)
+    Number(limit),
   );
 
   res.json({
@@ -80,14 +81,36 @@ exports.getOrderById = asyncHandler(async (req, res) => {
 exports.cancelOrder = asyncHandler(async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     res.status(400);
+
     throw new Error("Invalid order ID format");
   }
 
   const order = await orderService.cancelOrder(req.user._id, req.params.id);
 
+  // AUTO REFUND
+  if (
+    order.isPaid &&
+    order.paymentMethod === "online" &&
+    order.refundStatus !== "processed"
+  ) {
+    try {
+      await paymentService.processRefund({
+        orderId: order._id,
+
+        reason: "Order cancelled",
+      });
+    } catch (refundErr) {
+      console.error("Refund failed:", refundErr.message);
+    }
+  }
+
   res.json({
     success: true,
-    message: "Order cancelled successfully",
+    message:
+      order.paymentMethod === "online"
+        ? "Order cancelled and refund initiated"
+        : "Order cancelled successfully",
+
     data: order,
   });
 });

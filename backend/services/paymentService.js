@@ -1,61 +1,125 @@
 const Razorpay = require("razorpay");
+
 const Order = require("../models/Order");
-const logger = require("../config/logger");
 const Product = require("../models/Product");
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_id:
+    process.env.RAZORPAY_KEY_ID,
+
+  key_secret:
+    process.env.RAZORPAY_KEY_SECRET,
 });
 
-exports.processRefund = async ({ orderId, amount, reason }) => {
-  const order = await Order.findById(orderId);
+// =========================
+// PROCESS REFUND
+// =========================
+exports.processRefund =
+  async ({
+    orderId,
+    reason =
+      "Order cancelled",
+  }) => {
+    const order =
+      await Order.findById(orderId);
 
-  if (!order) {
-    throw new Error("Order not found");
-  }
-
-  if (!order.isPaid) {
-    throw new Error("Cannot refund unpaid order");
-  }
-
-  if (!order.razorpayPaymentId) {
-    throw new Error("Razorpay payment ID missing");
-  }
-
-  if (order.refundStatus === "processed") {
-    throw new Error("Refund already processed");
-  }
-
-  const refund = await razorpay.payments.refund(order.razorpayPaymentId, {
-    amount: Math.round(amount * 100),
-    notes: {
-      reason: reason || "Customer refund",
-    },
-  });
-
-  order.refundId = refund.id;
-  order.refundAmount = amount;
-  order.refundStatus = "processed";
-  order.refundReason = reason;
-  order.refundedAt = new Date();
-
-  order.paymentStatus = "refunded";
-  order.status = "returned";
-
-  await order.save();
-  for (const item of order.items) {
-    const product = await Product.findById(item.product);
-
-    if (product) {
-      product.stock += item.quantity;
-      await product.save();
+    if (!order) {
+      throw new Error(
+        "Order not found"
+      );
     }
-  }
-  logger.info(`Refund processed for order ${order._id}`);
 
-  return {
-    order,
-    refund,
+    // Already refunded
+    if (
+      order.refundStatus ===
+      "processed"
+    ) {
+      throw new Error(
+        "Refund already processed"
+      );
+    }
+
+    // Only paid orders
+    if (!order.isPaid) {
+      throw new Error(
+        "Cannot refund unpaid order"
+      );
+    }
+
+    if (
+      !order.razorpayPaymentId
+    ) {
+      throw new Error(
+        "Missing Razorpay payment ID"
+      );
+    }
+
+    // Mark pending
+    order.refundStatus =
+      "pending";
+
+    await order.save();
+
+    // Razorpay refund
+    const refund =
+      await razorpay.payments.refund(
+        order
+          .razorpayPaymentId,
+        {
+          amount:
+            Math.round(
+              order.totalPrice *
+                100
+            ),
+
+          notes: {
+            reason,
+          },
+        }
+      );
+
+    // Update order
+    order.refundId =
+      refund.id;
+
+    order.refundAmount =
+      order.totalPrice;
+
+    order.refundStatus =
+      "processed";
+
+    order.refundReason =
+      reason;
+
+    order.refundedAt =
+      new Date();
+
+    order.paymentStatus =
+      "refunded";
+
+    order.status =
+      "cancelled";
+
+    // Restore stock
+    for (const item of order.items) {
+      const product =
+        await Product.findById(
+          item.product
+        );
+
+      if (product) {
+        product.stock +=
+          item.quantity;
+
+        await product.save();
+      }
+    }
+
+    await order.save();
+
+    return {
+      success: true,
+      refund,
+      order,
+    };
   };
-};
