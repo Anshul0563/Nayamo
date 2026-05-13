@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 
 // PLACE ORDER
 exports.placeOrder = asyncHandler(async (req, res) => {
+  console.log("[orderController] placeOrder body:", req.body);
+  console.log("[orderController] placeOrder auth user:", req.user?._id);
   const { address, phone, paymentMethod, idempotencyKey } = req.body;
 
   if (!address || !phone) {

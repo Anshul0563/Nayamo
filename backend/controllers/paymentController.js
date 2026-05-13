@@ -28,6 +28,8 @@ try {
 
 // CREATE PAYMENT ORDER
 exports.createPaymentOrder = asyncHandler(async (req, res) => {
+  console.log("[paymentController] createPaymentOrder body:", req.body);
+  console.log("[paymentController] createPaymentOrder auth user:", req.user?._id);
   const { amount, orderId: mongoOrderId } = req.body;
 
   if (!amount || amount <= 0) {
