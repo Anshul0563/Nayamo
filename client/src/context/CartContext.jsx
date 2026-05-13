@@ -64,10 +64,10 @@ export function CartProvider({ children }) {
           return;
         }
 
-        await cartAPI.addToCart({
-          productId: normalizedProductId,
-          quantity: Number(quantity),
-        });
+        await cartAPI.addToCart(
+  normalizedProductId,
+  Number(quantity)
+);
 
         await fetchCart();
 

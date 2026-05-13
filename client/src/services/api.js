@@ -128,7 +128,11 @@ export const productAPI = {
 // Cart
 export const cartAPI = {
   getCart: () => apiClient.get("/cart"),
-  addToCart: (productId) => apiClient.post("/cart/add", { productId }),
+  addToCart: (productId, quantity = 1) =>
+  apiClient.post("/cart/add", {
+    productId,
+    quantity,
+  }),
   updateQuantity: (productId, quantity) =>
     apiClient.put("/cart/update", { productId, quantity }),
   removeFromCart: (productId) =>
