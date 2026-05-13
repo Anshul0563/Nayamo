@@ -130,6 +130,25 @@ const orderSchema = new mongoose.Schema(
     razorpayOrderId: String,
     razorpayPaymentId: String,
     razorpaySignature: String,
+    refundId: String,
+
+    refundAmount: {
+      type: Number,
+      default: 0,
+    },
+
+    refundStatus: {
+      type: String,
+      enum: {
+        values: ["none", "pending", "processed", "failed"],
+        message: "Invalid refund status",
+      },
+      default: "none",
+    },
+
+    refundReason: String,
+
+    refundedAt: Date,
 
     // Idempotency key to prevent duplicate orders
     idempotencyKey: {
@@ -138,7 +157,7 @@ const orderSchema = new mongoose.Schema(
       sparse: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Indexes for performance

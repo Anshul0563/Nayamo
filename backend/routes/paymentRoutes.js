@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const { body } = require("express-validator");
-
 const protect = require("../middleware/authMiddleware");
 const validate = require("../middleware/validateMiddleware");
 
 const {
   createPaymentOrder,
   verifyPayment,
+processRefund,
 } = require("../controllers/paymentController");
 
 const createOrderValidation = [
@@ -26,5 +26,6 @@ const verifyValidation = [
 
 router.post("/create-order", protect, createOrderValidation, validate, createPaymentOrder);
 router.post("/verify", protect, verifyValidation, validate, verifyPayment);
+router.post("/refund",protect,processRefund);
 
 module.exports = router;

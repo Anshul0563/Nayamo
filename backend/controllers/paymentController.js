@@ -1,6 +1,8 @@
 const crypto = require("crypto");
 const Order = require("../models/Order");
+const Cart = require("../models/Cart");
 const asyncHandler = require("../utils/asyncHandler");
+const paymentService = require("../services/paymentService");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
 const { isConfigured } = require("../config/env");
@@ -175,7 +177,10 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
   order.razorpayPaymentId = razorpayPaymentId;
   order.razorpaySignature = razorpaySignature;
 
-  await order.save();
+  await Cart.findOneAndUpdate(
+  { user: req.user._id },
+  { items: [] }
+);
 
   logger.info(`Payment verified for order: ${order._id}`);
 
@@ -183,5 +188,25 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
     success: true,
     message: "Payment verified successfully",
     data: order,
+  });
+});
+exports.processRefund = asyncHandler(async (req, res) => {
+  const { orderId, amount, reason } = req.body;
+
+  if (!orderId || !amount) {
+    res.status(400);
+    throw new Error("orderId and amount are required");
+  }
+
+  const result = await paymentService.processRefund({
+    orderId,
+    amount,
+    reason,
+  });
+
+  res.json({
+    success: true,
+    message: "Refund processed successfully",
+    data: result,
   });
 });

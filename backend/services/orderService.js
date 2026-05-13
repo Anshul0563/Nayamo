@@ -3,7 +3,10 @@ const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
-const { emitOrderNotification, emitInventoryNotification } = require("./notificationService");
+const {
+  emitOrderNotification,
+  emitInventoryNotification,
+} = require("./notificationService");
 
 // PLACE ORDER (with transaction)
 exports.placeOrder = async (userId, data) => {
@@ -28,7 +31,9 @@ exports.placeOrder = async (userId, data) => {
       throw new Error(`${item.product.title} is no longer available`);
     }
     if (item.product.stock < item.quantity) {
-      throw new Error(`Only ${item.product.stock} units of ${item.product.title} available`);
+      throw new Error(
+        `Only ${item.product.stock} units of ${item.product.title} available`,
+      );
     }
   }
 
@@ -71,29 +76,33 @@ exports.placeOrder = async (userId, data) => {
             idempotencyKey: idempotencyKey || null,
           },
         ],
-        { session }
+        { session },
       );
     } catch (err) {
       if (err.code === 11000 && err.keyPattern?.idempotencyKey) {
         // Duplicate idempotency key - return existing order
         await session.abortTransaction();
         session.endSession();
-        logger.info(`Duplicate order prevented for idempotencyKey: ${idempotencyKey}`);
+        logger.info(
+          `Duplicate order prevented for idempotencyKey: ${idempotencyKey}`,
+        );
         return Order.findOne({ idempotencyKey }).lean();
       }
       throw err;
     }
 
     // Clear cart
-    cart.items = [];
-    await cart.save({ session });
+    if (paymentMethod === "cod") {
+      cart.items = [];
+      await cart.save({ session });
+    }
 
     // Commit transaction
     await session.commitTransaction();
 
     logger.info(`Order placed: ${order._id} by user ${userId}`);
     emitOrderNotification(order, "new").catch((err) =>
-      logger.error("Order notification failed:", err.message)
+      logger.error("Order notification failed:", err.message),
     );
 
     return order;
@@ -163,7 +172,9 @@ exports.cancelOrder = async (userId, orderId) => {
     }
 
     if (order.isPaid) {
-      throw new Error("Cannot cancel paid order. Please request a refund instead.");
+      throw new Error(
+        "Cannot cancel paid order. Please request a refund instead.",
+      );
     }
 
     // Restore stock
@@ -175,7 +186,7 @@ exports.cancelOrder = async (userId, orderId) => {
       }
     }
 
-order.status = "cancelled";
+    order.status = "cancelled";
     order.cancelledAt = new Date();
     order.statusUpdatedAt = new Date(); // Start 30-day countdown
     await order.save({ session });
@@ -184,7 +195,7 @@ order.status = "cancelled";
 
     logger.info(`Order cancelled: ${order._id} by user ${userId}`);
     emitOrderNotification(order, "cancelled").catch((err) =>
-      logger.error("Order cancel notification failed:", err.message)
+      logger.error("Order cancel notification failed:", err.message),
     );
 
     return order;
@@ -219,7 +230,9 @@ exports.returnOrder = async (userId, orderId) => {
     // Check if return is within 7 days
     const deliveredDate = new Date(order.deliveredAt);
     const now = new Date();
-    const daysSinceDelivery = Math.floor((now - deliveredDate) / (1000 * 60 * 60 * 24));
+    const daysSinceDelivery = Math.floor(
+      (now - deliveredDate) / (1000 * 60 * 60 * 24),
+    );
 
     if (daysSinceDelivery > 7) {
       throw new Error("Return period of 7 days has expired");
@@ -233,7 +246,7 @@ exports.returnOrder = async (userId, orderId) => {
 
     logger.info(`Return requested for order: ${order._id} by user ${userId}`);
     emitOrderNotification(order, "return_requested").catch((err) =>
-      logger.error("Return notification failed:", err.message)
+      logger.error("Return notification failed:", err.message),
     );
 
     return order;
@@ -247,7 +260,13 @@ exports.returnOrder = async (userId, orderId) => {
 
 // ADMIN - Get all orders with pagination
 // Default: exclude archived orders (users see their full history, admin sees clean list)
-exports.getAllOrders = async ({ page = 1, limit = 20, status, search, includeArchived = false }) => {
+exports.getAllOrders = async ({
+  page = 1,
+  limit = 20,
+  status,
+  search,
+  includeArchived = false,
+}) => {
   const skip = (page - 1) * limit;
   const query = {};
 
@@ -313,7 +332,7 @@ exports.updateOrderStatus = async (orderId, status) => {
   if (order) {
     const eventType = status === "in_transit" ? "shipped" : status;
     emitOrderNotification(order, eventType).catch((err) =>
-      logger.error("Order status notification failed:", err.message)
+      logger.error("Order status notification failed:", err.message),
     );
 
     for (const item of order.items || []) {
@@ -321,11 +340,11 @@ exports.updateOrderStatus = async (orderId, status) => {
       if (!product) continue;
       if (Number(product.stock) === 0) {
         emitInventoryNotification(product, "out_of_stock").catch((err) =>
-          logger.error("Inventory notification failed:", err.message)
+          logger.error("Inventory notification failed:", err.message),
         );
       } else if (Number(product.stock) <= 5) {
         emitInventoryNotification(product, "low_stock").catch((err) =>
-          logger.error("Inventory notification failed:", err.message)
+          logger.error("Inventory notification failed:", err.message),
         );
       }
     }
