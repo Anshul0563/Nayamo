@@ -21,3 +21,14 @@
 {"level":"info","message":"Reusing existing SMTP transporter","service":"nayamo-api","timestamp":"2026-05-12 21:16:57"}
 {"level":"info","message":"Calling transporter.sendMail() to=su***@nayamo.in","service":"nayamo-api","timestamp":"2026-05-12 21:16:57"}
 {"level":"info","message":"transporter.sendMail() accepted messageId=<fdb493d4-a2ca-30d5-f92e-6e62ab2e26fc@nayamo.in> accepted=[\"support@nayamo.in\"] rejected=[] response=250 MpJxwXMLr3mrU mail accepted for delivery","service":"nayamo-api","timestamp":"2026-05-12 21:17:04"}
+{"level":"info","message":"SMTP config loaded host=smtpout.secureserver.net port=465 secure=true user=su***@nayamo.in from=su***@nayamo.in timeout=10000","service":"nayamo-api","timestamp":"2026-05-13 08:51:12"}
+{"level":"info","message":"Creating SMTP transporter","service":"nayamo-api","timestamp":"2026-05-13 08:51:12"}
+{"level":"info","message":"Starting SMTP transporter.verify()","service":"nayamo-api","timestamp":"2026-05-13 08:51:12"}
+{"level":"info","message":"SMTP connection verified","service":"nayamo-api","timestamp":"2026-05-13 08:51:14"}
+{"level":"info","message":"SMTP config loaded host=smtpout.secureserver.net port=465 secure=true user=su***@nayamo.in from=su***@nayamo.in timeout=10000","service":"nayamo-api","timestamp":"2026-05-13 08:51:14"}
+{"level":"info","message":"Reusing existing SMTP transporter","service":"nayamo-api","timestamp":"2026-05-13 08:51:14"}
+{"level":"info","message":"Preparing email to=an***@gmail.com subject=\"Nayamo SMTP delivery test\"","service":"nayamo-api","timestamp":"2026-05-13 08:51:14"}
+{"level":"info","message":"SMTP config loaded host=smtpout.secureserver.net port=465 secure=true user=su***@nayamo.in from=su***@nayamo.in timeout=10000","service":"nayamo-api","timestamp":"2026-05-13 08:51:14"}
+{"level":"info","message":"Reusing existing SMTP transporter","service":"nayamo-api","timestamp":"2026-05-13 08:51:14"}
+{"level":"info","message":"Calling transporter.sendMail() to=an***@gmail.com","service":"nayamo-api","timestamp":"2026-05-13 08:51:14"}
+{"level":"info","message":"transporter.sendMail() accepted messageId=<5ad78424-be50-0c98-4dab-1c5b9d9bf260@nayamo.in> accepted=[\"anshulshakya5632@gmail.com\"] rejected=[] response=250 N09qw1hZjB4Zw mail accepted for delivery","service":"nayamo-api","timestamp":"2026-05-13 08:51:18"}
