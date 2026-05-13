@@ -92,6 +92,8 @@ const sendMail = async ({ to, subject, html, text, replyTo }) => {
   logger.info(`Calling transporter.sendMail() to=${maskEmail(to)}`);
   try {
     const info = await mailer.sendMail({
+      console.log("MAIL SENT FULL INFO:");
+console.log(JSON.stringify(info, null, 2));
     from: `"Nayamo Support" <${smtp.fromEmail}>`,
     to,
     subject,
