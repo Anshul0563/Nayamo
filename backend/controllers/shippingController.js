@@ -9,64 +9,44 @@ const asyncHandler =
 // =========================
 // CREATE SHIPMENT
 // =========================
-exports.createShipment =
-  asyncHandler(
-    async (req, res) => {
-      const order =
-        await Order.findById(
-          req.params.id
-        );
+exports.createShipment = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id).populate("user", "name");
 
-      if (!order) {
-        res.status(404);
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
 
-        throw new Error(
-          "Order not found"
-        );
-      }
+  // Already shipped (idempotent per order)
+  if (order.delhivery?.waybill) {
+    return res.json({
+      success: true,
+      message: "Shipment already created",
+      data: order,
+    });
+  }
 
-      // Already shipped
-      if (
-        order.delhivery
-          ?.waybill
-      ) {
-        return res.json({
-          success: true,
-          message:
-            "Shipment already created",
-          data: order,
-        });
-      }
+  const shipment = await delhiveryService.createShipment(order);
 
-      const shipment =
-        await delhiveryService.createShipment(
-          order
-        );
+  order.delhivery = {
+    waybill: shipment.waybill,
+    trackingUrl: shipment.trackingUrl,
+    labelUrl: shipment.labelUrl || undefined,
+    createdAt: new Date(),
+    pickupRequested: order.delhivery?.pickupRequested || false,
+  };
 
-      order.delhivery = {
-        waybill:
-          shipment.waybill,
+  // Shipment lifecycle: set to confirmed once label/waybill exists
+  order.status = order.status === "pending" ? "confirmed" : "confirmed";
 
-        trackingUrl:
-          shipment.trackingUrl,
+  await order.save();
 
-        createdAt:
-          new Date(),
-      };
-
-      order.status =
-        "confirmed";
-
-      await order.save();
-
-      res.json({
-        success: true,
-        message:
-          "Shipment created successfully",
-        data: order,
-      });
-    }
-  );
+  res.json({
+    success: true,
+    message: "Shipment created successfully",
+    data: order,
+  });
+});
 
 // =========================
 // TRACK ORDER

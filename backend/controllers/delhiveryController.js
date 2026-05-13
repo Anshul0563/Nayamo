@@ -11,82 +11,57 @@ exports.generateWaybill = asyncHandler(async (req, res) => {
   });
 });
 
-// Create Shipment
+// Create Shipment (aligned with shippingController)
 exports.createShipment = asyncHandler(async (req, res) => {
-  const {
-    name,
-    address,
-    pin,
-    city,
-    state,
-    phone,
-    orderId,
-    paymentMode,
-    amount,
-  } = req.body;
-
-  // Validation
-  if (!name || !address || !pin || !city || !state || !phone) {
+  // Expect either { orderId } or { id }
+  const orderId = req.body?.orderId || req.body?.id;
+  if (!orderId) {
     res.status(400);
-    throw new Error("All shipping details are required");
+    throw new Error("orderId is required");
   }
 
-  // Validate PIN code (6 digits)
-  if (!/^[0-9]{6}$/.test(pin)) {
-    res.status(400);
-    throw new Error("PIN code must be 6 digits");
+  // Use the same persistence/lifecycle approach as shippingController
+  const Order = require("../models/Order");
+  const delhiveryService = require("../services/delhiveryService");
+
+  const order = await Order.findById(orderId).populate("user", "name");
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
   }
 
-  // Validate phone (10 digits)
-  if (!/^[0-9]{10}$/.test(phone)) {
-    res.status(400);
-    throw new Error("Phone must be 10 digits");
+  if (order.delhivery?.waybill) {
+    return res.json({
+      success: true,
+      message: "Shipment already created",
+      data: order,
+    });
   }
 
-  // Validate amount
-  const totalAmount = Number(amount);
-  if (paymentMode === "COD" && totalAmount <= 0) {
-    res.status(400);
-    throw new Error("COD amount required");
-  }
-  if (isNaN(totalAmount) || totalAmount < 0) {
-    res.status(400);
-    throw new Error("Invalid amount");
-  }
+  const shipment = await delhiveryService.createShipment(order);
 
-  const shipmentData = {
-    shipments: [
-      {
-        name: name.trim(),
-        add: address.trim(),
-        pin: pin.trim(),
-        city: city.trim(),
-        state: state.trim(),
-        country: "India",
-        phone: phone.trim(),
-        order: orderId,
-        payment_mode: paymentMode || "Prepaid",
-        total_amount: totalAmount,
-        quantity: Number(req.body.quantity || 1),
-        weight: Number(req.body.weight || 0.5),
-      },
-    ],
-    pickup_location: {
-      name: "Nayamo Warehouse",
-    },
+  order.delhivery = {
+    waybill: shipment.waybill,
+    trackingUrl: shipment.trackingUrl,
+    labelUrl: shipment.labelUrl || undefined,
+    createdAt: new Date(),
+    pickupRequested: order.delhivery?.pickupRequested || false,
   };
+  order.status = "confirmed";
 
-  const response = await api.post("/api/cmu/create.json", shipmentData);
+  await order.save();
 
   logger.info(`Shipment created for order: ${orderId}`);
 
   res.json({
     success: true,
-    data: response.data,
+    message: "Shipment created successfully",
+    data: order,
   });
 });
 
-// Track Shipment
+
+// Track Shipment (aligned with delhiveryService)
 exports.trackShipment = asyncHandler(async (req, res) => {
   const { waybill } = req.params;
 
@@ -95,14 +70,15 @@ exports.trackShipment = asyncHandler(async (req, res) => {
     throw new Error("Waybill number is required");
   }
 
-  const response = await api.get("/api/v1/packages/json/", {
-    params: { waybill },
-  });
+  const delhiveryService = require("../services/delhiveryService");
+  const tracking = await delhiveryService.trackShipment(waybill);
+
   res.json({
     success: true,
-    data: response.data,
+    data: tracking,
   });
 });
+
 
 // Cancel Shipment
 exports.cancelShipment = asyncHandler(async (req, res) => {
@@ -113,6 +89,8 @@ exports.cancelShipment = asyncHandler(async (req, res) => {
     throw new Error("Waybill number is required");
   }
 
+  // NOTE: cancellation behavior is not currently unified in delhiveryService.
+  // Keep existing endpoint, but validate response and persist if needed later.
   const response = await api.post("/api/p/edit", {
     waybill,
     cancellation: true,
@@ -125,3 +103,4 @@ exports.cancelShipment = asyncHandler(async (req, res) => {
     data: response.data,
   });
 });
+

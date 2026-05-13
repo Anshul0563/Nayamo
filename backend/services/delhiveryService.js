@@ -1,133 +1,108 @@
-const axios =
-  require("axios");
+const axios = require("axios");
 
 // =========================
 // AXIOS CLIENT
 // =========================
-const api =
-  axios.create({
-    baseURL:
-      process.env
-        .DELHIVERY_BASE_URL,
+const api = axios.create({
+  baseURL: process.env.DELHIVERY_BASE_URL,
+  headers: {
+    Authorization: `Token ${process.env.DELHIVERY_TOKEN}`,
+    "Content-Type": "application/json",
+  },
+});
 
-    headers: {
-      Authorization: `Token ${process.env.DELHIVERY_TOKEN}`,
+function toPinFromAddress(_address) {
+  // NOTE: existing code hardcoded pin/city/state; keep behavior stable.
+  // If you add parsing later, do it here.
+  return "110001";
+}
 
-      "Content-Type":
-        "application/json",
-    },
-  });
+function toCityFromAddress(_address) {
+  return "Delhi";
+}
+
+function toStateFromAddress(_address) {
+  return "Delhi";
+}
 
 // =========================
 // CREATE SHIPMENT
 // =========================
-exports.createShipment =
-  async (order) => {
-    try {
-      const payload = {
-        shipments: [
-          {
-            name:
-              order.user?.name ||
-              "Customer",
+exports.createShipment = async (order) => {
+  if (!order) throw new Error("Order is required");
 
-            add:
-              order.address,
+  try {
+    const payload = {
+      shipments: [
+        {
+          name: order.user?.name || "Customer",
+          add: order.address,
+          pin: toPinFromAddress(order.address),
+          city: toCityFromAddress(order.address),
+          state: toStateFromAddress(order.address),
+          country: "India",
+          phone: order.phone,
+          order: order._id.toString(),
+          payment_mode: order.paymentMethod === "cod" ? "COD" : "Prepaid",
+          total_amount: order.totalPrice,
+          quantity: Array.isArray(order.items) ? order.items.length : 1,
+          waybill: "",
 
-            pin: "110001",
+          // Packaging
+          shipment_width: 10,
+          shipment_height: 10,
+          weight: 0.5,
+        },
+      ],
+    };
 
-            city: "Delhi",
+    const response = await api.post("/cmu/create.json", payload);
 
-            state: "Delhi",
+    const packageData = response.data?.packages?.[0] || {};
+    const waybill = packageData.waybill || "";
 
-            country:
-              "India",
-
-            phone:
-              order.phone,
-
-            order:
-              order._id.toString(),
-
-            payment_mode:
-              order.paymentMethod ===
-              "cod"
-                ? "COD"
-                : "Prepaid",
-
-            total_amount:
-              order.totalPrice,
-
-            quantity:
-              order.items.length,
-
-            waybill: "",
-
-            shipment_width: 10,
-
-            shipment_height: 10,
-
-            weight: 0.5,
-          },
-        ],
-      };
-
-      const response =
-        await api.post(
-          "/cmu/create.json",
-          payload
-        );
-
-      const packageData =
-        response.data
-          ?.packages?.[0];
-
-      return {
-        waybill:
-          packageData
-            ?.waybill ||
-
-          "NO_WAYBILL",
-
-        trackingUrl: `https://www.delhivery.com/track/package/${
-          packageData
-            ?.waybill
-        }`,
-      };
-    } catch (err) {
-      console.error(
-        "[DELHIVERY ERROR]",
-        err.response?.data ||
-          err.message
-      );
-
+    if (!waybill) {
       throw new Error(
-        "Shipment creation failed"
+        `Delhivery returned no waybill. Response: ${JSON.stringify(
+          response.data
+        ).slice(0, 1000)}`,
       );
     }
-  };
+
+    return {
+      waybill,
+      trackingUrl: `https://www.delhivery.com/track/package/${waybill}`,
+      labelUrl: packageData?.label_url || packageData?.labelUrl || null,
+    };
+  } catch (err) {
+    console.error(
+      "[DELHIVERY ERROR]",
+      err.response?.data || err.message,
+    );
+    throw new Error("Shipment creation failed");
+  }
+};
 
 // =========================
 // TRACK SHIPMENT
 // =========================
-exports.trackShipment =
-  async (waybill) => {
-    try {
-      const response =
-        await api.get(
-          `/v1/packages/json/?waybill=${waybill}`
-        );
+exports.trackShipment = async (waybill) => {
+  if (!waybill) throw new Error("Waybill is required");
 
-      return response.data;
-    } catch (err) {
-      console.error(
-        "[TRACK ERROR]",
-        err.response?.data ||
-          err.message
-      );
+  try {
+    // Use the Delhivery public API path style already used elsewhere in the repo
+    // (baseURL should already include the correct host).
+    const response = await api.get(
+      `/v1/packages/json/?waybill=${encodeURIComponent(waybill)}`,
+    );
 
-      throw new Error(
-        "Tracking failed"
-      );
-    }
-  };
+    return response.data;
+  } catch (err) {
+    console.error(
+      "[TRACK ERROR]",
+      err.response?.data || err.message,
+    );
+    throw new Error("Tracking failed");
+  }
+};
+
