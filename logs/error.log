@@ -1,0 +1,4 @@
+{"level":"error","message":"transporter.sendMail() failed: {\"message\":\"No recipients defined\",\"code\":\"EENVELOPE\",\"command\":\"API\"}","service":"nayamo-api","timestamp":"2026-05-13 12:07:45"}
+{"level":"error","message":"transporter.sendMail() failed: {\"message\":\"No recipients defined\",\"code\":\"EENVELOPE\",\"command\":\"API\"}","service":"nayamo-api","timestamp":"2026-05-13 12:07:57"}
+{"level":"error","message":"transporter.sendMail() failed: {\"message\":\"No recipients defined\",\"code\":\"EENVELOPE\",\"command\":\"API\"}","service":"nayamo-api","timestamp":"2026-05-13 12:08:07"}
+{"level":"error","message":"transporter.sendMail() failed: {\"message\":\"No recipients defined\",\"code\":\"EENVELOPE\",\"command\":\"API\"}","service":"nayamo-api","timestamp":"2026-05-13 12:08:37"}
