@@ -3,15 +3,18 @@ const asyncHandler = require("../utils/asyncHandler");
 
 // ADD TO CART
 exports.addToCart = asyncHandler(async (req, res) => {
-  const { productId } = req.body;
+  const { productId, quantity = 1 } = req.body;
 
   if (!productId) {
     res.status(400);
     throw new Error("Product ID is required");
   }
 
-  const cart = await cartService.addToCart(req.user._id, productId);
-
+  const cart = await cartService.addToCart(
+    req.user._id,
+    productId,
+    Number(quantity),
+  );
   res.json({
     success: true,
     message: "Item added to cart",
@@ -36,7 +39,7 @@ exports.updateQuantity = asyncHandler(async (req, res) => {
   const cart = await cartService.updateQuantity(
     req.user._id,
     productId,
-    Number(quantity)
+    Number(quantity),
   );
 
   res.json({

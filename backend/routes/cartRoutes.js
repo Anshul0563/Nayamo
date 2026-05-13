@@ -20,6 +20,11 @@ const cartValidation = [
     .withMessage("productId is required")
     .isMongoId()
     .withMessage("Invalid productId"),
+
+  body("quantity")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("quantity must be at least 1"),
 ];
 
 const quantityValidation = [

@@ -2,7 +2,7 @@ const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 
 // ADD TO CART
-exports.addToCart = async (userId, productId) => {
+exports.addToCart = async (userId, productId, quantity = 1) => {
   if (!productId) {
     throw new Error("Product ID is required");
   }
@@ -20,12 +20,12 @@ exports.addToCart = async (userId, productId) => {
   }
 
   const itemIndex = cart.items.findIndex(
-    (item) => item.product.toString() === productId
+    (item) => item.product.toString() === productId,
   );
 
   if (itemIndex > -1) {
     // Check stock before incrementing
-    const newQuantity = cart.items[itemIndex].quantity + 1;
+    const newQuantity = cart.items[itemIndex].quantity + quantity;
     if (product.stock < newQuantity) {
       throw new Error(`Only ${product.stock} items available in stock`);
     }
@@ -34,7 +34,10 @@ exports.addToCart = async (userId, productId) => {
     if (product.stock < 1) {
       throw new Error("Product is out of stock");
     }
-    cart.items.push({ product: productId, quantity: 1 });
+    cart.items.push({
+      product: productId,
+      quantity,
+    });
   }
 
   await cart.save();
@@ -67,9 +70,7 @@ exports.updateQuantity = async (userId, productId, quantity) => {
     throw new Error(`Only ${product.stock} items available in stock`);
   }
 
-  const item = cart.items.find(
-    (item) => item.product.toString() === productId
-  );
+  const item = cart.items.find((item) => item.product.toString() === productId);
 
   if (!item) {
     throw new Error("Item not found in cart");
@@ -94,7 +95,7 @@ exports.removeFromCart = async (userId, productId) => {
   }
 
   const itemExists = cart.items.some(
-    (item) => item.product.toString() === productId
+    (item) => item.product.toString() === productId,
   );
 
   if (!itemExists) {
@@ -102,7 +103,7 @@ exports.removeFromCart = async (userId, productId) => {
   }
 
   cart.items = cart.items.filter(
-    (item) => item.product.toString() !== productId
+    (item) => item.product.toString() !== productId,
   );
 
   await cart.save();
@@ -111,11 +112,10 @@ exports.removeFromCart = async (userId, productId) => {
 
 // GET CART (WITH TOTAL)
 exports.getCart = async (userId) => {
-  const cart = await Cart.findOne({ user: userId })
-    .populate({
-      path: "items.product",
-      select: "title price images stock category isActive",
-    });
+  const cart = await Cart.findOne({ user: userId }).populate({
+    path: "items.product",
+    select: "title price images stock category isActive",
+  });
 
   if (!cart || cart.items.length === 0) {
     return {
