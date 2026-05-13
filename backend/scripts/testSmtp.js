@@ -3,7 +3,7 @@ const crypto = require("crypto");
 
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
-const { sendMail, verifySmtp } = require("../services/emailService");
+const { sendMail} = require("../services/emailService");
 
 const maskEmail = (email = "") => {
   const [name, domain] = String(email).split("@");
@@ -41,10 +41,7 @@ const run = async () => {
     `SMTP env host=${process.env.SMTP_HOST || "missing"} port=${process.env.SMTP_PORT || "missing"} secure=${process.env.SMTP_SECURE || "missing"} user=${maskEmail(process.env.SMTP_USER || process.env.EMAIL_USER)} from=${maskEmail(process.env.SMTP_FROM_EMAIL || process.env.EMAIL_FROM || process.env.SMTP_USER || process.env.EMAIL_USER)}`
   );
 
-  console.log("Running transporter.verify()...");
-  await verifySmtp();
-  console.log("transporter.verify() succeeded.");
-
+  
   for (const to of recipients) {
 
     console.log(
