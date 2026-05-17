@@ -1,4 +1,3 @@
-const Order = require("../models/Order");
 const logger = require("../config/logger");
 
 // Final statuses that trigger 30-day countdown
@@ -12,7 +11,6 @@ const ARCHIVE_AFTER_DAYS = 30;
  * Archives orders that have been in final state for 30+ days
  */
 const cleanupOldOrders = async () => {
-  const logger = require("../config/logger");
   logger.info("Order cleanup DISABLED per requirements - All orders kept visible forever");
   return {
     success: true,
