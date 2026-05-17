@@ -18,7 +18,6 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Package,
   Tag,
 } from "lucide-react";
 import ExportButton from "../components/ExportButton";
@@ -55,7 +54,6 @@ export default function Inventory() {
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const [selected, setSelected] = useState([]);
   const [categoryStats, setCategoryStats] = useState({});
 
@@ -91,7 +89,6 @@ export default function Inventory() {
       setProducts(list);
       setPage(res.data.pagination?.currentPage || 1);
       setTotalPages(res.data.pagination?.totalPages || 1);
-      setTotalItems(res.data.pagination?.totalItems || list.length);
 
       // Calculate category stats from all products (simplified client-side for now)
       const stats = {};

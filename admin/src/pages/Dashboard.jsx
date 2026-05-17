@@ -49,7 +49,7 @@ export default function Dashboard() {
   }, []);
 
   // 🔥 CHART RANGE FETCH (SEPARATE)
-  const handleRangeChange = async (range) => {
+  const handleRangeChange = useCallback(async (range) => {
     try {
       setChartLoading(true);
 
@@ -62,7 +62,7 @@ export default function Dashboard() {
     } finally {
       setChartLoading(false);
     }
-  };
+  }, []);
 
   // 🔥 AUTO REFRESH
   useEffect(() => {
@@ -152,7 +152,7 @@ export default function Dashboard() {
 
       {/* METRICS */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-        {metrics.map((item, i) => (
+        {metrics.map((item) => (
           <StatCard key={item.title} {...item} />
         ))}
       </div>

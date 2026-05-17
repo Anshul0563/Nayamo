@@ -1,6 +1,4 @@
 import React from "react";
-import { EnhancedDashboardSkeleton } from '../dashboard/DashboardSkeleton';
-
 
 export function SkeletonCard() {
   return (

@@ -181,7 +181,7 @@ export function useAnimatedCounter(endValue, duration = 1500, startOnMount = tru
     reset();
     const timer = setTimeout(start, 100);
     return () => clearTimeout(timer);
-  }, [endValue]);
+  }, [endValue, reset, start]);
 
   return { count, start, reset, isRunning };
 }

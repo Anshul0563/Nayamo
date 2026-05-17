@@ -10,8 +10,6 @@ import {
   Loader2,
   Star,
   MessageSquare,
-  ChevronLeft,
-  ChevronRight,
   Calendar,
   CheckSquare,
   XSquare,
@@ -124,14 +122,6 @@ export default function Reviews() {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
-  };
-
-  const selectAll = () => {
-    if (selected.length === reviews.length) {
-      setSelected([]);
-    } else {
-      setSelected(reviews.map((r) => r._id));
-    }
   };
 
   const bulkApprove = async () => {

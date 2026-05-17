@@ -43,7 +43,7 @@ export default function SalesChart({
   // 🔥 notify parent when range changes
   useEffect(() => {
     if (onRangeChange) onRangeChange(range);
-  }, [range]);
+  }, [onRangeChange, range]);
 
   // 🔥 normalize data
   const formatted = (data || []).map((d) => ({
@@ -58,7 +58,7 @@ export default function SalesChart({
       if (onRangeChange) onRangeChange(range);
     }, 20000);
     return () => clearInterval(interval);
-  }, [range]);
+  }, [onRangeChange, range]);
 
   if (loading) {
     return (

@@ -17,6 +17,7 @@ export default function Users() {
   const [selected, setSelected] = useState([]);
   const [bulkAction, setBulkAction] = useState('');
   const [updating, setUpdating] = useState({});
+  const [error, setError] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -26,6 +27,7 @@ export default function Users() {
   const loadUsers = useCallback(async (currentPage = 1) => {
     try {
       setLoading(true);
+      setError('');
       const params = { 
         page: currentPage, 
         limit: 20, 
@@ -41,7 +43,7 @@ export default function Users() {
       setTotalPages(result.pagination?.totalPages || 1);
       setTotalItems(result.pagination?.totalItems || userList.length);
     } catch (error) {
-      console.error('Load users error:', error);
+      setError(error.response?.data?.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -57,7 +59,7 @@ export default function Users() {
       await adminAPI.updateUser(userId, { [field]: value });
       setUsers(prev => prev.map(u => u._id === userId ? { ...u, [field]: value } : u));
     } catch (error) {
-      console.error('Update user error:', error);
+      setError(error.response?.data?.message || 'Failed to update user');
     } finally {
       setUpdating(prev => ({ ...prev, [userId]: false }));
     }
@@ -74,7 +76,7 @@ export default function Users() {
       setSelected([]);
       setBulkAction('');
     } catch (error) {
-      console.error('Bulk update error:', error);
+      setError(error.response?.data?.message || 'Bulk update failed');
     }
   };
 
@@ -89,7 +91,7 @@ export default function Users() {
       await loadUsers(page);
       setSelected([]);
     } catch (error) {
-      console.error('Bulk delete error:', error);
+      setError(error.response?.data?.message || 'Bulk delete failed');
     }
   };
 
@@ -123,6 +125,15 @@ export default function Users() {
         <h1 className="text-3xl font-bold text-luxury-text mb-2">Users</h1>
         <p className="text-luxury-dim">Manage your customer and admin accounts</p>
       </div>
+
+      {error && (
+        <div className="mb-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300 flex items-center gap-2">
+          {error}
+          <button onClick={() => setError('')} className="ml-auto underline">
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

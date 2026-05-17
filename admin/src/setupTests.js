@@ -7,3 +7,12 @@ import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = global.TextEncoder || TextEncoder;
 global.TextDecoder = global.TextDecoder || TextDecoder;
+
+class MockIntersectionObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+global.IntersectionObserver =
+  global.IntersectionObserver || MockIntersectionObserver;

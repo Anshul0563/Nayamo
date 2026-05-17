@@ -14,9 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  CheckSquare,
   XSquare,
-  Trash2,
 } from "lucide-react";
 
 const TABS = [
@@ -91,8 +89,8 @@ export default function Orders() {
   // Socket event listener for real-time order updates
   useEffect(() => {
     const handleStatusUpdate = (event) => {
-      const { orderId, status, eventType } = event.detail;
-      console.log("Order status update received:", orderId, status);
+      const { orderId } = event.detail;
+      if (!orderId) return;
       // Reload orders and stats to reflect the change
       loadOrders(page);
       loadStats();
@@ -135,14 +133,6 @@ export default function Orders() {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
-  };
-
-  const selectAll = () => {
-    if (selected.length === orders.length) {
-      setSelected([]);
-    } else {
-      setSelected(orders.map((o) => o._id));
-    }
   };
 
   const bulkStatusUpdate = async (status) => {
@@ -200,8 +190,6 @@ export default function Orders() {
 
       await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {
-      console.error(error);
-
       setError(
         error.response?.data?.message || "Bulk shipment creation failed",
       );

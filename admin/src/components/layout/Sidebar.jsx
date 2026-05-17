@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { useTheme } from "../../context/ThemeContext";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -17,7 +16,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Star,
-  MessageSquare,
 } from "lucide-react";
 
 const menuItems = [
@@ -46,7 +44,7 @@ export default function Sidebar({
   // Close mobile sidebar on route change
   useEffect(() => {
     onMobileClose?.();
-  }, [location.pathname]);
+  }, [location.pathname, onMobileClose]);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -97,7 +95,7 @@ export default function Sidebar({
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-          {menuItems.map((item, index) => {
+          {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path || 
               (item.path !== "/" && location.pathname.startsWith(item.path));

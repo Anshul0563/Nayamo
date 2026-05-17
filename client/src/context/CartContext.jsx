@@ -52,12 +52,6 @@ export function CartProvider({ children }) {
         }
 
         const normalizedProductId = String(productId);
-        console.log("[CartContext.addToCart] productId:", {
-          raw: productId,
-          normalizedProductId,
-          quantity,
-        });
-
         // Prevent backend 400s from invalid ids
         if (!/^[a-fA-F0-9]{24}$/.test(normalizedProductId)) {
           toast.error("Invalid product id");
@@ -70,8 +64,6 @@ export function CartProvider({ children }) {
 
         toast.success("Added to cart");
       } catch (err) {
-        console.error("Add to cart error:", err);
-
         const msg =
           err?.response?.data?.errors?.[0]?.message ||
           err?.response?.data?.message ||

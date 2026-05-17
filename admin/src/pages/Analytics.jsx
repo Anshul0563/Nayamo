@@ -19,8 +19,7 @@ import {
   ShoppingCart,
   Percent,
   RefreshCw,
-  AlertCircle,
-  Crown
+  AlertCircle
 } from 'lucide-react';
 
 const TABS = [

@@ -54,8 +54,7 @@ export default function Settings() {
           // Sync to localStorage as cache
           localStorage.setItem("adminSettings", JSON.stringify(apiSettings));
         }
-      } catch (error) {
-        console.error("Failed to load settings from API, falling back to localStorage");
+    } catch {
         const saved = localStorage.getItem("adminSettings");
         if (saved) {
           try {
@@ -71,7 +70,7 @@ export default function Settings() {
     };
 
     loadSettings();
-  }, []);
+  }, [setTheme]);
 
   const saveSettings = async () => {
     try {
