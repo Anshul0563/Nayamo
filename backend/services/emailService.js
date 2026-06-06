@@ -1,8 +1,15 @@
 const nodemailer = require("nodemailer");
 const logger = require("../config/logger");
-const { getSmtpConfig, isConfigured } = require("../config/env");
+const {
+  getEmailProvider,
+  getResendConfig,
+  getSmtpConfig,
+  isConfigured,
+} = require("../config/env");
 
-let transporter;
+let smtpTransporter;
+let ResendClient;
+let resendClient;
 
 const maskEmail = (email = "") => {
   const [name, domain] = String(email).split("@");
@@ -12,118 +19,219 @@ const maskEmail = (email = "") => {
   return `${name.slice(0, 2)}***@${domain}`;
 };
 
-const getErrorDetails = (error) => ({
-  message: error.message,
-  code: error.code,
-  command: error.command,
-  response: error.response,
-  responseCode: error.responseCode,
+const classifyEmailError = (error) => {
+  const message = String(error?.message || "");
+  const response = String(error?.response || "");
+  const combined = `${message} ${response}`.toLowerCase();
+
+  if (error?.code === "EAUTH" || combined.includes("auth")) {
+    return "INVALID_SMTP_CREDENTIALS";
+  }
+
+  if (error?.code === "ECONNECTION") return "SMTP_CONNECTION_FAILED";
+  if (error?.code === "ETIMEDOUT" || combined.includes("timeout")) {
+    return "SMTP_TIMEOUT";
+  }
+
+  if (
+    combined.includes("domain") ||
+    combined.includes("sender") ||
+    combined.includes("verified")
+  ) {
+    return "SENDER_OR_DOMAIN_NOT_VERIFIED";
+  }
+
+  if (
+    error?.code === "SMTP_NOT_CONFIGURED" ||
+    error?.code === "RESEND_NOT_CONFIGURED"
+  ) {
+    return "MISSING_EMAIL_ENV";
+  }
+
+  return "EMAIL_SEND_FAILED";
+};
+
+const getSafeErrorDetails = (error) => ({
+  reason: classifyEmailError(error),
+  message: error?.message,
+  code: error?.code,
+  command: error?.command,
+  responseCode: error?.responseCode,
 });
 
-const getTransporter = () => {
+const validateSmtpConfig = (smtp) => {
+  const missing = [];
+
+  if (!isConfigured(smtp.host)) missing.push("SMTP_HOST");
+  if (!isConfigured(smtp.port)) missing.push("SMTP_PORT");
+  if (!isConfigured(smtp.user)) missing.push("SMTP_USER");
+  if (!isConfigured(smtp.pass)) missing.push("SMTP_PASS");
+  if (!isConfigured(smtp.fromEmail)) missing.push("SMTP_FROM_EMAIL");
+
+  if (missing.length) {
+    const error = new Error(`Missing email environment variables: ${missing.join(", ")}`);
+    error.code = "SMTP_NOT_CONFIGURED";
+    error.missing = missing;
+    throw error;
+  }
+};
+
+const getSmtpTransporter = () => {
   const smtp = getSmtpConfig();
 
   logger.info(
-    `SMTP config loaded host=${smtp.host || "missing"} port=${smtp.port || "missing"} secure=${smtp.secure} user=${maskEmail(smtp.user)} from=${maskEmail(smtp.fromEmail)} timeout=${smtp.timeout}`,
+    `Email provider=smtp host=${smtp.host || "missing"} port=${smtp.port || "missing"} secure=${smtp.secure} user=${maskEmail(smtp.user)} from=${maskEmail(smtp.fromEmail)} timeout=${smtp.timeout}`,
   );
 
-  if (
-    !isConfigured(smtp.host) ||
-    !isConfigured(smtp.port) ||
-    !isConfigured(smtp.user) ||
-    !isConfigured(smtp.pass) ||
-    !isConfigured(smtp.fromEmail)
-  ) {
-    const error = new Error("SMTP credentials are not configured");
-    error.code = "SMTP_NOT_CONFIGURED";
-    throw error;
-  }
+  validateSmtpConfig(smtp);
 
-  // Create transporter only once
-  if (!transporter) {
-    logger.info("Creating SMTP transporter");
-
-    transporter = nodemailer.createTransport({
+  if (!smtpTransporter) {
+    smtpTransporter = nodemailer.createTransport({
       host: smtp.host,
-
       port: smtp.port,
-
       secure: smtp.secure,
-
       name: process.env.SMTP_HELO_NAME || "nayamo.in",
-
       auth: {
         user: smtp.user,
         pass: smtp.pass,
       },
-
       requireTLS: !smtp.secure,
-
       tls: {
         rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED === "true",
         servername: smtp.host,
       },
-
       connectionTimeout: smtp.timeout,
       greetingTimeout: smtp.timeout,
       socketTimeout: smtp.timeout,
-
-
       family: 4,
-
       pool: false,
     });
-  } else {
-    logger.info("Reusing existing SMTP transporter");
   }
 
-  return { smtp, transporter };
+  return { smtp, transporter: smtpTransporter };
 };
 
-const sendMail = async ({ to, subject, html, text, replyTo }) => {
-  const { smtp, transporter: mailer } = getTransporter();
+const getResendClient = () => {
+  const resend = getResendConfig();
 
-  logger.info(`Preparing email to=${maskEmail(to)} subject="${subject}"`);
+  logger.info(`Email provider=resend from=${maskEmail(resend.fromEmail)}`);
 
-  logger.info(`Calling transporter.sendMail() to=${maskEmail(to)}`);
+  if (!isConfigured(resend.apiKey) || !isConfigured(resend.fromEmail)) {
+    const error = new Error("Missing Resend environment variables");
+    error.code = "RESEND_NOT_CONFIGURED";
+    throw error;
+  }
+
+  if (!ResendClient) {
+    try {
+      ({ Resend: ResendClient } = require("resend"));
+    } catch (_error) {
+      const error = new Error("Resend package is not installed for the backend");
+      error.code = "RESEND_PACKAGE_MISSING";
+      throw error;
+    }
+  }
+
+  if (!resendClient) {
+    resendClient = new ResendClient(resend.apiKey);
+  }
+
+  return { resend, client: resendClient };
+};
+
+const sendSmtpMail = async ({ to, subject, html, text, replyTo }) => {
+  const { smtp, transporter } = getSmtpTransporter();
+
+  logger.info(`Sending SMTP email to=${maskEmail(to)} subject="${subject}"`);
+
+  const info = await transporter.sendMail({
+    from: `"Nayamo" <${smtp.fromEmail}>`,
+    to,
+    subject,
+    html,
+    text,
+    ...(replyTo ? { replyTo } : {}),
+  });
+
+  logger.info(
+    `SMTP email sent to=${maskEmail(to)} messageId=${info.messageId || "none"} accepted=${(info.accepted || []).length} rejected=${(info.rejected || []).length}`,
+  );
+
+  return info;
+};
+
+const sendResendMail = async ({ to, subject, html, text, replyTo }) => {
+  const { resend, client } = getResendClient();
+
+  logger.info(`Sending Resend email to=${maskEmail(to)} subject="${subject}"`);
+
+  const result = await client.emails.send({
+    from: `"Nayamo" <${resend.fromEmail}>`,
+    to,
+    subject,
+    html,
+    text,
+    ...(replyTo ? { replyTo } : {}),
+  });
+
+  if (result?.error) {
+    const error = new Error(result.error.message || "Resend email failed");
+    error.code = result.error.name || "RESEND_SEND_FAILED";
+    throw error;
+  }
+
+  logger.info(`Resend email sent to=${maskEmail(to)} messageId=${result?.data?.id || "none"}`);
+
+  return result?.data || result;
+};
+
+const sendMail = async (mail) => {
+  const provider = getEmailProvider();
 
   try {
-    const info = await mailer.sendMail({
-      from: `"Nayamo" <${smtp.fromEmail}>`,
-
-      to,
-
-      subject,
-
-      html,
-
-      text,
-
-      ...(replyTo ? { replyTo } : {}),
-    });
-
-    console.log("========== MAIL SENT INFO ==========");
-    console.log(JSON.stringify(info, null, 2));
-    console.log("====================================");
-
-    logger.info(
-      `transporter.sendMail() accepted messageId=${info.messageId || "none"} accepted=${JSON.stringify(info.accepted || [])} rejected=${JSON.stringify(info.rejected || [])} response=${info.response || "none"}`,
-    );
-
-    return info;
+    return provider === "resend" ? await sendResendMail(mail) : await sendSmtpMail(mail);
   } catch (error) {
-    console.error("========== SMTP ERROR ==========");
-    console.error(JSON.stringify(getErrorDetails(error), null, 2));
-    console.error("================================");
-
     logger.error(
-      `transporter.sendMail() failed: ${JSON.stringify(getErrorDetails(error))}`,
+      `Email send failed provider=${provider} to=${maskEmail(mail?.to)} details=${JSON.stringify(getSafeErrorDetails(error))}`,
     );
 
     throw error;
   }
 };
 
+const verifyEmailTransport = async () => {
+  const provider = getEmailProvider();
+
+  if (provider === "resend") {
+    const { resend } = getResendClient();
+    return {
+      provider,
+      configured: true,
+      from: maskEmail(resend.fromEmail),
+    };
+  }
+
+  const { smtp, transporter } = getSmtpTransporter();
+  await transporter.verify();
+
+  logger.info(
+    `SMTP transport verified host=${smtp.host} port=${smtp.port} secure=${smtp.secure} user=${maskEmail(smtp.user)} from=${maskEmail(smtp.fromEmail)}`,
+  );
+
+  return {
+    provider,
+    configured: true,
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.secure,
+    user: maskEmail(smtp.user),
+    from: maskEmail(smtp.fromEmail),
+  };
+};
+
 module.exports = {
+  classifyEmailError,
+  getSafeErrorDetails,
   sendMail,
+  verifyEmailTransport,
 };

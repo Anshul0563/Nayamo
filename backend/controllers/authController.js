@@ -32,19 +32,13 @@ const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
 const getPasswordResetClientUrl = () => {
-  const explicitUrl =
-    process.env.CLIENT_URL ||
-    process.env.FRONTEND_URL ||
-    process.env.PUBLIC_CLIENT_URL;
+  if (!process.env.CLIENT_URL) {
+    const error = new Error("CLIENT_URL is not configured");
+    error.code = "CLIENT_URL_NOT_CONFIGURED";
+    throw error;
+  }
 
-  if (explicitUrl) return explicitUrl.replace(/\/$/, "");
-
-  const corsClientUrl = (process.env.CORS_ORIGINS || "")
-    .split(",")
-    .map((origin) => origin.trim().replace(/\/$/, ""))
-    .find((origin) => /^https?:\/\//.test(origin) && !origin.includes("admin"));
-
-  return corsClientUrl || "https://nayamo.in";
+  return process.env.CLIENT_URL.replace(/\/$/, "");
 };
 
 // Password validation - strong requirements
@@ -362,15 +356,15 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   });
 
   const encodedToken = encodeURIComponent(resetToken);
+  const resetUrl = `${getPasswordResetClientUrl()}/reset-password/${encodedToken}`;
 
-  const resetUrl = `${getPasswordResetClientUrl()}/reset-password?token=${encodedToken}`;
+  try {
+    await sendMail({
+      to: user.email,
 
-  await sendMail({
-    to: user.email,
+      subject: "Reset Your Nayamo Password",
 
-    subject: "Reset Your Nayamo Password",
-
-    html: `
+      html: `
   <!DOCTYPE html>
   <html>
   <head>
@@ -533,7 +527,19 @@ ${resetUrl}
 
 If you did not request this, you can safely ignore this email.
   `,
-  });
+    });
+  } catch (error) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    logger.error(
+      `Password reset email failed userId=${user._id} error=${error.message}`,
+    );
+
+    res.status(500);
+    throw new Error("Reset email could not be sent");
+  }
 
   res.status(200).json({
     success: true,
@@ -563,17 +569,7 @@ exports.resetPassword = asyncHandler(async (req, res) => {
     );
   }
 
-  // Hash incoming token
   const hashedToken = hashToken(token);
-  console.log("========== RESET PASSWORD DEBUG ==========");
-
-  console.log("INCOMING TOKEN:");
-  console.log(token);
-
-  console.log("HASHED INCOMING TOKEN:");
-  console.log(hashedToken);
-
-  console.log("==========================================");
 
   // Find user by token
   const user = await User.findOne({
