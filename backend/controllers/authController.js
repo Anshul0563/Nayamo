@@ -31,6 +31,14 @@ const generateRefreshToken = (user) => {
 const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
+const maskEmail = (email = "") => {
+  const [name, domain] = String(email).split("@");
+
+  if (!name || !domain) return "unknown";
+
+  return `${name.slice(0, 2)}***@${domain}`;
+};
+
 const getPasswordResetClientUrl = () => {
   if (!process.env.CLIENT_URL) {
     const error = new Error("CLIENT_URL is not configured");
@@ -315,6 +323,10 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   const user = await User.findOne({
     email: normalizedEmail,
   });
+
+  logger.info(
+    `Password reset requested email=${maskEmail(normalizedEmail)} userFound=${Boolean(user)}`,
+  );
 
   if (!user) {
     return res.status(200).json({
