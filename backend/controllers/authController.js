@@ -199,14 +199,9 @@ exports.login = asyncHandler(async (req, res) => {
 
 // 🔄 REFRESH TOKEN
 exports.refreshToken = asyncHandler(async (req, res) => {
-  console.log("[REFRESH TOKEN API HIT]");
-  console.log("[REFRESH TOKEN BODY]:", req.body);
-
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
-    console.log("[REFRESH ERROR]: No refresh token");
-
     res.status(401);
     throw new Error("Refresh token is required");
   }
@@ -214,22 +209,14 @@ exports.refreshToken = asyncHandler(async (req, res) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-    console.log("[REFRESH DECODED]:", decoded);
-
     if (decoded.type !== "refresh") {
-      console.log("[REFRESH ERROR]: Invalid token type");
-
       res.status(401);
       throw new Error("Invalid token type");
     }
 
     const user = await User.findById(decoded.id);
 
-    console.log("[REFRESH USER]:", user?._id);
-
     if (!user || !user.isActive) {
-      console.log("[REFRESH ERROR]: User inactive or missing");
-
       res.status(401);
       throw new Error("User not found or inactive");
     }
@@ -242,11 +229,7 @@ exports.refreshToken = asyncHandler(async (req, res) => {
       (t) => t.tokenHash === tokenHash && t.expiresAt > new Date(),
     );
 
-    console.log("[TOKEN EXISTS]:", tokenExists);
-
     if (!tokenExists) {
-      console.log("[REFRESH ERROR]: Token revoked");
-
       res.status(401);
       throw new Error("Refresh token revoked or expired");
     }
@@ -270,7 +253,7 @@ exports.refreshToken = asyncHandler(async (req, res) => {
 
     await user.save();
 
-    console.log("[REFRESH SUCCESS]");
+    logger.info(`Refresh token rotated for userId=${user._id}`);
 
     res.json({
       success: true,
@@ -278,8 +261,6 @@ exports.refreshToken = asyncHandler(async (req, res) => {
       refreshToken: newRefreshToken,
     });
   } catch (error) {
-    console.log("[REFRESH TOKEN ERROR]:", error);
-
     res.status(401);
 
     throw new Error("Invalid or expired refresh token");
@@ -533,9 +514,7 @@ If you did not request this, you can safely ignore this email.
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
 
-    logger.error(
-      `Password reset email failed userId=${user._id} error=${error.message}`,
-    );
+    logger.error(`Password reset email failed userId=${user._id}`);
 
     res.status(500);
     throw new Error("Reset email could not be sent");

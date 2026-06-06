@@ -24,10 +24,8 @@ const protect = async (req, res, next) => {
     }
 
     const authHeader = req.headers.authorization;
-    console.log("[authMiddleware] Authorization header:", authHeader);
-    logger.info("[authMiddleware] Authorization header:", authHeader);
     logger.info("[authMiddleware] Incoming headers:", {
-      authorization: authHeader,
+      hasAuthorization: Boolean(authHeader),
       origin: req.headers.origin,
       referer: req.headers.referer,
     });
