@@ -3,7 +3,7 @@ const crypto = require("crypto");
 
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
-const { sendMail} = require("../services/emailService");
+const { sendMail, verifyEmailTransport } = require("../services/emailService");
 
 const maskEmail = (email = "") => {
   const [name, domain] = String(email).split("@");
@@ -41,6 +41,7 @@ const run = async () => {
     `SMTP env host=${process.env.SMTP_HOST || "missing"} port=${process.env.SMTP_PORT || "missing"} secure=${process.env.SMTP_SECURE || "missing"} user=${maskEmail(process.env.SMTP_USER || process.env.EMAIL_USER)} from=${maskEmail(process.env.SMTP_FROM_EMAIL || process.env.EMAIL_FROM || process.env.SMTP_USER || process.env.EMAIL_USER)}`
   );
 
+  await verifyEmailTransport();
   
   for (const to of recipients) {
 
@@ -52,8 +53,8 @@ const run = async () => {
     const resetToken = crypto.randomBytes(32).toString("hex");
 
     // Frontend reset password page URL
-    const resetUrl =
-      `https://nayamo.in/reset-password?token=${resetToken}`;
+    const clientUrl = (process.env.CLIENT_URL || "https://nayamo.in").replace(/\/$/, "");
+    const resetUrl = `${clientUrl}/reset-password/${encodeURIComponent(resetToken)}`;
 
     const info = await sendMail({
 
@@ -116,7 +117,7 @@ If you did not request this, ignore this email.
       JSON.stringify(
         {
           to: maskEmail(to),
-          resetUrl,
+          resetUrl: `${clientUrl}/reset-password/[token]`,
           messageId: info.messageId,
           accepted: info.accepted,
           rejected: info.rejected,

@@ -36,6 +36,7 @@ const imageRoutes = require("./routes/imageRoutes");
 const webhookRoutes = require("./routes/webhookRoutes");
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 const startPaymentCleanupJob = require("./cron/paymentCleanupJob");
+const { verifyEmailTransport } = require("./services/emailService");
 
 const app = express();
 const server = http.createServer(app);
@@ -238,6 +239,19 @@ app.get("/health", (req, res) => {
   });
 });
 
+if (process.env.NODE_ENV !== "production") {
+  app.get("/api/v1/dev/email/verify", async (_req, res, next) => {
+    try {
+      const result = await verifyEmailTransport();
+      res.json({ success: true, data: result });
+    } catch (error) {
+      logger.error(`Development email verify failed: ${error.message}`);
+      res.status(500);
+      next(new Error("Email transport verification failed"));
+    }
+  });
+}
+
 // ================= ROUTES =================
 app.use("/api/v1/products", requireDB, productRoutes);
 app.use("/api/v1/auth", requireDB, authRoutes);
@@ -273,6 +287,14 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
+
+    if (process.env.VERIFY_EMAIL_ON_STARTUP === "true") {
+      try {
+        await verifyEmailTransport();
+      } catch (error) {
+        logger.error(`Email startup verification failed: ${error.message}`);
+      }
+    }
 
     server.listen(PORT, "0.0.0.0", () => {
       logger.info(

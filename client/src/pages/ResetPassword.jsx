@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
@@ -7,11 +7,9 @@ import Loader from "../components/common/Loader";
 import Logo from "../components/common/Logo";
 
 export default function ResetPassword() {
+  const params = useParams();
   const [searchParams] = useSearchParams();
-  const token =
-decodeURIComponent(
-  searchParams.get("token") || ""
-);
+  const token = decodeURIComponent(params.token || searchParams.get("token") || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
