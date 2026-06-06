@@ -8,6 +8,7 @@ const {
 } = require("../config/env");
 
 let smtpTransporter;
+let smtpVerified = false;
 let ResendClient;
 let resendClient;
 
@@ -150,6 +151,14 @@ const sendSmtpMail = async ({ to, subject, html, text, replyTo }) => {
 
   logger.info(`Sending SMTP email to=${maskEmail(to)} subject="${subject}"`);
 
+  if (!smtpVerified) {
+    await transporter.verify();
+    smtpVerified = true;
+    logger.info(
+      `SMTP transport verified host=${smtp.host} port=${smtp.port} secure=${smtp.secure} user=${maskEmail(smtp.user)} from=${maskEmail(smtp.fromEmail)}`,
+    );
+  }
+
   const info = await transporter.sendMail({
     from: `"Nayamo" <${smtp.fromEmail}>`,
     to,
@@ -219,6 +228,7 @@ const verifyEmailTransport = async () => {
 
   const { smtp, transporter } = getSmtpTransporter();
   await transporter.verify();
+  smtpVerified = true;
 
   logger.info(
     `SMTP transport verified host=${smtp.host} port=${smtp.port} secure=${smtp.secure} user=${maskEmail(smtp.user)} from=${maskEmail(smtp.fromEmail)}`,
