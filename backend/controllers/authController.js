@@ -349,7 +349,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   });
 
   const encodedToken = encodeURIComponent(resetToken);
-  const resetUrl = `${getPasswordResetClientUrl()}/reset-password/${encodedToken}`;
+  const resetUrl = `${getPasswordResetClientUrl()}/reset-password?token=${encodedToken}`;
 
   try {
     await sendMail({
