@@ -28,7 +28,13 @@ const classifyEmailError = (error) => {
     return "INVALID_SMTP_CREDENTIALS";
   }
 
-  if (error?.code === "ECONNECTION") return "SMTP_CONNECTION_FAILED";
+  if (
+    error?.code === "ECONNECTION" ||
+    error?.code === "ESOCKET" ||
+    combined.includes("econnreset")
+  ) {
+    return "SMTP_CONNECTION_FAILED";
+  }
   if (error?.code === "ETIMEDOUT" || combined.includes("timeout")) {
     return "SMTP_TIMEOUT";
   }
