@@ -44,29 +44,29 @@ const getTransporter = () => {
     logger.info("Creating SMTP transporter");
 
     transporter = nodemailer.createTransport({
-      host: "smtpout.secureserver.net",
+      host: smtp.host,
 
-      port: 587,
+      port: smtp.port,
 
-      secure: false,
+      secure: smtp.secure,
 
-      name:"nayamo.in",
+      name: process.env.SMTP_HELO_NAME || "nayamo.in",
 
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: smtp.user,
+        pass: smtp.pass,
       },
 
-      requireTLS: true,
+      requireTLS: !smtp.secure,
 
       tls: {
-        rejectUnauthorized: false,
-        servername: "smtpout.secureserver.net",
+        rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED === "true",
+        servername: smtp.host,
       },
 
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
+      connectionTimeout: smtp.timeout,
+      greetingTimeout: smtp.timeout,
+      socketTimeout: smtp.timeout,
 
 
       family: 4,

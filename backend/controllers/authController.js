@@ -31,6 +31,22 @@ const generateRefreshToken = (user) => {
 const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
+const getPasswordResetClientUrl = () => {
+  const explicitUrl =
+    process.env.CLIENT_URL ||
+    process.env.FRONTEND_URL ||
+    process.env.PUBLIC_CLIENT_URL;
+
+  if (explicitUrl) return explicitUrl.replace(/\/$/, "");
+
+  const corsClientUrl = (process.env.CORS_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/$/, ""))
+    .find((origin) => /^https?:\/\//.test(origin) && !origin.includes("admin"));
+
+  return corsClientUrl || "https://nayamo.in";
+};
+
 // Password validation - strong requirements
 const isPasswordStrong = (password) => {
   const regex =
@@ -345,11 +361,9 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     validateBeforeSave: false,
   });
 
-  const clientUrl = process.env.CLIENT_URL;
-
   const encodedToken = encodeURIComponent(resetToken);
 
-  const resetUrl = `${clientUrl.replace(/\/$/, "")}/reset-password?token=${encodedToken}`;
+  const resetUrl = `${getPasswordResetClientUrl()}/reset-password?token=${encodedToken}`;
 
   await sendMail({
     to: user.email,
