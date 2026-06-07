@@ -1,4 +1,5 @@
 import axios from "axios";
+import { incrementLoading, decrementLoading } from "./loadingService";
 
 // ✅ Using CRA environment variable with a local fallback for graceful dev startup
 const API_BASE_URL =
@@ -17,13 +18,17 @@ const apiClient = axios.create({
 // ================= REQUEST INTERCEPTOR =================
 apiClient.interceptors.request.use(
   (config) => {
+    incrementLoading();
     const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    decrementLoading();
+    return Promise.reject(error);
+  }
 );
 
 // ================= RESPONSE INTERCEPTOR =================
@@ -40,8 +45,12 @@ const addRefreshSubscriber = (callback) => {
 };
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    decrementLoading();
+    return response;
+  },
   async (error) => {
+    decrementLoading();
     const originalRequest = error.config || {};
 
     // Robust auth-route detection to prevent refresh/ retry loops
