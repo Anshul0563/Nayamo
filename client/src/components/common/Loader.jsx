@@ -1,14 +1,19 @@
 import React from "react";
-import { Loader2 } from "lucide-react";
 
 export default function Loader({ size = 32, className = "" }) {
   return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <Loader2
-        size={size}
-        className="animate-spin text-[#D4A853]"
-        style={{ filter: "drop-shadow(0 0 8px rgba(212,168,83,0.3))" }}
-      />
+    <div
+      className={`relative flex items-center justify-center ${className}`}
+      style={{ width: size, height: size }}
+    >
+      <span className="absolute inset-0 rounded-full bg-gradient-to-br from-[#D4A853]/30 via-transparent to-[#D4A853]/10 blur-xl opacity-80" />
+      <span className="relative flex h-full w-full items-center justify-center">
+        <span
+          className="absolute inset-0 rounded-full border-[3px] border-[#D4A853]/15 border-t-[#D4A853] animate-spin"
+          style={{ boxShadow: "0 0 18px rgba(212,168,83,0.35)" }}
+        />
+        <span className="relative block h-2/5 w-2/5 rounded-full bg-[#070708] shadow-[inset_0_0_10px_rgba(0,0,0,0.6)]" />
+      </span>
     </div>
   );
 }
