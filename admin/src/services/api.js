@@ -1,11 +1,8 @@
 import axios from "axios";
 
-// ✅ STRICT ENV (NO FALLBACK)
-const API_BASE_URL = process.env.REACT_APP_API_URL;
-
-if (!API_BASE_URL) {
-  throw new Error("❌ REACT_APP_API_URL is not defined");
-}
+// ✅ ENV with local fallback so admin can render graceful API states in dev
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
 
 // ✅ AXIOS INSTANCE
 const apiClient = axios.create({

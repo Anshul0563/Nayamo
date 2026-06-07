@@ -28,12 +28,12 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 flex items-center justify-center p-8">
-          <div className="max-w-md w-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 text-center shadow-2xl">
-            <div className="w-24 h-24 bg-red-500/10 border-2 border-red-500/20 rounded-2xl mx-auto mb-6 flex items-center justify-center">
+        <div className="min-h-screen bg-[#070708] flex items-center justify-center p-8">
+          <div className="max-w-md w-full bg-[#111214] border border-white/10 rounded-2xl p-8 text-center shadow-2xl">
+            <div className="w-24 h-24 bg-red-500/10 border border-red-500/20 rounded-2xl mx-auto mb-6 flex items-center justify-center">
               <AlertCircle size={48} className="text-red-400" />
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-4">
+            <h1 className="text-2xl font-bold text-white mb-4">
               Something went wrong
             </h1>
             <p className="text-gray-400 mb-8 max-w-sm mx-auto leading-relaxed">
@@ -42,13 +42,13 @@ class ErrorBoundary extends React.Component {
             <div className="space-y-3">
               <button
                 onClick={this.handleReload}
-                className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-emerald/25 hover:-translate-y-1"
+                className="w-full bg-[#D4A853] hover:bg-[#F0D78C] text-[#080808] font-semibold py-3 px-6 rounded-xl transition-all duration-300"
               >
                 Reload Page
               </button>
               <button
                 onClick={() => window.location.href = '/login'}
-                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium py-3 px-6 rounded-2xl transition-all duration-300"
+                className="w-full bg-white/10 hover:bg-white/15 border border-white/15 text-white font-medium py-3 px-6 rounded-xl transition-all duration-300"
               >
                 Go to Login
               </button>

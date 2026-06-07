@@ -20,6 +20,7 @@ import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import ErrorBoundary from "./ErrorBoundary";
 
 // Contexts
 import { AuthProvider } from "./context/AuthContext";
@@ -46,10 +47,11 @@ function NotFound() {
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <WishlistProvider>
-          <FilterProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <FilterProvider>
 
             <Routes>
               <Route element={<ClientLayout />}>
@@ -76,10 +78,11 @@ function App() {
               </Route>
             </Routes>
 
-          </FilterProvider>
-        </WishlistProvider>
-      </CartProvider>
-    </AuthProvider>
+            </FilterProvider>
+          </WishlistProvider>
+        </CartProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

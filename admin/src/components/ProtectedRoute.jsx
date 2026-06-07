@@ -43,7 +43,7 @@ export default function ProtectedRoute({ children }) {
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-indigo-500" />
+        <Loader2 size={32} className="animate-spin text-[#D4A853]" />
       </div>
     );
   }
@@ -56,4 +56,3 @@ export default function ProtectedRoute({ children }) {
 
   return children;
 }
-
