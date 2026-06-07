@@ -5,9 +5,18 @@ import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
+import StateFeedback from "../components/common/StateFeedback";
 
 export default function Cart() {
-  const { cart, cartTotal, loading, updateQuantity, removeFromCart } = useCart();
+  const {
+    cart,
+    cartTotal,
+    loading,
+    error,
+    updateQuantity,
+    removeFromCart,
+    refreshCart,
+  } = useCart();
   const navigate = useNavigate();
   const items = cart?.items || [];
 
@@ -25,13 +34,24 @@ export default function Cart() {
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-10">
           Shopping Cart
         </h1>
-        <EmptyState
-          type="cart"
-          title="Your cart is empty"
-          description="Looks like you haven't added anything to your cart yet."
-          actionText="Start Shopping"
-          actionLink="/shop"
-        />
+        {error ? (
+          <StateFeedback
+            type="network"
+            title="Cart could not load"
+            description={error}
+            actionText="Retry"
+            onAction={refreshCart}
+            loading={loading}
+          />
+        ) : (
+          <EmptyState
+            type="cart"
+            title="Your cart is empty"
+            description="Looks like you haven't added anything to your cart yet."
+            actionText="Start Shopping"
+            actionLink="/shop"
+          />
+        )}
       </div>
     );
   }

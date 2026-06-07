@@ -23,11 +23,13 @@ import { productAPI, reviewAPI } from "../services/api";
 import logo from "../assets/logo.png";
 
 import Loader from "../components/common/Loader";
+import StateFeedback from "../components/common/StateFeedback";
 
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
+import { getApiErrorMessage } from "../utils/errorMessage";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -43,6 +45,7 @@ export default function ProductDetails() {
   const [product, setProduct] = useState(null);
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [selectedImage, setSelectedImage] = useState(0);
 
@@ -109,6 +112,7 @@ export default function ProductDetails() {
 
     const fetch = async () => {
       setLoading(true);
+      setError("");
 
       try {
         const res = await productAPI.getProductById(id);
@@ -120,8 +124,9 @@ export default function ProductDetails() {
         setQty(1);
 
         await fetchReviews();
-      } catch (_err) {
+      } catch (err) {
         setProduct(null);
+        setError(getApiErrorMessage(err, "Failed to load this product"));
       } finally {
         setLoading(false);
       }
@@ -237,15 +242,25 @@ export default function ProductDetails() {
   if (!product) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#070708] via-[#0A0A0C] to-[#070708] flex items-center justify-center px-4">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-white mb-2">
-            Earring Not Found
-          </h2>
+        {error ? (
+          <StateFeedback
+            type="network"
+            title="Product could not load"
+            description={error}
+            actionText="Retry"
+            onAction={() => window.location.reload()}
+          />
+        ) : (
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-white mb-2">
+              Earring Not Found
+            </h2>
 
-          <Link to="/shop" className="text-[#D4A853] hover:underline">
-            Browse all earrings
-          </Link>
-        </div>
+            <Link to="/shop" className="text-[#D4A853] hover:underline">
+              Browse all earrings
+            </Link>
+          </div>
+        )}
       </div>
     );
   }

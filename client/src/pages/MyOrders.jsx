@@ -3,25 +3,29 @@ import { motion } from "framer-motion";
 import { orderAPI } from "../services/api";
 import Loader from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
+import StateFeedback from "../components/common/StateFeedback";
 import OrderCard from "../components/orders/OrderCard";
+import { getApiErrorMessage } from "../utils/errorMessage";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      setError(null);
+      const res = await orderAPI.getOrders();
+      setOrders(res.data?.data || []);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Failed to load orders"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setError(null);
-        const res = await orderAPI.getOrders();
-        setOrders(res.data?.data || []);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to load orders");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchOrders();
   }, []);
 
@@ -52,15 +56,14 @@ export default function MyOrders() {
   if (error) {
     return (
       <div className="min-h-screen bg-[#070708] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="nayamo-btn-secondary"
-          >
-            Try Again
-          </button>
-        </div>
+        <StateFeedback
+          type="network"
+          title="Orders could not load"
+          description={error}
+          actionText="Retry"
+          onAction={fetchOrders}
+          loading={loading}
+        />
       </div>
     );
   }

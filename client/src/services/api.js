@@ -1,10 +1,12 @@
 import axios from "axios";
 
-// ✅ Using CRA environment variable
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+// ✅ Using CRA environment variable with a local fallback for graceful dev startup
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
 
-if (!API_BASE_URL) {
-  throw new Error("❌ REACT_APP_API_URL is not defined");
+if (!process.env.REACT_APP_API_URL && process.env.NODE_ENV !== "production") {
+  // Keep the UI alive so pages can show retryable API states instead of crashing.
+  console.warn("REACT_APP_API_URL is not defined. Falling back to local API.");
 }
 
 // ✅ Axios instance

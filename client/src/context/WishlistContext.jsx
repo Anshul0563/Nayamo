@@ -1,15 +1,19 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { wishlistAPI } from "../services/api";
 import toast from "react-hot-toast";
+import { getApiErrorMessage } from "../utils/errorMessage";
 
 const WishlistContext = createContext(null);
 
 export function WishlistProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
   const [wishlistCount, setWishlistCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchWishlist = useCallback(async () => {
+    setLoading(true);
+    setError("");
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -25,6 +29,9 @@ export function WishlistProvider({ children }) {
     } catch (err) {
       setWishlist([]);
       setWishlistCount(0);
+      setError(getApiErrorMessage(err, "Failed to load your wishlist"));
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -81,6 +88,7 @@ const isInWishlist = useCallback(
         wishlist,
         wishlistCount,
         loading,
+        error,
         addToWishlist,
         removeFromWishlist,
         isInWishlist,

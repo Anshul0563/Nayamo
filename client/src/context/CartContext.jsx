@@ -7,6 +7,7 @@ import {
 } from "react";
 import { cartAPI } from "../services/api";
 import toast from "react-hot-toast";
+import { getApiErrorMessage } from "../utils/errorMessage";
 
 const CartContext = createContext(null);
 
@@ -14,9 +15,12 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState({ items: [] });
   const [cartCount, setCartCount] = useState(0);
   const [cartTotal, setCartTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchCart = useCallback(async () => {
+    setLoading(true);
+    setError("");
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -34,6 +38,9 @@ export function CartProvider({ children }) {
       setCart({ items: [] });
       setCartCount(0);
       setCartTotal(0);
+      setError(getApiErrorMessage(err, "Failed to load your cart"));
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -122,6 +129,7 @@ export function CartProvider({ children }) {
         cartCount,
         cartTotal,
         loading,
+        error,
         addToCart,
         updateQuantity,
         removeFromCart,

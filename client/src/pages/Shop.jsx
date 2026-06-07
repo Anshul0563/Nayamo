@@ -14,11 +14,13 @@ import { productAPI } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import { SkeletonGrid } from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
+import StateFeedback from "../components/common/StateFeedback";
 import logo from "../assets/logo.png";
 import {
   getPaginationFromResponse,
   getProductsFromResponse,
 } from "../utils/apiResponse";
+import { getApiErrorMessage } from "../utils/errorMessage";
 
 const categories = [
   { value: "party", label: "Party Wear" },
@@ -68,6 +70,7 @@ export default function Shop() {
     totalPages: 1,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [priceRange, setPriceRange] = useState([0, 50000]);
@@ -88,6 +91,7 @@ export default function Shop() {
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const params = { page };
       if (category) params.category = category;
@@ -100,9 +104,10 @@ export default function Shop() {
       const res = await productAPI.getProducts(params);
       setProducts(getProductsFromResponse(res.data));
       setPagination(getPaginationFromResponse(res.data));
-    } catch (_err) {
+    } catch (err) {
       setProducts([]);
       setPagination({ currentPage: 1, totalPages: 1 });
+      setError(getApiErrorMessage(err, "Failed to load products"));
     } finally {
       setLoading(false);
     }
@@ -307,6 +312,15 @@ export default function Shop() {
 
         {loading ? (
           <SkeletonGrid count={12} />
+        ) : error ? (
+          <StateFeedback
+            type="network"
+            title="Products could not load"
+            description={error}
+            actionText="Retry"
+            onAction={fetchProducts}
+            loading={loading}
+          />
         ) : products.length === 0 ? (
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
             <EmptyState

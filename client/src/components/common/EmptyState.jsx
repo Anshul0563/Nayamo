@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShoppingBag, Heart, Package, Search, ArrowRight } from "lucide-react";
+import { ShoppingBag, Heart, Package, Search, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 
 const icons = {
@@ -8,6 +8,7 @@ const icons = {
   wishlist: Heart,
   orders: Package,
   search: Search,
+  filter: SlidersHorizontal,
 };
 
 export default function EmptyState({
@@ -44,4 +45,3 @@ export default function EmptyState({
     </motion.div>
   );
 }
-

@@ -6,9 +6,11 @@ import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/common/Loader";
 import EmptyState from "../components/common/EmptyState";
+import StateFeedback from "../components/common/StateFeedback";
 
 export default function Wishlist() {
-  const { wishlist, loading, removeFromWishlist } = useWishlist();
+  const { wishlist, loading, error, removeFromWishlist, refreshWishlist } =
+    useWishlist();
   const { addToCart } = useCart();
 
   if (loading) {
@@ -25,13 +27,24 @@ export default function Wishlist() {
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-10">
           My Wishlist
         </h1>
-        <EmptyState
-          type="wishlist"
-          title="Your wishlist is empty"
-          description="Save your favourite pieces here for later."
-          actionText="Browse Products"
-          actionLink="/shop"
-        />
+        {error ? (
+          <StateFeedback
+            type="network"
+            title="Wishlist could not load"
+            description={error}
+            actionText="Retry"
+            onAction={refreshWishlist}
+            loading={loading}
+          />
+        ) : (
+          <EmptyState
+            type="wishlist"
+            title="Your wishlist is empty"
+            description="Save your favourite pieces here for later."
+            actionText="Browse Products"
+            actionLink="/shop"
+          />
+        )}
       </div>
     );
   }
@@ -111,4 +124,3 @@ export default function Wishlist() {
     </div>
   );
 }
-
