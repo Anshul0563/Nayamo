@@ -2,14 +2,13 @@ const orderService = require("../services/orderService");
 const asyncHandler = require("../utils/asyncHandler");
 const paymentService = require("../services/paymentService");
 const invoiceService = require("../services/invoiceService");
+const logger = require("../config/logger");
 
 const Order = require("../models/Order");
 const mongoose = require("mongoose");
 
 // PLACE ORDER
 exports.placeOrder = asyncHandler(async (req, res) => {
-  console.log("[orderController] placeOrder body:", req.body);
-  console.log("[orderController] placeOrder auth user:", req.user?._id);
   const { address, phone, paymentMethod, idempotencyKey } = req.body;
 
   if (!address || !phone) {
@@ -103,7 +102,7 @@ exports.cancelOrder = asyncHandler(async (req, res) => {
         reason: "Order cancelled",
       });
     } catch (refundErr) {
-      console.error("Refund failed:", refundErr.message);
+      logger.error(`Refund failed for order ${order._id}: ${refundErr.message}`);
     }
   }
 
@@ -135,7 +134,17 @@ exports.returnOrder = asyncHandler(async (req, res) => {
 });
 //Invoice
 exports.downloadInvoice = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.id)
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error("Invalid order ID format");
+  }
+
+  const query = { _id: req.params.id };
+  if (req.user.role !== "admin") {
+    query.user = req.user._id;
+  }
+
+  const order = await Order.findOne(query)
     .populate("user")
     .populate("items.product");
 

@@ -30,8 +30,6 @@ try {
 
 // CREATE PAYMENT ORDER
 exports.createPaymentOrder = asyncHandler(async (req, res) => {
-  console.log("[paymentController] createPaymentOrder body:", req.body);
-  console.log("[paymentController] createPaymentOrder auth user:", req.user?._id);
   const { orderId: mongoOrderId } = req.body;
 
   if (!mongoOrderId) {
@@ -123,9 +121,6 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
   const { orderId, razorpayPaymentId, razorpaySignature, mongoOrderId } =
     req.body;
 
-  console.log("[paymentController] verifyPayment body:", req.body);
-  console.log("[paymentController] verifyPayment auth user:", req.user?._id);
-
   if (!orderId || !razorpayPaymentId) {
     res.status(400);
     throw new Error("Order ID and payment ID are required");
@@ -177,10 +172,9 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
   order.razorpayPaymentId = razorpayPaymentId;
   order.razorpaySignature = razorpaySignature;
 
-  await Cart.findOneAndUpdate(
-  { user: req.user._id },
-  { items: [] }
-);
+  await order.save();
+
+  await Cart.findOneAndUpdate({ user: req.user._id }, { items: [] });
 
   logger.info(`Payment verified for order: ${order._id}`);
 
@@ -193,9 +187,9 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
 exports.processRefund = asyncHandler(async (req, res) => {
   const { orderId, amount, reason } = req.body;
 
-  if (!orderId || !amount) {
+  if (!orderId) {
     res.status(400);
-    throw new Error("orderId and amount are required");
+    throw new Error("orderId is required");
   }
 
   const result = await paymentService.processRefund({

@@ -3,6 +3,14 @@ const logger = require("../config/logger");
 const { getSmtpConfig, isConfigured } = require("../config/env");
 const { sendMail } = require("../services/emailService");
 
+const escapeHtml = (value = "") =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 /**
  * @desc   Send contact form message via email
  * @route  POST /api/v1/contact
@@ -28,6 +36,10 @@ const sendContactMessage = asyncHandler(async (req, res) => {
 
   const smtp = getSmtpConfig();
   const toEmail = process.env.CONTACT_EMAIL || smtp.user;
+  const safeName = escapeHtml(name);
+  const safeEmail = escapeHtml(email);
+  const safeSubject = escapeHtml(subject);
+  const safeMessage = escapeHtml(message);
 
   if (
     !isConfigured(smtp.host) ||
@@ -52,19 +64,19 @@ const sendContactMessage = asyncHandler(async (req, res) => {
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Name:</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee;">${name}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${safeName}</td>
           </tr>
           <tr>
             <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Email:</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee;">${email}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${safeEmail}</td>
           </tr>
           <tr>
             <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Subject:</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee;">${subject}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${safeSubject}</td>
           </tr>
           <tr>
             <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; vertical-align: top;">Message:</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee; white-space: pre-wrap;">${message}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; white-space: pre-wrap;">${safeMessage}</td>
           </tr>
         </table>
         <p style="color: #999; font-size: 12px; margin-top: 20px;">

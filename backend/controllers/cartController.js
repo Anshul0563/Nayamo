@@ -4,16 +4,22 @@ const asyncHandler = require("../utils/asyncHandler");
 // ADD TO CART
 exports.addToCart = asyncHandler(async (req, res) => {
   const { productId, quantity = 1 } = req.body;
+  const parsedQuantity = Number(quantity);
 
   if (!productId) {
     res.status(400);
     throw new Error("Product ID is required");
   }
 
+  if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
+    res.status(400);
+    throw new Error("Quantity must be a positive integer");
+  }
+
   const cart = await cartService.addToCart(
     req.user._id,
     productId,
-    Number(quantity),
+    parsedQuantity,
   );
   res.json({
     success: true,
@@ -25,21 +31,22 @@ exports.addToCart = asyncHandler(async (req, res) => {
 // UPDATE QUANTITY
 exports.updateQuantity = asyncHandler(async (req, res) => {
   const { productId, quantity } = req.body;
+  const parsedQuantity = Number(quantity);
 
   if (!productId) {
     res.status(400);
     throw new Error("Product ID is required");
   }
 
-  if (!quantity || quantity < 1) {
+  if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
     res.status(400);
-    throw new Error("Quantity must be at least 1");
+    throw new Error("Quantity must be a positive integer");
   }
 
   const cart = await cartService.updateQuantity(
     req.user._id,
     productId,
-    Number(quantity),
+    parsedQuantity,
   );
 
   res.json({

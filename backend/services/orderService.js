@@ -52,6 +52,16 @@ exports.placeOrder = async (userId, data) => {
     for (const item of cart.items) {
       const product = await Product.findById(item.product._id).session(session);
 
+      if (!product || !product.isActive) {
+        throw new Error("Product is no longer available");
+      }
+
+      if (product.stock < item.quantity) {
+        throw new Error(
+          `Only ${product.stock} units of ${product.title} available`,
+        );
+      }
+
       product.stock -= item.quantity;
 
       await product.save({
@@ -162,13 +172,15 @@ exports.placeOrder = async (userId, data) => {
 
 // USER ORDERS with pagination
 exports.getUserOrders = async (userId, page = 1, limit = 10) => {
-  const skip = (page - 1) * limit;
+  const safePage = Math.max(Number(page) || 1, 1);
+  const safeLimit = Math.min(Math.max(Number(limit) || 10, 1), 50);
+  const skip = (safePage - 1) * safeLimit;
 
   const [orders, totalItems] = await Promise.all([
     Order.find({ user: userId })
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit)
+      .limit(safeLimit)
       .populate({
         path: "items.product",
         select: "title price images category",
@@ -179,10 +191,10 @@ exports.getUserOrders = async (userId, page = 1, limit = 10) => {
 
   return {
     orders,
-    currentPage: page,
-    totalPages: Math.ceil(totalItems / limit),
+    currentPage: safePage,
+    totalPages: Math.ceil(totalItems / safeLimit),
     totalItems,
-    itemsPerPage: limit,
+    itemsPerPage: safeLimit,
   };
 };
 
@@ -273,6 +285,10 @@ exports.returnOrder = async (userId, orderId) => {
       throw new Error("Can only return delivered orders");
     }
 
+    if (!order.deliveredAt) {
+      throw new Error("Delivered date is missing for this order");
+    }
+
     // Check if return is within 7 days
     const deliveredDate = new Date(order.deliveredAt);
     const now = new Date();
@@ -313,7 +329,9 @@ exports.getAllOrders = async ({
   search,
   includeArchived = false,
 }) => {
-  const skip = (page - 1) * limit;
+  const safePage = Math.max(Number(page) || 1, 1);
+  const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 100);
+  const skip = (safePage - 1) * safeLimit;
   const query = {};
 
   // By default, exclude archived orders for admin panel cleanliness
@@ -335,7 +353,7 @@ exports.getAllOrders = async ({
     Order.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit)
+      .limit(safeLimit)
       .populate("user", "name email")
       .populate({
         path: "items.product",
@@ -347,10 +365,10 @@ exports.getAllOrders = async ({
 
   return {
     orders,
-    currentPage: page,
-    totalPages: Math.ceil(totalItems / limit),
+    currentPage: safePage,
+    totalPages: Math.ceil(totalItems / safeLimit),
     totalItems,
-    itemsPerPage: limit,
+    itemsPerPage: safeLimit,
   };
 };
 
