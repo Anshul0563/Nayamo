@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-import axios from "axios";
 import DataTable from "../components/DataTable.jsx";
 import OrderDetailModal from "../components/orders/OrderDetailModal.jsx";
 import ExportButton from "../components/ExportButton.jsx";
@@ -115,13 +114,20 @@ export default function Orders() {
     }
   };
 
-  const invoice = (id) => {
-    const token = localStorage.getItem("accessToken");
-
-    window.open(
-      `https://nayamo.onrender.com/api/v1/orders/${id}/invoice?token=${token}`,
-      "_blank",
-    );
+  const invoice = async (id) => {
+    try {
+      setActionLoading(`invoice-${id}`);
+      const res = await adminAPI.downloadInvoice(id);
+      const url = window.URL.createObjectURL(
+        new Blob([res.data], { type: "application/pdf" }),
+      );
+      window.open(url, "_blank", "noopener,noreferrer");
+      setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to download invoice");
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const getStatusCount = (key) => {
@@ -170,20 +176,8 @@ export default function Orders() {
     try {
       setActionLoading("bulk-shipment");
 
-      const token = localStorage.getItem("accessToken");
-
       await Promise.all(
-        selected.map((id) =>
-          axios.post(
-            `https://nayamo.onrender.com/api/v1/shipping/create/${id}`,
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            },
-          ),
-        ),
+        selected.map((id) => adminAPI.createShipment(id)),
       );
 
       setSelected([]);
@@ -217,7 +211,7 @@ export default function Orders() {
   if (loading && orders.length === 0) {
     return (
       <div className="h-[70vh] grid place-items-center text-white">
-        <Loader2 size={40} className="animate-spin text-indigo-500" />
+        <Loader2 size={40} className="animate-spin text-[#D4A853]" />
       </div>
     );
   }

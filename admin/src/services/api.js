@@ -139,6 +139,12 @@ export const adminAPI = {
       params,
       responseType: "blob",
     }),
+  downloadInvoice: (id) =>
+    apiClient.get(`/orders/${id}/invoice`, {
+      responseType: "blob",
+    }),
+  createShipment: (id) =>
+    apiClient.post(`/shipping/create/${id}`, {}),
 
   getProducts: (params = {}) =>
     apiClient.get("/admin/products", { params }),
