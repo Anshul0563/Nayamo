@@ -768,7 +768,7 @@ export default function ProductDetails() {
                   {
                     icon: RotateCcw,
                     label: "Easy Returns",
-                    desc: "30 Days",
+                    desc: "7 Days",
                   },
 
                   {
