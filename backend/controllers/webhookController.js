@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 
 const Order = require("../models/Order");
+const logger = require("../config/logger");
 
 exports.handleRazorpayWebhook =
   async (req, res) => {
@@ -9,10 +10,22 @@ exports.handleRazorpayWebhook =
         process.env
           .RAZORPAY_WEBHOOK_SECRET;
 
+      if (!secret) {
+        logger.error("Razorpay webhook secret is not configured");
+        return res.status(503).json({
+          success: false,
+          message: "Webhook service unavailable",
+        });
+      }
+
       const signature =
         req.headers[
           "x-razorpay-signature"
         ];
+
+      const rawBody = Buffer.isBuffer(req.body)
+        ? req.body
+        : Buffer.from(JSON.stringify(req.body));
 
       // Verify webhook signature
       const expectedSignature =
@@ -21,14 +34,15 @@ exports.handleRazorpayWebhook =
             "sha256",
             secret
           )
-          .update(
-            JSON.stringify(req.body)
-          )
+          .update(rawBody)
           .digest("hex");
 
+      const expectedBuffer = Buffer.from(expectedSignature);
+      const receivedBuffer = Buffer.from(signature || "");
+
       if (
-        expectedSignature !==
-        signature
+        expectedBuffer.length !== receivedBuffer.length ||
+        !crypto.timingSafeEqual(expectedBuffer, receivedBuffer)
       ) {
         return res
           .status(400)
@@ -39,11 +53,15 @@ exports.handleRazorpayWebhook =
           });
       }
 
+      const payload = Buffer.isBuffer(req.body)
+        ? JSON.parse(rawBody.toString("utf8"))
+        : req.body;
+
       const event =
-        req.body.event;
+        payload.event;
 
       const payment =
-        req.body.payload
+        payload.payload
           ?.payment?.entity;
 
       // =========================
@@ -73,10 +91,7 @@ exports.handleRazorpayWebhook =
 
           await order.save();
 
-          console.log(
-            "[Webhook] Payment captured:",
-            order._id
-          );
+          logger.info(`Webhook payment captured: ${order._id}`);
         }
       }
 
@@ -99,10 +114,7 @@ exports.handleRazorpayWebhook =
 
           await order.save();
 
-          console.log(
-            "[Webhook] Payment failed:",
-            order._id
-          );
+          logger.info(`Webhook payment failed: ${order._id}`);
         }
       }
 
@@ -114,7 +126,7 @@ exports.handleRazorpayWebhook =
         "refund.processed"
       ) {
         const refund =
-          req.body.payload
+          payload.payload
             ?.refund?.entity;
 
         const order =
@@ -135,10 +147,7 @@ exports.handleRazorpayWebhook =
 
           await order.save();
 
-          console.log(
-            "[Webhook] Refund processed:",
-            order._id
-          );
+          logger.info(`Webhook refund processed: ${order._id}`);
         }
       }
 
@@ -146,10 +155,7 @@ exports.handleRazorpayWebhook =
         success: true,
       });
     } catch (err) {
-      console.error(
-        "[Webhook Error]",
-        err
-      );
+      logger.error(`Webhook processing failed: ${err.message}`);
 
       return res
         .status(500)

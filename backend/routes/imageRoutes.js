@@ -35,7 +35,12 @@ router.get("/proxy", async (req, res) => {
       'res.cloudinary.com'
     ];
 
-    if (!allowedDomains.some(domain => parsedUrl.hostname.includes(domain))) {
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const isAllowedDomain = allowedDomains.some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+    );
+
+    if (!["http:", "https:"].includes(parsedUrl.protocol) || !isAllowedDomain) {
       return res.status(403).json({
         success: false,
         message: "Domain not allowed"
@@ -46,14 +51,23 @@ router.get("/proxy", async (req, res) => {
     const response = await axios.get(url, {
       responseType: 'arraybuffer',
       timeout: 10000, // 10 second timeout
+      maxContentLength: 5 * 1024 * 1024,
       headers: {
         'User-Agent': 'Nayamo-Image-Proxy/1.0'
       }
     });
 
+    const contentType = response.headers['content-type'] || '';
+    if (!contentType.startsWith('image/')) {
+      return res.status(415).json({
+        success: false,
+        message: "URL did not return an image"
+      });
+    }
+
     // Set appropriate headers
     res.set({
-      'Content-Type': response.headers['content-type'] || 'image/jpeg',
+      'Content-Type': contentType,
       'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET',

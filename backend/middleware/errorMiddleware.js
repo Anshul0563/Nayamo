@@ -6,7 +6,7 @@
 const logger = require("../config/logger");
 
 const errorHandler = (err, req, res, _next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let statusCode = res.statusCode === 200 ? err.statusCode || 500 : res.statusCode;
   let message = err.message;
 
   // Mongoose bad ObjectId

@@ -1,26 +1,24 @@
 const axios = require("axios");
+const { getDelhiveryBaseUrl, getDelhiveryToken, isConfigured } = require("../config/env");
 
-// =========================
-// ENV VALIDATION
-// =========================
-if (!process.env.DELHIVERY_BASE_URL) {
-  throw new Error("DELHIVERY_BASE_URL missing");
-}
+const getApi = () => {
+  const token = getDelhiveryToken();
 
-if (!process.env.DELHIVERY_TOKEN) {
-  throw new Error("DELHIVERY_TOKEN missing");
-}
+  if (!isConfigured(token)) {
+    const error = new Error("Delhivery is not configured");
+    error.statusCode = 503;
+    throw error;
+  }
 
-// =========================
-// AXIOS CLIENT
-// =========================
-const api = axios.create({
-  baseURL: process.env.DELHIVERY_BASE_URL,
-  headers: {
-    Authorization: `Token ${process.env.DELHIVERY_TOKEN}`,
-    "Content-Type": "application/json",
-  },
-});
+  return axios.create({
+    baseURL: getDelhiveryBaseUrl(),
+    headers: {
+      Authorization: `Token ${token}`,
+      "Content-Type": "application/json",
+    },
+    timeout: 20000,
+  });
+};
 
 // =========================
 // HELPERS
@@ -48,6 +46,8 @@ exports.createShipment = async (order) => {
   }
 
   try {
+    const api = getApi();
+    const token = getDelhiveryToken();
     const payload = {
       shipments: [
         {
@@ -84,18 +84,6 @@ exports.createShipment = async (order) => {
     };
 
     // =========================
-    // DEBUG LOGS
-    // =========================
-    console.log("[DELHIVERY BASE URL]", process.env.DELHIVERY_BASE_URL);
-
-    console.log(
-      "[DELHIVERY FINAL URL]",
-      `${process.env.DELHIVERY_BASE_URL}/cmu/create.json`,
-    );
-
-    console.log("[DELHIVERY PAYLOAD]", JSON.stringify(payload, null, 2));
-
-    // =========================
     // API REQUEST
     // =========================
     const qs = require("querystring");
@@ -108,12 +96,11 @@ exports.createShipment = async (order) => {
       }),
       {
         headers: {
-          Authorization: `Token ${process.env.DELHIVERY_TOKEN}`,
+          Authorization: `Token ${token}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
       },
     );
-    console.log("[DELHIVERY RESPONSE]", JSON.stringify(response.data, null, 2));
 
     // =========================
     // RESPONSE PARSING
@@ -138,8 +125,6 @@ exports.createShipment = async (order) => {
       labelUrl: packageData?.label_url || packageData?.labelUrl || null,
     };
   } catch (err) {
-    console.error("[DELHIVERY ERROR]", err.response?.data || err.message);
-
     throw new Error(
       err.response?.data?.message || err.message || "Shipment creation failed",
     );
@@ -155,14 +140,13 @@ exports.trackShipment = async (waybill) => {
   }
 
   try {
+    const api = getApi();
     const response = await api.get(
       `/v1/packages/json/?waybill=${encodeURIComponent(waybill)}`,
     );
 
     return response.data;
   } catch (err) {
-    console.error("[TRACK ERROR]", err.response?.data || err.message);
-
     throw new Error(
       err.response?.data?.message || err.message || "Tracking failed",
     );
