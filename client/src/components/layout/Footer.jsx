@@ -5,7 +5,6 @@ import {
   MapPin,
   Phone,
   CreditCard,
-  Truck,
   Shield,
   RotateCcw,
   ArrowUpRight,
