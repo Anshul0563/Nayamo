@@ -8,12 +8,12 @@ import {
   Shield,
   RotateCcw,
   ArrowUpRight,
-  Crown,
   Sparkles,
   Heart,
 } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { motion } from "framer-motion";
+import logo from "../../assets/logo.png";
 
 export default function Footer() {
   const containerVariants = {
@@ -100,10 +100,15 @@ export default function Footer() {
               whileHover={{ scale: 1.02 }}
             >
               <motion.div
-                className="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-[#D4A853] via-[#FFD700] to-[#D4A853] shadow-[0_12px_40px_rgba(212,168,83,0.4)] ring-2 ring-white/20"
+                className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-[#D4A853]/70 bg-black shadow-[0_12px_40px_rgba(212,168,83,0.4)] ring-2 ring-white/20"
                 whileHover={{ rotate: 5 }}
               >
-                <Crown className="w-7 h-7 text-white" />
+                <img
+                  src={logo}
+                  alt="Nayamo"
+                  className="h-full w-full object-cover"
+                  draggable={false}
+                />
               </motion.div>
               <div>
                 <motion.p

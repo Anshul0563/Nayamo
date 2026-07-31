@@ -14,12 +14,12 @@ export default function Logo({ size = "sm", showText = true, glow = false, class
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div
-        className={`shrink-0 ${glow ? "p-1.5 rounded-2xl bg-gradient-to-br from-[#D4A853]/25 to-[#C9963B]/10 border border-[#D4A853]/25 shadow-[0_0_28px_rgba(212,168,83,0.22)]" : ""}`}
+        className={`shrink-0 overflow-hidden rounded-full ${glow ? "p-1.5 bg-gradient-to-br from-[#D4A853]/25 to-[#C9963B]/10 border border-[#D4A853]/25 shadow-[0_0_28px_rgba(212,168,83,0.22)]" : ""}`}
       >
         <img
           src={logoImg}
           alt="Nayamo"
-          className={`${heightClass} w-auto object-contain drop-shadow-[0_10px_24px_rgba(212,168,83,0.12)]`}
+          className={`${heightClass} w-auto rounded-full object-contain drop-shadow-[0_10px_24px_rgba(212,168,83,0.12)]`}
           draggable={false}
         />
       </div>

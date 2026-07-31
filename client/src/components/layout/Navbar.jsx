@@ -146,11 +146,11 @@ export default function Navbar() {
               to="/"
               className="flex min-w-0 items-center gap-2 sm:gap-4 group"
             >
-              <motion.div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-3xl flex-shrink-0">
+              <motion.div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-full border border-[#D4A853]/50 bg-black shadow-[0_8px_24px_rgba(212,168,83,0.3)] flex-shrink-0">
                 <motion.img
                   src={logo}
                   alt="Nayamo Logo"
-                  className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-[0_8px_24px_rgba(212,168,83,0.3)]"
+                  className="h-full w-full object-cover"
                   whileHover={{
                     scale: 1.12,
                     rotate: 5,
