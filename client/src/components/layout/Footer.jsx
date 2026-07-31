@@ -201,9 +201,9 @@ export default function Footer() {
                 { to: "/track-order", label: "Track Order" },
                 { to: "/contact", label: "Contact Us" },
                 { to: "/about", label: "About Us" },
-                { to: "#", label: "Shipping Info" },
+                { to: "/shipping-info", label: "Shipping Info" },
                 { to: "/refund-policy", label: "Refund Policy" },
-                { to: "#", label: "FAQ" },
+                { to: "/faq", label: "FAQ" },
               ].map((link, index) => (
                 <motion.li
                   key={link.label}
