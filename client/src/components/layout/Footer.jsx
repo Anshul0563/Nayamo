@@ -100,13 +100,13 @@ export default function Footer() {
               whileHover={{ scale: 1.02 }}
             >
               <motion.div
-                className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-[#D4A853]/70 bg-black shadow-[0_12px_40px_rgba(212,168,83,0.4)] ring-2 ring-white/20"
+                className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#F5D88A] bg-[#17120a] p-0.5 shadow-[0_0_0_3px_rgba(255,255,255,0.16),0_12px_40px_rgba(212,168,83,0.55)]"
                 whileHover={{ rotate: 5 }}
               >
                 <img
                   src={logo}
                   alt="Nayamo"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full rounded-full object-cover brightness-125 contrast-125"
                   draggable={false}
                 />
               </motion.div>
