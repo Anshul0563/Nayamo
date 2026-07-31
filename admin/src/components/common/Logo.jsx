@@ -9,7 +9,7 @@ export default function Logo({ size = "sm", showText = false, className = "" }) 
       <img
         src={logoImg}
         alt="Nayamo"
-        className={`${heightClass} w-auto object-contain`}
+        className={`${heightClass} aspect-square w-auto rounded-full object-cover`}
         draggable={false}
       />
       {showText && (

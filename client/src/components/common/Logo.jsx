@@ -19,7 +19,7 @@ export default function Logo({ size = "sm", showText = true, glow = false, class
         <img
           src={logoImg}
           alt="Nayamo"
-          className={`${heightClass} w-auto rounded-full object-contain drop-shadow-[0_10px_24px_rgba(212,168,83,0.12)]`}
+          className={`${heightClass} aspect-square w-auto rounded-full object-cover drop-shadow-[0_10px_24px_rgba(212,168,83,0.12)]`}
           draggable={false}
         />
       </div>

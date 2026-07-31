@@ -150,7 +150,7 @@ export default function Navbar() {
                 <motion.img
                   src={logo}
                   alt="Nayamo Logo"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full rounded-full object-cover"
                   whileHover={{
                     scale: 1.12,
                     rotate: 5,

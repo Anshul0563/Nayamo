@@ -99,7 +99,7 @@ export default function Home() {
 <motion.img
                   src={logo}
                   alt="Crown"
-                  className="w-4 h-4 object-contain"
+                  className="w-4 h-4 rounded-full object-cover"
                   whileHover={{ scale: 1.1 }}
                   loading="lazy"
                   decoding="async"
@@ -157,12 +157,12 @@ export default function Home() {
                     transition={{ delay: 0.8 + i * 0.1, duration: 0.5 }}
                     className="flex items-center gap-3 text-[#A1A1AA] group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/15 flex items-center justify-center group-hover:border-[#D4A853]/30 transition-all duration-300">
+                    <div className={`w-10 h-10 ${item.logo ? "rounded-full" : "rounded-xl"} overflow-hidden bg-gradient-to-br from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/15 flex items-center justify-center group-hover:border-[#D4A853]/30 transition-all duration-300`}>
                       {item.logo ? (
                         <motion.img
                           src={logo}
                           alt="Premium"
-                          className="w-6 h-6 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]"
+                          className="w-6 h-6 rounded-full object-cover drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]"
                           whileHover={{ scale: 1.1 }}
                         />
                       ) : (
@@ -286,13 +286,13 @@ export default function Home() {
               >
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/15 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D4A853]/20 group-hover:border-[#D4A853]/30 transition-all duration-300 shadow-lg"
+                  className={`w-14 h-14 ${badge.logo ? "rounded-full" : "rounded-2xl"} overflow-hidden bg-gradient-to-br from-[#D4A853]/10 to-[#D4A5A5]/10 border border-[#D4A853]/15 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D4A853]/20 group-hover:border-[#D4A853]/30 transition-all duration-300 shadow-lg`}
                 >
                   {badge.logo ? (
                     <motion.img
                       src={logo}
                       alt="Luxury"
-                      className="w-7 h-7 object-contain drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]"
+                      className="w-7 h-7 rounded-full object-cover drop-shadow-[0_2px_8px_rgba(212,168,83,0.2)]"
                       whileHover={{ scale: 1.15 }}
                     />
                   ) : (
@@ -494,7 +494,7 @@ export default function Home() {
               <img
                 src={logo}
                 alt="Nayamo Premium"
-                className="w-24 h-24 object-contain drop-shadow-[0_10px_30px_rgba(212,168,83,0.4)]"
+                className="w-24 h-24 rounded-full object-cover drop-shadow-[0_10px_30px_rgba(212,168,83,0.4)]"
               />
             </div>
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">

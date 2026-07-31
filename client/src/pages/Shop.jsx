@@ -179,7 +179,7 @@ export default function Shop() {
             <img
               src={logo}
               alt="Nayamo"
-              className="h-14 w-14 object-contain drop-shadow-[0_10px_28px_rgba(212,168,83,0.3)]"
+              className="h-14 w-14 rounded-full object-cover drop-shadow-[0_10px_28px_rgba(212,168,83,0.3)]"
             />
           </motion.div>
         </motion.div>

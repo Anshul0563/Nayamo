@@ -426,7 +426,7 @@ export default function ProductDetails() {
                   <motion.img
                     src={logo}
                     alt="Nayamo"
-                    className="h-12 w-12 sm:h-16 sm:w-16 drop-shadow-[0_12px_40px_rgba(212,168,83,0.4)]"
+                    className="h-12 w-12 rounded-full object-cover sm:h-16 sm:w-16 drop-shadow-[0_12px_40px_rgba(212,168,83,0.4)]"
                     whileHover={{
                       scale: 1.1,
                     }}
