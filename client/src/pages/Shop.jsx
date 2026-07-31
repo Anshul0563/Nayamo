@@ -171,7 +171,7 @@ export default function Shop() {
       >
         <motion.div variants={fadeUp} className="mb-7 flex justify-center">
           <motion.div
-            className="relative flex h-20 w-20 items-center justify-center rounded-full border border-[#D4A853]/20 bg-white/[0.035] shadow-[0_0_54px_rgba(212,168,83,0.24)] backdrop-blur-xl"
+            className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-[#D4A853]/50 bg-[#0b0907] p-1.5 shadow-[0_0_0_3px_rgba(255,255,255,0.08),0_0_54px_rgba(212,168,83,0.32)]"
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
           >
@@ -179,7 +179,7 @@ export default function Shop() {
             <img
               src={logo}
               alt="Nayamo"
-              className="h-14 w-14 rounded-full object-cover drop-shadow-[0_10px_28px_rgba(212,168,83,0.3)]"
+              className="relative z-10 h-full w-full rounded-full object-cover drop-shadow-[0_10px_28px_rgba(212,168,83,0.45)]"
             />
           </motion.div>
         </motion.div>

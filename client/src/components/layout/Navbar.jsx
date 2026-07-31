@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Menu,
   X,
-  Search,
   Heart,
   ShoppingBag,
   User,
@@ -55,12 +54,9 @@ export default function Navbar() {
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
 
   const profileRef = useRef(null);
-  const searchRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -76,7 +72,6 @@ export default function Navbar() {
 
   useEffect(() => {
     setMobileOpen(false);
-    setSearchOpen(false);
     setProfileOpen(false);
   }, [location.pathname]);
 
@@ -85,27 +80,12 @@ export default function Navbar() {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
       }
-
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setSearchOpen(false);
-      }
     };
 
     document.addEventListener("mousedown", close);
 
     return () => document.removeEventListener("mousedown", close);
   }, []);
-
-  const submitSearch = (e) => {
-    e.preventDefault();
-
-    if (!query.trim()) return;
-
-    navigate(`/shop?search=${encodeURIComponent(query.trim())}`);
-
-    setQuery("");
-    setSearchOpen(false);
-  };
 
   const isActive = (path) =>
     path === "/"
@@ -233,46 +213,6 @@ export default function Navbar() {
 
             {/* RIGHT SIDE */}
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              {/* SEARCH */}
-              <div className="relative hidden lg:block" ref={searchRef}>
-                <AnimatePresence>
-                  {searchOpen && (
-                    <motion.form
-                      onSubmit={submitSearch}
-                      initial={{
-                        opacity: 0,
-                        width: 0,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        width: 260,
-                        y: "-50%",
-                      }}
-                      exit={{
-                        opacity: 0,
-                        width: 0,
-                      }}
-                      className="absolute right-14 top-1/2"
-                    >
-                      <input
-                        autoFocus
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search jewellery..."
-                        className="h-12 w-full rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-4 text-sm text-white outline-none backdrop-blur-2xl focus:border-[#D4A853]/60"
-                      />
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-
-                <button
-                  className={iconBtn}
-                  onClick={() => setSearchOpen(!searchOpen)}
-                >
-                  {searchOpen ? <X size={20} /> : <Search size={20} />}
-                </button>
-              </div>
-
               {/* WISHLIST */}
               <Link to="/wishlist" className={`${iconBtn} hidden sm:flex`}>
                 <Heart size={20} />
