@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { authAPI } from "../services/api";
 import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Crown,
-  Loader2,
-  AlertCircle,
-  CheckCircle2,
-  ShieldCheck,
+    AlertCircle,
+    CheckCircle2,
+    Eye,
+    EyeOff,
+    Loader2,
+    Lock,
+    Mail,
+    ShieldCheck,
 } from "lucide-react";
+import { useState } from "react";
+import Logo from "../components/common/Logo";
+import { authAPI } from "../services/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -78,9 +78,7 @@ export default function Login() {
 
         {/* LOGO */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-300 flex items-center justify-center">
-            <Crown size={28} className="text-black" />
-          </div>
+          <Logo size="lg" showText={false} className="justify-center" />
         </div>
 
         {/* TITLE */}

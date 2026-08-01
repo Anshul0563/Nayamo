@@ -1,26 +1,27 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useTheme } from "../../context/ThemeContext";
 import {
-  Search,
-  Bell,
-  Menu,
-  Sun,
-  Moon,
-  User,
-  Settings,
-  LogOut,
-  RefreshCw,
-  Package,
-  IndianRupee,
-  ShieldAlert,
-  Users,
-  Boxes,
-  ChevronDown,
-  X,
-  Check,
+    Bell,
+    Boxes,
+    Check,
+    ChevronDown,
+    IndianRupee,
+    LogOut,
+    Menu,
+    Moon,
+    Package,
+    RefreshCw,
+    Search,
+    Settings,
+    ShieldAlert,
+    Sun,
+    User,
+    Users,
+    X,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
 import { adminAPI } from "../../services/api";
 import { socketService } from "../../services/socket";
+import Logo from "../common/Logo";
 
 const notificationStyles = {
   order: {
@@ -182,6 +183,8 @@ export default function Header({
           >
             <Menu size={20} />
           </button>
+
+          <Logo size="sm" showText={false} className="shrink-0" />
 
           <div className="min-w-0">
             <h1 className="text-lg md:text-xl font-display font-semibold text-luxury-text truncate">

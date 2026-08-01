@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard,
-  ShoppingCart,
-  Boxes,
-  PlusSquare,
-  Wallet,
-  BarChart3,
-  RotateCcw,
-  Settings,
-  Users,
-  LogOut,
-  User,
-  Crown,
-  ChevronLeft,
-  ChevronRight,
-  Star,
+    BarChart3,
+    Boxes,
+    ChevronLeft,
+    ChevronRight,
+    LayoutDashboard,
+    LogOut,
+    PlusSquare,
+    RotateCcw,
+    Settings,
+    ShoppingCart,
+    Star,
+    User,
+    Users,
+    Wallet,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import Logo from "../common/Logo";
 
 const menuItems = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
@@ -31,12 +31,12 @@ const menuItems = [
   { name: "Settings", path: "/settings", icon: Settings },
 ];
 
-export default function Sidebar({ 
-  mobileOpen, 
-  onMobileClose, 
-  collapsed = false, 
+export default function Sidebar({
+  mobileOpen,
+  onMobileClose,
+  collapsed = false,
   onToggleCollapse,
-  adminName = "Admin" 
+  adminName = "Admin"
 }) {
   const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -53,37 +53,33 @@ export default function Sidebar({
     window.location.href = "/login";
   };
 
-  const sidebarClasses = collapsed 
-    ? "w-20" 
+  const sidebarClasses = collapsed
+    ? "w-20"
     : "w-72";
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside 
+      <aside
         className={`hidden md:flex flex-col h-screen sticky top-0 sidebar border-r border-luxury-border transition-all duration-500 ease-luxury ${sidebarClasses}`}
       >
         {/* Logo Section */}
         <div className={`p-5 border-b border-luxury-border flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
           {!collapsed && (
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center shadow-gold-sm">
-                <Crown size={20} className="text-black" />
-              </div>
-              <div>
-                <h1 className="text-xl font-display font-bold text-gold-gradient">
+            <div className="flex items-center gap-3 min-w-0">
+              <Logo size="md" showText={false} className="shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-xl font-display font-bold text-gold-gradient truncate">
                   Nayamo
                 </h1>
-                <p className="text-[10px] text-luxury-dim tracking-[0.2em] uppercase">
+                <p className="text-[10px] text-luxury-dim tracking-[0.2em] uppercase truncate">
                   Premium Jewellery
                 </p>
               </div>
             </div>
           )}
           {collapsed && (
-            <div className="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center shadow-gold-sm">
-              <Crown size={20} className="text-black" />
-            </div>
+            <Logo size="sm" showText={false} className="shrink-0" />
           )}
           <button
             onClick={onToggleCollapse}
@@ -97,9 +93,9 @@ export default function Sidebar({
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path || 
+            const isActive = location.pathname === item.path ||
               (item.path !== "/" && location.pathname.startsWith(item.path));
-            
+
             return (
               <NavLink
                 key={item.name}
@@ -109,7 +105,7 @@ export default function Sidebar({
                   group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300
                   ${collapsed ? 'justify-center' : ''}
                   ${navActive || isActive
-                    ? "nav-link-active text-gold-400 font-medium" 
+                    ? "nav-link-active text-gold-400 font-medium"
                     : "text-luxury-muted hover:text-luxury-text nav-link-hover"
                   }
                 `}
@@ -120,14 +116,14 @@ export default function Sidebar({
                 {(isActive) && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gold-gradient rounded-r-full" />
                 )}
-                
-                <Icon 
-                  size={20} 
+
+                <Icon
+                  size={20}
                   className={`shrink-0 transition-transform duration-300 ${
                     isActive ? "text-gold-400" : "group-hover:scale-110"
-                  }`} 
+                  }`}
                 />
-                
+
                 {!collapsed && (
                   <span className="truncate transition-opacity duration-300">
                     {item.name}
@@ -161,7 +157,7 @@ export default function Sidebar({
               </div>
             )}
           </div>
-          
+
           <button
             onClick={handleLogout}
             className={`mt-3 flex items-center gap-2 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors text-sm w-full ${collapsed ? 'justify-center' : ''}`}
@@ -175,22 +171,20 @@ export default function Sidebar({
       {/* Mobile Sidebar Overlay */}
       {mobileOpen && (
         <>
-          <div 
+          <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
             onClick={onMobileClose}
           />
           <aside className="fixed inset-y-0 left-0 w-72 sidebar border-r border-luxury-border z-50 md:hidden flex flex-col animate-slide-in-right">
             {/* Mobile Logo */}
             <div className="p-5 border-b border-luxury-border flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center shadow-gold-sm">
-                  <Crown size={20} className="text-black" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-display font-bold text-gold-gradient">
+              <div className="flex items-center gap-3 min-w-0">
+                <Logo size="sm" showText={false} className="shrink-0" />
+                <div className="min-w-0">
+                  <h1 className="text-xl font-display font-bold text-gold-gradient truncate">
                     Nayamo
                   </h1>
-                  <p className="text-[10px] text-luxury-dim tracking-[0.2em] uppercase">
+                  <p className="text-[10px] text-luxury-dim tracking-[0.2em] uppercase truncate">
                     Premium Jewellery
                   </p>
                 </div>
@@ -207,9 +201,9 @@ export default function Sidebar({
             <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
               {menuItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = location.pathname === item.path || 
+                const isActive = location.pathname === item.path ||
                   (item.path !== "/" && location.pathname.startsWith(item.path));
-                
+
                 return (
                   <NavLink
                     key={item.name}
@@ -218,7 +212,7 @@ export default function Sidebar({
                     className={({ isActive: navActive }) => `
                       flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
                       ${navActive || isActive
-                        ? "nav-link-active text-gold-400 font-medium" 
+                        ? "nav-link-active text-gold-400 font-medium"
                         : "text-luxury-muted hover:text-luxury-text nav-link-hover"
                       }
                     `}
