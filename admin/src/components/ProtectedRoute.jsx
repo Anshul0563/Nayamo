@@ -10,23 +10,17 @@ export default function ProtectedRoute({ children }) {
   useEffect(() => {
     const verifyAuth = async () => {
       const token = localStorage.getItem("accessToken");
-      const role = localStorage.getItem("role");
-
       if (!token) {
         setIsAuthenticated(false);
         return;
       }
 
-      // Check role first (fast path)
-      if (role !== "admin") {
-        setIsAuthenticated(false);
-        setIsAdmin(false);
-        return;
-      }
-
-      // Verify token with backend
+      // The server verifies both token validity and the admin role.
       try {
-        await authAPI.getProfile();
+        const response = await authAPI.getAdminProfile();
+        if (response.data?.data?.role !== "admin") {
+          throw new Error("Admin role is required");
+        }
         setIsAuthenticated(true);
         setIsAdmin(true);
       } catch (err) {
@@ -50,7 +44,9 @@ export default function ProtectedRoute({ children }) {
 
   // Not authenticated or not admin
   if (!isAuthenticated || !isAdmin) {
-    localStorage.clear();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("role");
     return <Navigate to="/login" replace />;
   }
 

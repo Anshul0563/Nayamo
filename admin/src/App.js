@@ -1,24 +1,25 @@
-import { Routes, Route } from "react-router-dom";
-import { ToastProvider } from "./components/ui/ToastProvider";
+import { lazy, Suspense, useEffect } from "react";
+import { Route, Routes } from "react-router-dom";
+import ErrorBoundary from "./ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/layout/AdminLayout";
-import { socketService } from "./services/socket";
-import { useEffect } from "react";
-import { useAuth } from "./hooks/useAuth";
+import PageLoader from "./components/ui/PageLoader";
+import { ToastProvider } from "./components/ui/ToastProvider";
 import { ThemeProvider } from "./context/ThemeContext";
-import ErrorBoundary from "./ErrorBoundary";
+import { useAuth } from "./hooks/useAuth";
+import { socketService } from "./services/socket";
 
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Orders from "./pages/Orders";
-import Inventory from "./pages/Inventory";
-import AddProduct from "./pages/AddProduct";
-import Payments from "./pages/Payments";
-import Analytics from "./pages/Analytics";
-import Users from "./pages/Users";
-import Reviews from "./pages/Reviews";
-import Returns from "./pages/Returns";
-import Settings from "./pages/Settings";
+const Login = lazy(() => import("./pages/Login"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Orders = lazy(() => import("./pages/Orders"));
+const Inventory = lazy(() => import("./pages/Inventory"));
+const AddProduct = lazy(() => import("./pages/AddProduct"));
+const Payments = lazy(() => import("./pages/Payments"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Users = lazy(() => import("./pages/Users"));
+const Reviews = lazy(() => import("./pages/Reviews"));
+const Returns = lazy(() => import("./pages/Returns"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 function App() {
   const { token } = useAuth();
@@ -38,7 +39,7 @@ function App() {
 
     window.addEventListener('realtime-notification', handleRealtimeNotification);
     window.addEventListener('refresh-dashboard', handleRefreshDashboard);
-    
+
     return () => {
       window.removeEventListener('realtime-notification', handleRealtimeNotification);
       window.removeEventListener('refresh-dashboard', handleRefreshDashboard);
@@ -49,31 +50,33 @@ function App() {
     <ThemeProvider>
       <ErrorBoundary>
         <ToastProvider>
-          <Routes>
-          {/* Public */}
-          <Route path="/login" element={<Login />} />
+          <Suspense fallback={<PageLoader label="Preparing the admin workspace" />}>
+            <Routes>
+              {/* Public */}
+              <Route path="/login" element={<Login />} />
 
-          {/* Protected Admin Layout */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="inventory" element={<Inventory />} />
-            <Route path="add-product" element={<AddProduct />} />
-            <Route path="payments" element={<Payments />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="users" element={<Users />} />
-            <Route path="reviews" element={<Reviews />} />
-            <Route path="returns" element={<Returns />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-        </Routes>
+              {/* Protected Admin Layout */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="orders" element={<Orders />} />
+                <Route path="inventory" element={<Inventory />} />
+                <Route path="add-product" element={<AddProduct />} />
+                <Route path="payments" element={<Payments />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="users" element={<Users />} />
+                <Route path="reviews" element={<Reviews />} />
+                <Route path="returns" element={<Returns />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
+            </Routes>
+          </Suspense>
         </ToastProvider>
       </ErrorBoundary>
     </ThemeProvider>

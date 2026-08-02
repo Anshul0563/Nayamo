@@ -9,7 +9,7 @@ const {
   emitNotification,
 } = require("../services/notificationService");
 
-// 🔐 Generate Access Token (short-lived)
+//  Generate Access Token (short-lived)
 const generateAccessToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role, type: "access" },
@@ -18,7 +18,7 @@ const generateAccessToken = (user) => {
   );
 };
 
-// 🔐 Generate Refresh Token (long-lived)
+//  Generate Refresh Token (long-lived)
 const generateRefreshToken = (user) => {
   return jwt.sign(
     { id: user._id, type: "refresh" },
@@ -56,7 +56,7 @@ const isPasswordStrong = (password) => {
   return regex.test(password);
 };
 
-// 🟢 REGISTER
+//  REGISTER
 exports.register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -127,7 +127,7 @@ exports.register = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔵 LOGIN
+//  LOGIN
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -156,6 +156,9 @@ exports.login = asyncHandler(async (req, res) => {
       : await require("bcryptjs").compare(password, user.password);
 
   if (!isMatch) {
+    logger.warn(
+      `Login rejected for ${maskEmail(email)}: password mismatch or legacy password.`
+    );
     emitNotification(
       null,
       "Failed Admin Login Attempt",
@@ -205,7 +208,66 @@ exports.login = asyncHandler(async (req, res) => {
   });
 });
 
-// 🔄 REFRESH TOKEN
+//  ADMIN LOGIN — kept separate from customer login so role enforcement
+// happens on the server, not only in the admin React application.
+exports.adminLogin = asyncHandler(async (req, res) => {
+  const email = req.body.email?.toLowerCase().trim();
+  const { password } = req.body;
+
+  const reject = () => {
+    res.status(401);
+    throw new Error("Invalid admin email or password");
+  };
+
+  if (!email || !password) {
+    res.status(400);
+    throw new Error("Email and password are required");
+  }
+
+  const user = await User.findOne({ email }).select("+password");
+  if (!user || !user.isActive) reject();
+
+  const passwordMatches = await user.comparePassword(password);
+  if (!passwordMatches) {
+    logger.warn(`Admin login rejected: password mismatch (${maskEmail(email)})`);
+    reject();
+  }
+
+  if (user.role !== "admin") {
+    logger.warn(`Admin login rejected: non-admin account (${maskEmail(email)})`);
+    res.status(403);
+    throw new Error("Admin access is required");
+  }
+
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+  const tokenHash = hashToken(refreshToken);
+  user.refreshTokens = Array.isArray(user.refreshTokens)
+    ? user.refreshTokens.slice(-4)
+    : [];
+  user.refreshTokens.push({
+    tokenHash,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+  await user.save();
+
+  logger.info(`Admin logged in: ${user.email}`);
+  res.json({
+    success: true,
+    message: "Admin login successful",
+    data: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isEmailVerified: user.isEmailVerified,
+    },
+    accessToken,
+    refreshToken,
+  });
+});
+
+//  REFRESH TOKEN
 exports.refreshToken = asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
 
@@ -275,7 +337,7 @@ exports.refreshToken = asyncHandler(async (req, res) => {
   }
 });
 
-// 🚪 LOGOUT
+//  LOGOUT
 exports.logout = asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
   const user = await User.findById(req.user._id);
@@ -295,7 +357,7 @@ exports.logout = asyncHandler(async (req, res) => {
   });
 });
 
-// 🚪 LOGOUT ALL DEVICES
+//  LOGOUT ALL DEVICES
 exports.logoutAll = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   user.refreshTokens = [];
@@ -309,7 +371,7 @@ exports.logoutAll = asyncHandler(async (req, res) => {
   });
 });
 
-// � FORGOT PASSWORD
+//  FORGOT PASSWORD
 exports.forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -539,7 +601,7 @@ If you did not request this, you can safely ignore this email.
   });
 });
 
-// 🔄 RESET PASSWORD (hardened: atomic token consumption to prevent replay)
+// RESET PASSWORD (hardened: atomic token consumption to prevent replay)
 exports.resetPassword = asyncHandler(async (req, res) => {
   const { token, password } = req.body;
 
@@ -598,7 +660,7 @@ exports.resetPassword = asyncHandler(async (req, res) => {
   });
 });
 
-// �👤 GET PROFILE
+//  GET PROFILE
 exports.getProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select(
     "-password -refreshTokens",
@@ -613,4 +675,8 @@ exports.getProfile = asyncHandler(async (req, res) => {
     success: true,
     data: user,
   });
+});
+
+exports.getAdminProfile = asyncHandler(async (req, res) => {
+  res.json({ success: true, data: req.user });
 });

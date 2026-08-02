@@ -37,6 +37,7 @@ const webhookRoutes = require("./routes/webhookRoutes");
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 const startPaymentCleanupJob = require("./cron/paymentCleanupJob");
 const { verifyEmailTransport } = require("./services/emailService");
+const { bootstrapAdminOnStartup } = require("./services/adminBootstrapService");
 
 const app = express();
 const server = http.createServer(app);
@@ -249,7 +250,12 @@ app.use(errorHandler);
 // ================= START =================
 const startServer = async () => {
   try {
-    await connectDB();
+    const connected = await connectDB();
+    if (!connected) {
+      throw new Error("Database connection failed");
+    }
+
+    await bootstrapAdminOnStartup();
 
     if (process.env.VERIFY_EMAIL_ON_STARTUP === "true") {
       try {

@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { body } = require("express-validator");
 
-const { register, login, getProfile, refreshToken, logout, logoutAll, forgotPassword, resetPassword } = require("../controllers/authController");
+const { register, login, adminLogin, getProfile, getAdminProfile, refreshToken, logout, logoutAll, forgotPassword, resetPassword } = require("../controllers/authController");
 const protect = require("../middleware/authMiddleware");
+const admin = require("../middleware/adminMiddleware");
 const validate = require("../middleware/validateMiddleware");
 
 // Validation rules
@@ -82,6 +83,7 @@ const resetPasswordValidation = [
 
 router.post("/register", registerValidation, validate, register);
 router.post("/login", loginValidation, validate, login);
+router.post("/admin/login", loginValidation, validate, adminLogin);
 router.post("/refresh", refreshValidation, validate, refreshToken);
 router.post("/forgot-password", forgotPasswordValidation, validate, forgotPassword);
 router.post("/forgotPassword", forgotPasswordValidation, validate, forgotPassword);
@@ -90,5 +92,6 @@ router.post("/resetPassword", resetPasswordValidation, validate, resetPassword);
 router.post("/logout", protect, logoutValidation, validate, logout);
 router.post("/logout-all", protect, logoutAll);
 router.get("/profile", protect, getProfile);
+router.get("/admin/profile", protect, admin, getAdminProfile);
 
 module.exports = router;

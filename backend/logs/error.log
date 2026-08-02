@@ -24,3 +24,6 @@
 {"level":"error","message":"500 - Timeout","service":"nayamo-api","timestamp":"2026-05-13 11:40:05"}
 {"level":"error","message":"transporter.sendMail() failed: {\"message\":\"Timeout\",\"code\":\"ETIMEDOUT\",\"command\":\"CONN\"}","service":"nayamo-api","timestamp":"2026-05-13 11:49:42"}
 {"level":"error","message":"500 - Timeout","service":"nayamo-api","timestamp":"2026-05-13 11:49:42"}
+{"level":"error","message":"404 - Not Found - /favicon.ico","service":"nayamo-api","timestamp":"2026-08-02 18:06:19"}
+{"level":"error","message":"404 - Not Found - /api/v1/auth/admin/login","service":"nayamo-api","timestamp":"2026-08-02 18:07:34"}
+{"level":"error","message":"404 - Not Found - /favicon.ico","service":"nayamo-api","timestamp":"2026-08-02 18:07:34"}

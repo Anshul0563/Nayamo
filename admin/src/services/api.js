@@ -1,10 +1,11 @@
 import axios from "axios";
 
-// ✅ ENV with local fallback so admin can render graceful API states in dev
+//  ENV with local fallback so admin can render graceful API states in dev
 const API_BASE_URL =
   process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
+  console.log("🔥 API_BASE_URL =", API_BASE_URL);
 
-// ✅ AXIOS INSTANCE
+//  AXIOS INSTANCE
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
@@ -44,12 +45,16 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config || {};
 
-    const isAuthEndpoint = originalRequest.url?.includes("/auth/");
+    // Login/refresh failures must be returned to their caller. A protected
+    // profile request is safe to retry after refreshing its access token.
+    const isTokenEndpoint = ["/auth/login", "/auth/admin/login", "/auth/refresh"].some(
+      (path) => originalRequest.url?.includes(path)
+    );
 
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !isAuthEndpoint
+      !isTokenEndpoint
     ) {
       if (isRefreshing) {
         return new Promise((resolve) => {
@@ -70,16 +75,16 @@ apiClient.interceptors.response.use(
         const res = await axios.post(
           `${API_BASE_URL}/auth/refresh`,
           { refreshToken },
-          { withCredentials: true } // ✅ FIXED
+          { withCredentials: true } //  FIXED
         );
 
         const { accessToken, refreshToken: newRefreshToken } = res.data;
 
-        // ✅ SAVE TOKENS
+        // SAVE TOKENS
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", newRefreshToken);
 
-        // ✅ PROPER HEADER UPDATE
+        // PROPER HEADER UPDATE
         apiClient.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
         onTokenRefreshed(accessToken);
@@ -87,8 +92,10 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (err) {
-        // ❌ CLEAN LOGOUT
-        localStorage.clear();
+        //  CLEAN LOGOUT
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("role");
         window.location.href = "/login";
         return Promise.reject(err);
       } finally {
@@ -193,10 +200,14 @@ export const adminAPI = {
 export const authAPI = {
   login: (credentials) =>
     apiClient.post("/auth/login", credentials),
+  adminLogin: (credentials) =>
+    apiClient.post("/auth/admin/login", credentials),
   register: (data) =>
     apiClient.post("/auth/register", data),
   getProfile: () =>
     apiClient.get("/auth/profile"),
+  getAdminProfile: () =>
+    apiClient.get("/auth/admin/profile"),
   updateProfile: (data) =>
     apiClient.put("/auth/profile", data),
 
@@ -204,7 +215,7 @@ export const authAPI = {
     axios.post(
       `${API_BASE_URL}/auth/refresh`,
       { refreshToken },
-      { withCredentials: true } // ✅ FIXED
+      { withCredentials: true } //  FIXED
     ),
 };
 

@@ -73,10 +73,33 @@ const userSchema = new mongoose.Schema(
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
-  this.password = await bcrypt.hash(this.password, 12);
+  const password = this.password;
+  const isBcryptHash = typeof password === "string" && /^\$2[aby]\$\d{2}\$/.test(password);
+
+  if (isBcryptHash) return;
+
+  this.password = await bcrypt.hash(password, 12);
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
+  if (!candidatePassword || !this.password) return false;
+
+  const isBcryptHash = typeof this.password === "string" && /^\$2[aby]\$\d{2}\$/.test(this.password);
+
+  if (!isBcryptHash) {
+    if (this.password === candidatePassword) {
+      const hashedPassword = await bcrypt.hash(candidatePassword, 12);
+      this.password = hashedPassword;
+
+      if (mongoose.connection.readyState === 1) {
+        await this.save({ validateBeforeSave: false });
+      }
+
+      return true;
+    }
+    return false;
+  }
+
   return bcrypt.compare(candidatePassword, this.password);
 };
 

@@ -1,12 +1,12 @@
 import {
-    AlertCircle,
-    CheckCircle2,
-    Eye,
-    EyeOff,
-    Loader2,
-    Lock,
-    Mail,
-    ShieldCheck,
+  AlertCircle,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+  ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 import Logo from "../components/common/Logo";
@@ -28,6 +28,10 @@ export default function Login() {
   };
 
   const handleLogin = async (e) => {
+    console.log("📤 Sending Login Request:", {
+      email: email.trim().toLowerCase(),
+      password,
+    });
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -38,10 +42,11 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const res = await authAPI.login({
+      const res = await authAPI.adminLogin({
         email: email.trim().toLowerCase(),
         password,
       });
+      console.log("✅ Login Response:", res);
 
       const { accessToken, refreshToken, data: userData } = res.data;
 
@@ -49,18 +54,23 @@ export default function Login() {
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("role", userData?.role || "user");
 
-      setSuccess("Login successful!");
+      if (userData?.role !== "admin") {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("role");
+        setError("Admin access only");
+        return;
+      }
 
-      setTimeout(() => {
-        if (userData?.role === "admin") {
-          window.location.href = "/";
-        } else {
-          setError("Admin access only");
-          localStorage.clear();
-        }
-      }, 700);
+      setSuccess("Login successful!");
+      window.setTimeout(() => {
+        window.location.assign("/");
+      }, 500);
     } catch (err) {
-      setError("Login failed. Try again.");
+      console.log("❌ Full Error:", err);
+      console.log("❌ Response:", err.response);
+      console.log("❌ Response Data:", err.response?.data);
+      setError(err.response?.data?.message || "Login failed. Try again.");
     } finally {
       setLoading(false);
     }
@@ -68,14 +78,12 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 relative overflow-hidden">
-
       {/* GOLD GLOW BACKGROUND */}
       <div className="absolute top-10 left-10 w-80 h-80 rounded-full bg-yellow-500/20 blur-3xl" />
       <div className="absolute bottom-10 right-10 w-72 h-72 rounded-full bg-yellow-400/10 blur-3xl" />
 
       {/* CARD */}
       <div className="relative z-10 w-full max-w-md rounded-3xl border border-yellow-500/20 bg-[#0d0d0d] shadow-[0_0_40px_rgba(212,168,83,0.15)] p-8">
-
         {/* LOGO */}
         <div className="flex justify-center mb-6">
           <Logo size="lg" showText={false} className="justify-center" />
@@ -86,9 +94,7 @@ export default function Login() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-200 bg-clip-text text-transparent">
             Nayamo
           </h1>
-          <p className="text-gray-400 text-sm mt-2">
-            Premium Admin Login
-          </p>
+          <p className="text-gray-400 text-sm mt-2">Premium Admin Login</p>
         </div>
 
         {/* ERROR */}
@@ -107,12 +113,14 @@ export default function Login() {
 
         {/* FORM */}
         <form onSubmit={handleLogin} className="space-y-4">
-
           {/* EMAIL */}
           <div>
             <label className="text-sm text-gray-400">Email</label>
             <div className="relative mt-1">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+              <Mail
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                size={18}
+              />
               <input
                 type="email"
                 className="w-full bg-black border border-gray-700 text-white pl-10 pr-3 py-3 rounded-xl focus:border-yellow-500 outline-none"
@@ -126,7 +134,10 @@ export default function Login() {
           <div>
             <label className="text-sm text-gray-400">Password</label>
             <div className="relative mt-1">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+              <Lock
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                size={18}
+              />
 
               <input
                 type={showPass ? "text" : "password"}
@@ -160,11 +171,7 @@ export default function Login() {
             disabled={loading}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-300 text-black font-semibold hover:scale-105 transition"
           >
-            {loading ? (
-              <Loader2 className="animate-spin mx-auto" />
-            ) : (
-              "Login"
-            )}
+            {loading ? <Loader2 className="animate-spin mx-auto" /> : "Login"}
           </button>
         </form>
 

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
 function AnimatedCounter({ end, duration = 1200, prefix = "", suffix = "" }) {
   const [count, setCount] = useState(0);
@@ -52,26 +52,24 @@ export default function StatCard({
   return (
     <motion.div
       onClick={onClick}
-      whileHover={{ y: -6 }}
+      whileHover={{ y: -6, scale: 1.01 }}
       whileTap={{ scale: 0.97 }}
-      className="group relative p-6 rounded-2xl bg-[#0d0d0d] border border-white/5 hover:border-[#D4A853]/40 shadow-[0_0_20px_rgba(212,168,83,0.05)] hover:shadow-[0_0_35px_rgba(212,168,83,0.15)] transition-all duration-500 cursor-pointer overflow-hidden"
+      className="group relative overflow-hidden rounded-2xl border border-luxury-border/70 bg-luxury-card/80 p-6 shadow-[0_10px_35px_rgba(0,0,0,0.12)] transition-all duration-500 hover:border-gold-400/40 hover:shadow-[0_18px_45px_rgba(212,168,83,0.16)]"
     >
-      {/* Glow */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_top,rgba(212,168,83,0.12),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(212,168,83,0.14),transparent_62%)] opacity-0 transition duration-500 group-hover:opacity-100" />
 
-      {/* Top Row */}
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-xs uppercase tracking-wider text-gray-400">
+      <div className="relative flex items-center justify-between mb-6">
+        <p className="text-xs uppercase tracking-[0.24em] text-luxury-muted">
           {title}
         </p>
 
         {Icon && (
-          <div className="p-2 rounded-lg bg-white/5 group-hover:bg-[#D4A853]/10 transition">
+          <div className="rounded-xl border border-luxury-border/60 bg-luxury-surface/70 p-2 transition group-hover:border-gold-400/30 group-hover:bg-gold-500/10">
             {isIconElement
               ? React.cloneElement(Icon, {
                   className: [
                     Icon.props.className,
-                    "text-gray-400 group-hover:text-[#D4A853]",
+                    "text-luxury-muted group-hover:text-gold-400",
                   ]
                     .filter(Boolean)
                     .join(" "),
@@ -79,36 +77,30 @@ export default function StatCard({
               : (
                 <Icon
                   size={18}
-                  className="text-gray-400 group-hover:text-[#D4A853]"
+                  className="text-luxury-muted group-hover:text-gold-400"
                 />
               )}
           </div>
         )}
       </div>
 
-      {/* Value */}
-      <div className="text-3xl md:text-4xl font-bold text-white mb-4">
+      <div className="relative text-3xl font-semibold text-luxury-text md:text-4xl">
         <AnimatedCounter end={value} prefix={prefix} suffix={suffix} />
       </div>
 
-      {/* Trend */}
       {numericTrend !== undefined && (
-        <div className="flex items-center gap-2 text-sm font-medium">
+        <div className="relative mt-4 flex items-center gap-2 text-sm font-medium">
           {numericTrend >= 0 ? (
             <TrendingUp size={16} className="text-emerald-400" />
           ) : (
             <TrendingDown size={16} className="text-rose-400" />
           )}
 
-          <span
-            className={`${
-              numericTrend >= 0 ? "text-emerald-400" : "text-rose-400"
-            }`}
-          >
+          <span className={numericTrend >= 0 ? "text-emerald-400" : "text-rose-400"}>
             {Math.abs(numericTrend)}%
           </span>
 
-          <span className="text-gray-500">vs last period</span>
+          <span className="text-luxury-dim">vs last period</span>
         </div>
       )}
     </motion.div>
