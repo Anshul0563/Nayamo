@@ -13,6 +13,7 @@ import {
   Mail,
   ShoppingBag,
   RefreshCcw,
+  Truck,
 } from "lucide-react";
 import { adminAPI } from "../services/api";
 import { useTheme } from "../context/ThemeContext";
@@ -27,6 +28,7 @@ export default function Settings() {
     orderAlerts: true,
     emailNotifications: true,
     autoLogoutTime: 60,
+    codEnabled: true,
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -45,7 +47,7 @@ export default function Settings() {
       try {
         setLoading(true);
         const res = await adminAPI.getSettings();
-        const apiSettings = res.data?.settings || res.data;
+        const apiSettings = res.data?.data || res.data?.settings || res.data;
         if (apiSettings) {
           if (apiSettings.darkMode !== undefined && !localStorage.getItem("adminTheme")) {
             setTheme(apiSettings.darkMode);
@@ -73,9 +75,19 @@ export default function Settings() {
   }, [setTheme]);
 
   const saveSettings = async () => {
+    const settingsToSave = {
+      notifications: settings.notifications,
+      autoRefresh: settings.autoRefresh,
+      refreshInterval: settings.refreshInterval,
+      orderAlerts: settings.orderAlerts,
+      emailNotifications: settings.emailNotifications,
+      autoLogoutTime: settings.autoLogoutTime,
+      codEnabled: settings.codEnabled !== false,
+      darkMode,
+    };
+
     try {
       setLoading(true);
-      const settingsToSave = { ...settings, darkMode };
       // Save to API
       await adminAPI.updateSettings(settingsToSave);
       // Save to localStorage as cache fallback
@@ -84,7 +96,6 @@ export default function Settings() {
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
       // Fallback to localStorage only
-      const settingsToSave = { ...settings, darkMode };
       localStorage.setItem("adminSettings", JSON.stringify(settingsToSave));
       setMessage({ type: "error", text: error.response?.data?.message || "Saved locally. API sync failed." });
     } finally {
@@ -141,9 +152,12 @@ export default function Settings() {
     </div>
   );
 
-  const Toggle = ({ checked, onChange }) => (
+  const Toggle = ({ checked, onChange, label }) => (
     <button
+      type="button"
       onClick={() => onChange(!checked)}
+      aria-label={label}
+      aria-pressed={checked}
       className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${
         checked ? "bg-indigo-600" : "bg-zinc-700"
       }`}
@@ -203,7 +217,11 @@ export default function Settings() {
           title="Notifications"
           description="Receive alerts for new orders and updates"
         >
-          <Toggle checked={settings.notifications} onChange={(v) => updateSetting("notifications", v)} />
+          <Toggle
+            checked={settings.notifications}
+            onChange={(v) => updateSetting("notifications", v)}
+            label="Toggle notifications"
+          />
         </SettingRow>
 
         <SettingRow
@@ -211,7 +229,7 @@ export default function Settings() {
           title="Dark Mode"
           description="Use dark theme for the admin panel"
         >
-          <Toggle checked={darkMode} onChange={toggleTheme} />
+          <Toggle checked={darkMode} onChange={toggleTheme} label="Toggle dark mode" />
         </SettingRow>
 
         <SettingRow
@@ -219,7 +237,11 @@ export default function Settings() {
           title="Auto Refresh"
           description="Automatically refresh dashboard data"
         >
-          <Toggle checked={settings.autoRefresh} onChange={(v) => updateSetting("autoRefresh", v)} />
+          <Toggle
+            checked={settings.autoRefresh}
+            onChange={(v) => updateSetting("autoRefresh", v)}
+            label="Toggle automatic refresh"
+          />
         </SettingRow>
 
         {settings.autoRefresh && (
@@ -249,7 +271,27 @@ export default function Settings() {
           title="Order Alerts"
           description="Get notified when new orders arrive"
         >
-          <Toggle checked={settings.orderAlerts} onChange={(v) => updateSetting("orderAlerts", v)} />
+          <Toggle
+            checked={settings.orderAlerts}
+            onChange={(v) => updateSetting("orderAlerts", v)}
+            label="Toggle order alerts"
+          />
+        </SettingRow>
+
+        <SettingRow
+          icon={Truck}
+          title="Cash on Delivery"
+          description={
+            settings.codEnabled !== false
+              ? "Allow customers to place COD orders"
+              : "COD is not available at your region"
+          }
+        >
+          <Toggle
+            checked={settings.codEnabled !== false}
+            onChange={(v) => updateSetting("codEnabled", v)}
+            label="Toggle cash on delivery availability"
+          />
         </SettingRow>
 
         <SettingRow
@@ -257,7 +299,11 @@ export default function Settings() {
           title="Email Notifications"
           description="Receive email summaries of daily activity"
         >
-          <Toggle checked={settings.emailNotifications} onChange={(v) => updateSetting("emailNotifications", v)} />
+          <Toggle
+            checked={settings.emailNotifications}
+            onChange={(v) => updateSetting("emailNotifications", v)}
+            label="Toggle email notifications"
+          />
         </SettingRow>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 border-b border-white/5 gap-3">

@@ -133,6 +133,11 @@ export const productAPI = {
   getProductById: (id) => apiClient.get(`/products/${id}`),
 };
 
+// Storefront settings
+export const settingsAPI = {
+  getPaymentOptions: () => apiClient.get("/settings/payment-options"),
+};
+
 // Cart
 export const cartAPI = {
   getCart: () => apiClient.get("/cart"),

@@ -14,8 +14,14 @@ import {
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { motion } from "framer-motion";
 import logo from "../../assets/logo.png";
+import {
+  COD_UNAVAILABLE_MESSAGE,
+  usePaymentOptions,
+} from "../../context/PaymentOptionsContext";
 
 export default function Footer() {
+  const { codEnabled } = usePaymentOptions();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -36,6 +42,21 @@ export default function Footer() {
     },
   };
 
+  const codBadge =
+    codEnabled === false
+      ? {
+          icon: CreditCard,
+          title: COD_UNAVAILABLE_MESSAGE,
+          desc: "Please use online payment at checkout",
+        }
+      : codEnabled === null
+        ? {
+            icon: CreditCard,
+            title: "Checking COD availability",
+            desc: "Please wait a moment",
+          }
+        : { icon: CreditCard, title: "COD Available", desc: "Pay on delivery" };
+
   return (
     <footer className="relative bg-gradient-to-b from-[#0A0A0C] via-[#070708] to-[#0A0A0C] text-white border-t border-white/[0.08] overflow-hidden">
       {/* Background Effects */}
@@ -55,7 +76,7 @@ export default function Footer() {
             {[
               { icon: Shield, title: "Hypoallergenic", desc: "Skin-safe materials" },
               { icon: RotateCcw, title: "Easy Returns", desc: "7-day return policy" },
-              { icon: CreditCard, title: "COD Available", desc: "Pay on delivery" },
+              codBadge,
             ].map((badge, i) => (
               <motion.div
                 key={i}

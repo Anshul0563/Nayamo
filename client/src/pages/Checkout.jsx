@@ -12,6 +12,10 @@ import toast from "react-hot-toast";
 
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import {
+  COD_UNAVAILABLE_MESSAGE,
+  usePaymentOptions,
+} from "../context/PaymentOptionsContext";
 
 import { orderAPI, paymentAPI } from "../services/api";
 
@@ -70,6 +74,12 @@ export default function Checkout() {
 
   const { user, loading: authLoading } = useAuth();
 
+  const {
+    codEnabled,
+    loading: paymentOptionsLoading,
+    refreshPaymentOptions,
+  } = usePaymentOptions();
+
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -105,12 +115,33 @@ export default function Checkout() {
     }
   }, [authLoading, user]);
 
+  useEffect(() => {
+    if (codEnabled === false) {
+      setForm((previous) =>
+        previous.paymentMethod === "cod"
+          ? { ...previous, paymentMethod: "online" }
+          : previous,
+      );
+    }
+  }, [codEnabled]);
+
   const items = cart?.items || [];
+  const isCodUnavailable = codEnabled === false;
+  const isCodAvailabilityLoading = paymentOptionsLoading || codEnabled === null;
 
   // =========================
   // PLACE ORDER
   // =========================
   const handlePlaceOrder = async () => {
+    if (form.paymentMethod === "cod" && codEnabled !== true) {
+      toast.error(
+        isCodUnavailable
+          ? COD_UNAVAILABLE_MESSAGE
+          : "Checking COD availability. Please try again in a moment.",
+      );
+      return;
+    }
+
     const idempotencyKey = `${Date.now()}_${Math.random()
       .toString(16)
       .slice(2)}`;
@@ -280,6 +311,11 @@ export default function Checkout() {
     } catch (err) {
       const msg =
         err?.response?.data?.message || err?.message || "Failed to place order";
+
+      if (err?.response?.status === 409 && form.paymentMethod === "cod") {
+        setForm((previous) => ({ ...previous, paymentMethod: "online" }));
+        refreshPaymentOptions();
+      }
 
       toast.error(msg);
     } finally {
@@ -462,7 +498,13 @@ export default function Checkout() {
                 </div>
                 <div className="space-y-4">
                   <label
-                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${
+                      isCodUnavailable || isCodAvailabilityLoading
+                        ? "cursor-not-allowed border-white/[0.06] bg-[#070708] opacity-70"
+                        : "cursor-pointer"
+                    } ${
+                      !isCodUnavailable &&
+                      !isCodAvailabilityLoading &&
                       form.paymentMethod === "cod"
                         ? "border-[#D4A853] bg-[#D4A853]/5"
                         : "border-white/[0.06] bg-[#070708] hover:border-white/[0.1]"
@@ -474,6 +516,7 @@ export default function Checkout() {
                       value="cod"
                       checked={form.paymentMethod === "cod"}
                       onChange={handleChange}
+                      disabled={isCodUnavailable || isCodAvailabilityLoading}
                       className="w-4 h-4 accent-[#D4A853]"
                     />
                     <div className="flex items-center gap-3">
@@ -482,10 +525,16 @@ export default function Checkout() {
                       </div>
                       <div>
                         <p className="font-semibold text-white">
-                          Cash on Delivery
+                          {isCodUnavailable
+                            ? COD_UNAVAILABLE_MESSAGE
+                            : "Cash on Delivery"}
                         </p>
                         <p className="text-xs text-[#71717A]">
-                          Pay when you receive
+                          {isCodUnavailable
+                            ? "Please choose online payment instead"
+                            : isCodAvailabilityLoading
+                              ? "Checking COD availability..."
+                              : "Pay when you receive"}
                         </p>
                       </div>
                     </div>

@@ -1,21 +1,33 @@
 import React, { useState } from "react";
 import { ChevronDown, CircleHelp, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const faqs = [
-  ["Orders", "How do I place an order?", "Choose your favourite piece, add it to your bag and complete checkout with your shipping details and preferred payment method."],
-  ["Orders", "Can I change or cancel an order?", "Please contact us as soon as possible with your order number. We can help only if the order has not already been dispatched."],
-  ["Shipping", "How long will my order take to arrive?", "Most orders are dispatched within 24 hours and are delivered within 3–7 business days after dispatch, depending on your location."],
-  ["Shipping", "How can I track my delivery?", "Once your order is dispatched, we send tracking information to the contact details used at checkout. You can also use the Track Order page."],
-  ["Payments", "Which payment methods can I use?", "Available payment methods are shown at checkout and may include UPI, cards, net banking and Cash on Delivery where eligible."],
-  ["Returns", "What is the return window?", "Return requests can be made within 7 days of delivery for eligible, unused items in their original packaging. See our Refund Policy for complete details."],
-  ["Products", "How should I care for my jewellery?", "Keep it dry, avoid contact with perfume and chemicals, and store it separately in a soft pouch after use."],
-  ["Support", "How can I contact Nayamo?", "Visit our Contact Us page or reach out with your order details. Our support team will help you with any question."],
-];
+import {
+  COD_UNAVAILABLE_MESSAGE,
+  usePaymentOptions,
+} from "../context/PaymentOptionsContext";
 
 export default function FAQ() {
+  const { codEnabled } = usePaymentOptions();
   const [open, setOpen] = useState(0);
   const [category, setCategory] = useState("All");
+  const faqs = [
+    ["Orders", "How do I place an order?", "Choose your favourite piece, add it to your bag and complete checkout with your shipping details and preferred payment method."],
+    ["Orders", "Can I change or cancel an order?", "Please contact us as soon as possible with your order number. We can help only if the order has not already been dispatched."],
+    ["Shipping", "How long will my order take to arrive?", "Most orders are dispatched within 24 hours and are delivered within 3–7 business days after dispatch, depending on your location."],
+    ["Shipping", "How can I track my delivery?", "Once your order is dispatched, we send tracking information to the contact details used at checkout. You can also use the Track Order page."],
+    [
+      "Payments",
+      "Which payment methods can I use?",
+      codEnabled === false
+        ? COD_UNAVAILABLE_MESSAGE
+        : codEnabled === null
+          ? "Payment options are being checked."
+          : "Available payment methods are shown at checkout and may include UPI, cards, net banking and Cash on Delivery where eligible.",
+    ],
+    ["Returns", "What is the return window?", "Return requests can be made within 7 days of delivery for eligible, unused items in their original packaging. See our Refund Policy for complete details."],
+    ["Products", "How should I care for my jewellery?", "Keep it dry, avoid contact with perfume and chemicals, and store it separately in a soft pouch after use."],
+    ["Support", "How can I contact Nayamo?", "Visit our Contact Us page or reach out with your order details. Our support team will help you with any question."],
+  ];
   const categories = ["All", ...new Set(faqs.map(([group]) => group))];
   const visible = faqs.filter(([group]) => category === "All" || group === category);
 

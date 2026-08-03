@@ -29,6 +29,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { FilterProvider } from "./context/FilterContext";
+import { PaymentOptionsProvider } from "./context/PaymentOptionsContext";
 
 function NotFound() {
   return (
@@ -50,42 +51,44 @@ function NotFound() {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <FilterProvider>
+      <PaymentOptionsProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <FilterProvider>
 
-            <Routes>
-              <Route element={<ClientLayout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/product/:id" element={<ProductDetails />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password/:token" element={<ResetPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/orders" element={<MyOrders />} />
-                <Route path="/orders/:id" element={<OrderDetails />} />
-                <Route path="/track-order" element={<TrackOrder />} />
-                <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-                <Route path="/refund-policy" element={<RefundPolicy />} />
-                <Route path="/shipping-info" element={<ShippingInfo />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
+              <Routes>
+                <Route element={<ClientLayout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/product/:id" element={<ProductDetails />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password/:token" element={<ResetPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/orders" element={<MyOrders />} />
+                  <Route path="/orders/:id" element={<OrderDetails />} />
+                  <Route path="/track-order" element={<TrackOrder />} />
+                  <Route path="/wishlist" element={<Wishlist />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="/refund-policy" element={<RefundPolicy />} />
+                  <Route path="/shipping-info" element={<ShippingInfo />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
 
-            </FilterProvider>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
+              </FilterProvider>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
+      </PaymentOptionsProvider>
     </ErrorBoundary>
   );
 }

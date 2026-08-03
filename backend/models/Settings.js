@@ -9,6 +9,7 @@ const settingsSchema = new mongoose.Schema(
     orderAlerts: { type: Boolean, default: true },
     emailNotifications: { type: Boolean, default: true },
     autoLogoutTime: { type: Number, default: 15 },
+    codEnabled: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

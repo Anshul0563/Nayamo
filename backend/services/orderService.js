@@ -1,6 +1,7 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const Settings = require("../models/Settings");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
 const {
@@ -11,9 +12,20 @@ const {
 // PLACE ORDER (with transaction)
 exports.placeOrder = async (userId, data) => {
   const { address, phone, paymentMethod, idempotencyKey } = data;
+  const selectedPaymentMethod = paymentMethod || "cod";
 
   if (!address || !phone) {
     throw new Error("Address and phone required");
+  }
+
+  if (selectedPaymentMethod === "cod") {
+    const settings = await Settings.getSingleton();
+
+    if (settings.codEnabled === false) {
+      const error = new Error("COD is not available at your region");
+      error.statusCode = 409;
+      throw error;
+    }
   }
 
   const cart = await Cart.findOne({ user: userId }).populate("items.product");
@@ -113,7 +125,7 @@ exports.placeOrder = async (userId, data) => {
 
             phone,
 
-            paymentMethod: paymentMethod || "cod",
+            paymentMethod: selectedPaymentMethod,
 
             idempotencyKey: idempotencyKey || null,
           },
@@ -141,7 +153,7 @@ exports.placeOrder = async (userId, data) => {
     // =========================
     // CLEAR CART
     // =========================
-    if (paymentMethod === "cod") {
+    if (selectedPaymentMethod === "cod") {
       cart.items = [];
 
       await cart.save({

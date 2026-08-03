@@ -12,6 +12,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { contactAPI } from "../services/api";
+import {
+  COD_UNAVAILABLE_MESSAGE,
+  usePaymentOptions,
+} from "../context/PaymentOptionsContext";
 
 const contactInfo = [
   {
@@ -31,26 +35,33 @@ const contactInfo = [
   },
 ];
 
-const faqs = [
-  {
-    q: "How long does shipping take?",
-    a: "We ship within 24 hours. Delivery typically takes 3-5 business days.",
-  },
-  {
-    q: "What is your return policy?",
-    a: "We offer a 7-day easy return policy for all unused items.",
-  },
-  {
-    q: "Are your earrings hypoallergenic?",
-    a: "Yes! All our earrings are nickel-free and skin-safe.",
-  },
-  {
-    q: "Do you offer COD?",
-    a: "Absolutely. Cash on Delivery is available on all orders across India.",
-  },
-];
-
 export default function Contact() {
+  const { codEnabled } = usePaymentOptions();
+
+  const faqs = [
+    {
+      q: "How long does shipping take?",
+      a: "We ship within 24 hours. Delivery typically takes 3-5 business days.",
+    },
+    {
+      q: "What is your return policy?",
+      a: "We offer a 7-day easy return policy for all unused items.",
+    },
+    {
+      q: "Are your earrings hypoallergenic?",
+      a: "Yes! All our earrings are nickel-free and skin-safe.",
+    },
+    {
+      q: "Do you offer COD?",
+      a:
+        codEnabled === false
+          ? COD_UNAVAILABLE_MESSAGE
+          : codEnabled === null
+            ? "COD availability is being checked."
+            : "Absolutely. Cash on Delivery is available on all orders across India.",
+    },
+  ];
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -337,4 +348,3 @@ export default function Contact() {
     </div>
   );
 }
-

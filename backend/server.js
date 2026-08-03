@@ -34,6 +34,7 @@ const contactRoutes = require("./routes/contactRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const imageRoutes = require("./routes/imageRoutes");
 const webhookRoutes = require("./routes/webhookRoutes");
+const settingsRoutes = require("./routes/settingsRoutes");
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 const startPaymentCleanupJob = require("./cron/paymentCleanupJob");
 const { verifyEmailTransport } = require("./services/emailService");
@@ -218,6 +219,7 @@ if (process.env.NODE_ENV !== "production") {
 
 // ================= ROUTES =================
 app.use("/api/v1/products", requireDB, productRoutes);
+app.use("/api/v1/settings", requireDB, settingsRoutes);
 app.use("/api/v1/auth", requireDB, authRoutes);
 app.use("/api/v1/cart", requireDB, cartRoutes);
 app.use("/api/v1/wishlist", requireDB, wishlistRoutes);
