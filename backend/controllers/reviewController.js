@@ -3,15 +3,78 @@ const Product = require("../models/Product");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
+const cloudinary = require("../config/cloudinary");
 const { emitReviewNotification } = require("../services/notificationService");
+
+const cleanupReviewImages = async (images, context) => {
+  const publicIds = [
+    ...new Set(
+      (images || [])
+        .map((image) => image?.publicId)
+        .filter(Boolean),
+    ),
+  ];
+
+  if (publicIds.length === 0) return;
+
+  const results = await Promise.allSettled(
+    publicIds.map((publicId) => cloudinary.uploader.destroy(publicId)),
+  );
+
+  results.forEach((result, index) => {
+    if (result.status === "rejected") {
+      logger.warn(
+        `Failed to clean up review image ${publicIds[index]} during ${context}: ${result.reason?.message || result.reason}`,
+      );
+    }
+  });
+};
+
+const uploadReviewImages = async (files = []) => {
+  const uploadedImages = [];
+
+  try {
+    for (const file of files) {
+      const fileStr = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(fileStr, {
+        folder: "nayamo-reviews",
+        transformation: [
+          { width: 1200, height: 1200, crop: "limit" },
+          { quality: "auto", fetch_format: "auto" },
+        ],
+      });
+
+      if (!result?.secure_url || !result?.public_id) {
+        if (result?.public_id) {
+          uploadedImages.push({
+            url: result.secure_url || "",
+            publicId: result.public_id,
+          });
+        }
+        throw new Error("Review image upload did not return a usable image");
+      }
+
+      uploadedImages.push({
+        url: result.secure_url,
+        publicId: result.public_id,
+      });
+    }
+
+    return uploadedImages;
+  } catch (error) {
+    await cleanupReviewImages(uploadedImages, "upload rollback");
+    throw error;
+  }
+};
 
 // SUBMIT REVIEW (User)
 exports.submitReview = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   const { rating, comment, title } = req.body;
+  const normalizedRating = Number(rating);
   
   // Validate required fields
-  if (!rating || rating < 1 || rating > 5) {
+  if (!Number.isFinite(normalizedRating) || normalizedRating < 1 || normalizedRating > 5) {
     res.status(400);
     throw new Error("Rating is required and must be between 1 and 5");
   }
@@ -30,10 +93,15 @@ exports.submitReview = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
-  const normalizedComment = comment?.trim();
+  const normalizedComment = typeof comment === "string" ? comment.trim() : "";
   if (!normalizedComment) {
     res.status(400);
     throw new Error("Review comment is required");
+  }
+
+  if (normalizedComment.length > 2000) {
+    res.status(400);
+    throw new Error("Review comment cannot exceed 2000 characters");
   }
   
   // Check if user already reviewed this product
@@ -47,16 +115,25 @@ exports.submitReview = asyncHandler(async (req, res) => {
     throw new Error("You have already reviewed this product");
   }
   
-// Create review
-  const review = await Review.create({
-    user: req.user._id,
-    product: normalizedProductId,
-    rating: Number(rating),
-    comment: normalizedComment,
-    title: title?.trim() || normalizedComment.substring(0, 30) || "User Review",
-    isApproved: true,  // Auto-approve for now (change to false for production)
-    status: "approved"
-  });
+  const uploadedImages = await uploadReviewImages(req.files);
+  const normalizedTitle = typeof title === "string" ? title.trim() : "";
+  let review;
+
+  try {
+    review = await Review.create({
+      user: req.user._id,
+      product: normalizedProductId,
+      rating: normalizedRating,
+      comment: normalizedComment,
+      title: normalizedTitle || normalizedComment.substring(0, 30) || "User Review",
+      images: uploadedImages,
+      isApproved: true,  // Auto-approve for now (change to false for production)
+      status: "approved"
+    });
+  } catch (error) {
+    await cleanupReviewImages(uploadedImages, "review creation rollback");
+    throw error;
+  }
   
   // Immediately update product ratings
   const stats = await Review.aggregate([
@@ -278,6 +355,8 @@ exports.deleteReview = asyncHandler(async (req, res) => {
   }
 
   logger.info(`Review ${req.params.id} deleted by admin`);
+
+  await cleanupReviewImages(review.images, "review deletion");
 
   await Review.calcAverageRating(review.product);
 

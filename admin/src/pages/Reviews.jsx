@@ -13,8 +13,11 @@ import {
   Calendar,
   CheckSquare,
   XSquare,
+  Image,
+  Maximize2,
 } from "lucide-react";
 import ExportButton from "../components/ExportButton";
+import SafeImage from "../components/common/SafeImage";
 
 const TABS = [
   ["all", "All Reviews"],
@@ -22,6 +25,11 @@ const TABS = [
   ["approved", "Approved"],
   ["rejected", "Rejected"],
 ];
+
+const getReviewImages = (review) =>
+  Array.isArray(review?.images)
+    ? review.images.filter((image) => typeof image?.url === "string" && image.url.trim())
+    : [];
 
 export default function Reviews() {
   const [reviews, setReviews] = useState([]);
@@ -36,6 +44,7 @@ export default function Reviews() {
   const [selected, setSelected] = useState([]);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -292,23 +301,26 @@ export default function Reviews() {
             No reviews found
           </div>
         ) : (
-          reviews.map((review) => (
-            <div
-              key={review._id}
-              className={`rounded-3xl border bg-white/5 p-5 transition ${
-                selected.includes(review._id)
-                  ? "border-indigo-500/50 bg-indigo-500/5"
-                  : "border-white/10 hover:bg-white/[0.07]"
-              }`}
-            >
-              <div className="flex gap-4">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(review._id)}
-                  onChange={() => toggleSelect(review._id)}
-                  className="mt-1 w-4 h-4 rounded shrink-0"
-                />
-                <div className="flex-1 min-w-0">
+          reviews.map((review) => {
+            const reviewImages = getReviewImages(review);
+
+            return (
+              <div
+                key={review._id}
+                className={`rounded-3xl border bg-white/5 p-5 transition ${
+                  selected.includes(review._id)
+                    ? "border-indigo-500/50 bg-indigo-500/5"
+                    : "border-white/10 hover:bg-white/[0.07]"
+                }`}
+              >
+                <div className="flex gap-4">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(review._id)}
+                    onChange={() => toggleSelect(review._id)}
+                    className="mt-1 w-4 h-4 rounded shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3">
                     <div className="flex items-center gap-2">
                       <img
@@ -343,6 +355,42 @@ export default function Reviews() {
                   <p className="text-zinc-300 text-sm mb-4 line-clamp-3">
                     {review.comment}
                   </p>
+
+                  {reviewImages.length > 0 && (
+                    <div className="mb-4">
+                      <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400">
+                        <Image size={14} />
+                        Customer photos ({reviewImages.length})
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {reviewImages.map((image, index) => (
+                          <button
+                            key={`${image.publicId || image.url}-${index}`}
+                            type="button"
+                            onClick={() =>
+                              setImagePreview({
+                                url: image.url,
+                                productTitle: review.product?.title || "Product",
+                                index,
+                                total: reviewImages.length,
+                              })
+                            }
+                            className="group relative h-20 w-20 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                            aria-label={`View customer photo ${index + 1} of ${reviewImages.length}`}
+                          >
+                            <SafeImage
+                              src={image.url}
+                              alt={`Customer photo ${index + 1} for ${review.product?.title || "product"}`}
+                              className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                            />
+                            <span className="absolute inset-0 grid place-items-center bg-black/45 opacity-0 transition group-hover:opacity-100">
+                              <Maximize2 size={18} aria-hidden="true" />
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex flex-wrap gap-2">
                     {review.status === "pending" && (
@@ -385,9 +433,42 @@ export default function Reviews() {
                 </div>
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
+
+      {imagePreview && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Review image preview"
+          onClick={() => setImagePreview(null)}
+        >
+          <div
+            className="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-white/15 bg-zinc-950 p-3 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setImagePreview(null)}
+              className="absolute right-5 top-5 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-white transition hover:bg-black focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              aria-label="Close image preview"
+            >
+              <X size={20} aria-hidden="true" />
+            </button>
+            <SafeImage
+              src={imagePreview.url}
+              alt={`Customer photo ${imagePreview.index + 1} for ${imagePreview.productTitle}`}
+              className="max-h-[78vh] w-full rounded-2xl object-contain"
+            />
+            <p className="px-2 pt-3 text-center text-sm text-zinc-400">
+              {imagePreview.productTitle} · Photo {imagePreview.index + 1} of {imagePreview.total}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (

@@ -17,6 +17,22 @@ const {
 const protect = require("../middleware/authMiddleware");
 const admin = require("../middleware/adminMiddleware");
 const validate = require("../middleware/validateMiddleware");
+const upload = require("../middleware/uploadMiddleware");
+
+const reviewImageUpload = (req, res, next) => {
+  upload.array("images", 3)(req, res, (error) => {
+    if (!error) return next();
+
+    let message = error.message || "Unable to upload review images";
+    if (error.code === "LIMIT_FILE_SIZE") {
+      message = "Each review image must be 5 MB or smaller";
+    } else if (error.code === "LIMIT_FILE_COUNT" || error.code === "LIMIT_UNEXPECTED_FILE") {
+      message = "A review can include up to 3 images";
+    }
+
+    return res.status(400).json({ success: false, message });
+  });
+};
 
 // Validation
 const idValidation = [
@@ -35,7 +51,13 @@ const bulkValidation = [
 router.get("/product/:productId", getProductReviews);
 
 // Protected route - Submit review (requires login)
-router.post("/product/:productId", protect, submitReview);
+router.post(
+  "/product/:productId",
+  protect,
+  reviewImageUpload,
+  upload.validateSignatures,
+  submitReview,
+);
 
 // Admin routes - All protected
 router.get("/", protect, admin, getAllReviews);

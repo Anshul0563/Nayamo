@@ -1,5 +1,23 @@
 const mongoose = require("mongoose");
 
+const reviewImageSchema = new mongoose.Schema(
+  {
+    url: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 2048,
+    },
+    publicId: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 512,
+    },
+  },
+  { _id: false },
+);
+
 const reviewSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +45,14 @@ const reviewSchema = new mongoose.Schema({
     required: true,
     trim: true,
     maxlength: 2000
+  },
+  images: {
+    type: [reviewImageSchema],
+    default: [],
+    validate: {
+      validator: (images) => !images || images.length <= 3,
+      message: "A review can have at most 3 images",
+    },
   },
   isApproved: {
     type: Boolean,

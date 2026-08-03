@@ -60,6 +60,13 @@ const statusValidation = [
     .withMessage("Invalid status value"),
 ];
 
+const settingsUpdateValidation = [
+  body("codEnabled")
+    .optional()
+    .isBoolean()
+    .withMessage("codEnabled must be a boolean"),
+];
+
 const productUpdateValidation = [
   param("id").isMongoId().withMessage("Invalid product ID"),
   body("title")
@@ -168,7 +175,14 @@ router.put("/returns/:id", protect, admin, updateReturnStatus);
 
 // Settings
 router.get("/settings", protect, admin, getSettings);
-router.put("/settings", protect, admin, updateSettings);
+router.put(
+  "/settings",
+  protect,
+  admin,
+  settingsUpdateValidation,
+  validate,
+  updateSettings,
+);
 
 // Change Password
 router.post("/change-password", protect, admin, changePassword);

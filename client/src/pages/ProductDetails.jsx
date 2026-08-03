@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Heart,
@@ -14,6 +14,8 @@ import {
   Sparkles,
   Gem,
   Award,
+  ImagePlus,
+  X,
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,12 +26,30 @@ import logo from "../assets/logo.png";
 
 import Loader from "../components/common/Loader";
 import StateFeedback from "../components/common/StateFeedback";
+import SafeImage from "../components/common/SafeImage";
 
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
 import { getApiErrorMessage } from "../utils/errorMessage";
+
+const MAX_REVIEW_IMAGES = 3;
+const MAX_REVIEW_IMAGE_SIZE = 5 * 1024 * 1024;
+const REVIEW_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+]);
+
+const getReviewImageUrl = (image) => {
+  if (typeof image === "string") return image;
+  return image?.url || image?.secure_url || image?.src || "";
+};
+
+const getReviewImageKey = (file) =>
+  `${file.name}-${file.size}-${file.lastModified}`;
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -74,6 +94,131 @@ export default function ProductDetails() {
   const [submittingReview, setSubmittingReview] = useState(false);
 
   const [reviewError, setReviewError] = useState("");
+
+  const [reviewImages, setReviewImages] = useState([]);
+
+  const [reviewImageError, setReviewImageError] = useState("");
+
+  const reviewImageInputRef = useRef(null);
+
+  const reviewImagePreviewsRef = useRef(new Set());
+
+  const revokeReviewPreview = useCallback((preview) => {
+    if (
+      !preview ||
+      !reviewImagePreviewsRef.current.has(preview) ||
+      typeof URL === "undefined" ||
+      typeof URL.revokeObjectURL !== "function"
+    ) {
+      return;
+    }
+
+    URL.revokeObjectURL(preview);
+    reviewImagePreviewsRef.current.delete(preview);
+  }, []);
+
+  const clearReviewImages = useCallback(() => {
+    reviewImagePreviewsRef.current.forEach((preview) => {
+      if (typeof URL !== "undefined" && typeof URL.revokeObjectURL === "function") {
+        URL.revokeObjectURL(preview);
+      }
+    });
+    reviewImagePreviewsRef.current.clear();
+    setReviewImages([]);
+
+    if (reviewImageInputRef.current) {
+      reviewImageInputRef.current.value = "";
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      reviewImagePreviewsRef.current.forEach((preview) => {
+        if (typeof URL !== "undefined" && typeof URL.revokeObjectURL === "function") {
+          URL.revokeObjectURL(preview);
+        }
+      });
+      reviewImagePreviewsRef.current.clear();
+    };
+  }, []);
+
+  const handleReviewImageChange = (event) => {
+    const selectedFiles = Array.from(event.target.files || []);
+
+    // Reset the input so the same photo can be selected again after removal.
+    event.target.value = "";
+
+    if (selectedFiles.length === 0) return;
+
+    const existingKeys = new Set(reviewImages.map((image) => image.key));
+    const remainingSlots = MAX_REVIEW_IMAGES - reviewImages.length;
+    const acceptedFiles = [];
+    const errors = [];
+
+    selectedFiles.forEach((file) => {
+      const fileKey = getReviewImageKey(file);
+
+      if (!REVIEW_IMAGE_TYPES.has(file.type.toLowerCase())) {
+        errors.push(`${file.name} must be a JPG, PNG, or WebP image.`);
+        return;
+      }
+
+      if (file.size > MAX_REVIEW_IMAGE_SIZE) {
+        errors.push(`${file.name} is larger than 5 MB.`);
+        return;
+      }
+
+      if (existingKeys.has(fileKey)) {
+        errors.push(`${file.name} has already been added.`);
+        return;
+      }
+
+      if (acceptedFiles.length >= remainingSlots) {
+        errors.push(`You can add up to ${MAX_REVIEW_IMAGES} photos to a review.`);
+        return;
+      }
+
+      existingKeys.add(fileKey);
+      acceptedFiles.push({ file, key: fileKey });
+    });
+
+    if (acceptedFiles.length > 0) {
+      const imagesWithPreviews = acceptedFiles.map(({ file, key }) => {
+        const preview =
+          typeof URL !== "undefined" && typeof URL.createObjectURL === "function"
+            ? URL.createObjectURL(file)
+            : "";
+
+        if (preview) reviewImagePreviewsRef.current.add(preview);
+
+        return { file, key, preview };
+      });
+
+      setReviewImages((current) => [...current, ...imagesWithPreviews]);
+    }
+
+    setReviewImageError(errors.join(" "));
+  };
+
+  const handleRemoveReviewImage = (imageKey) => {
+    setReviewImages((current) => {
+      const image = current.find((item) => item.key === imageKey);
+      revokeReviewPreview(image?.preview);
+      return current.filter((item) => item.key !== imageKey);
+    });
+    setReviewImageError("");
+  };
+
+  const resetReviewForm = () => {
+    setNewReview({
+      rating: 5,
+      title: "",
+      comment: "",
+    });
+    clearReviewImages();
+    setReviewError("");
+    setReviewImageError("");
+  };
 
   // Fetch Reviews
   const fetchReviews = useCallback(async () => {
@@ -171,7 +316,7 @@ export default function ProductDetails() {
       return;
     }
 
-    const payload = {
+    const reviewPayload = {
       title:
         newReview.title.trim() || comment.substring(0, 30) || "User Review",
 
@@ -180,6 +325,17 @@ export default function ProductDetails() {
       comment,
     };
 
+    const payload = reviewImages.length
+      ? (() => {
+          const formData = new FormData();
+          Object.entries(reviewPayload).forEach(([key, value]) => {
+            formData.append(key, String(value));
+          });
+          reviewImages.forEach(({ file }) => formData.append("images", file));
+          return formData;
+        })()
+      : reviewPayload;
+
     try {
       setSubmittingReview(true);
 
@@ -187,12 +343,7 @@ export default function ProductDetails() {
 
       await reviewAPI.submitReview(id, payload);
 
-      setNewReview({
-        rating: 5,
-        title: "",
-        comment: "",
-      });
-
+      resetReviewForm();
       setShowReviewForm(false);
 
       const prodRes = await productAPI.getProductById(id);
@@ -902,13 +1053,14 @@ export default function ProductDetails() {
                               <button
                                 key={ratingValue}
                                 type="button"
+                                disabled={submittingReview}
                                 onClick={() =>
                                   setNewReview((current) => ({
                                     ...current,
                                     rating: ratingValue,
                                   }))
                                 }
-                                className="p-1"
+                                className="p-1 disabled:cursor-not-allowed disabled:opacity-50"
                                 aria-label={`${ratingValue} star rating`}
                               >
                                 <Star
@@ -935,6 +1087,7 @@ export default function ProductDetails() {
                         placeholder="Review title"
                         className="mb-3 w-full rounded-2xl border border-white/[0.08] bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-[#D4A853]/60"
                         maxLength={120}
+                        disabled={submittingReview}
                       />
                       <textarea
                         value={newReview.comment}
@@ -948,7 +1101,99 @@ export default function ProductDetails() {
                         className="min-h-32 w-full resize-y rounded-2xl border border-white/[0.08] bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-[#D4A853]/60"
                         maxLength={2000}
                         required
+                        disabled={submittingReview}
                       />
+
+                      <div className="mt-4 rounded-2xl border border-dashed border-white/[0.14] bg-black/20 p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <label
+                              htmlFor="review-images"
+                              className="text-sm font-semibold text-white"
+                            >
+                              Add photos <span className="text-zinc-500">(optional)</span>
+                            </label>
+                            <p
+                              id="review-image-help"
+                              className="mt-1 text-xs text-zinc-400"
+                            >
+                              Add up to {MAX_REVIEW_IMAGES} JPG, PNG, or WebP photos (5 MB each).
+                            </p>
+                          </div>
+
+                          <label
+                            htmlFor="review-images"
+                            className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#D4A853]/40 px-4 py-2.5 text-sm font-semibold text-[#F0D78C] transition hover:bg-[#D4A853]/10 ${
+                              submittingReview
+                                ? "pointer-events-none opacity-50"
+                                : ""
+                            }`}
+                          >
+                            <ImagePlus className="h-4 w-4" />
+                            Add photos
+                          </label>
+                          <input
+                            ref={reviewImageInputRef}
+                            id="review-images"
+                            type="file"
+                            accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                            multiple
+                            disabled={submittingReview || reviewImages.length >= MAX_REVIEW_IMAGES}
+                            onChange={handleReviewImageChange}
+                            className="sr-only"
+                            aria-describedby={
+                              reviewImageError
+                                ? "review-image-help review-image-error"
+                                : "review-image-help"
+                            }
+                          />
+                        </div>
+
+                        {reviewImages.length > 0 && (
+                          <ul
+                            className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4"
+                            aria-label="Selected review photos"
+                          >
+                            {reviewImages.map((image) => (
+                              <li
+                                key={image.key}
+                                className="group relative aspect-square overflow-hidden rounded-xl border border-white/[0.1] bg-black/30"
+                              >
+                                {image.preview ? (
+                                  <img
+                                    src={image.preview}
+                                    alt={`Preview of ${image.file.name}`}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="grid h-full w-full place-items-center px-2 text-center text-xs text-zinc-400">
+                                    {image.file.name}
+                                  </div>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveReviewImage(image.key)}
+                                  disabled={submittingReview}
+                                  className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/75 text-white shadow-lg transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                  aria-label={`Remove ${image.file.name}`}
+                                >
+                                  <X className="h-4 w-4" aria-hidden="true" />
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {reviewImageError && (
+                          <p
+                            id="review-image-error"
+                            role="alert"
+                            className="mt-3 text-sm text-red-200"
+                          >
+                            {reviewImageError}
+                          </p>
+                        )}
+                      </div>
 
                       {reviewError && (
                         <p className="mt-3 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
@@ -959,8 +1204,12 @@ export default function ProductDetails() {
                       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
                         <button
                           type="button"
-                          onClick={() => setShowReviewForm(false)}
-                          className="rounded-2xl border border-white/[0.08] px-5 py-3 text-sm font-semibold text-zinc-300 transition hover:text-white"
+                          onClick={() => {
+                            resetReviewForm();
+                            setShowReviewForm(false);
+                          }}
+                          disabled={submittingReview}
+                          className="rounded-2xl border border-white/[0.08] px-5 py-3 text-sm font-semibold text-zinc-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Cancel
                         </button>

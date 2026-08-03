@@ -1,33 +1,77 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { settingsAPI } from "../services/api";
 
 const PaymentOptionsContext = createContext(null);
+const PAYMENT_OPTIONS_REFRESH_INTERVAL = 30_000;
 
 export const COD_UNAVAILABLE_MESSAGE = "COD is not available at your region";
 
 export function PaymentOptionsProvider({ children }) {
   const [codEnabled, setCodEnabled] = useState(null);
   const [loading, setLoading] = useState(true);
+  const latestRequestRef = useRef(0);
+  const activeForegroundRequestRef = useRef(0);
 
-  const refreshPaymentOptions = useCallback(async () => {
-    setLoading(true);
+  const refreshPaymentOptions = useCallback(async ({ silent = false } = {}) => {
+    const requestId = ++latestRequestRef.current;
+
+    if (!silent) {
+      activeForegroundRequestRef.current = requestId;
+      setLoading(true);
+    }
 
     try {
       const response = await settingsAPI.getPaymentOptions();
       const options = response.data?.data || response.data;
 
       // Existing stores that predate this setting are treated as COD-enabled.
-      setCodEnabled(options?.codEnabled !== false);
+      if (requestId === latestRequestRef.current) {
+        setCodEnabled(options?.codEnabled !== false);
+      }
     } catch {
       // Do not advertise a payment option until its availability is confirmed.
-      setCodEnabled(false);
+      if (requestId === latestRequestRef.current) {
+        setCodEnabled(false);
+      }
     } finally {
-      setLoading(false);
+      if (!silent && requestId === activeForegroundRequestRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     refreshPaymentOptions();
+
+    // Keep long-lived storefront pages in sync after an admin changes COD.
+    // Background refreshes deliberately keep the existing UI state visible.
+    const refreshInBackground = () => {
+      if (document.visibilityState !== "hidden") {
+        refreshPaymentOptions({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(
+      refreshInBackground,
+      PAYMENT_OPTIONS_REFRESH_INTERVAL,
+    );
+
+    window.addEventListener("focus", refreshInBackground);
+    document.addEventListener("visibilitychange", refreshInBackground);
+
+    return () => {
+      latestRequestRef.current += 1;
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshInBackground);
+      document.removeEventListener("visibilitychange", refreshInBackground);
+    };
   }, [refreshPaymentOptions]);
 
   return (
