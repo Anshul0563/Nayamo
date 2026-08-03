@@ -628,7 +628,7 @@ export default function ProductDetails() {
 
               {/* DESC */}
               <motion.p
-                className="text-base sm:text-lg leading-relaxed text-zinc-300"
+                className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-zinc-300"
                 initial={{
                   opacity: 0,
                   y: 20,
