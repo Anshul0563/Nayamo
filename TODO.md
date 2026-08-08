@@ -1,7 +1,12 @@
-# Task: Fix Cash on Delivery toggle UI in admin dashboard
+# Task: Add photo/video upload to reviews in client panel
 
 ## Steps
-- [x] Analyze task and locate COD toggle (Dashboard.jsx)
-- [x] Review existing Toggle pattern in Settings.jsx for consistency
-- [x] Update COD toggle in Dashboard.jsx: fix alignment, add loading spinner, polish styling
-- [x] Verify toggle renders correctly (ESLint passes)
+- [x] Analyze existing review photo upload flow (backend + client + admin)
+- [ ] Backend: update uploadMiddleware.js to allow video files with signature validation
+- [ ] Backend: add `videos` field to models/Review.js
+- [ ] Backend: add video upload/cleanup in reviewController.js
+- [ ] Backend: update routes/reviewRoutes.js to handle video fields
+- [ ] Client: add video upload UI + preview in ProductDetails.jsx
+- [ ] Client: render review videos in ProductDetails.jsx review cards
+- [ ] Admin: display review videos in Reviews.jsx
+- [ ] Run backend tests + ESLint on changed files
