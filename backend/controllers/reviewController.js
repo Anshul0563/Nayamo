@@ -30,6 +30,32 @@ const cleanupReviewImages = async (images, context) => {
   });
 };
 
+const cleanupReviewVideos = async (videos, context) => {
+  const publicIds = [
+    ...new Set(
+      (videos || [])
+        .map((video) => video?.publicId)
+        .filter(Boolean),
+    ),
+  ];
+
+  if (publicIds.length === 0) return;
+
+  const results = await Promise.allSettled(
+    publicIds.map((publicId) =>
+      cloudinary.uploader.destroy(publicId, { resource_type: "video" }),
+    ),
+  );
+
+  results.forEach((result, index) => {
+    if (result.status === "rejected") {
+      logger.warn(
+        `Failed to clean up review video ${publicIds[index]} during ${context}: ${result.reason?.message || result.reason}`,
+      );
+    }
+  });
+};
+
 const uploadReviewImages = async (files = []) => {
   const uploadedImages = [];
 
@@ -67,18 +93,57 @@ const uploadReviewImages = async (files = []) => {
   }
 };
 
+const uploadReviewVideos = async (files = []) => {
+  const uploadedVideos = [];
+
+  try {
+    for (const file of files) {
+      const fileStr = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(fileStr, {
+        folder: "nayamo-review-videos",
+        resource_type: "video",
+        chunk_size: 6 * 1024 * 1024,
+        eager: [
+          { streaming_profile: "hd", format: "m3u8" },
+        ],
+        eager_async: true,
+      });
+
+      if (!result?.secure_url || !result?.public_id) {
+        if (result?.public_id) {
+          uploadedVideos.push({
+            url: result.secure_url || "",
+            publicId: result.public_id,
+          });
+        }
+        throw new Error("Review video upload did not return a usable video");
+      }
+
+      uploadedVideos.push({
+        url: result.secure_url,
+        publicId: result.public_id,
+      });
+    }
+
+    return uploadedVideos;
+  } catch (error) {
+    await cleanupReviewVideos(uploadedVideos, "upload rollback");
+    throw error;
+  }
+};
+
 // SUBMIT REVIEW (User)
 exports.submitReview = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   const { rating, comment, title } = req.body;
   const normalizedRating = Number(rating);
-  
+
   // Validate required fields
   if (!Number.isFinite(normalizedRating) || normalizedRating < 1 || normalizedRating > 5) {
     res.status(400);
     throw new Error("Rating is required and must be between 1 and 5");
   }
-  
+
   // Validate product ID
   if (!mongoose.Types.ObjectId.isValid(productId)) {
     res.status(400);
@@ -103,19 +168,21 @@ exports.submitReview = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Review comment cannot exceed 2000 characters");
   }
-  
+
   // Check if user already reviewed this product
   const existingReview = await Review.findOne({
     product: normalizedProductId,
     user: req.user._id
   });
-  
+
   if (existingReview) {
     res.status(400);
     throw new Error("You have already reviewed this product");
   }
-  
-  const uploadedImages = await uploadReviewImages(req.files);
+
+const reviewFiles = req.files || {};
+  const uploadedImages = await uploadReviewImages(reviewFiles.images || []);
+  const uploadedVideos = await uploadReviewVideos(reviewFiles.videos || []);
   const normalizedTitle = typeof title === "string" ? title.trim() : "";
   let review;
 
@@ -127,14 +194,16 @@ exports.submitReview = asyncHandler(async (req, res) => {
       comment: normalizedComment,
       title: normalizedTitle || normalizedComment.substring(0, 30) || "User Review",
       images: uploadedImages,
+      videos: uploadedVideos,
       isApproved: true,  // Auto-approve for now (change to false for production)
       status: "approved"
     });
   } catch (error) {
     await cleanupReviewImages(uploadedImages, "review creation rollback");
+    await cleanupReviewVideos(uploadedVideos, "review creation rollback");
     throw error;
   }
-  
+
   // Immediately update product ratings
   const stats = await Review.aggregate([
     { $match: { product: normalizedProductId, isApproved: true } },
@@ -146,23 +215,23 @@ exports.submitReview = asyncHandler(async (req, res) => {
       }
     }
   ]);
-  
+
   await Product.findByIdAndUpdate(normalizedProductId, {
     "ratings.average": Math.round((stats[0]?.avgRating || 0) * 10) / 10,
     "ratings.count": stats[0]?.count || 0
   });
-  
+
 // Populate for response
   await review.populate("user", "name");
   await review.populate("product", "title");
-  
+
   logger.info(`New review submitted for product ${productId} by user ${req.user._id}`);
-  
+
   // Send notification to admin
-  emitReviewNotification(review, 'new_review').catch(err => 
+  emitReviewNotification(review, 'new_review').catch(err =>
     logger.error('Review notification failed:', err.message)
   );
-  
+
   res.status(201).json({
     success: true,
     message: "Review submitted successfully. It will be visible after approval.",
@@ -173,7 +242,7 @@ exports.submitReview = asyncHandler(async (req, res) => {
 // GET ALL REVIEWS (Admin)
 exports.getAllReviews = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20, status, search, rating, product, dateFrom, dateTo } = req.query;
-  
+
   const query = {};
   if (status) {
     if (status === "pending") query.isApproved = false;
@@ -193,7 +262,7 @@ exports.getAllReviews = asyncHandler(async (req, res) => {
   }
 
   const skip = (page - 1) * limit;
-  
+
   const reviews = await Review.find(query)
     .populate("user", "name email")
     .populate("product", "title images price")
@@ -201,9 +270,9 @@ exports.getAllReviews = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(Number(limit))
     .lean();
-  
+
   const totalItems = await Review.countDocuments(query);
-  
+
   const stats = await Review.aggregate([
     { $match: query },
     {
@@ -219,7 +288,7 @@ exports.getAllReviews = asyncHandler(async (req, res) => {
   let filteredReviews = reviews;
   if (search) {
     const safeSearch = new RegExp(search, "i");
-    filteredReviews = reviews.filter(r => 
+    filteredReviews = reviews.filter(r =>
       r.title?.search(safeSearch) !== -1 ||
       r.comment?.search(safeSearch) !== -1 ||
       r.user?.name?.search(safeSearch) !== -1 ||
@@ -267,8 +336,8 @@ exports.getReview = asyncHandler(async (req, res) => {
 exports.approveReview = asyncHandler(async (req, res) => {
   const review = await Review.findByIdAndUpdate(
     req.params.id,
-    { 
-      isApproved: true, 
+    {
+      isApproved: true,
       status: "approved",
       approvedAt: new Date()
     },
@@ -295,7 +364,7 @@ exports.approveReview = asyncHandler(async (req, res) => {
         }
       }
     ]);
-    
+
     await Product.findByIdAndUpdate(productId, {
       "ratings.average": Math.round((stats[0]?.avgRating || 0) * 10) / 10,
       "ratings.count": stats[0]?.count || 0
@@ -303,7 +372,7 @@ exports.approveReview = asyncHandler(async (req, res) => {
   }
 
   // Send notification
-  emitReviewNotification(review, 'review_approved').catch(err => 
+  emitReviewNotification(review, 'review_approved').catch(err =>
     logger.error('Review notification failed:', err.message)
   );
 
@@ -317,11 +386,11 @@ exports.approveReview = asyncHandler(async (req, res) => {
 // REJECT REVIEW
 exports.rejectReview = asyncHandler(async (req, res) => {
   const { reason } = req.body;
-  
+
   const review = await Review.findByIdAndUpdate(
     req.params.id,
-    { 
-      status: "rejected", 
+    {
+      status: "rejected",
       isApproved: false,
       rejectedAt: new Date(),
       adminNotes: reason || ""
@@ -356,7 +425,8 @@ exports.deleteReview = asyncHandler(async (req, res) => {
 
   logger.info(`Review ${req.params.id} deleted by admin`);
 
-  await cleanupReviewImages(review.images, "review deletion");
+await cleanupReviewImages(review.images, "review deletion");
+  await cleanupReviewVideos(review.videos, "review deletion");
 
   await Review.calcAverageRating(review.product);
 
@@ -369,7 +439,7 @@ exports.deleteReview = asyncHandler(async (req, res) => {
 // BULK APPROVE
 exports.bulkApprove = asyncHandler(async (req, res) => {
   const { ids } = req.body;
-  
+
   if (!ids || !Array.isArray(ids)) {
     res.status(400);
     throw new Error("Please provide review IDs");
@@ -377,8 +447,8 @@ exports.bulkApprove = asyncHandler(async (req, res) => {
 
   const result = await Review.updateMany(
     { _id: { $in: ids } },
-    { 
-      isApproved: true, 
+    {
+      isApproved: true,
       status: "approved",
       approvedAt: new Date()
     }
@@ -407,7 +477,7 @@ exports.getProductReviews = asyncHandler(async (req, res) => {
   }
 
   const normalizedProductId = new mongoose.Types.ObjectId(productId);
-  
+
   const skip = (page - 1) * limit;
 
   const reviews = await Review.find({ product: normalizedProductId, isApproved: true })
@@ -416,7 +486,7 @@ exports.getProductReviews = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(Number(limit))
     .lean();
-  
+
   const totalItems = await Review.countDocuments({ product: normalizedProductId, isApproved: true });
 
   // Get stats for this product
