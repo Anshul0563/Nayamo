@@ -1,5 +1,5 @@
 import axios from "axios";
-import { incrementLoading, decrementLoading } from "./loadingService";
+import { decrementLoading, incrementLoading } from "./loadingService";
 
 // ✅ Using CRA environment variable with a local fallback for graceful dev startup
 const API_BASE_URL =
@@ -185,6 +185,8 @@ export const contactAPI = {
 export const reviewAPI = {
   getProductReviews: (productId, params) =>
     apiClient.get(`/reviews/product/${productId}`, { params }),
+  getProductReviewStats: (productId) =>
+    apiClient.get(`/reviews/product/${productId}/stats`),
   submitReview: (productId, data) =>
     apiClient.post(`/reviews/product/${productId}`, data),
 };

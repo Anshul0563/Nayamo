@@ -3,8 +3,6 @@ import {
   ChevronLeft,
   Gem,
   Heart,
-  ImagePlus,
-  MessageSquare,
   Minus,
   Plus,
   RotateCcw,
@@ -13,51 +11,24 @@ import {
   Sparkles,
   Star,
   Truck,
-  X,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
-import { productAPI, reviewAPI } from "../services/api";
+import { productAPI } from "../services/api";
 
 import logo from "../assets/logo.png";
 
 import Loader from "../components/common/Loader";
 import StateFeedback from "../components/common/StateFeedback";
+import ProductReviews from "../components/product/reviews/ProductReviews";
 
 import SEO from "../components/SEO";
-import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { getApiErrorMessage } from "../utils/errorMessage";
-
-const MAX_REVIEW_IMAGES = 3;
-const MAX_REVIEW_IMAGE_SIZE = 5 * 1024 * 1024;
-const REVIEW_IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-]);
-
-const MAX_REVIEW_VIDEOS = 1;
-const MAX_REVIEW_VIDEO_SIZE = 50 * 1024 * 1024;
-const REVIEW_VIDEO_TYPES = new Set([
-  "video/mp4",
-  "video/webm",
-  "video/quicktime",
-  "video/x-msvideo",
-]);
-
-const getReviewImageUrl = (image) => {
-  if (typeof image === "string") return image;
-  return image?.url || image?.secure_url || image?.src || "";
-};
-
-const getReviewImageKey = (file) =>
-  `${file.name}-${file.size}-${file.lastModified}`;
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -67,8 +38,6 @@ export default function ProductDetails() {
   const { addToCart } = useCart();
 
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-
-  const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState(null);
 
@@ -80,289 +49,6 @@ export default function ProductDetails() {
   const [added, setAdded] = useState(false);
 
   const [qty, setQty] = useState(1);
-
-  // Reviews
-  const [reviews, setReviews] = useState([]);
-
-  const [reviewsLoading, setReviewsLoading] = useState(false);
-
-  const [reviewStats, setReviewStats] = useState({
-    avgRating: 0,
-    total: 0,
-  });
-
-  const [showReviewForm, setShowReviewForm] = useState(false);
-
-  const [newReview, setNewReview] = useState({
-    rating: 5,
-    title: "",
-    comment: "",
-  });
-
-  const [submittingReview, setSubmittingReview] = useState(false);
-
-  const [reviewError, setReviewError] = useState("");
-
-  const [reviewImages, setReviewImages] = useState([]);
-
-  const [reviewImageError, setReviewImageError] = useState("");
-
-  const reviewImageInputRef = useRef(null);
-
-  const reviewImagePreviewsRef = useRef(new Set());
-
-  const [reviewVideos, setReviewVideos] = useState([]);
-
-  const [reviewVideoError, setReviewVideoError] = useState("");
-
-  const reviewVideoInputRef = useRef(null);
-
-  const reviewVideoPreviewsRef = useRef(new Set());
-
-  const revokeReviewPreview = useCallback((preview) => {
-    if (
-      !preview ||
-      !reviewImagePreviewsRef.current.has(preview) ||
-      typeof URL === "undefined" ||
-      typeof URL.revokeObjectURL !== "function"
-    ) {
-      return;
-    }
-
-    URL.revokeObjectURL(preview);
-    reviewImagePreviewsRef.current.delete(preview);
-  }, []);
-
-  const clearReviewImages = useCallback(() => {
-    reviewImagePreviewsRef.current.forEach((preview) => {
-      if (
-        typeof URL !== "undefined" &&
-        typeof URL.revokeObjectURL === "function"
-      ) {
-        URL.revokeObjectURL(preview);
-      }
-    });
-    reviewImagePreviewsRef.current.clear();
-    setReviewImages([]);
-
-    if (reviewImageInputRef.current) {
-      reviewImageInputRef.current.value = "";
-    }
-  }, []);
-
-  const revokeReviewVideo = useCallback((preview) => {
-    if (
-      !preview ||
-      !reviewVideoPreviewsRef.current.has(preview) ||
-      typeof URL === "undefined" ||
-      typeof URL.revokeObjectURL !== "function"
-    ) {
-      return;
-    }
-
-    URL.revokeObjectURL(preview);
-    reviewVideoPreviewsRef.current.delete(preview);
-  }, []);
-
-  const clearReviewVideos = useCallback(() => {
-    reviewVideoPreviewsRef.current.forEach((preview) => {
-      if (
-        typeof URL !== "undefined" &&
-        typeof URL.revokeObjectURL === "function"
-      ) {
-        URL.revokeObjectURL(preview);
-      }
-    });
-    reviewVideoPreviewsRef.current.clear();
-    setReviewVideos([]);
-
-    if (reviewVideoInputRef.current) {
-      reviewVideoInputRef.current.value = "";
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      reviewImagePreviewsRef.current.forEach((preview) => {
-        if (
-          typeof URL !== "undefined" &&
-          typeof URL.revokeObjectURL === "function"
-        ) {
-          URL.revokeObjectURL(preview);
-        }
-      });
-      reviewImagePreviewsRef.current.clear();
-      reviewVideoPreviewsRef.current.forEach((preview) => {
-        if (
-          typeof URL !== "undefined" &&
-          typeof URL.revokeObjectURL === "function"
-        ) {
-          URL.revokeObjectURL(preview);
-        }
-      });
-      reviewVideoPreviewsRef.current.clear();
-    };
-  }, []);
-
-  const handleReviewMediaChange = (event) => {
-    const selectedFiles = Array.from(event.target.files || []);
-
-    // Reset the input so the same file can be selected again after removal.
-    event.target.value = "";
-
-    if (selectedFiles.length === 0) return;
-
-    const imageKeys = new Set(reviewImages.map((image) => image.key));
-    const videoKeys = new Set(reviewVideos.map((video) => video.key));
-    const remainingImageSlots = MAX_REVIEW_IMAGES - reviewImages.length;
-    const remainingVideoSlots = MAX_REVIEW_VIDEOS - reviewVideos.length;
-    const acceptedImages = [];
-    const acceptedVideos = [];
-    const errors = [];
-
-    selectedFiles.forEach((file) => {
-      const fileKey = getReviewImageKey(file);
-      const type = (file.type || "").toLowerCase();
-      const isImage = REVIEW_IMAGE_TYPES.has(type);
-      const isVideo = REVIEW_VIDEO_TYPES.has(type);
-
-      if (!isImage && !isVideo) {
-        errors.push(
-          `${file.name} must be a JPG, PNG, WebP image or MP4, WebM, MOV, AVI video.`,
-        );
-        return;
-      }
-
-      if (isImage) {
-        if (file.size > MAX_REVIEW_IMAGE_SIZE) {
-          errors.push(`${file.name} is larger than 5 MB.`);
-          return;
-        }
-        if (imageKeys.has(fileKey)) {
-          errors.push(`${file.name} has already been added.`);
-          return;
-        }
-        if (acceptedImages.length >= remainingImageSlots) {
-          errors.push(
-            `You can add up to ${MAX_REVIEW_IMAGES} photos to a review.`,
-          );
-          return;
-        }
-        imageKeys.add(fileKey);
-        acceptedImages.push({ file, key: fileKey });
-      } else {
-        if (file.size > MAX_REVIEW_VIDEO_SIZE) {
-          errors.push(`${file.name} is larger than 50 MB.`);
-          return;
-        }
-        if (videoKeys.has(fileKey)) {
-          errors.push(`${file.name} has already been added.`);
-          return;
-        }
-        if (acceptedVideos.length >= remainingVideoSlots) {
-          errors.push(
-            `You can add up to ${MAX_REVIEW_VIDEOS} video to a review.`,
-          );
-          return;
-        }
-        videoKeys.add(fileKey);
-        acceptedVideos.push({ file, key: fileKey });
-      }
-    });
-
-    if (acceptedImages.length > 0) {
-      const imagesWithPreviews = acceptedImages.map(({ file, key }) => {
-        const preview =
-          typeof URL !== "undefined" &&
-          typeof URL.createObjectURL === "function"
-            ? URL.createObjectURL(file)
-            : "";
-
-        if (preview) reviewImagePreviewsRef.current.add(preview);
-
-        return { file, key, preview };
-      });
-
-      setReviewImages((current) => [...current, ...imagesWithPreviews]);
-    }
-
-    if (acceptedVideos.length > 0) {
-      const videosWithPreviews = acceptedVideos.map(({ file, key }) => {
-        const preview =
-          typeof URL !== "undefined" &&
-          typeof URL.createObjectURL === "function"
-            ? URL.createObjectURL(file)
-            : "";
-
-        if (preview) reviewVideoPreviewsRef.current.add(preview);
-
-        return { file, key, preview };
-      });
-
-      setReviewVideos((current) => [...current, ...videosWithPreviews]);
-    }
-
-    setReviewImageError(errors.join(" "));
-    setReviewVideoError(errors.join(" "));
-  };
-
-  const handleRemoveReviewImage = (imageKey) => {
-    setReviewImages((current) => {
-      const image = current.find((item) => item.key === imageKey);
-      revokeReviewPreview(image?.preview);
-      return current.filter((item) => item.key !== imageKey);
-    });
-    setReviewImageError("");
-  };
-
-  const handleRemoveReviewVideo = (videoKey) => {
-    setReviewVideos((current) => {
-      const video = current.find((item) => item.key === videoKey);
-      revokeReviewVideo(video?.preview);
-      return current.filter((item) => item.key !== videoKey);
-    });
-    setReviewVideoError("");
-  };
-
-  const resetReviewForm = () => {
-    setNewReview({
-      rating: 5,
-      title: "",
-      comment: "",
-    });
-    clearReviewImages();
-    clearReviewVideos();
-    setReviewError("");
-    setReviewImageError("");
-    setReviewVideoError("");
-  };
-
-  // Fetch Reviews
-  const fetchReviews = useCallback(async () => {
-    try {
-      setReviewsLoading(true);
-
-      const res = await reviewAPI.getProductReviews(id, {
-        page: 1,
-        limit: 10,
-      });
-
-      setReviews(res.data?.data || []);
-
-      const data = res.data;
-
-      if (data?.stats) {
-        setReviewStats({
-          avgRating: data.stats.avgRating || 0,
-          total: data.pagination?.totalItems || 0,
-        });
-      }
-    } catch (_err) {
-      setReviews([]);
-    } finally {
-      setReviewsLoading(false);
-    }
-  }, [id]);
 
   // Fetch Product + reset scroll to top when arriving (fix mobile redirect to bottom)
   useEffect(() => {
@@ -384,8 +70,6 @@ export default function ProductDetails() {
         setSelectedImage(0);
 
         setQty(1);
-
-        await fetchReviews();
       } catch (err) {
         setProduct(null);
         setError(getApiErrorMessage(err, "Failed to load this product"));
@@ -395,7 +79,7 @@ export default function ProductDetails() {
     };
 
     fetch();
-  }, [id, fetchReviews]);
+  }, [id]);
 
   const liked = product ? isInWishlist(product._id) : false;
 
@@ -413,79 +97,6 @@ export default function ProductDetails() {
     setAdded(true);
 
     setTimeout(() => setAdded(false), 2000);
-  };
-
-  // Submit Review
-  const handleSubmitReview = async (e) => {
-    e.preventDefault();
-
-    if (!isAuthenticated) {
-      navigate("/login");
-
-      return;
-    }
-
-    const comment = newReview.comment.trim();
-
-    if (!comment) {
-      setReviewError("Comment is required");
-
-      return;
-    }
-
-    const reviewPayload = {
-      title:
-        newReview.title.trim() || comment.substring(0, 30) || "User Review",
-
-      rating: Number(newReview.rating),
-
-      comment,
-    };
-
-    const hasMedia = reviewImages.length > 0 || reviewVideos.length > 0;
-
-    const payload = hasMedia
-      ? (() => {
-          const formData = new FormData();
-          Object.entries(reviewPayload).forEach(([key, value]) => {
-            formData.append(key, String(value));
-          });
-          reviewImages.forEach(({ file }) => formData.append("images", file));
-          reviewVideos.forEach(({ file }) => formData.append("videos", file));
-          return formData;
-        })()
-      : reviewPayload;
-
-    try {
-      setSubmittingReview(true);
-
-      setReviewError("");
-
-      await reviewAPI.submitReview(id, payload);
-
-      resetReviewForm();
-      setShowReviewForm(false);
-
-      const prodRes = await productAPI.getProductById(id);
-
-      if (prodRes.data?.data) {
-        setProduct(prodRes.data.data);
-      }
-
-      await fetchReviews();
-    } catch (err) {
-      setReviewError(err.response?.data?.message || "Failed to submit review");
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
-
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   const getImageUrl = (p, idx = 0) => {
@@ -833,7 +444,7 @@ export default function ProductDetails() {
               </motion.h1>
 
               {/* RATING */}
-              {(product.ratings?.count > 0 || reviewStats.total > 0) && (
+              {product.ratings?.count > 0 && (
                 <motion.div
                   className="flex flex-wrap items-center gap-4"
                   initial={{
@@ -850,10 +461,7 @@ export default function ProductDetails() {
                       <Star
                         key={i}
                         className={`h-5 w-5 ${
-                          i <
-                          Math.floor(
-                            product.ratings?.average || reviewStats.avgRating,
-                          )
+                          i < Math.floor(product.ratings?.average || 0)
                             ? "fill-[#D4A853] text-[#D4A853]"
                             : "fill-zinc-600 text-zinc-600"
                         }`}
@@ -861,14 +469,12 @@ export default function ProductDetails() {
                     ))}
 
                     <span className="ml-2 text-lg font-bold text-white">
-                      {(
-                        product.ratings?.average || reviewStats.avgRating
-                      ).toFixed(1)}
+                      {(product.ratings?.average || 0).toFixed(1)}
                     </span>
                   </div>
 
                   <span className="text-zinc-400">
-                    ({product.ratings?.count || reviewStats.total} reviews)
+                    ({product.ratings?.count} reviews)
                   </span>
                 </motion.div>
               )}
@@ -1082,395 +688,7 @@ export default function ProductDetails() {
           </div>
 
           {/* REVIEWS */}
-          <motion.section
-            className="mb-14 sm:mb-20 border-t border-white/[0.08] pt-10 sm:pt-14"
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-              <div>
-                <div className="mb-3 inline-flex items-center gap-2 rounded-2xl border border-[#D4A853]/30 bg-[#D4A853]/10 px-4 py-2 text-sm font-semibold text-[#F0D78C]">
-                  <MessageSquare className="h-4 w-4" />
-                  Customer Reviews
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-white">
-                  Loved by Nayamo customers
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm sm:text-base text-zinc-400">
-                  Read honest notes from buyers, or share your experience after
-                  signing in.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    navigate("/login", {
-                      state: { from: { pathname: `/product/${id}` } },
-                    });
-                    return;
-                  }
-                  setShowReviewForm((value) => !value);
-                  setReviewError("");
-                }}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#F0D78C]"
-              >
-                <Star className="h-4 w-4 fill-black" />
-                Write a Review
-              </button>
-            </div>
-
-            <div className="mt-8 grid gap-6 lg:grid-cols-[300px_1fr]">
-              <div className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-6">
-                <div className="text-5xl font-bold text-white">
-                  {Number(
-                    product.ratings?.average || reviewStats.avgRating || 0,
-                  ).toFixed(1)}
-                </div>
-                <div className="mt-3 flex items-center gap-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-5 w-5 ${
-                        i <
-                        Math.round(
-                          product.ratings?.average ||
-                            reviewStats.avgRating ||
-                            0,
-                        )
-                          ? "fill-[#D4A853] text-[#D4A853]"
-                          : "text-zinc-600"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="mt-3 text-sm text-zinc-400">
-                  Based on {product.ratings?.count || reviewStats.total || 0}{" "}
-                  approved reviews.
-                </p>
-              </div>
-
-              <div className="space-y-5">
-                <AnimatePresence>
-                  {showReviewForm && (
-                    <motion.form
-                      onSubmit={handleSubmitReview}
-                      className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-5 sm:p-6"
-                      initial={{ opacity: 0, y: -12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -12 }}
-                    >
-                      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <h3 className="text-lg font-bold text-white">
-                          Share your review
-                        </h3>
-                        <div className="flex items-center gap-1">
-                          {Array.from({ length: 5 }).map((_, i) => {
-                            const ratingValue = i + 1;
-                            return (
-                              <button
-                                key={ratingValue}
-                                type="button"
-                                disabled={submittingReview}
-                                onClick={() =>
-                                  setNewReview((current) => ({
-                                    ...current,
-                                    rating: ratingValue,
-                                  }))
-                                }
-                                className="p-1 disabled:cursor-not-allowed disabled:opacity-50"
-                                aria-label={`${ratingValue} star rating`}
-                              >
-                                <Star
-                                  className={`h-6 w-6 ${
-                                    ratingValue <= Number(newReview.rating)
-                                      ? "fill-[#D4A853] text-[#D4A853]"
-                                      : "text-zinc-600"
-                                  }`}
-                                />
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      <textarea
-                        value={newReview.comment}
-                        onChange={(e) =>
-                          setNewReview((current) => ({
-                            ...current,
-                            comment: e.target.value,
-                          }))
-                        }
-                        placeholder="Tell us what you liked, how it looked, and how it felt to wear."
-                        className="min-h-32 w-full resize-y rounded-2xl border border-white/[0.08] bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-[#D4A853]/60"
-                        maxLength={2000}
-                        required
-                        disabled={submittingReview}
-                      />
-
-                      <div className="mt-4 rounded-2xl border border-dashed border-white/[0.14] bg-black/20 p-4">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <label
-                              htmlFor="review-media"
-                              className="text-sm font-semibold text-white"
-                            >
-                              Media Upload{" "}
-                              <span className="text-zinc-500">(optional)</span>
-                            </label>
-                            <p
-                              id="review-media-help"
-                              className="mt-1 text-xs text-zinc-400"
-                            >
-                              Add up to {MAX_REVIEW_IMAGES} photos (JPG, PNG, or
-                              WebP, 5 MB each) and {MAX_REVIEW_VIDEOS} video
-                              (MP4, WebM, MOV, or AVI, 50 MB).
-                            </p>
-                          </div>
-
-                          <label
-                            htmlFor="review-media"
-                            className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#D4A853]/40 px-4 py-2.5 text-sm font-semibold text-[#F0D78C] transition hover:bg-[#D4A853]/10 ${
-                              submittingReview
-                                ? "pointer-events-none opacity-50"
-                                : ""
-                            }`}
-                          >
-                            <ImagePlus className="h-4 w-4" />
-                            Upload media
-                          </label>
-                          <input
-                            ref={reviewImageInputRef}
-                            id="review-media"
-                            type="file"
-                            accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/webm,video/quicktime,video/x-msvideo,.jpg,.jpeg,.png,.webp,.mp4,.webm,.mov,.avi"
-                            multiple
-                            disabled={
-                              submittingReview ||
-                              (reviewImages.length >= MAX_REVIEW_IMAGES &&
-                                reviewVideos.length >= MAX_REVIEW_VIDEOS)
-                            }
-                            onChange={handleReviewMediaChange}
-                            className="sr-only"
-                            aria-describedby={
-                              reviewImageError || reviewVideoError
-                                ? "review-media-help review-media-error"
-                                : "review-media-help"
-                            }
-                          />
-                        </div>
-
-                        {(reviewImages.length > 0 ||
-                          reviewVideos.length > 0) && (
-                          <ul
-                            className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3"
-                            aria-label="Selected review media"
-                          >
-                            {reviewImages.map((image) => (
-                              <li
-                                key={image.key}
-                                className="group relative aspect-square overflow-hidden rounded-xl border border-white/[0.1] bg-black/30"
-                              >
-                                {image.preview ? (
-                                  <img
-                                    src={image.preview}
-                                    alt={`Preview of ${image.file.name}`}
-                                    className="h-full w-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="grid h-full w-full place-items-center px-2 text-center text-xs text-zinc-400">
-                                    {image.file.name}
-                                  </div>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleRemoveReviewImage(image.key)
-                                  }
-                                  disabled={submittingReview}
-                                  className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/75 text-white shadow-lg transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-                                  aria-label={`Remove ${image.file.name}`}
-                                >
-                                  <X className="h-4 w-4" aria-hidden="true" />
-                                </button>
-                              </li>
-                            ))}
-                            {reviewVideos.map((video) => (
-                              <li
-                                key={video.key}
-                                className="group relative overflow-hidden rounded-xl border border-white/[0.1] bg-black/30"
-                              >
-                                {video.preview ? (
-                                  <video
-                                    src={video.preview}
-                                    controls
-                                    playsInline
-                                    className="aspect-video w-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="grid h-full w-full place-items-center px-2 py-10 text-center text-xs text-zinc-400">
-                                    {video.file.name}
-                                  </div>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleRemoveReviewVideo(video.key)
-                                  }
-                                  disabled={submittingReview}
-                                  className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/75 text-white shadow-lg transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-                                  aria-label={`Remove ${video.file.name}`}
-                                >
-                                  <X className="h-4 w-4" aria-hidden="true" />
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-
-                        {(reviewImageError || reviewVideoError) && (
-                          <p
-                            id="review-media-error"
-                            role="alert"
-                            className="mt-3 text-sm text-red-200"
-                          >
-                            {reviewImageError || reviewVideoError}
-                          </p>
-                        )}
-                      </div>
-
-                      {reviewError && (
-                        <p className="mt-3 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                          {reviewError}
-                        </p>
-                      )}
-
-                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            resetReviewForm();
-                            setShowReviewForm(false);
-                          }}
-                          disabled={submittingReview}
-                          className="rounded-2xl border border-white/[0.08] px-5 py-3 text-sm font-semibold text-zinc-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={submittingReview}
-                          className="rounded-2xl bg-[#D4A853] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#F0D78C] disabled:opacity-50"
-                        >
-                          {submittingReview ? "Submitting..." : "Submit Review"}
-                        </button>
-                      </div>
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-
-                <div className="space-y-4">
-                  {reviewsLoading ? (
-                    <div className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-8 text-center">
-                      <Loader size={28} />
-                    </div>
-                  ) : reviews.length === 0 ? (
-                    <div className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-8 text-center">
-                      <MessageSquare className="mx-auto mb-3 h-8 w-8 text-zinc-600" />
-                      <p className="font-semibold text-white">No reviews yet</p>
-                      <p className="mt-1 text-sm text-zinc-400">
-                        Be the first to review this piece.
-                      </p>
-                    </div>
-                  ) : (
-                    reviews.map((review) => (
-                      <article
-                        key={review._id}
-                        className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-5 sm:p-6"
-                      >
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="grid h-10 w-10 place-items-center rounded-full bg-[#D4A853]/15 text-sm font-bold text-[#F0D78C]">
-                              {(review.user?.name || "N")
-                                .charAt(0)
-                                .toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="font-semibold text-white">
-                                {review.user?.name || "Nayamo Customer"}
-                              </p>
-                              <p className="text-xs text-zinc-500">
-                                {formatDate(review.createdAt)}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < review.rating
-                                    ? "fill-[#D4A853] text-[#D4A853]"
-                                    : "text-zinc-600"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        {review.title && (
-                          <h3 className="mt-4 text-base font-bold text-white">
-                            {review.title}
-                          </h3>
-                        )}
-                        <p className="mt-2 leading-relaxed text-zinc-300">
-                          {review.comment}
-                        </p>
-
-                        {(review.images?.length > 0 ||
-                          review.videos?.length > 0) && (
-                          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                            {Array.isArray(review.images) &&
-                              review.images.map((image, index) => (
-                                <div
-                                  key={`${image.publicId || image.url}-${index}`}
-                                  className="aspect-square overflow-hidden rounded-xl border border-white/[0.1] bg-black/30"
-                                >
-                                  <img
-                                    src={getReviewImageUrl(image)}
-                                    alt={`Customer photo ${index + 1}`}
-                                    className="h-full w-full object-cover"
-                                    loading="lazy"
-                                    decoding="async"
-                                  />
-                                </div>
-                              ))}
-                            {Array.isArray(review.videos) &&
-                              review.videos.map((video, index) => (
-                                <div
-                                  key={`${video.publicId || video.url}-${index}`}
-                                  className="col-span-2 overflow-hidden rounded-xl border border-white/[0.1] bg-black/30 sm:col-span-1"
-                                >
-                                  <video
-                                    src={getReviewImageUrl(video)}
-                                    controls
-                                    playsInline
-                                    preload="metadata"
-                                    className="aspect-video w-full object-cover"
-                                  />
-                                </div>
-                              ))}
-                          </div>
-                        )}
-                      </article>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          </motion.section>
+          <ProductReviews productId={id} />
         </div>
       </div>
     </>
