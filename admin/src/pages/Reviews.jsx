@@ -10,6 +10,7 @@ import {
   RefreshCcw,
   Search,
   Star,
+  Video,
   X,
   XSquare,
 } from "lucide-react";
