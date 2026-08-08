@@ -51,7 +51,7 @@ export default function Dashboard() {
     }
   }, []);
 
-  // 🔥 CHART RANGE FETCH (SEPARATE)
+  //  CHART RANGE FETCH (SEPARATE)
   const handleRangeChange = useCallback(async (range) => {
     try {
       setChartLoading(true);
@@ -108,7 +108,7 @@ export default function Dashboard() {
     }
   };
 
-  // 🔥 AUTO REFRESH
+  //  AUTO REFRESH
   useEffect(() => {
     fetchDashboardData();
     fetchCodSettings();
@@ -123,7 +123,7 @@ export default function Dashboard() {
 
   if (loading) return <DashboardSkeleton />;
 
-  // 🔥 VALID ORDERS FIX
+  //  VALID ORDERS FIX
   const validOrders = Math.max(
     0,
     (stats.totalOrders || 0) -
