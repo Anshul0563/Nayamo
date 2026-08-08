@@ -1,24 +1,24 @@
-import React, { useEffect, useState, useCallback } from "react";
-import StatCard from "../components/ui/StatCard";
-import SalesChart from "../components/SalesChart";
-import RecentOrders from "../components/RecentOrders";
 import {
-  QuickActions,
-  AIInsights,
-  NotificationTicker,
-} from "../components/dashboard";
-import { DashboardSkeleton } from "../components/ui/Skeleton.jsx";
-import { adminAPI } from "../services/api";
-import {
-  Users,
-  ShoppingCart,
-  Package,
-  DollarSign,
   Activity,
   BarChart3,
   Crown,
+  DollarSign,
+  Package,
+  ShoppingCart,
   Truck,
+  Users,
 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import RecentOrders from "../components/RecentOrders";
+import SalesChart from "../components/SalesChart";
+import {
+  AIInsights,
+  NotificationTicker,
+  QuickActions,
+} from "../components/dashboard";
+import { DashboardSkeleton } from "../components/ui/Skeleton.jsx";
+import StatCard from "../components/ui/StatCard";
+import { adminAPI } from "../services/api";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,6 @@ export default function Dashboard() {
       setRecentOrders(data.recentOrders || []);
       setChartData(data.chartData || []);
     } catch (err) {
-
       setError("Failed to load dashboard data");
     } finally {
       setLoading(false);
@@ -62,7 +61,6 @@ export default function Dashboard() {
 
       setChartData(data.chartData || []);
     } catch (err) {
-
     } finally {
       setChartLoading(false);
     }
@@ -131,7 +129,7 @@ export default function Dashboard() {
     (stats.totalOrders || 0) -
       (stats.cancelledOrders || 0) -
       (stats.returnedOrders || 0) -
-      (stats.rtoOrders || 0)
+      (stats.rtoOrders || 0),
   );
 
   const metrics = [
@@ -172,7 +170,6 @@ export default function Dashboard() {
 
   return (
     <div className="page-container space-y-8">
-
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -181,12 +178,8 @@ export default function Dashboard() {
           </div>
 
           <div>
-            <h1 className="text-2xl font-semibold text-white">
-              Dashboard
-            </h1>
-            <p className="text-sm text-gray-500">
-              Overview of your business
-            </p>
+            <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+            <p className="text-sm text-gray-500">Overview of your business</p>
           </div>
         </div>
 
@@ -232,15 +225,40 @@ export default function Dashboard() {
             disabled={codEnabled === null || codUpdating}
             aria-label="Toggle cash on delivery availability"
             aria-pressed={codEnabled === true}
-            className={`relative h-7 w-14 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-              codEnabled ? "bg-emerald-500" : "bg-zinc-700"
+            className={`relative inline-flex h-7 w-[52px] shrink-0 items-center rounded-full border p-1 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:opacity-60 ${
+              codEnabled
+                ? "border-emerald-500/40 bg-emerald-500 shadow-[0_0_0_1px_rgba(16,185,129,0.35),0_0_14px_rgba(16,185,129,0.35)]"
+                : "border-white/10 bg-zinc-700/80"
             }`}
           >
             <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                codEnabled ? "translate-x-8" : "translate-x-1"
+              className={`flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-md transition-transform duration-300 ease-out ${
+                codEnabled ? "translate-x-6" : "translate-x-0"
               }`}
-            />
+            >
+              {codUpdating && (
+                <svg
+                  className="h-3 w-3 animate-spin text-emerald-600"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+              )}
+            </span>
           </button>
         </div>
 
@@ -266,7 +284,6 @@ export default function Dashboard() {
 
       {/* ORDERS */}
       <RecentOrders orders={recentOrders} />
-
     </div>
   );
 }
