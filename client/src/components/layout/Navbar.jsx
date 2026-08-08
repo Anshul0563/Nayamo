@@ -6,7 +6,6 @@ import {
   Package,
   Settings,
   ShoppingBag,
-  Sparkles,
   User,
   X,
 } from "lucide-react";
@@ -325,7 +324,6 @@ export default function Navbar() {
                   to="/login"
                   className="hidden md:flex items-center h-11 rounded-2xl bg-gradient-to-r from-[#D4A853] via-[#FFD700] to-[#D4A853] px-6 font-bold text-black shadow-[0_10px_30px_rgba(212,168,83,0.4)] transition-all hover:scale-105"
                 >
-                  <Sparkles className="mr-2 h-4 w-4" />
                   Sign In
                 </Link>
               )}
