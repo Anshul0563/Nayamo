@@ -180,9 +180,18 @@ exports.submitReview = asyncHandler(async (req, res) => {
     throw new Error("You have already reviewed this product");
   }
 
-const reviewFiles = req.files || {};
-  const uploadedImages = await uploadReviewImages(reviewFiles.images || []);
-  const uploadedVideos = await uploadReviewVideos(reviewFiles.videos || []);
+// Normalize uploaded files. `upload.fields` produces an object keyed by
+  // field name, while the legacy format (and tests) pass a plain array.
+  const reviewFiles = req.files || {};
+  const imageFiles = Array.isArray(reviewFiles)
+    ? reviewFiles
+    : reviewFiles.images || [];
+  const videoFiles = Array.isArray(reviewFiles)
+    ? []
+    : reviewFiles.videos || [];
+
+  const uploadedImages = await uploadReviewImages(imageFiles);
+  const uploadedVideos = await uploadReviewVideos(videoFiles);
   const normalizedTitle = typeof title === "string" ? title.trim() : "";
   let review;
 

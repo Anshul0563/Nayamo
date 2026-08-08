@@ -1,24 +1,24 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
 import {
-  Heart,
-  ShoppingBag,
-  Truck,
-  Shield,
-  RotateCcw,
+  Award,
   ChevronLeft,
-  Star,
+  Gem,
+  Heart,
+  ImagePlus,
+  MessageSquare,
   Minus,
   Plus,
-  MessageSquare,
+  RotateCcw,
+  Shield,
+  ShoppingBag,
   Sparkles,
-  Gem,
-  Award,
-  ImagePlus,
+  Star,
+  Truck,
   X,
 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { productAPI, reviewAPI } from "../services/api";
 
@@ -26,12 +26,11 @@ import logo from "../assets/logo.png";
 
 import Loader from "../components/common/Loader";
 import StateFeedback from "../components/common/StateFeedback";
-import SafeImage from "../components/common/SafeImage";
 
+import SEO from "../components/SEO";
+import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { useAuth } from "../context/AuthContext";
-import SEO from "../components/SEO";
 import { getApiErrorMessage } from "../utils/errorMessage";
 
 const MAX_REVIEW_IMAGES = 3;
@@ -41,6 +40,15 @@ const REVIEW_IMAGE_TYPES = new Set([
   "image/jpg",
   "image/png",
   "image/webp",
+]);
+
+const MAX_REVIEW_VIDEOS = 1;
+const MAX_REVIEW_VIDEO_SIZE = 50 * 1024 * 1024;
+const REVIEW_VIDEO_TYPES = new Set([
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+  "video/x-msvideo",
 ]);
 
 const getReviewImageUrl = (image) => {
@@ -103,6 +111,14 @@ export default function ProductDetails() {
 
   const reviewImagePreviewsRef = useRef(new Set());
 
+  const [reviewVideos, setReviewVideos] = useState([]);
+
+  const [reviewVideoError, setReviewVideoError] = useState("");
+
+  const reviewVideoInputRef = useRef(null);
+
+  const reviewVideoPreviewsRef = useRef(new Set());
+
   const revokeReviewPreview = useCallback((preview) => {
     if (
       !preview ||
@@ -119,7 +135,10 @@ export default function ProductDetails() {
 
   const clearReviewImages = useCallback(() => {
     reviewImagePreviewsRef.current.forEach((preview) => {
-      if (typeof URL !== "undefined" && typeof URL.revokeObjectURL === "function") {
+      if (
+        typeof URL !== "undefined" &&
+        typeof URL.revokeObjectURL === "function"
+      ) {
         URL.revokeObjectURL(preview);
       }
     });
@@ -134,7 +153,10 @@ export default function ProductDetails() {
   useEffect(() => {
     return () => {
       reviewImagePreviewsRef.current.forEach((preview) => {
-        if (typeof URL !== "undefined" && typeof URL.revokeObjectURL === "function") {
+        if (
+          typeof URL !== "undefined" &&
+          typeof URL.revokeObjectURL === "function"
+        ) {
           URL.revokeObjectURL(preview);
         }
       });
@@ -174,7 +196,9 @@ export default function ProductDetails() {
       }
 
       if (acceptedFiles.length >= remainingSlots) {
-        errors.push(`You can add up to ${MAX_REVIEW_IMAGES} photos to a review.`);
+        errors.push(
+          `You can add up to ${MAX_REVIEW_IMAGES} photos to a review.`,
+        );
         return;
       }
 
@@ -185,7 +209,8 @@ export default function ProductDetails() {
     if (acceptedFiles.length > 0) {
       const imagesWithPreviews = acceptedFiles.map(({ file, key }) => {
         const preview =
-          typeof URL !== "undefined" && typeof URL.createObjectURL === "function"
+          typeof URL !== "undefined" &&
+          typeof URL.createObjectURL === "function"
             ? URL.createObjectURL(file)
             : "";
 
@@ -1111,13 +1136,15 @@ export default function ProductDetails() {
                               htmlFor="review-images"
                               className="text-sm font-semibold text-white"
                             >
-                              Add photos <span className="text-zinc-500">(optional)</span>
+                              Add photos{" "}
+                              <span className="text-zinc-500">(optional)</span>
                             </label>
                             <p
                               id="review-image-help"
                               className="mt-1 text-xs text-zinc-400"
                             >
-                              Add up to {MAX_REVIEW_IMAGES} JPG, PNG, or WebP photos (5 MB each).
+                              Add up to {MAX_REVIEW_IMAGES} JPG, PNG, or WebP
+                              photos (5 MB each).
                             </p>
                           </div>
 
@@ -1138,7 +1165,10 @@ export default function ProductDetails() {
                             type="file"
                             accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                             multiple
-                            disabled={submittingReview || reviewImages.length >= MAX_REVIEW_IMAGES}
+                            disabled={
+                              submittingReview ||
+                              reviewImages.length >= MAX_REVIEW_IMAGES
+                            }
                             onChange={handleReviewImageChange}
                             className="sr-only"
                             aria-describedby={
@@ -1172,7 +1202,9 @@ export default function ProductDetails() {
                                 )}
                                 <button
                                   type="button"
-                                  onClick={() => handleRemoveReviewImage(image.key)}
+                                  onClick={() =>
+                                    handleRemoveReviewImage(image.key)
+                                  }
                                   disabled={submittingReview}
                                   className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/75 text-white shadow-lg transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
                                   aria-label={`Remove ${image.file.name}`}

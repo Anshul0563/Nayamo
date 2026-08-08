@@ -20,14 +20,17 @@ const validate = require("../middleware/validateMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
 const reviewImageUpload = (req, res, next) => {
-  upload.array("images", 3)(req, res, (error) => {
+  upload.fields([
+    { name: "images", maxCount: 3 },
+    { name: "videos", maxCount: 1 },
+  ])(req, res, (error) => {
     if (!error) return next();
 
-    let message = error.message || "Unable to upload review images";
+    let message = error.message || "Unable to upload review media";
     if (error.code === "LIMIT_FILE_SIZE") {
-      message = "Each review image must be 5 MB or smaller";
+      message = "Each image must be 5 MB or smaller and each video must be 50 MB or smaller";
     } else if (error.code === "LIMIT_FILE_COUNT" || error.code === "LIMIT_UNEXPECTED_FILE") {
-      message = "A review can include up to 3 images";
+      message = "A review can include up to 3 images and 1 video";
     }
 
     return res.status(400).json({ success: false, message });
