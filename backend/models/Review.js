@@ -46,12 +46,20 @@ const reviewSchema = new mongoose.Schema({
     trim: true,
     maxlength: 2000
   },
-  images: {
+images: {
     type: [reviewImageSchema],
     default: [],
     validate: {
       validator: (images) => !images || images.length <= 3,
       message: "A review can have at most 3 images",
+    },
+  },
+  videos: {
+    type: [reviewImageSchema],
+    default: [],
+    validate: {
+      validator: (videos) => !videos || videos.length <= 1,
+      message: "A review can have at most 1 video",
     },
   },
   isApproved: {
@@ -125,7 +133,7 @@ reviewSchema.post("save", async function () {
   await this.constructor.calcAverageRating(this.product);
 });
 
-// Post remove middleware  
+// Post remove middleware
 reviewSchema.post("remove", async function () {
   await this.constructor.calcAverageRating(this.product);
 });
