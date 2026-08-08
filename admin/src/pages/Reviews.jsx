@@ -1,23 +1,23 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { adminAPI } from "../services/api";
-import { useDebounce } from "../hooks/useApi";
 import {
-  Search,
-  RefreshCcw,
   AlertTriangle,
-  Check,
-  X,
-  Loader2,
-  Star,
-  MessageSquare,
   Calendar,
+  Check,
   CheckSquare,
-  XSquare,
   Image,
+  Loader2,
   Maximize2,
+  MessageSquare,
+  RefreshCcw,
+  Search,
+  Star,
+  X,
+  XSquare,
 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ExportButton from "../components/ExportButton";
 import SafeImage from "../components/common/SafeImage";
+import { useDebounce } from "../hooks/useApi";
+import { adminAPI } from "../services/api";
 
 const TABS = [
   ["all", "All Reviews"],
@@ -28,7 +28,9 @@ const TABS = [
 
 const getReviewImages = (review) =>
   Array.isArray(review?.images)
-    ? review.images.filter((image) => typeof image?.url === "string" && image.url.trim())
+    ? review.images.filter(
+        (image) => typeof image?.url === "string" && image.url.trim(),
+      )
     : [];
 
 export default function Reviews() {
@@ -48,36 +50,39 @@ export default function Reviews() {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const loadReviews = useCallback(async (currentPage = 1) => {
-    try {
-      setLoading(true);
-      setError("");
+  const loadReviews = useCallback(
+    async (currentPage = 1) => {
+      try {
+        setLoading(true);
+        setError("");
 
-      const params = {
-        page: currentPage,
-        limit: 20,
-        status: tab !== "all" ? tab : undefined,
-        search: debouncedSearch || undefined,
-        dateFrom: dateFrom || undefined,
-        dateTo: dateTo || undefined,
-      };
+        const params = {
+          page: currentPage,
+          limit: 20,
+          status: tab !== "all" ? tab : undefined,
+          search: debouncedSearch || undefined,
+          dateFrom: dateFrom || undefined,
+          dateTo: dateTo || undefined,
+        };
 
-      const res = await adminAPI.getReviews(params);
+        const res = await adminAPI.getReviews(params);
 
-      const result = res.data;
-      setReviews(result.data || result.reviews || []);
-      setTotalPages(result.pagination?.totalPages || 1);
-      setPage(result.pagination?.currentPage || 1);
-      
-      if (result.stats) {
-        setStats(result.stats);
+        const result = res.data;
+        setReviews(result.data || result.reviews || []);
+        setTotalPages(result.pagination?.totalPages || 1);
+        setPage(result.pagination?.currentPage || 1);
+
+        if (result.stats) {
+          setStats(result.stats);
+        }
+      } catch (error) {
+        setError(error.response?.data?.message || "Failed to load reviews");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setError(error.response?.data?.message || "Failed to load reviews");
-    } finally {
-      setLoading(false);
-    }
-  }, [tab, debouncedSearch, dateFrom, dateTo]);
+    },
+    [tab, debouncedSearch, dateFrom, dateTo],
+  );
 
   useEffect(() => {
     loadReviews(1);
@@ -122,14 +127,16 @@ export default function Reviews() {
 
   const getStatusCount = (key) => {
     if (key === "all") {
-      return (stats.pending || 0) + (stats.approved || 0) + (stats.rejected || 0);
+      return (
+        (stats.pending || 0) + (stats.approved || 0) + (stats.rejected || 0)
+      );
     }
     return stats[key] || 0;
   };
 
   const toggleSelect = (id) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
@@ -151,7 +158,9 @@ export default function Reviews() {
     if (!selected.length) return;
     try {
       setActionLoading("bulk");
-      await Promise.all(selected.map((id) => adminAPI.rejectReview(id, "Bulk rejected")));
+      await Promise.all(
+        selected.map((id) => adminAPI.rejectReview(id, "Bulk rejected")),
+      );
       setSelected([]);
       await loadReviews(page);
     } catch (error) {
@@ -188,7 +197,9 @@ export default function Reviews() {
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
           <AlertTriangle size={16} />
           {error}
-          <button onClick={() => setError("")} className="ml-auto underline">Dismiss</button>
+          <button onClick={() => setError("")} className="ml-auto underline">
+            Dismiss
+          </button>
         </div>
       )}
 
@@ -211,7 +222,10 @@ export default function Reviews() {
           </div>
 
           <div className="relative">
-            <Calendar size={16} className="absolute left-3 top-4 text-zinc-500" />
+            <Calendar
+              size={16}
+              className="absolute left-3 top-4 text-zinc-500"
+            />
             <input
               type="date"
               value={dateFrom}
@@ -222,7 +236,10 @@ export default function Reviews() {
           </div>
 
           <div className="relative">
-            <Calendar size={16} className="absolute left-3 top-4 text-zinc-500" />
+            <Calendar
+              size={16}
+              className="absolute left-3 top-4 text-zinc-500"
+            />
             <input
               type="date"
               value={dateTo}
@@ -267,7 +284,9 @@ export default function Reviews() {
       {/* Bulk Actions */}
       {selected.length > 0 && (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium">{selected.length} selected</span>
+          <span className="text-sm font-medium">
+            {selected.length} selected
+          </span>
           <button
             onClick={bulkApprove}
             disabled={actionLoading === "bulk"}
@@ -321,118 +340,151 @@ export default function Reviews() {
                     className="mt-1 w-4 h-4 rounded shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={review.product?.images?.[0]?.url || review.product?.images?.[0] || ""}
-                        alt={review.product?.title}
-                        className="w-10 h-10 rounded-lg object-cover bg-zinc-800"
-                      />
-                      <div>
-                        <h3 className="font-semibold text-white truncate">
-                          {review.product?.title || "Product"}
-                        </h3>
-                        <p className="text-xs text-zinc-500">
-                          {review.user?.name || "Anonymous"} • {" "}
-                          {new Date(review.createdAt).toLocaleDateString("en-IN")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 sm:ml-auto">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          className={i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-zinc-600"}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={
+                            review.product?.images?.[0]?.url ||
+                            review.product?.images?.[0] ||
+                            ""
+                          }
+                          alt={review.product?.title}
+                          className="w-10 h-10 rounded-lg object-cover bg-zinc-800"
                         />
-                      ))}
-                      <span className="ml-1 text-sm font-medium text-white">
-                        {review.rating}/5
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-zinc-300 text-sm mb-4 line-clamp-3">
-                    {review.comment}
-                  </p>
-
-                  {reviewImages.length > 0 && (
-                    <div className="mb-4">
-                      <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400">
-                        <Image size={14} />
-                        Customer photos ({reviewImages.length})
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {reviewImages.map((image, index) => (
-                          <button
-                            key={`${image.publicId || image.url}-${index}`}
-                            type="button"
-                            onClick={() =>
-                              setImagePreview({
-                                url: image.url,
-                                productTitle: review.product?.title || "Product",
-                                index,
-                                total: reviewImages.length,
-                              })
+                        <div>
+                          <h3 className="font-semibold text-white truncate">
+                            {review.product?.title || "Product"}
+                          </h3>
+                          <p className="text-xs text-zinc-500">
+                            {review.user?.name || "Anonymous"} •{" "}
+                            {new Date(review.createdAt).toLocaleDateString(
+                              "en-IN",
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 sm:ml-auto">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            className={
+                              i < review.rating
+                                ? "text-yellow-400 fill-yellow-400"
+                                : "text-zinc-600"
                             }
-                            className="group relative h-20 w-20 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            aria-label={`View customer photo ${index + 1} of ${reviewImages.length}`}
-                          >
-                            <SafeImage
-                              src={image.url}
-                              alt={`Customer photo ${index + 1} for ${review.product?.title || "product"}`}
-                              className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
-                            />
-                            <span className="absolute inset-0 grid place-items-center bg-black/45 opacity-0 transition group-hover:opacity-100">
-                              <Maximize2 size={18} aria-hidden="true" />
-                            </span>
-                          </button>
+                          />
                         ))}
+                        <span className="ml-1 text-sm font-medium text-white">
+                          {review.rating}/5
+                        </span>
                       </div>
                     </div>
-                  )}
 
-                  <div className="flex flex-wrap gap-2">
-                    {review.status === "pending" && (
-                      <>
-                        <button
-                          onClick={() => approveReview(review._id)}
-                          disabled={actionLoading === review._id}
-                          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 flex items-center gap-2 text-sm disabled:opacity-50"
-                        >
-                          {actionLoading === review._id ? (
-                            <Loader2 size={14} className="animate-spin" />
-                          ) : (
-                            <Check size={14} />
-                          )}
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => rejectReview(review._id)}
-                          disabled={actionLoading === review._id}
-                          className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 flex items-center gap-2 text-sm disabled:opacity-50"
-                        >
-                          {actionLoading === review._id ? (
-                            <Loader2 size={14} className="animate-spin" />
-                          ) : (
-                            <X size={14} />
-                          )}
-                          Reject
-                        </button>
-                      </>
+                    <p className="text-zinc-300 text-sm mb-4 line-clamp-3">
+                      {review.comment}
+                    </p>
+
+                    {reviewImages.length > 0 && (
+                      <div className="mb-4">
+                        <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400">
+                          <Image size={14} />
+                          Customer photos ({reviewImages.length})
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {reviewImages.map((image, index) => (
+                            <button
+                              key={`${image.publicId || image.url}-${index}`}
+                              type="button"
+                              onClick={() =>
+                                setImagePreview({
+                                  url: image.url,
+                                  productTitle:
+                                    review.product?.title || "Product",
+                                  index,
+                                  total: reviewImages.length,
+                                })
+                              }
+                              className="group relative h-20 w-20 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                              aria-label={`View customer photo ${index + 1} of ${reviewImages.length}`}
+                            >
+                              <SafeImage
+                                src={image.url}
+                                alt={`Customer photo ${index + 1} for ${review.product?.title || "product"}`}
+                                className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                              />
+                              <span className="absolute inset-0 grid place-items-center bg-black/45 opacity-0 transition group-hover:opacity-100">
+                                <Maximize2 size={18} aria-hidden="true" />
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                    <button
-                      onClick={() => deleteReview(review._id)}
-                      disabled={actionLoading === review._id}
-                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 flex items-center gap-2 text-sm disabled:opacity-50"
-                    >
-                      <X size={14} />
-                      Delete
-                    </button>
+
+                    {Array.isArray(review.videos) &&
+                      review.videos.length > 0 && (
+                        <div className="mb-4">
+                          <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400">
+                            <Video size={14} />
+                            Customer videos ({review.videos.length})
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {review.videos.map((video, index) => (
+                              <video
+                                key={`${video.publicId || video.url}-${index}`}
+                                src={video.url}
+                                controls
+                                playsInline
+                                preload="metadata"
+                                className="h-32 w-48 rounded-xl border border-white/10 bg-zinc-900 object-cover"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    <div className="flex flex-wrap gap-2">
+                      {review.status === "pending" && (
+                        <>
+                          <button
+                            onClick={() => approveReview(review._id)}
+                            disabled={actionLoading === review._id}
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 flex items-center gap-2 text-sm disabled:opacity-50"
+                          >
+                            {actionLoading === review._id ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <Check size={14} />
+                            )}
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => rejectReview(review._id)}
+                            disabled={actionLoading === review._id}
+                            className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 flex items-center gap-2 text-sm disabled:opacity-50"
+                          >
+                            {actionLoading === review._id ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <X size={14} />
+                            )}
+                            Reject
+                          </button>
+                        </>
+                      )}
+                      <button
+                        onClick={() => deleteReview(review._id)}
+                        disabled={actionLoading === review._id}
+                        className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 flex items-center gap-2 text-sm disabled:opacity-50"
+                      >
+                        <X size={14} />
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
             );
           })
         )}
@@ -464,7 +516,8 @@ export default function Reviews() {
               className="max-h-[78vh] w-full rounded-2xl object-contain"
             />
             <p className="px-2 pt-3 text-center text-sm text-zinc-400">
-              {imagePreview.productTitle} · Photo {imagePreview.index + 1} of {imagePreview.total}
+              {imagePreview.productTitle} · Photo {imagePreview.index + 1} of{" "}
+              {imagePreview.total}
             </p>
           </div>
         </div>

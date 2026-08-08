@@ -13,6 +13,7 @@ import {
   Sparkles,
   Star,
   Truck,
+  Video,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -150,6 +151,37 @@ export default function ProductDetails() {
     }
   }, []);
 
+  const revokeReviewVideo = useCallback((preview) => {
+    if (
+      !preview ||
+      !reviewVideoPreviewsRef.current.has(preview) ||
+      typeof URL === "undefined" ||
+      typeof URL.revokeObjectURL !== "function"
+    ) {
+      return;
+    }
+
+    URL.revokeObjectURL(preview);
+    reviewVideoPreviewsRef.current.delete(preview);
+  }, []);
+
+  const clearReviewVideos = useCallback(() => {
+    reviewVideoPreviewsRef.current.forEach((preview) => {
+      if (
+        typeof URL !== "undefined" &&
+        typeof URL.revokeObjectURL === "function"
+      ) {
+        URL.revokeObjectURL(preview);
+      }
+    });
+    reviewVideoPreviewsRef.current.clear();
+    setReviewVideos([]);
+
+    if (reviewVideoInputRef.current) {
+      reviewVideoInputRef.current.value = "";
+    }
+  }, []);
+
   useEffect(() => {
     return () => {
       reviewImagePreviewsRef.current.forEach((preview) => {
@@ -161,6 +193,15 @@ export default function ProductDetails() {
         }
       });
       reviewImagePreviewsRef.current.clear();
+      reviewVideoPreviewsRef.current.forEach((preview) => {
+        if (
+          typeof URL !== "undefined" &&
+          typeof URL.revokeObjectURL === "function"
+        ) {
+          URL.revokeObjectURL(preview);
+        }
+      });
+      reviewVideoPreviewsRef.current.clear();
     };
   }, []);
 
@@ -234,6 +275,76 @@ export default function ProductDetails() {
     setReviewImageError("");
   };
 
+  const handleReviewVideoChange = (event) => {
+    const selectedFiles = Array.from(event.target.files || []);
+
+    // Reset the input so the same video can be selected again after removal.
+    event.target.value = "";
+
+    if (selectedFiles.length === 0) return;
+
+    const existingKeys = new Set(reviewVideos.map((video) => video.key));
+    const remainingSlots = MAX_REVIEW_VIDEOS - reviewVideos.length;
+    const acceptedFiles = [];
+    const errors = [];
+
+    selectedFiles.forEach((file) => {
+      const fileKey = getReviewImageKey(file);
+
+      if (!REVIEW_VIDEO_TYPES.has(file.type.toLowerCase())) {
+        errors.push(`${file.name} must be an MP4, WebM, MOV, or AVI video.`);
+        return;
+      }
+
+      if (file.size > MAX_REVIEW_VIDEO_SIZE) {
+        errors.push(`${file.name} is larger than 50 MB.`);
+        return;
+      }
+
+      if (existingKeys.has(fileKey)) {
+        errors.push(`${file.name} has already been added.`);
+        return;
+      }
+
+      if (acceptedFiles.length >= remainingSlots) {
+        errors.push(
+          `You can add up to ${MAX_REVIEW_VIDEOS} video to a review.`,
+        );
+        return;
+      }
+
+      existingKeys.add(fileKey);
+      acceptedFiles.push({ file, key: fileKey });
+    });
+
+    if (acceptedFiles.length > 0) {
+      const videosWithPreviews = acceptedFiles.map(({ file, key }) => {
+        const preview =
+          typeof URL !== "undefined" &&
+          typeof URL.createObjectURL === "function"
+            ? URL.createObjectURL(file)
+            : "";
+
+        if (preview) reviewVideoPreviewsRef.current.add(preview);
+
+        return { file, key, preview };
+      });
+
+      setReviewVideos((current) => [...current, ...videosWithPreviews]);
+    }
+
+    setReviewVideoError(errors.join(" "));
+  };
+
+  const handleRemoveReviewVideo = (videoKey) => {
+    setReviewVideos((current) => {
+      const video = current.find((item) => item.key === videoKey);
+      revokeReviewVideo(video?.preview);
+      return current.filter((item) => item.key !== videoKey);
+    });
+    setReviewVideoError("");
+  };
+
   const resetReviewForm = () => {
     setNewReview({
       rating: 5,
@@ -241,8 +352,10 @@ export default function ProductDetails() {
       comment: "",
     });
     clearReviewImages();
+    clearReviewVideos();
     setReviewError("");
     setReviewImageError("");
+    setReviewVideoError("");
   };
 
   // Fetch Reviews
@@ -350,13 +463,16 @@ export default function ProductDetails() {
       comment,
     };
 
-    const payload = reviewImages.length
+    const hasMedia = reviewImages.length > 0 || reviewVideos.length > 0;
+
+    const payload = hasMedia
       ? (() => {
           const formData = new FormData();
           Object.entries(reviewPayload).forEach(([key, value]) => {
             formData.append(key, String(value));
           });
           reviewImages.forEach(({ file }) => formData.append("images", file));
+          reviewVideos.forEach(({ file }) => formData.append("videos", file));
           return formData;
         })()
       : reviewPayload;
@@ -1227,6 +1343,105 @@ export default function ProductDetails() {
                         )}
                       </div>
 
+                      <div className="mt-4 rounded-2xl border border-dashed border-white/[0.14] bg-black/20 p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <label
+                              htmlFor="review-videos"
+                              className="text-sm font-semibold text-white"
+                            >
+                              Add a video{" "}
+                              <span className="text-zinc-500">(optional)</span>
+                            </label>
+                            <p
+                              id="review-video-help"
+                              className="mt-1 text-xs text-zinc-400"
+                            >
+                              Add up to {MAX_REVIEW_VIDEOS} MP4, WebM, MOV, or
+                              AVI video (50 MB each).
+                            </p>
+                          </div>
+
+                          <label
+                            htmlFor="review-videos"
+                            className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#D4A853]/40 px-4 py-2.5 text-sm font-semibold text-[#F0D78C] transition hover:bg-[#D4A853]/10 ${
+                              submittingReview
+                                ? "pointer-events-none opacity-50"
+                                : ""
+                            }`}
+                          >
+                            <Video className="h-4 w-4" />
+                            Add video
+                          </label>
+                          <input
+                            ref={reviewVideoInputRef}
+                            id="review-videos"
+                            type="file"
+                            accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
+                            multiple
+                            disabled={
+                              submittingReview ||
+                              reviewVideos.length >= MAX_REVIEW_VIDEOS
+                            }
+                            onChange={handleReviewVideoChange}
+                            className="sr-only"
+                            aria-describedby={
+                              reviewVideoError
+                                ? "review-video-help review-video-error"
+                                : "review-video-help"
+                            }
+                          />
+                        </div>
+
+                        {reviewVideos.length > 0 && (
+                          <ul
+                            className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
+                            aria-label="Selected review videos"
+                          >
+                            {reviewVideos.map((video) => (
+                              <li
+                                key={video.key}
+                                className="group relative overflow-hidden rounded-xl border border-white/[0.1] bg-black/30"
+                              >
+                                {video.preview ? (
+                                  <video
+                                    src={video.preview}
+                                    controls
+                                    playsInline
+                                    className="aspect-video w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="grid h-full w-full place-items-center px-2 py-10 text-center text-xs text-zinc-400">
+                                    {video.file.name}
+                                  </div>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleRemoveReviewVideo(video.key)
+                                  }
+                                  disabled={submittingReview}
+                                  className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/75 text-white shadow-lg transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                  aria-label={`Remove ${video.file.name}`}
+                                >
+                                  <X className="h-4 w-4" aria-hidden="true" />
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {reviewVideoError && (
+                          <p
+                            id="review-video-error"
+                            role="alert"
+                            className="mt-3 text-sm text-red-200"
+                          >
+                            {reviewVideoError}
+                          </p>
+                        )}
+                      </div>
+
                       {reviewError && (
                         <p className="mt-3 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                           {reviewError}
@@ -1313,6 +1528,42 @@ export default function ProductDetails() {
                         <p className="mt-2 leading-relaxed text-zinc-300">
                           {review.comment}
                         </p>
+
+                        {(review.images?.length > 0 ||
+                          review.videos?.length > 0) && (
+                          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            {Array.isArray(review.images) &&
+                              review.images.map((image, index) => (
+                                <div
+                                  key={`${image.publicId || image.url}-${index}`}
+                                  className="aspect-square overflow-hidden rounded-xl border border-white/[0.1] bg-black/30"
+                                >
+                                  <img
+                                    src={getReviewImageUrl(image)}
+                                    alt={`Customer photo ${index + 1}`}
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                </div>
+                              ))}
+                            {Array.isArray(review.videos) &&
+                              review.videos.map((video, index) => (
+                                <div
+                                  key={`${video.publicId || video.url}-${index}`}
+                                  className="col-span-2 overflow-hidden rounded-xl border border-white/[0.1] bg-black/30 sm:col-span-1"
+                                >
+                                  <video
+                                    src={getReviewImageUrl(video)}
+                                    controls
+                                    playsInline
+                                    preload="metadata"
+                                    className="aspect-video w-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                          </div>
+                        )}
                       </article>
                     ))
                   )}
