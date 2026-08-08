@@ -27,3 +27,4 @@
 {"level":"error","message":"404 - Not Found - /favicon.ico","service":"nayamo-api","timestamp":"2026-08-02 18:06:19"}
 {"level":"error","message":"404 - Not Found - /api/v1/auth/admin/login","service":"nayamo-api","timestamp":"2026-08-02 18:07:34"}
 {"level":"error","message":"404 - Not Found - /favicon.ico","service":"nayamo-api","timestamp":"2026-08-02 18:07:34"}
+{"level":"error","message":"❌ Server failed: Database connection failed","service":"nayamo-api","stack":"Error: Database connection failed\n    at startServer (/home/jarvis/Documents/IT/Nayamo/backend/server.js:257:13)","timestamp":"2026-08-08 21:46:15"}

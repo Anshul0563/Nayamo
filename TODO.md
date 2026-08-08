@@ -6,7 +6,7 @@
 - [x] Backend: add `videos` field to models/Review.js
 - [x] Backend: add video upload/cleanup in reviewController.js
 - [x] Backend: update routes/reviewRoutes.js to handle video fields
-- [ ] Client: add video upload UI + preview in ProductDetails.jsx
-- [ ] Client: render review videos in ProductDetails.jsx review cards
-- [ ] Admin: display review videos in Reviews.jsx
-- [ ] Run backend tests + ESLint on changed files
+- [x] Client: add video upload UI + preview in ProductDetails.jsx
+- [x] Client: render review videos in ProductDetails.jsx review cards
+- [x] Admin: display review videos in Reviews.jsx
+- [x] Run ESLint on changed files (no errors)
