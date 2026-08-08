@@ -1,21 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  Menu,
-  X,
-  Heart,
-  ShoppingBag,
-  User,
-  LogOut,
   ChevronDown,
-  Sparkles,
+  Heart,
+  LogOut,
+  Menu,
   Package,
   Settings,
+  ShoppingBag,
+  Sparkles,
+  User,
+  X,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
-  motion,
   AnimatePresence,
+  motion,
   useScroll,
   useTransform,
 } from "framer-motion";
@@ -190,6 +190,11 @@ export default function Navbar() {
 
                     <span className="relative z-10">{item.name}</span>
 
+                    {/* Hover underline for inactive links (centered) */}
+                    {!isActive(item.path) && (
+                      <span className="absolute bottom-1 left-0 right-0 mx-auto h-[2px] w-6 rounded-full bg-[#D4A853] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    )}
+
                     {isActive(item.path) && (
                       <>
                         <motion.span
@@ -199,10 +204,7 @@ export default function Navbar() {
 
                         <motion.div
                           layoutId="underline"
-                          className="absolute bottom-1 left-1/2 h-[2px] w-6 rounded-full bg-[#D4A853]"
-                          style={{
-                            translateX: "-50%",
-                          }}
+                          className="absolute bottom-1 left-0 right-0 mx-auto h-[2px] w-6 rounded-full bg-[#D4A853]"
                         />
                       </>
                     )}
