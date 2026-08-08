@@ -528,6 +528,66 @@ exports.getProductReviews = asyncHandler(async (req, res) => {
   });
 });
 
+// GET PRODUCT REVIEW STATS
+exports.getProductReviewStats = asyncHandler(async (req, res) => {
+  const { productId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    res.status(400);
+    throw new Error("Invalid product ID");
+  }
+
+  const normalizedProductId = new mongoose.Types.ObjectId(productId);
+
+  const [countsResult, avgResult] = await Promise.all([
+    Review.aggregate([
+      { $match: { product: normalizedProductId, isApproved: true } },
+      {
+        $group: {
+          _id: "$rating",
+          count: { $sum: 1 }
+        }
+      }
+    ]),
+    Review.aggregate([
+      { $match: { product: normalizedProductId, isApproved: true } },
+      {
+        $group: {
+          _id: null,
+          avgRating: { $avg: "$rating" },
+          count: { $sum: 1 }
+        }
+      }
+    ])
+  ]);
+
+  const counts = {
+    5: 0,
+    4: 0,
+    3: 0,
+    2: 0,
+    1: 0
+  };
+
+  countsResult.forEach((item) => {
+    if (item._id >= 1 && item._id <= 5) {
+      counts[item._id] = item.count;
+    }
+  });
+
+  const avgRating = avgResult[0]?.avgRating ? Number(avgResult[0].avgRating.toFixed(1)) : 0;
+  const total = avgResult[0]?.count || 0;
+
+  res.json({
+    success: true,
+    data: {
+      counts,
+      total,
+      avgRating
+    }
+  });
+});
+
 // GET REVIEW STATS
 exports.getReviewStats = asyncHandler(async (req, res) => {
   const stats = await Review.aggregate([

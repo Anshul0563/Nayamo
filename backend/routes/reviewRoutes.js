@@ -11,6 +11,7 @@ const {
   deleteReview,
   bulkApprove,
   getProductReviews,
+  getProductReviewStats,
   getReviewStats
 } = require("../controllers/reviewController");
 
@@ -51,6 +52,7 @@ const bulkValidation = [
 ];
 
 // Public routes - Get approved reviews for a product
+router.get("/product/:productId/stats", getProductReviewStats);
 router.get("/product/:productId", getProductReviews);
 
 // Protected route - Submit review (requires login)
