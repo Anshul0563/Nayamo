@@ -50,41 +50,76 @@ export default function ProductReviews({ productId }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  // Derive per-star counts from a list of review objects.
+  const deriveCounts = (list) => {
+    const counts = { ...EMPTY_COUNTS };
+    (list || []).forEach((r) => {
+      const rating = Number(r?.rating) || 0;
+      if (rating >= 1 && rating <= 5) counts[rating] += 1;
+    });
+    return counts;
+  };
+
+  const applyStats = (statsData, reviewsList, totalFromPagination) => {
+    if (statsData) {
+      setStats({
+        avgRating: Number(statsData.avgRating || 0),
+        total: Number(statsData.total || 0),
+        counts: {
+          5: Number(statsData.counts?.[5] || 0),
+          4: Number(statsData.counts?.[4] || 0),
+          3: Number(statsData.counts?.[3] || 0),
+          2: Number(statsData.counts?.[2] || 0),
+          1: Number(statsData.counts?.[1] || 0),
+        },
+      });
+      return;
+    }
+
+    // Fallback: derive from the fetched reviews + backend stats helper.
+    const derivedCounts = deriveCounts(reviewsList);
+    const derivedTotal = Number(totalFromPagination || 0);
+    const sum = (reviewsList || []).reduce(
+      (acc, r) => acc + (Number(r?.rating) || 0),
+      0,
+    );
+    const derivedAvg =
+      derivedTotal > 0 ? Number((sum / derivedTotal).toFixed(1)) : 0;
+
+    setStats({
+      avgRating: derivedAvg,
+      total: derivedTotal,
+      counts: derivedCounts,
+    });
+  };
+
   const fetchAll = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
 
-      const [reviewsRes, statsRes] = await Promise.all([
-        reviewAPI.getProductReviews(productId, {
-          page: 1,
-          limit: REVIEWS_PER_PAGE,
-        }),
-        reviewAPI.getProductReviewStats(productId),
-      ]);
+      const reviewsRes = await reviewAPI.getProductReviews(productId, {
+        page: 1,
+        limit: REVIEWS_PER_PAGE,
+      });
 
-      setReviews(reviewsRes.data?.data || []);
-      setTotalItems(reviewsRes.data?.pagination?.totalItems || 0);
+      const reviewsList = reviewsRes.data?.data || [];
+      const totalFromPagination =
+        reviewsRes.data?.pagination?.totalItems || reviewsList.length;
+      const backendStats = reviewsRes.data?.stats;
+
+      setReviews(reviewsList);
+      setTotalItems(totalFromPagination);
       setPage(1);
 
-      const statsData = statsRes.data?.data;
-      if (statsData) {
-        setStats({
-          avgRating: Number(statsData.avgRating || 0),
-          total: Number(statsData.total || 0),
-          counts: {
-            5: Number(statsData.counts?.[5] || 0),
-            4: Number(statsData.counts?.[4] || 0),
-            3: Number(statsData.counts?.[3] || 0),
-            2: Number(statsData.counts?.[2] || 0),
-            1: Number(statsData.counts?.[1] || 0),
-          },
-        });
-      } else {
-        setStats((cur) => ({
-          ...cur,
-          total: reviewsRes.data?.pagination?.totalItems || 0,
-        }));
+      // Prefer the dedicated stats endpoint when available; otherwise the
+      // product-reviews response already carries `stats` (avgRating/total).
+      // If neither exposes per-star counts, derive them client-side.
+      try {
+        const statsRes = await reviewAPI.getProductReviewStats(productId);
+        applyStats(statsRes.data?.data, reviewsList, totalFromPagination);
+      } catch {
+        applyStats(backendStats, reviewsList, totalFromPagination);
       }
     } catch (err) {
       setReviews([]);
