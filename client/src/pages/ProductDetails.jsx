@@ -1217,19 +1217,6 @@ export default function ProductDetails() {
                         </div>
                       </div>
 
-                      <input
-                        value={newReview.title}
-                        onChange={(e) =>
-                          setNewReview((current) => ({
-                            ...current,
-                            title: e.target.value,
-                          }))
-                        }
-                        placeholder="Review title"
-                        className="mb-3 w-full rounded-2xl border border-white/[0.08] bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-[#D4A853]/60"
-                        maxLength={120}
-                        disabled={submittingReview}
-                      />
                       <textarea
                         value={newReview.comment}
                         onChange={(e) =>
