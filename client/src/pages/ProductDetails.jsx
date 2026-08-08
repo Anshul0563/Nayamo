@@ -1233,6 +1233,14 @@ export default function ProductDetails() {
                       />
 
                       <div className="mt-4 rounded-2xl border border-dashed border-white/[0.14] bg-black/20 p-4">
+                        <div className="mb-4 flex items-center gap-2">
+                          <ImagePlus className="h-4 w-4 text-[#D4A853]" />
+                          <h4 className="text-sm font-semibold text-white">
+                            Media Upload{" "}
+                            <span className="text-zinc-500">(optional)</span>
+                          </h4>
+                        </div>
+
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div>
                             <label
@@ -1240,15 +1248,11 @@ export default function ProductDetails() {
                               className="text-sm font-semibold text-white"
                             >
                               Add photos{" "}
-                              <span className="text-zinc-500">(optional)</span>
+                              <span className="text-zinc-500">
+                                (up to {MAX_REVIEW_IMAGES} JPG, PNG, or WebP, 5
+                                MB each)
+                              </span>
                             </label>
-                            <p
-                              id="review-image-help"
-                              className="mt-1 text-xs text-zinc-400"
-                            >
-                              Add up to {MAX_REVIEW_IMAGES} JPG, PNG, or WebP
-                              photos (5 MB each).
-                            </p>
                           </div>
 
                           <label
@@ -1328,9 +1332,13 @@ export default function ProductDetails() {
                             {reviewImageError}
                           </p>
                         )}
-                      </div>
 
-                      <div className="mt-4 rounded-2xl border border-dashed border-white/[0.14] bg-black/20 p-4">
+                        <div className="my-4 flex items-center gap-3">
+                          <div className="h-px flex-1 bg-white/[0.08]" />
+                          <span className="text-xs text-zinc-500">or</span>
+                          <div className="h-px flex-1 bg-white/[0.08]" />
+                        </div>
+
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div>
                             <label
@@ -1338,15 +1346,11 @@ export default function ProductDetails() {
                               className="text-sm font-semibold text-white"
                             >
                               Add a video{" "}
-                              <span className="text-zinc-500">(optional)</span>
+                              <span className="text-zinc-500">
+                                (up to {MAX_REVIEW_VIDEOS} MP4, WebM, MOV, or
+                                AVI, 50 MB each)
+                              </span>
                             </label>
-                            <p
-                              id="review-video-help"
-                              className="mt-1 text-xs text-zinc-400"
-                            >
-                              Add up to {MAX_REVIEW_VIDEOS} MP4, WebM, MOV, or
-                              AVI video (50 MB each).
-                            </p>
                           </div>
 
                           <label
