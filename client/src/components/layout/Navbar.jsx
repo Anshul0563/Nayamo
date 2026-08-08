@@ -401,7 +401,6 @@ export default function Navbar() {
                     onClick={() => setMobileOpen(false)}
                     className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4A853] to-[#FFD700] font-bold text-black"
                   >
-                    <Sparkles size={16} />
                     Sign In
                   </Link>
                 )}
