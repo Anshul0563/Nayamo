@@ -13,7 +13,6 @@ import {
   Sparkles,
   Star,
   Truck,
-  Video,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -205,50 +204,74 @@ export default function ProductDetails() {
     };
   }, []);
 
-  const handleReviewImageChange = (event) => {
+  const handleReviewMediaChange = (event) => {
     const selectedFiles = Array.from(event.target.files || []);
 
-    // Reset the input so the same photo can be selected again after removal.
+    // Reset the input so the same file can be selected again after removal.
     event.target.value = "";
 
     if (selectedFiles.length === 0) return;
 
-    const existingKeys = new Set(reviewImages.map((image) => image.key));
-    const remainingSlots = MAX_REVIEW_IMAGES - reviewImages.length;
-    const acceptedFiles = [];
+    const imageKeys = new Set(reviewImages.map((image) => image.key));
+    const videoKeys = new Set(reviewVideos.map((video) => video.key));
+    const remainingImageSlots = MAX_REVIEW_IMAGES - reviewImages.length;
+    const remainingVideoSlots = MAX_REVIEW_VIDEOS - reviewVideos.length;
+    const acceptedImages = [];
+    const acceptedVideos = [];
     const errors = [];
 
     selectedFiles.forEach((file) => {
       const fileKey = getReviewImageKey(file);
+      const type = (file.type || "").toLowerCase();
+      const isImage = REVIEW_IMAGE_TYPES.has(type);
+      const isVideo = REVIEW_VIDEO_TYPES.has(type);
 
-      if (!REVIEW_IMAGE_TYPES.has(file.type.toLowerCase())) {
-        errors.push(`${file.name} must be a JPG, PNG, or WebP image.`);
-        return;
-      }
-
-      if (file.size > MAX_REVIEW_IMAGE_SIZE) {
-        errors.push(`${file.name} is larger than 5 MB.`);
-        return;
-      }
-
-      if (existingKeys.has(fileKey)) {
-        errors.push(`${file.name} has already been added.`);
-        return;
-      }
-
-      if (acceptedFiles.length >= remainingSlots) {
+      if (!isImage && !isVideo) {
         errors.push(
-          `You can add up to ${MAX_REVIEW_IMAGES} photos to a review.`,
+          `${file.name} must be a JPG, PNG, WebP image or MP4, WebM, MOV, AVI video.`,
         );
         return;
       }
 
-      existingKeys.add(fileKey);
-      acceptedFiles.push({ file, key: fileKey });
+      if (isImage) {
+        if (file.size > MAX_REVIEW_IMAGE_SIZE) {
+          errors.push(`${file.name} is larger than 5 MB.`);
+          return;
+        }
+        if (imageKeys.has(fileKey)) {
+          errors.push(`${file.name} has already been added.`);
+          return;
+        }
+        if (acceptedImages.length >= remainingImageSlots) {
+          errors.push(
+            `You can add up to ${MAX_REVIEW_IMAGES} photos to a review.`,
+          );
+          return;
+        }
+        imageKeys.add(fileKey);
+        acceptedImages.push({ file, key: fileKey });
+      } else {
+        if (file.size > MAX_REVIEW_VIDEO_SIZE) {
+          errors.push(`${file.name} is larger than 50 MB.`);
+          return;
+        }
+        if (videoKeys.has(fileKey)) {
+          errors.push(`${file.name} has already been added.`);
+          return;
+        }
+        if (acceptedVideos.length >= remainingVideoSlots) {
+          errors.push(
+            `You can add up to ${MAX_REVIEW_VIDEOS} video to a review.`,
+          );
+          return;
+        }
+        videoKeys.add(fileKey);
+        acceptedVideos.push({ file, key: fileKey });
+      }
     });
 
-    if (acceptedFiles.length > 0) {
-      const imagesWithPreviews = acceptedFiles.map(({ file, key }) => {
+    if (acceptedImages.length > 0) {
+      const imagesWithPreviews = acceptedImages.map(({ file, key }) => {
         const preview =
           typeof URL !== "undefined" &&
           typeof URL.createObjectURL === "function"
@@ -263,62 +286,8 @@ export default function ProductDetails() {
       setReviewImages((current) => [...current, ...imagesWithPreviews]);
     }
 
-    setReviewImageError(errors.join(" "));
-  };
-
-  const handleRemoveReviewImage = (imageKey) => {
-    setReviewImages((current) => {
-      const image = current.find((item) => item.key === imageKey);
-      revokeReviewPreview(image?.preview);
-      return current.filter((item) => item.key !== imageKey);
-    });
-    setReviewImageError("");
-  };
-
-  const handleReviewVideoChange = (event) => {
-    const selectedFiles = Array.from(event.target.files || []);
-
-    // Reset the input so the same video can be selected again after removal.
-    event.target.value = "";
-
-    if (selectedFiles.length === 0) return;
-
-    const existingKeys = new Set(reviewVideos.map((video) => video.key));
-    const remainingSlots = MAX_REVIEW_VIDEOS - reviewVideos.length;
-    const acceptedFiles = [];
-    const errors = [];
-
-    selectedFiles.forEach((file) => {
-      const fileKey = getReviewImageKey(file);
-
-      if (!REVIEW_VIDEO_TYPES.has(file.type.toLowerCase())) {
-        errors.push(`${file.name} must be an MP4, WebM, MOV, or AVI video.`);
-        return;
-      }
-
-      if (file.size > MAX_REVIEW_VIDEO_SIZE) {
-        errors.push(`${file.name} is larger than 50 MB.`);
-        return;
-      }
-
-      if (existingKeys.has(fileKey)) {
-        errors.push(`${file.name} has already been added.`);
-        return;
-      }
-
-      if (acceptedFiles.length >= remainingSlots) {
-        errors.push(
-          `You can add up to ${MAX_REVIEW_VIDEOS} video to a review.`,
-        );
-        return;
-      }
-
-      existingKeys.add(fileKey);
-      acceptedFiles.push({ file, key: fileKey });
-    });
-
-    if (acceptedFiles.length > 0) {
-      const videosWithPreviews = acceptedFiles.map(({ file, key }) => {
+    if (acceptedVideos.length > 0) {
+      const videosWithPreviews = acceptedVideos.map(({ file, key }) => {
         const preview =
           typeof URL !== "undefined" &&
           typeof URL.createObjectURL === "function"
@@ -333,7 +302,17 @@ export default function ProductDetails() {
       setReviewVideos((current) => [...current, ...videosWithPreviews]);
     }
 
+    setReviewImageError(errors.join(" "));
     setReviewVideoError(errors.join(" "));
+  };
+
+  const handleRemoveReviewImage = (imageKey) => {
+    setReviewImages((current) => {
+      const image = current.find((item) => item.key === imageKey);
+      revokeReviewPreview(image?.preview);
+      return current.filter((item) => item.key !== imageKey);
+    });
+    setReviewImageError("");
   };
 
   const handleRemoveReviewVideo = (videoKey) => {
@@ -1233,30 +1212,27 @@ export default function ProductDetails() {
                       />
 
                       <div className="mt-4 rounded-2xl border border-dashed border-white/[0.14] bg-black/20 p-4">
-                        <div className="mb-4 flex items-center gap-2">
-                          <ImagePlus className="h-4 w-4 text-[#D4A853]" />
-                          <h4 className="text-sm font-semibold text-white">
-                            Media Upload{" "}
-                            <span className="text-zinc-500">(optional)</span>
-                          </h4>
-                        </div>
-
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div>
                             <label
-                              htmlFor="review-images"
+                              htmlFor="review-media"
                               className="text-sm font-semibold text-white"
                             >
-                              Add photos{" "}
-                              <span className="text-zinc-500">
-                                (up to {MAX_REVIEW_IMAGES} JPG, PNG, or WebP, 5
-                                MB each)
-                              </span>
+                              Media Upload{" "}
+                              <span className="text-zinc-500">(optional)</span>
                             </label>
+                            <p
+                              id="review-media-help"
+                              className="mt-1 text-xs text-zinc-400"
+                            >
+                              Add up to {MAX_REVIEW_IMAGES} photos (JPG, PNG, or
+                              WebP, 5 MB each) and {MAX_REVIEW_VIDEOS} video
+                              (MP4, WebM, MOV, or AVI, 50 MB).
+                            </p>
                           </div>
 
                           <label
-                            htmlFor="review-images"
+                            htmlFor="review-media"
                             className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#D4A853]/40 px-4 py-2.5 text-sm font-semibold text-[#F0D78C] transition hover:bg-[#D4A853]/10 ${
                               submittingReview
                                 ? "pointer-events-none opacity-50"
@@ -1264,32 +1240,34 @@ export default function ProductDetails() {
                             }`}
                           >
                             <ImagePlus className="h-4 w-4" />
-                            Add photos
+                            Upload media
                           </label>
                           <input
                             ref={reviewImageInputRef}
-                            id="review-images"
+                            id="review-media"
                             type="file"
-                            accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                            accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/webm,video/quicktime,video/x-msvideo,.jpg,.jpeg,.png,.webp,.mp4,.webm,.mov,.avi"
                             multiple
                             disabled={
                               submittingReview ||
-                              reviewImages.length >= MAX_REVIEW_IMAGES
+                              (reviewImages.length >= MAX_REVIEW_IMAGES &&
+                                reviewVideos.length >= MAX_REVIEW_VIDEOS)
                             }
-                            onChange={handleReviewImageChange}
+                            onChange={handleReviewMediaChange}
                             className="sr-only"
                             aria-describedby={
-                              reviewImageError
-                                ? "review-image-help review-image-error"
-                                : "review-image-help"
+                              reviewImageError || reviewVideoError
+                                ? "review-media-help review-media-error"
+                                : "review-media-help"
                             }
                           />
                         </div>
 
-                        {reviewImages.length > 0 && (
+                        {(reviewImages.length > 0 ||
+                          reviewVideos.length > 0) && (
                           <ul
-                            className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4"
-                            aria-label="Selected review photos"
+                            className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3"
+                            aria-label="Selected review media"
                           >
                             {reviewImages.map((image) => (
                               <li
@@ -1320,75 +1298,6 @@ export default function ProductDetails() {
                                 </button>
                               </li>
                             ))}
-                          </ul>
-                        )}
-
-                        {reviewImageError && (
-                          <p
-                            id="review-image-error"
-                            role="alert"
-                            className="mt-3 text-sm text-red-200"
-                          >
-                            {reviewImageError}
-                          </p>
-                        )}
-
-                        <div className="my-4 flex items-center gap-3">
-                          <div className="h-px flex-1 bg-white/[0.08]" />
-                          <span className="text-xs text-zinc-500">or</span>
-                          <div className="h-px flex-1 bg-white/[0.08]" />
-                        </div>
-
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <label
-                              htmlFor="review-videos"
-                              className="text-sm font-semibold text-white"
-                            >
-                              Add a video{" "}
-                              <span className="text-zinc-500">
-                                (up to {MAX_REVIEW_VIDEOS} MP4, WebM, MOV, or
-                                AVI, 50 MB each)
-                              </span>
-                            </label>
-                          </div>
-
-                          <label
-                            htmlFor="review-videos"
-                            className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#D4A853]/40 px-4 py-2.5 text-sm font-semibold text-[#F0D78C] transition hover:bg-[#D4A853]/10 ${
-                              submittingReview
-                                ? "pointer-events-none opacity-50"
-                                : ""
-                            }`}
-                          >
-                            <Video className="h-4 w-4" />
-                            Add video
-                          </label>
-                          <input
-                            ref={reviewVideoInputRef}
-                            id="review-videos"
-                            type="file"
-                            accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
-                            multiple
-                            disabled={
-                              submittingReview ||
-                              reviewVideos.length >= MAX_REVIEW_VIDEOS
-                            }
-                            onChange={handleReviewVideoChange}
-                            className="sr-only"
-                            aria-describedby={
-                              reviewVideoError
-                                ? "review-video-help review-video-error"
-                                : "review-video-help"
-                            }
-                          />
-                        </div>
-
-                        {reviewVideos.length > 0 && (
-                          <ul
-                            className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
-                            aria-label="Selected review videos"
-                          >
                             {reviewVideos.map((video) => (
                               <li
                                 key={video.key}
@@ -1422,13 +1331,13 @@ export default function ProductDetails() {
                           </ul>
                         )}
 
-                        {reviewVideoError && (
+                        {(reviewImageError || reviewVideoError) && (
                           <p
-                            id="review-video-error"
+                            id="review-media-error"
                             role="alert"
                             className="mt-3 text-sm text-red-200"
                           >
-                            {reviewVideoError}
+                            {reviewImageError || reviewVideoError}
                           </p>
                         )}
                       </div>
