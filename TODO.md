@@ -13,5 +13,6 @@
 - [x] Extend `Shop.jsx` for `jewelleryType` URL param (backend filtering), title + product count, price range, full sort, Clear All, empty state, SEO title
 
 ## Verification
-- [ ] Backend tests + ESLint on changed files
+- [x] Backend tests (12 passed) + ESLint on changed files (clean)
+- [x] Client production build (compiled successfully)
 - [ ] Manual test checklist (hover, category filtering, refresh, back/forward, mobile)
