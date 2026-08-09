@@ -4,6 +4,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
 const cloudinary = require("../config/cloudinary");
+const { uploadBufferToCloudinary } = require("../utils/cloudinaryUpload");
 const { emitReviewNotification } = require("../services/notificationService");
 
 const cleanupReviewImages = async (images, context) => {
@@ -61,28 +62,19 @@ const uploadReviewImages = async (files = []) => {
 
   try {
     for (const file of files) {
-      const fileStr = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
-      const result = await cloudinary.uploader.upload(fileStr, {
+      const result = await uploadBufferToCloudinary(file.buffer, {
         folder: "nayamo-reviews",
+        resource_type: "image",
+        mimetype: file.mimetype,
         transformation: [
           { width: 1200, height: 1200, crop: "limit" },
           { quality: "auto", fetch_format: "auto" },
         ],
       });
 
-      if (!result?.secure_url || !result?.public_id) {
-        if (result?.public_id) {
-          uploadedImages.push({
-            url: result.secure_url || "",
-            publicId: result.public_id,
-          });
-        }
-        throw new Error("Review image upload did not return a usable image");
-      }
-
       uploadedImages.push({
-        url: result.secure_url,
-        publicId: result.public_id,
+        url: result.url,
+        publicId: result.publicId,
       });
     }
 
@@ -98,10 +90,10 @@ const uploadReviewVideos = async (files = []) => {
 
   try {
     for (const file of files) {
-      const fileStr = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
-      const result = await cloudinary.uploader.upload(fileStr, {
+      const result = await uploadBufferToCloudinary(file.buffer, {
         folder: "nayamo-review-videos",
         resource_type: "video",
+        mimetype: file.mimetype,
         chunk_size: 6 * 1024 * 1024,
         eager: [
           { streaming_profile: "hd", format: "m3u8" },
@@ -109,19 +101,9 @@ const uploadReviewVideos = async (files = []) => {
         eager_async: true,
       });
 
-      if (!result?.secure_url || !result?.public_id) {
-        if (result?.public_id) {
-          uploadedVideos.push({
-            url: result.secure_url || "",
-            publicId: result.public_id,
-          });
-        }
-        throw new Error("Review video upload did not return a usable video");
-      }
-
       uploadedVideos.push({
-        url: result.secure_url,
-        publicId: result.public_id,
+        url: result.url,
+        publicId: result.publicId,
       });
     }
 

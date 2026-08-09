@@ -6,19 +6,29 @@ const API_BASE_URL =
   process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
 
 // ✅ Axios instance
+// NOTE: We intentionally do NOT set a global "Content-Type" here. Axios will
+// automatically set `application/json` for plain objects, and for FormData
+// payloads it lets the browser generate the correct `multipart/form-data`
+// boundary automatically (an explicit application/json header would break
+// multipart uploads).
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 60000,
   withCredentials: true, // IMPORTANT for CORS + cookies
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // ================= REQUEST INTERCEPTOR =================
 apiClient.interceptors.request.use(
   (config) => {
     incrementLoading();
+
+    // Only default to JSON when the payload is NOT FormData. This keeps normal
+    // JSON API requests intact while allowing media uploads (which send
+    // FormData) to use the browser-generated multipart boundary.
+    if (!(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    }
+
     const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
