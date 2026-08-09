@@ -7,7 +7,6 @@ import {
   Package,
   Settings,
   ShoppingBag,
-  Sparkles,
   User,
   X,
 } from "lucide-react";
@@ -31,11 +30,9 @@ import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 
 import {
-  FEATURED_MENU,
   JEWELLERY_CATEGORIES,
   JEWELLERY_MENU,
   jewelleryHref,
-  jewellerySortHref,
 } from "../../config/jewelleryCategories";
 
 import logo from "../../assets/logo.png";
@@ -314,7 +311,7 @@ export default function Navbar() {
                             transition={{ duration: 0.18, ease: "easeOut" }}
                             onMouseEnter={openShopMenu}
                             onMouseLeave={closeShopMenuWithDelay}
-                            className="absolute left-1/2 top-full z-50 mt-3 w-[720px] max-w-[92vw] -translate-x-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0C]/95 shadow-[0_40px_120px_rgba(0,0,0,0.6)] backdrop-blur-2xl"
+                            className="absolute left-1/2 top-full z-50 mt-3 w-[340px] max-w-[92vw] -translate-x-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0C]/95 shadow-[0_40px_120px_rgba(0,0,0,0.6)] backdrop-blur-2xl"
                           >
                             {/* top gold line */}
                             <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4A853]/70 to-transparent" />
@@ -323,71 +320,20 @@ export default function Navbar() {
                             <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#D4A853]/10 blur-3xl" />
                             <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-[#D4A5A5]/8 blur-3xl" />
 
-                            <div className="relative grid grid-cols-[1.4fr_1fr] gap-2 p-6">
+                            <div className="relative p-5">
                               {JEWELLERY_MENU.map((group) => (
-                                <div key={group.label}>
-                                  <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-[#D4A853]">
-                                    <Sparkles className="h-3.5 w-3.5" />
-                                    {group.label}
-                                  </p>
+                                <div
+                                  key={group.label}
+                                  className="grid grid-cols-1 gap-1"
+                                >
+                                  {group.items.map((item) => {
+                                    const isItemActive =
+                                      activeJewellery === item.value;
 
-                                  <ul className="space-y-1">
-                                    {group.items.map((item) => {
-                                      const isItemActive =
-                                        activeJewellery === item.value;
-
-                                      return (
-                                        <li key={item.value}>
-                                          <Link
-                                            to={jewelleryHref(item.value)}
-                                            onClick={() => setShopOpen(false)}
-                                            onMouseEnter={() => {
-                                              if (shopCloseTimer.current) {
-                                                clearTimeout(
-                                                  shopCloseTimer.current,
-                                                );
-                                                shopCloseTimer.current = null;
-                                              }
-                                            }}
-                                            className={`group/item flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
-                                              isItemActive
-                                                ? "bg-[#D4A853]/10 text-[#D4A853]"
-                                                : "text-zinc-300 hover:bg-white/[0.04] hover:text-white"
-                                            }`}
-                                          >
-                                            <span className="flex items-center gap-2.5">
-                                              {isItemActive && (
-                                                <span className="h-1.5 w-1.5 rounded-full bg-[#D4A853]" />
-                                              )}
-                                              {item.label}
-                                            </span>
-                                            <ChevronRight
-                                              className={`h-4 w-4 transition-all duration-200 ${
-                                                isItemActive
-                                                  ? "text-[#D4A853]"
-                                                  : "text-zinc-600 group-hover/item:translate-x-0.5 group-hover/item:text-[#D4A853]"
-                                              }`}
-                                            />
-                                          </Link>
-                                        </li>
-                                      );
-                                    })}
-                                  </ul>
-                                </div>
-                              ))}
-
-                              {/* FEATURED */}
-                              <div>
-                                <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-[#D4A853]">
-                                  <Sparkles className="h-3.5 w-3.5" />
-                                  Featured
-                                </p>
-
-                                <ul className="space-y-1">
-                                  {FEATURED_MENU.map((item) => (
-                                    <li key={item.value}>
+                                    return (
                                       <Link
-                                        to={jewellerySortHref(item.sort)}
+                                        key={item.value}
+                                        to={jewelleryHref(item.value)}
                                         onClick={() => setShopOpen(false)}
                                         onMouseEnter={() => {
                                           if (shopCloseTimer.current) {
@@ -397,32 +343,39 @@ export default function Navbar() {
                                             shopCloseTimer.current = null;
                                           }
                                         }}
-                                        className="group/item flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-300 transition-all duration-200 hover:bg-white/[0.04] hover:text-white"
+                                        className={`group/item flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                                          isItemActive
+                                            ? "bg-[#D4A853]/10 text-[#D4A853]"
+                                            : "text-zinc-300 hover:bg-white/[0.04] hover:text-white"
+                                        }`}
                                       >
-                                        <span className="h-1.5 w-1.5 rounded-full bg-[#D4A853]/50 transition-colors group-hover/item:bg-[#D4A853]" />
-                                        {item.label}
+                                        <span className="flex items-center gap-2.5">
+                                          {isItemActive && (
+                                            <span className="h-1.5 w-1.5 rounded-full bg-[#D4A853]" />
+                                          )}
+                                          {item.label}
+                                        </span>
+                                        <ChevronRight
+                                          className={`h-4 w-4 transition-all duration-200 ${
+                                            isItemActive
+                                              ? "text-[#D4A853]"
+                                              : "text-zinc-600 group-hover/item:translate-x-0.5 group-hover/item:text-[#D4A853]"
+                                          }`}
+                                        />
                                       </Link>
-                                    </li>
-                                  ))}
-                                </ul>
-
-                                <div className="mt-5 rounded-2xl border border-[#D4A853]/15 bg-gradient-to-br from-[#D4A853]/8 to-[#D4A5A5]/5 p-4">
-                                  <p className="text-sm font-semibold text-white">
-                                    View All Jewellery
-                                  </p>
-                                  <p className="mt-0.5 text-xs text-zinc-400">
-                                    Explore the full curated collection.
-                                  </p>
-                                  <Link
-                                    to="/shop"
-                                    onClick={() => setShopOpen(false)}
-                                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#D4A853] transition-colors hover:text-[#F0D78C]"
-                                  >
-                                    Browse Shop
-                                    <ChevronRight className="h-3.5 w-3.5" />
-                                  </Link>
+                                    );
+                                  })}
                                 </div>
-                              </div>
+                              ))}
+
+                              <Link
+                                to="/shop"
+                                onClick={() => setShopOpen(false)}
+                                className="mt-3 inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-[#D4A853] transition-colors hover:text-[#F0D78C]"
+                              >
+                                View All Jewellery
+                                <ChevronRight className="h-3.5 w-3.5" />
+                              </Link>
                             </div>
                           </motion.div>
                         )}
@@ -733,22 +686,6 @@ export default function Navbar() {
                                     </Link>
                                   );
                                 })}
-
-                                {/* Featured */}
-                                <p className="mt-2 px-3 pt-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-600">
-                                  Featured
-                                </p>
-
-                                {FEATURED_MENU.map((item) => (
-                                  <Link
-                                    key={item.value}
-                                    to={jewellerySortHref(item.sort)}
-                                    onClick={() => setMobileOpen(false)}
-                                    className="rounded-lg px-3 py-2.5 text-sm text-zinc-400 transition-all hover:bg-white/5 hover:text-white"
-                                  >
-                                    {item.label}
-                                  </Link>
-                                ))}
 
                                 <Link
                                   to="/shop"
