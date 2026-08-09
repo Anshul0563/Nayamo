@@ -10,11 +10,6 @@ const formatDate = (date) => {
   });
 };
 
-const getMediaUrl = (media) => {
-  if (typeof media === "string") return media;
-  return media?.url || media?.secure_url || media?.src || "";
-};
-
 const getInitials = (name) => {
   const clean = (name || "N").trim();
   const parts = clean.split(/\s+/).filter(Boolean);
@@ -33,16 +28,6 @@ export default function ReviewCard({ review }) {
   const title = review?.title;
   const comment = review?.comment;
   const rating = review?.rating || 0;
-  const images = Array.isArray(review?.images) ? review.images : [];
-  const videos = Array.isArray(review?.videos) ? review.videos : [];
-
-  const hasMedia = images.length > 0 || videos.length > 0;
-
-  // Compute grid columns for media: videos take a wide cell.
-  const mediaCellClass = (index, isVideo) => {
-    if (isVideo) return "col-span-full sm:col-span-2";
-    return "col-span-1";
-  };
 
   return (
     <article className="group flex flex-col rounded-3xl border border-white/[0.08] bg-white/[0.03] p-5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:border-[#D4A853]/30 hover:bg-white/[0.05] hover:shadow-[0_16px_48px_rgba(0,0,0,0.5),0_0_0_1px_rgba(212,168,83,0.08)]">
@@ -86,46 +71,6 @@ export default function ReviewCard({ review }) {
       {/* Body */}
       {comment && (
         <p className="mt-2 leading-relaxed text-zinc-300">{comment}</p>
-      )}
-
-      {/* Media */}
-      {hasMedia && (
-        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2">
-          {videos.map((video, index) => (
-            <div
-              key={`v-${video.publicId || video.url || index}`}
-              className={`group/media relative overflow-hidden rounded-xl border border-white/[0.08] bg-black/30 ${mediaCellClass(
-                index,
-                true,
-              )}`}
-            >
-              <video
-                src={getMediaUrl(video)}
-                controls
-                playsInline
-                preload="metadata"
-                className="aspect-video w-full object-cover"
-              />
-            </div>
-          ))}
-          {images.map((image, index) => (
-            <div
-              key={`i-${image.publicId || image.url || index}`}
-              className={`relative aspect-square overflow-hidden rounded-xl border border-white/[0.08] bg-black/30 ${mediaCellClass(
-                index,
-                false,
-              )}`}
-            >
-              <img
-                src={getMediaUrl(image)}
-                alt={`Customer media ${index + 1}`}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          ))}
-        </div>
       )}
 
       {/* Helpful hint (no fake social buttons) */}

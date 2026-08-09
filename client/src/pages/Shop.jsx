@@ -10,7 +10,7 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import logo from "../assets/logo.png";
 import EmptyState from "../components/common/EmptyState";
@@ -101,6 +101,9 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Guards against stale async responses overwriting newer valid ones.
+  const requestSeqRef = useRef(0);
+
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [priceRange, setPriceRange] = useState([0, DEFAULT_MAX]);
   const [rating, setRating] = useState(0);
@@ -126,29 +129,53 @@ export default function Shop() {
   }, [ratingParam, priceMin, priceMax, searchParams]);
 
   const fetchProducts = useCallback(async () => {
+    // Derive ALL filter values directly from the URL as the single source of
+    // truth. This avoids stale local state racing with URL-driven navigation
+    // (e.g. jumping from necklaces to earrings in the mega-menu).
+    const urlCategory = searchParams.get("category") || "";
+    const urlJewelleryType = searchParams.get("jewelleryType") || "";
+    const urlSort = searchParams.get("sort") || "";
+    const urlSearch = searchParams.get("search") || "";
+    const urlRating = parseNumber(searchParams.get("rating"), 0);
+    const urlMin = parseNumber(
+      searchParams.get("min") || searchParams.get("priceMin"),
+      0,
+    );
+    const urlMax = parseNumber(
+      searchParams.get("max") || searchParams.get("priceMax"),
+      DEFAULT_MAX,
+    );
+    const urlPage = parseNumber(searchParams.get("page"), 1);
+
+    const params = { page: urlPage };
+    if (urlCategory) params.category = urlCategory;
+    if (urlJewelleryType) params.jewelleryType = urlJewelleryType;
+    if (urlSort) params.sort = urlSort;
+    if (urlSearch) params.search = urlSearch;
+    if (urlMin > 0) params.min = urlMin;
+    if (urlMax < DEFAULT_MAX) params.max = urlMax;
+    if (urlRating > 0) params.rating = urlRating;
+
+    const requestId = ++requestSeqRef.current;
     setLoading(true);
     setError("");
     try {
-      const params = { page };
-      if (category) params.category = category;
-      if (jewelleryType) params.jewelleryType = jewelleryType;
-      if (sortFilter) params.sort = sortFilter;
-      if (search) params.search = search;
-      if (priceRange[0] > 0) params.min = priceRange[0];
-      if (priceRange[1] < DEFAULT_MAX) params.max = priceRange[1];
-      if (rating > 0) params.rating = rating;
-
       const res = await productAPI.getProducts(params);
+      // Ignore stale responses from a previous navigation/filter change.
+      if (requestId !== requestSeqRef.current) return;
       setProducts(getProductsFromResponse(res.data));
       setPagination(getPaginationFromResponse(res.data));
     } catch (err) {
+      if (requestId !== requestSeqRef.current) return;
       setProducts([]);
       setPagination({ currentPage: 1, totalPages: 1, totalItems: 0 });
       setError(getApiErrorMessage(err, "Failed to load products"));
     } finally {
-      setLoading(false);
+      if (requestId === requestSeqRef.current) {
+        setLoading(false);
+      }
     }
-  }, [category, jewelleryType, sortFilter, search, priceRange, rating, page]);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProducts();
