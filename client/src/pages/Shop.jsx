@@ -1,27 +1,32 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Gem,
+  RotateCcw,
   Search,
   SlidersHorizontal,
+  Sparkles,
   Star,
-  X,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { productAPI } from "../services/api";
-import ProductCard from "../components/product/ProductCard";
-import { SkeletonGrid } from "../components/common/Loader";
-import EmptyState from "../components/common/EmptyState";
-import StateFeedback from "../components/common/StateFeedback";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import logo from "../assets/logo.png";
+import EmptyState from "../components/common/EmptyState";
+import { SkeletonGrid } from "../components/common/Loader";
+import StateFeedback from "../components/common/StateFeedback";
+import ProductCard from "../components/product/ProductCard";
+import SEO from "../components/SEO";
+import { jewelleryLabel } from "../config/jewelleryCategories";
+import { productAPI } from "../services/api";
 import {
   getPaginationFromResponse,
   getProductsFromResponse,
 } from "../utils/apiResponse";
 import { getApiErrorMessage } from "../utils/errorMessage";
 
+// Wear-type categories (existing `category` field) — kept unchanged.
 const categories = [
   { value: "party", label: "Party Wear" },
   { value: "daily", label: "Daily Wear" },
@@ -32,6 +37,24 @@ const categories = [
 ];
 
 const ratings = [4, 3, 2];
+
+const SORT_OPTIONS = [
+  { value: "", label: "Recommended" },
+  { value: "newest", label: "New Arrivals" },
+  { value: "best-seller", label: "Best Selling" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+  { value: "rating-desc", label: "Rating" },
+];
+
+const PRICE_BANDS = [
+  { label: "Under ₹499", min: 0, max: 499 },
+  { label: "₹500 – ₹999", min: 500, max: 999 },
+  { label: "₹1,000 – ₹1,499", min: 1000, max: 1499 },
+  { label: "₹1,500+", min: 1500, max: 50000 },
+];
+
+const DEFAULT_MAX = 50000;
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -62,26 +85,39 @@ const productReveal = {
   },
 };
 
+const parseNumber = (value, fallback) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : fallback;
+};
+
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
+    totalItems: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [priceRange, setPriceRange] = useState([0, DEFAULT_MAX]);
   const [rating, setRating] = useState(0);
   const [sortFilter, setSortFilter] = useState("");
 
   const category = searchParams.get("category") || "";
-  const ratingParam = Number(searchParams.get("rating") || 0);
-  const priceMin = Number(searchParams.get("min") || searchParams.get("priceMin") || 0);
-  const priceMax = Number(searchParams.get("max") || searchParams.get("priceMax") || 50000);
-  const page = Number(searchParams.get("page") || 1);
+  const jewelleryType = searchParams.get("jewelleryType") || "";
+  const ratingParam = parseNumber(searchParams.get("rating"), 0);
+  const priceMin = parseNumber(
+    searchParams.get("min") || searchParams.get("priceMin"),
+    0,
+  );
+  const priceMax = parseNumber(
+    searchParams.get("max") || searchParams.get("priceMax"),
+    DEFAULT_MAX,
+  );
+  const page = parseNumber(searchParams.get("page"), 1);
 
   useEffect(() => {
     setRating(ratingParam);
@@ -95,10 +131,11 @@ export default function Shop() {
     try {
       const params = { page };
       if (category) params.category = category;
+      if (jewelleryType) params.jewelleryType = jewelleryType;
       if (sortFilter) params.sort = sortFilter;
       if (search) params.search = search;
       if (priceRange[0] > 0) params.min = priceRange[0];
-      if (priceRange[1] < 50000) params.max = priceRange[1];
+      if (priceRange[1] < DEFAULT_MAX) params.max = priceRange[1];
       if (rating > 0) params.rating = rating;
 
       const res = await productAPI.getProducts(params);
@@ -106,12 +143,12 @@ export default function Shop() {
       setPagination(getPaginationFromResponse(res.data));
     } catch (err) {
       setProducts([]);
-      setPagination({ currentPage: 1, totalPages: 1 });
+      setPagination({ currentPage: 1, totalPages: 1, totalItems: 0 });
       setError(getApiErrorMessage(err, "Failed to load products"));
     } finally {
       setLoading(false);
     }
-  }, [category, sortFilter, search, priceRange, rating, page]);
+  }, [category, jewelleryType, sortFilter, search, priceRange, rating, page]);
 
   useEffect(() => {
     fetchProducts();
@@ -134,30 +171,80 @@ export default function Shop() {
 
   const clearFilters = () => {
     const sp = new URLSearchParams(searchParams);
-    ["category", "rating", "min", "max", "priceMin", "priceMax", "sort", "search"].forEach(
-      (key) => sp.delete(key),
-    );
-    sp.set("page", "1");
+    [
+      "category",
+      "jewelleryType",
+      "rating",
+      "min",
+      "max",
+      "priceMin",
+      "priceMax",
+      "sort",
+      "search",
+    ].forEach((key) => sp.delete(key));
+    sp.delete("page");
 
     setSearch("");
-    setPriceRange([0, 50000]);
+    setPriceRange([0, DEFAULT_MAX]);
     setRating(0);
     setSortFilter("");
     setSearchParams(sp);
   };
 
   const activeCategory = categories.find((item) => item.value === category);
-  const pageTitle = activeCategory?.label || "Luxury Jewellery";
+  const activeJewelleryLabel = jewelleryLabel(jewelleryType);
+
+  const baseCollectionLabel =
+    activeJewelleryLabel || activeCategory?.label || "";
+  const pageTitle = baseCollectionLabel || "Luxury Jewellery";
+
+  const subtitle = activeJewelleryLabel
+    ? `Curated ${activeJewelleryLabel.toLowerCase()} crafted for luminous evenings, rituals, and everyday polish.`
+    : activeCategory
+      ? `Curated ${activeCategory.label.toLowerCase()} wear selected for any occasion.`
+      : "Sculptural earrings and refined essentials, selected for luminous evenings, rituals, and everyday polish.";
+
+  const productCount = pagination.totalItems ?? products.length;
+
   const hasActiveFilters =
     Boolean(category) ||
+    Boolean(jewelleryType) ||
     rating > 0 ||
     Boolean(search) ||
     priceRange[0] > 0 ||
-    priceRange[1] < 50000 ||
+    priceRange[1] < DEFAULT_MAX ||
     Boolean(sortFilter);
+
+  const applyPriceBand = (band) => {
+    setPriceRange([band.min, band.max]);
+    const sp = new URLSearchParams(searchParams);
+    if (band.min > 0) sp.set("min", String(band.min));
+    else sp.delete("min");
+    if (band.max < DEFAULT_MAX) sp.set("max", String(band.max));
+    else sp.delete("max");
+    sp.set("page", "1");
+    setSearchParams(sp);
+  };
+
+  const applyCustomPrice = () => {
+    updateParam("min", priceRange[0] > 0 ? String(priceRange[0]) : "");
+    updateParam(
+      "max",
+      priceRange[1] < DEFAULT_MAX ? String(priceRange[1]) : "",
+    );
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#060607] text-white">
+      <SEO
+        title={
+          baseCollectionLabel
+            ? `${baseCollectionLabel} | Nayamo`
+            : "Shop Luxury Jewellery | Nayamo"
+        }
+        description={subtitle}
+      />
+
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_50%_0%,rgba(212,168,83,0.18),rgba(212,168,83,0.045)_34%,transparent_66%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D4A853]/50 to-transparent" />
       <div className="pointer-events-none absolute left-0 top-32 h-80 w-px bg-gradient-to-b from-transparent via-[#D4A853]/20 to-transparent" />
@@ -203,8 +290,7 @@ export default function Shop() {
           variants={fadeUp}
           className="mx-auto max-w-2xl text-base font-light leading-8 tracking-normal text-zinc-300 sm:text-lg"
         >
-          Sculptural earrings and refined essentials, selected for luminous
-          evenings, rituals, and everyday polish.
+          {subtitle}
         </motion.p>
       </motion.header>
 
@@ -222,6 +308,11 @@ export default function Shop() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    updateParam("search", e.target.value);
+                  }
+                }}
                 placeholder="Search luxury jewellery"
                 className="h-14 w-full rounded-full bg-transparent pl-14 pr-6 text-sm text-white outline-none placeholder:text-zinc-500 sm:text-base"
               />
@@ -294,6 +385,100 @@ export default function Shop() {
                     </button>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* SORT + PRICE + CLEAR */}
+            <div className="mt-4 flex flex-col gap-4 border-t border-white/[0.06] pt-4 md:flex-row md:flex-wrap md:items-center md:justify-between">
+              {/* Sort */}
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-normal text-zinc-500">
+                  <Sparkles className="h-3.5 w-3.5 text-[#D4A853]" />
+                  Sort
+                </span>
+                <div className="relative">
+                  <select
+                    value={sortFilter}
+                    onChange={(e) => updateParam("sort", e.target.value)}
+                    aria-label="Sort products"
+                    className="h-10 appearance-none rounded-full border border-white/[0.08] bg-white/[0.035] pl-4 pr-9 text-xs font-medium text-zinc-200 outline-none transition-all duration-300 hover:border-[#D4A853]/35 focus:border-[#D4A853]/55 sm:text-sm"
+                  >
+                    {SORT_OPTIONS.map((option) => (
+                      <option
+                        key={option.value}
+                        value={option.value}
+                        className="bg-[#0F0F11] text-zinc-100"
+                      >
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#D4A853]" />
+                </div>
+              </div>
+
+              {/* Price bands + custom */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-normal text-zinc-500">
+                  Price
+                </span>
+
+                {PRICE_BANDS.map((band) => {
+                  const active =
+                    priceRange[0] === band.min && priceRange[1] === band.max;
+                  return (
+                    <button
+                      key={band.label}
+                      type="button"
+                      onClick={() => applyPriceBand(band)}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${
+                        active
+                          ? "border-[#D4A853] bg-[#D4A853] text-[#060607]"
+                          : "border-white/[0.08] bg-white/[0.03] text-zinc-300 hover:border-[#D4A853]/40 hover:bg-[#D4A853]/10 hover:text-white"
+                      }`}
+                    >
+                      {band.label}
+                    </button>
+                  );
+                })}
+
+                {/* Custom min/max */}
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="Min"
+                    value={priceRange[0] || ""}
+                    onChange={(e) =>
+                      setPriceRange([
+                        parseNumber(e.target.value, 0),
+                        priceRange[1],
+                      ])
+                    }
+                    className="h-9 w-20 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 text-xs text-white outline-none placeholder:text-zinc-600 focus:border-[#D4A853]/55"
+                  />
+                  <span className="text-zinc-600">–</span>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="Max"
+                    value={priceRange[1] === DEFAULT_MAX ? "" : priceRange[1]}
+                    onChange={(e) =>
+                      setPriceRange([
+                        priceRange[0],
+                        parseNumber(e.target.value, DEFAULT_MAX),
+                      ])
+                    }
+                    className="h-9 w-20 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 text-xs text-white outline-none placeholder:text-zinc-600 focus:border-[#D4A853]/55"
+                  />
+                  <button
+                    type="button"
+                    onClick={applyCustomPrice}
+                    className="h-9 rounded-full bg-[#D4A853] px-3 text-xs font-semibold text-[#060607] transition-all hover:bg-[#F0D78C]"
+                  >
+                    Apply
+                  </button>
+                </div>
 
                 {hasActiveFilters && (
                   <button
@@ -301,13 +486,35 @@ export default function Shop() {
                     onClick={clearFilters}
                     className="inline-flex items-center gap-2 rounded-full border border-[#D4A853]/25 bg-[#D4A853]/10 px-3.5 py-2 text-xs font-medium text-[#D4A853] transition-all duration-300 hover:border-[#D4A853]/45 hover:bg-[#D4A853]/15 hover:text-[#F0D78C] sm:text-sm"
                   >
-                    <X className="h-3.5 w-3.5" />
-                    Reset
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Clear All
                   </button>
                 )}
               </div>
             </div>
           </motion.div>
+
+          {/* Result meta */}
+          {!loading && !error && (
+            <motion.div
+              variants={fadeUp}
+              className="mt-5 flex items-center justify-between px-1 text-sm"
+            >
+              <p className="text-zinc-400">
+                {pageTitle}
+                {jewelleryType && (
+                  <span className="text-[#D4A853]">
+                    {" "}
+                    · {jewelleryLabel(jewelleryType)}
+                  </span>
+                )}
+              </p>
+              <p className="text-zinc-500">
+                <span className="font-semibold text-white">{productCount}</span>{" "}
+                {productCount === 1 ? "product" : "products"}
+              </p>
+            </motion.div>
+          )}
         </motion.section>
 
         {loading ? (
@@ -324,10 +531,43 @@ export default function Shop() {
         ) : products.length === 0 ? (
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
             <EmptyState
-              title="No Jewellery Found"
-              description="Try adjusting your filters or search for different styles."
               type="filter"
+              title="No Products Found"
+              description={`No ${activeJewelleryLabel || ""}${
+                activeJewelleryLabel ? " " : ""
+              }jewellery matches your current filters. Try adjusting or clearing them.`}
             />
+            <div className="flex justify-center gap-3 pb-10">
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="inline-flex items-center gap-2 rounded-full border border-[#D4A853]/30 bg-[#D4A853]/10 px-5 py-2.5 text-sm font-semibold text-[#D4A853] transition-all hover:bg-[#D4A853]/20"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Clear Filters
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const sp = new URLSearchParams(searchParams);
+                  [
+                    "jewelleryType",
+                    "category",
+                    "rating",
+                    "min",
+                    "max",
+                    "search",
+                    "sort",
+                  ].forEach((k) => sp.delete(k));
+                  sp.delete("page");
+                  setSearchParams(sp);
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/[0.08]"
+              >
+                <Gem className="h-4 w-4" />
+                View All Jewellery
+              </button>
+            </div>
           </motion.div>
         ) : (
           <motion.section
@@ -349,28 +589,33 @@ export default function Shop() {
           </motion.section>
         )}
 
-        {pagination.totalPages > 1 && (
-          <motion.nav
-            className="flex items-center justify-center gap-2"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            aria-label="Pagination"
-          >
-            <motion.button
-              type="button"
-              aria-label="Previous page"
-              onClick={() => updateParam("page", (page - 1).toString())}
-              disabled={page <= 1}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.035] text-zinc-300 shadow-[0_14px_40px_rgba(0,0,0,0.28)] transition-all duration-300 hover:border-[#D4A853]/40 hover:bg-[#D4A853]/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.97 }}
+        {!loading &&
+          !error &&
+          products.length > 0 &&
+          pagination.totalPages > 1 && (
+            <motion.nav
+              className="flex items-center justify-center gap-2"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              aria-label="Pagination"
             >
-              <ChevronLeft className="h-5 w-5" />
-            </motion.button>
+              <motion.button
+                type="button"
+                aria-label="Previous page"
+                onClick={() => updateParam("page", (page - 1).toString())}
+                disabled={page <= 1}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.035] text-zinc-300 shadow-[0_14px_40px_rgba(0,0,0,0.28)] transition-all duration-300 hover:border-[#D4A853]/40 hover:bg-[#D4A853]/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </motion.button>
 
-            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
-              (pageNumber) => (
+              {Array.from(
+                { length: pagination.totalPages },
+                (_, i) => i + 1,
+              ).map((pageNumber) => (
                 <motion.button
                   key={pageNumber}
                   type="button"
@@ -386,22 +631,21 @@ export default function Shop() {
                 >
                   {pageNumber}
                 </motion.button>
-              ),
-            )}
+              ))}
 
-            <motion.button
-              type="button"
-              aria-label="Next page"
-              onClick={() => updateParam("page", (page + 1).toString())}
-              disabled={page >= pagination.totalPages}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.035] text-zinc-300 shadow-[0_14px_40px_rgba(0,0,0,0.28)] transition-all duration-300 hover:border-[#D4A853]/40 hover:bg-[#D4A853]/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <ChevronRight className="h-5 w-5" />
-            </motion.button>
-          </motion.nav>
-        )}
+              <motion.button
+                type="button"
+                aria-label="Next page"
+                onClick={() => updateParam("page", (page + 1).toString())}
+                disabled={page >= pagination.totalPages}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.035] text-zinc-300 shadow-[0_14px_40px_rgba(0,0,0,0.28)] transition-all duration-300 hover:border-[#D4A853]/40 hover:bg-[#D4A853]/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </motion.button>
+            </motion.nav>
+          )}
       </main>
     </div>
   );

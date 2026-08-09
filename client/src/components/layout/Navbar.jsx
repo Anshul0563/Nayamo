@@ -1,16 +1,23 @@
 import {
   ChevronDown,
+  ChevronRight,
   Heart,
   LogOut,
   Menu,
   Package,
   Settings,
   ShoppingBag,
+  Sparkles,
   User,
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
 import {
   AnimatePresence,
@@ -22,6 +29,14 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
+
+import {
+  FEATURED_MENU,
+  JEWELLERY_CATEGORIES,
+  JEWELLERY_MENU,
+  jewelleryHref,
+  jewellerySortHref,
+} from "../../config/jewelleryCategories";
 
 import logo from "../../assets/logo.png";
 
@@ -46,6 +61,7 @@ export default function Navbar() {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const { scrollY } = useScroll();
 
@@ -55,7 +71,18 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
+  // Shop mega-menu state (desktop)
+  const [shopOpen, setShopOpen] = useState(false);
+  const shopCloseTimer = useRef(null);
+  const shopRef = useRef(null);
+
+  // Mobile shop expand state
+  const [mobileShopOpen, setMobileShopOpen] = useState(false);
+
   const profileRef = useRef(null);
+
+  // Active jewelleryType from URL (for highlighting active category in menu)
+  const activeJewellery = searchParams.get("jewelleryType") || "";
 
   useEffect(() => {
     const onScroll = () => {
@@ -72,10 +99,15 @@ export default function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
     setProfileOpen(false);
+    setMobileShopOpen(false);
   }, [location.pathname]);
 
+  // Close shop menu on outside click
   useEffect(() => {
     const close = (e) => {
+      if (shopRef.current && !shopRef.current.contains(e.target)) {
+        setShopOpen(false);
+      }
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
       }
@@ -86,10 +118,48 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
+  // Close shop menu with Escape
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setShopOpen(false);
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Clear close timer on unmount
+  useEffect(() => {
+    return () => {
+      if (shopCloseTimer.current) {
+        clearTimeout(shopCloseTimer.current);
+      }
+    };
+  }, []);
+
   const isActive = (path) =>
     path === "/"
       ? location.pathname === "/"
       : location.pathname.startsWith(path);
+
+  const openShopMenu = () => {
+    if (shopCloseTimer.current) {
+      clearTimeout(shopCloseTimer.current);
+      shopCloseTimer.current = null;
+    }
+    setShopOpen(true);
+  };
+
+  const closeShopMenuWithDelay = () => {
+    if (shopCloseTimer.current) {
+      clearTimeout(shopCloseTimer.current);
+    }
+    shopCloseTimer.current = setTimeout(() => {
+      setShopOpen(false);
+    }, 180);
+  };
 
   const iconBtn =
     "relative flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 text-zinc-200 transition-all duration-500 hover:-translate-y-1 hover:scale-105 hover:border-[#D4A853]/60 hover:text-white hover:shadow-[0_10px_40px_rgba(212,168,83,0.35)] backdrop-blur-xl active:scale-95";
@@ -162,54 +232,254 @@ export default function Navbar() {
 
             {/* NAV LINKS */}
             <nav className="hidden lg:flex items-center gap-3 rounded-3xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 px-3 py-3 backdrop-blur-2xl shadow-xl">
-              {links.map((item, index) => (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    delay: index * 0.1,
-                  }}
-                >
-                  <Link
-                    to={item.path}
-                    className={`relative z-10 overflow-hidden px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-500 group ${
-                      isActive(item.path)
-                        ? "text-white bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 border border-[#D4A853]/30"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    <motion.span
-                      className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                      style={{
-                        background:
-                          "radial-gradient(circle at center, rgba(212,168,83,0.12), transparent 70%)",
-                      }}
-                    />
+              {links.map((item, index) => {
+                const active = isActive(item.path);
 
-                    <span className="relative z-10">{item.name}</span>
-
-                    {/* Hover underline for inactive links (centered) */}
-                    {!isActive(item.path) && (
-                      <span className="absolute bottom-1 left-0 right-0 mx-auto h-[2px] w-6 rounded-full bg-[#D4A853] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    )}
-
-                    {isActive(item.path) && (
-                      <>
+                // Shop gets the mega-menu wrapper
+                if (item.name === "Shop") {
+                  return (
+                    <motion.div
+                      key={item.name}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="relative"
+                      ref={shopRef}
+                    >
+                      <button
+                        type="button"
+                        onMouseEnter={openShopMenu}
+                        onMouseLeave={closeShopMenuWithDelay}
+                        onFocus={openShopMenu}
+                        onClick={() => {
+                          if (window.innerWidth < 1024) {
+                            navigate(item.path);
+                          } else {
+                            setShopOpen((prev) => !prev);
+                          }
+                        }}
+                        aria-haspopup="true"
+                        aria-expanded={shopOpen}
+                        aria-controls="shop-mega-menu"
+                        className={`relative z-10 flex items-center gap-1.5 overflow-hidden px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-500 group ${
+                          active
+                            ? "text-white bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 border border-[#D4A853]/30"
+                            : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
                         <motion.span
-                          layoutId="nav-pill"
-                          className="absolute inset-0 rounded-2xl border-2 border-[#D4A853]/50"
+                          className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                          style={{
+                            background:
+                              "radial-gradient(circle at center, rgba(212,168,83,0.12), transparent 70%)",
+                          }}
                         />
 
-                        <motion.div
-                          layoutId="underline"
-                          className="absolute bottom-1 left-0 right-0 mx-auto h-[2px] w-6 rounded-full bg-[#D4A853]"
+                        <span className="relative z-10">{item.name}</span>
+
+                        <ChevronDown
+                          size={14}
+                          className={`relative z-10 text-[#D4A853] transition-transform duration-300 ${
+                            shopOpen ? "rotate-180" : ""
+                          }`}
                         />
-                      </>
-                    )}
-                  </Link>
-                </motion.div>
-              ))}
+
+                        {!active && (
+                          <span className="absolute bottom-1 left-0 right-0 mx-auto h-[2px] w-6 rounded-full bg-[#D4A853] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                        )}
+
+                        {active && (
+                          <>
+                            <motion.span
+                              layoutId="nav-pill"
+                              className="absolute inset-0 rounded-2xl border-2 border-[#D4A853]/50"
+                            />
+
+                            <motion.div
+                              layoutId="underline"
+                              className="absolute bottom-1 left-0 right-0 mx-auto h-[2px] w-6 rounded-full bg-[#D4A853]"
+                            />
+                          </>
+                        )}
+                      </button>
+
+                      {/* MEGA MENU */}
+                      <AnimatePresence>
+                        {shopOpen && (
+                          <motion.div
+                            id="shop-mega-menu"
+                            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                            transition={{ duration: 0.18, ease: "easeOut" }}
+                            onMouseEnter={openShopMenu}
+                            onMouseLeave={closeShopMenuWithDelay}
+                            className="absolute left-1/2 top-full z-50 mt-3 w-[720px] max-w-[92vw] -translate-x-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0C]/95 shadow-[0_40px_120px_rgba(0,0,0,0.6)] backdrop-blur-2xl"
+                          >
+                            {/* top gold line */}
+                            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4A853]/70 to-transparent" />
+
+                            {/* subtle glows */}
+                            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#D4A853]/10 blur-3xl" />
+                            <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-[#D4A5A5]/8 blur-3xl" />
+
+                            <div className="relative grid grid-cols-[1.4fr_1fr] gap-2 p-6">
+                              {JEWELLERY_MENU.map((group) => (
+                                <div key={group.label}>
+                                  <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-[#D4A853]">
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    {group.label}
+                                  </p>
+
+                                  <ul className="space-y-1">
+                                    {group.items.map((item) => {
+                                      const isItemActive =
+                                        activeJewellery === item.value;
+
+                                      return (
+                                        <li key={item.value}>
+                                          <Link
+                                            to={jewelleryHref(item.value)}
+                                            onClick={() => setShopOpen(false)}
+                                            onMouseEnter={() => {
+                                              if (shopCloseTimer.current) {
+                                                clearTimeout(
+                                                  shopCloseTimer.current,
+                                                );
+                                                shopCloseTimer.current = null;
+                                              }
+                                            }}
+                                            className={`group/item flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                                              isItemActive
+                                                ? "bg-[#D4A853]/10 text-[#D4A853]"
+                                                : "text-zinc-300 hover:bg-white/[0.04] hover:text-white"
+                                            }`}
+                                          >
+                                            <span className="flex items-center gap-2.5">
+                                              {isItemActive && (
+                                                <span className="h-1.5 w-1.5 rounded-full bg-[#D4A853]" />
+                                              )}
+                                              {item.label}
+                                            </span>
+                                            <ChevronRight
+                                              className={`h-4 w-4 transition-all duration-200 ${
+                                                isItemActive
+                                                  ? "text-[#D4A853]"
+                                                  : "text-zinc-600 group-hover/item:translate-x-0.5 group-hover/item:text-[#D4A853]"
+                                              }`}
+                                            />
+                                          </Link>
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                </div>
+                              ))}
+
+                              {/* FEATURED */}
+                              <div>
+                                <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-[#D4A853]">
+                                  <Sparkles className="h-3.5 w-3.5" />
+                                  Featured
+                                </p>
+
+                                <ul className="space-y-1">
+                                  {FEATURED_MENU.map((item) => (
+                                    <li key={item.value}>
+                                      <Link
+                                        to={jewellerySortHref(item.sort)}
+                                        onClick={() => setShopOpen(false)}
+                                        onMouseEnter={() => {
+                                          if (shopCloseTimer.current) {
+                                            clearTimeout(
+                                              shopCloseTimer.current,
+                                            );
+                                            shopCloseTimer.current = null;
+                                          }
+                                        }}
+                                        className="group/item flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-300 transition-all duration-200 hover:bg-white/[0.04] hover:text-white"
+                                      >
+                                        <span className="h-1.5 w-1.5 rounded-full bg-[#D4A853]/50 transition-colors group-hover/item:bg-[#D4A853]" />
+                                        {item.label}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+
+                                <div className="mt-5 rounded-2xl border border-[#D4A853]/15 bg-gradient-to-br from-[#D4A853]/8 to-[#D4A5A5]/5 p-4">
+                                  <p className="text-sm font-semibold text-white">
+                                    View All Jewellery
+                                  </p>
+                                  <p className="mt-0.5 text-xs text-zinc-400">
+                                    Explore the full curated collection.
+                                  </p>
+                                  <Link
+                                    to="/shop"
+                                    onClick={() => setShopOpen(false)}
+                                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#D4A853] transition-colors hover:text-[#F0D78C]"
+                                  >
+                                    Browse Shop
+                                    <ChevronRight className="h-3.5 w-3.5" />
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                }
+
+                return (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: index * 0.1,
+                    }}
+                  >
+                    <Link
+                      to={item.path}
+                      className={`relative z-10 overflow-hidden px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-500 group ${
+                        isActive(item.path)
+                          ? "text-white bg-gradient-to-r from-[#D4A853]/20 to-[#D4A5A5]/20 border border-[#D4A853]/30"
+                          : "text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      <motion.span
+                        className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                        style={{
+                          background:
+                            "radial-gradient(circle at center, rgba(212,168,83,0.12), transparent 70%)",
+                        }}
+                      />
+
+                      <span className="relative z-10">{item.name}</span>
+
+                      {/* Hover underline for inactive links (centered) */}
+                      {!isActive(item.path) && (
+                        <span className="absolute bottom-1 left-0 right-0 mx-auto h-[2px] w-6 rounded-full bg-[#D4A853] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      )}
+
+                      {isActive(item.path) && (
+                        <>
+                          <motion.span
+                            layoutId="nav-pill"
+                            className="absolute inset-0 rounded-2xl border-2 border-[#D4A853]/50"
+                          />
+
+                          <motion.div
+                            layoutId="underline"
+                            className="absolute bottom-1 left-0 right-0 mx-auto h-[2px] w-6 rounded-full bg-[#D4A853]"
+                          />
+                        </>
+                      )}
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </nav>
 
             {/* RIGHT SIDE */}
@@ -405,21 +675,111 @@ export default function Navbar() {
               </div>
 
               {/* NAV */}
-              <div className="flex flex-col gap-2">
-                {links.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.path}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-all ${
-                      isActive(item.path)
-                        ? "bg-[#D4A853]/20 text-white"
-                        : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+              <div className="flex flex-col gap-2 overflow-y-auto">
+                {links.map((item) => {
+                  const active = isActive(item.path);
+
+                  // Shop is expandable in mobile
+                  if (item.name === "Shop") {
+                    return (
+                      <div key={item.name} className="flex flex-col">
+                        <button
+                          type="button"
+                          onClick={() => setMobileShopOpen((prev) => !prev)}
+                          aria-expanded={mobileShopOpen}
+                          className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-all ${
+                            active
+                              ? "bg-[#D4A853]/20 text-white"
+                              : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#D4A853]" />
+                            Shop
+                          </span>
+                          <ChevronDown
+                            className={`h-4 w-4 text-[#D4A853] transition-transform duration-300 ${
+                              mobileShopOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+
+                        <AnimatePresence initial={false}>
+                          {mobileShopOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.25, ease: "easeOut" }}
+                              className="overflow-hidden"
+                            >
+                              <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-white/10 pl-3">
+                                {JEWELLERY_CATEGORIES.map((cat) => {
+                                  const isActiveItem =
+                                    activeJewellery === cat.value;
+
+                                  return (
+                                    <Link
+                                      key={cat.value}
+                                      to={jewelleryHref(cat.value)}
+                                      onClick={() => setMobileOpen(false)}
+                                      className={`rounded-lg px-3 py-2.5 text-sm transition-all ${
+                                        isActiveItem
+                                          ? "bg-[#D4A853]/10 text-[#D4A853]"
+                                          : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                                      }`}
+                                    >
+                                      {cat.label}
+                                    </Link>
+                                  );
+                                })}
+
+                                {/* Featured */}
+                                <p className="mt-2 px-3 pt-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-600">
+                                  Featured
+                                </p>
+
+                                {FEATURED_MENU.map((item) => (
+                                  <Link
+                                    key={item.value}
+                                    to={jewellerySortHref(item.sort)}
+                                    onClick={() => setMobileOpen(false)}
+                                    className="rounded-lg px-3 py-2.5 text-sm text-zinc-400 transition-all hover:bg-white/5 hover:text-white"
+                                  >
+                                    {item.label}
+                                  </Link>
+                                ))}
+
+                                <Link
+                                  to="/shop"
+                                  onClick={() => setMobileOpen(false)}
+                                  className="rounded-lg px-3 py-2.5 text-sm font-semibold text-[#D4A853] transition-colors hover:text-[#F0D78C]"
+                                >
+                                  View All Jewellery
+                                </Link>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-all ${
+                        active
+                          ? "bg-[#D4A853]/20 text-white"
+                          : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  );
+                })}
               </div>
 
               {/* ACTIONS */}

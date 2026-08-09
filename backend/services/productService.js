@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const Order = require("../models/Order");
 const mongoose = require("mongoose");
 const escapeRegex = require("../utils/escapeRegex");
 const redis = require("../config/redis");
@@ -22,6 +23,7 @@ const normalizeSort = (sort) => {
     "price-asc": { price: 1 },
     "price-desc": { price: -1 },
     "rating-desc": { "ratings.average": -1, "ratings.count": -1 },
+    "best-seller": { __bestSeller: -1 },
     "-createdAt": { createdAt: -1 },
   };
 
@@ -39,10 +41,36 @@ exports.createProduct = async (data) => {
   return product;
 };
 
+// Aggregates real order data to compute a best-seller ranking for products.
+const getBestSellerRanking = async () => {
+  try {
+    const ranking = await Order.aggregate([
+      { $match: { status: { $ne: "cancelled" }, isArchived: { $ne: true } } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.product",
+          soldCount: { $sum: "$items.quantity" },
+        },
+      },
+      { $sort: { soldCount: -1 } },
+    ]);
+
+    return ranking.reduce((acc, item) => {
+      acc[String(item._id)] = item.soldCount;
+      return acc;
+    }, {});
+  } catch (err) {
+    logger.warn("Best-seller aggregation failed:", err.message);
+    return {};
+  }
+};
+
 exports.getProducts = async (queryParams) => {
   const {
     search = "",
     category,
+    jewelleryType,
     rating,
     min,
     max,
@@ -71,6 +99,8 @@ exports.getProducts = async (queryParams) => {
 
   if (category) query.category = category;
 
+  if (jewelleryType) query.jewelleryType = jewelleryType;
+
   if (minPrice || maxPrice) {
     query.price = {};
     if (minPrice) query.price.$gte = Number(minPrice);
@@ -81,8 +111,6 @@ exports.getProducts = async (queryParams) => {
     query["ratings.average"] = { $gte: Number(rating) };
   }
 
-  const sortOption = normalizeSort(sort);
-
   // Only show active products for public
   query.isActive = true;
 
@@ -92,6 +120,7 @@ exports.getProducts = async (queryParams) => {
   const cacheKey = `products:list:${JSON.stringify({
     search,
     category,
+    jewelleryType,
     rating,
     min: minPrice,
     max: maxPrice,
@@ -111,6 +140,14 @@ exports.getProducts = async (queryParams) => {
     }
   }
 
+  const sortOption = normalizeSort(sort);
+
+  // Best-seller needs real order-based ranking, not fake data.
+  let bestSellerRank = null;
+  if (sort === "best-seller") {
+    bestSellerRank = await getBestSellerRanking();
+  }
+
   const [products, totalItems] = await Promise.all([
     Product.find(query)
       .sort(sortOption)
@@ -119,6 +156,15 @@ exports.getProducts = async (queryParams) => {
       .lean(),
     Product.countDocuments(query),
   ]);
+
+  // Apply best-seller ranking to the already-fetched page (stable, real order data).
+  if (bestSellerRank) {
+    products.sort((a, b) => {
+      const rankA = bestSellerRank[String(a._id)] || 0;
+      const rankB = bestSellerRank[String(b._id)] || 0;
+      return rankB - rankA;
+    });
+  }
 
   const result = {
     products,

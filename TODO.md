@@ -1,14 +1,17 @@
-# Task: Integrate Cloudinary into Product Reviews media upload
+# Task: Upgrade SHOP navigation & category browsing (Artificial Jewellery types)
 
 ## Backend
-- [x] Create reusable `backend/utils/cloudinaryUpload.js` helper (`uploadBufferToCloudinary`)
-- [x] Refactor `backend/controllers/reviewController.js` to use the shared helper
-- [x] Preserve existing cleanup/rollback logic and folder convention
+- [x] Add `anklets` to `jewelleryType` enum in `backend/models/Product.js`
+- [x] Add `jewelleryType` query filter in `backend/services/productService.js`
+- [x] Add real `best-seller` sort (aggregate Order data) in `backend/services/productService.js`
+- [x] Extend cache key to include `jewelleryType`
 
 ## Frontend
-- [x] Fix `client/src/services/api.js` so FormData requests use browser-generated multipart boundary
-- [x] Add longer timeout for review media submission
+- [x] Create `client/src/config/jewelleryCategories.js` (shared config + helpers)
+- [x] Add premium Shop mega menu (desktop hover + keyboard) to `Navbar.jsx`
+- [x] Add expandable Shop categories (tap) to mobile menu in `Navbar.jsx`
+- [x] Extend `Shop.jsx` for `jewelleryType` URL param (backend filtering), title + product count, price range, full sort, Clear All, empty state, SEO title
 
 ## Verification
-- [x] Run backend tests (reviewImageUpload.test.js) — 4 passed
-- [x] Run ESLint on changed files — clean
+- [ ] Backend tests + ESLint on changed files
+- [ ] Manual test checklist (hover, category filtering, refresh, back/forward, mobile)
