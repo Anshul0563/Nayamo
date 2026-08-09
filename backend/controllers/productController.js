@@ -5,7 +5,7 @@ const logger = require("../config/logger");
 
 // ADD PRODUCT
 exports.createProduct = asyncHandler(async (req, res) => {
-  const { title, price, category, stock, description } = req.body;
+  const { title, price, category, jewelleryType, stock, description } = req.body;
 
   // Validation
   if (!title || !price || !category) {
@@ -16,6 +16,14 @@ exports.createProduct = asyncHandler(async (req, res) => {
   if (!["party", "daily", "traditional", "western", "statement", "bridal"].includes(category)) {
     res.status(400);
     throw new Error("Category must be party, daily, traditional, western, statement, or bridal");
+  }
+
+  if (
+    jewelleryType &&
+    !["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"].includes(jewelleryType)
+  ) {
+    res.status(400);
+    throw new Error("Invalid jewellery type");
   }
 
   if (price < 0) {
@@ -49,6 +57,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
     description: description ? description.trim() : "",
     price: Number(price),
     category,
+    jewelleryType,
     stock: stock ? Number(stock) : 0,
     images,
 

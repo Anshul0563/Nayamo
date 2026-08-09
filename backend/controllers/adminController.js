@@ -76,8 +76,8 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
 
 // DASHBOARD STATS - Real MongoDB aggregation
 exports.getDashboardStats = asyncHandler(async (req, res) => {
-  const { 
-    days = 30, 
+  const {
+    days = 30,
     dateFrom = new Date(Date.now() - days * 24 * 60 * 60 * 1000),
     dateTo = new Date()
   } = req.query;
@@ -111,7 +111,7 @@ exports.getDashboard = exports.getDashboardStats;
 // NOTIFICATIONS
 exports.getNotifications = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20, read = null, type } = req.query;
-  
+
   const match = { adminId: req.user._id, isDeleted: false };
   if (read !== null) match.isRead = read === 'true';
   if (type) match.type = type;
@@ -402,7 +402,7 @@ exports.getTopProducts = asyncHandler(async (req, res) => {
 
 // ── NEW: Create Product ─────────────────────────────────────────────
 exports.createProduct = asyncHandler(async (req, res) => {
-  const { title, price, category, stock, description, images } = req.body;
+  const { title, price, category, jewelleryType, stock, description, images } = req.body;
 
   // Validation
   if (!title || !price || !category) {
@@ -413,6 +413,11 @@ exports.createProduct = asyncHandler(async (req, res) => {
   if (!["party", "daily", "traditional", "western", "statement", "bridal"].includes(category)) {
     res.status(400);
     throw new Error("Category must be party, daily, traditional, western, statement, or bridal");
+  }
+
+  if (jewelleryType && !["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"].includes(jewelleryType)) {
+    res.status(400);
+    throw new Error("jewelleryType must be earrings, necklaces, rings, bracelets, bangles, anklets, sets, or other");
   }
 
   if (price < 0) {
@@ -435,6 +440,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
     description: description ? description.trim() : "",
     price: Number(price),
     category,
+    jewelleryType,
     stock: stock !== undefined ? Number(stock) : 0,
     images: images || [],
     isActive: true,

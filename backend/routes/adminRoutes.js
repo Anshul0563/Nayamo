@@ -95,6 +95,12 @@ const productUpdateValidation = [
     .optional()
     .isBoolean()
     .withMessage("isActive must be a boolean"),
+  body("jewelleryType")
+    .optional()
+    .trim()
+    .toLowerCase()
+    .isIn(["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"])
+    .withMessage("jewelleryType must be earrings, necklaces, rings, bracelets, bangles, anklets, sets, or other"),
 ];
 
 const productCreateValidation = [
@@ -119,6 +125,13 @@ const productCreateValidation = [
     .withMessage("Category is required")
     .isIn(["party", "daily", "traditional", "western", "statement", "bridal"])
     .withMessage("Category must be party, daily, traditional, western, statement, or bridal"),
+  body("jewelleryType")
+    .notEmpty()
+    .withMessage("jewelleryType is required")
+    .trim()
+    .toLowerCase()
+    .isIn(["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"])
+    .withMessage("jewelleryType must be earrings, necklaces, rings, bracelets, bangles, anklets, sets, or other"),
   body("stock")
     .optional()
     .isInt({ min: 0 })

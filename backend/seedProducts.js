@@ -5,11 +5,11 @@ require("dotenv").config();
 const seedProducts = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB Connected");
+    console.log(" MongoDB Connected");
 
     // Clear existing products
     await Product.deleteMany({});
-    console.log("🗑️ Cleared existing products");
+    console.log(" Cleared existing products");
 
     const products = [
       // ---------------- EARRINGS ----------------

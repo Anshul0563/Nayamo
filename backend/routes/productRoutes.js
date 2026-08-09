@@ -39,6 +39,10 @@ const productValidation = [
     .optional()
     .isInt({ min: 0 })
     .withMessage("Stock must be a non-negative integer"),
+  body("jewelleryType")
+    .optional()
+    .isIn(["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"])
+    .withMessage("jewelleryType must be earrings, necklaces, rings, bracelets, bangles, anklets, sets, or other"),
 ];
 
 // Public routes

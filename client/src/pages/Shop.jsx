@@ -111,6 +111,8 @@ export default function Shop() {
 
   const category = searchParams.get("category") || "";
   const jewelleryType = searchParams.get("jewelleryType") || "";
+  const sortParam = searchParams.get("sort") || "";
+  const searchParam = searchParams.get("search") || "";
   const ratingParam = parseNumber(searchParams.get("rating"), 0);
   const priceMin = parseNumber(
     searchParams.get("min") || searchParams.get("priceMin"),
@@ -123,38 +125,24 @@ export default function Shop() {
   const page = parseNumber(searchParams.get("page"), 1);
 
   useEffect(() => {
+    setSearch(searchParam);
     setRating(ratingParam);
     setPriceRange([priceMin, priceMax]);
-    setSortFilter(searchParams.get("sort") || "");
-  }, [ratingParam, priceMin, priceMax, searchParams]);
+    setSortFilter(sortParam);
+  }, [searchParam, ratingParam, priceMin, priceMax, sortParam]);
 
+  // Uses stable URL-derived primitives as deps so the callback only changes
+  // when the actual URL values change (NOT on every render — `searchParams`
+  // is a new object reference each render in react-router v6).
   const fetchProducts = useCallback(async () => {
-    // Derive ALL filter values directly from the URL as the single source of
-    // truth. This avoids stale local state racing with URL-driven navigation
-    // (e.g. jumping from necklaces to earrings in the mega-menu).
-    const urlCategory = searchParams.get("category") || "";
-    const urlJewelleryType = searchParams.get("jewelleryType") || "";
-    const urlSort = searchParams.get("sort") || "";
-    const urlSearch = searchParams.get("search") || "";
-    const urlRating = parseNumber(searchParams.get("rating"), 0);
-    const urlMin = parseNumber(
-      searchParams.get("min") || searchParams.get("priceMin"),
-      0,
-    );
-    const urlMax = parseNumber(
-      searchParams.get("max") || searchParams.get("priceMax"),
-      DEFAULT_MAX,
-    );
-    const urlPage = parseNumber(searchParams.get("page"), 1);
-
-    const params = { page: urlPage };
-    if (urlCategory) params.category = urlCategory;
-    if (urlJewelleryType) params.jewelleryType = urlJewelleryType;
-    if (urlSort) params.sort = urlSort;
-    if (urlSearch) params.search = urlSearch;
-    if (urlMin > 0) params.min = urlMin;
-    if (urlMax < DEFAULT_MAX) params.max = urlMax;
-    if (urlRating > 0) params.rating = urlRating;
+    const params = { page };
+    if (category) params.category = category;
+    if (jewelleryType) params.jewelleryType = jewelleryType;
+    if (sortParam) params.sort = sortParam;
+    if (searchParam) params.search = searchParam;
+    if (priceMin > 0) params.min = priceMin;
+    if (priceMax < DEFAULT_MAX) params.max = priceMax;
+    if (ratingParam > 0) params.rating = ratingParam;
 
     const requestId = ++requestSeqRef.current;
     setLoading(true);
@@ -175,7 +163,16 @@ export default function Shop() {
         setLoading(false);
       }
     }
-  }, [searchParams]);
+  }, [
+    category,
+    jewelleryType,
+    sortParam,
+    searchParam,
+    ratingParam,
+    priceMin,
+    priceMax,
+    page,
+  ]);
 
   useEffect(() => {
     fetchProducts();
