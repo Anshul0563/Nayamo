@@ -2,16 +2,16 @@ import { useState } from "react";
 import { adminAPI } from "../services/api";
 
 import {
-  Save,
-  Loader2,
-  ImagePlus,
-  X,
-  IndianRupee,
-  Package,
+  AlertCircle,
   BadgeInfo,
   CheckCircle2,
-  AlertCircle,
   Crown,
+  ImagePlus,
+  IndianRupee,
+  Loader2,
+  Package,
+  Save,
+  X,
 } from "lucide-react";
 
 function Input({
@@ -25,9 +25,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm text-luxury-dim">
-        {label}
-      </label>
+      <label className="mb-2 block text-sm text-luxury-dim">{label}</label>
 
       <div className="relative">
         {icon && (
@@ -58,10 +56,29 @@ const VALID_CATEGORIES = [
   "bridal",
 ];
 
-const imageUrl = (image) =>
-  typeof image === "string"
-    ? image
-    : image?.url;
+const JEWELLERY_TYPES = [
+  { value: "earrings", label: "Earrings" },
+  { value: "necklaces", label: "Necklaces" },
+  { value: "rings", label: "Rings" },
+  { value: "bracelets", label: "Bracelets" },
+  { value: "bangles", label: "Bangles" },
+  { value: "anklets", label: "Anklets" },
+  { value: "sets", label: "Jewellery Sets" },
+  { value: "other", label: "Other" },
+];
+
+const VALID_JEWELLERY_TYPES = [
+  "earrings",
+  "necklaces",
+  "rings",
+  "bracelets",
+  "bangles",
+  "anklets",
+  "sets",
+  "other",
+];
+
+const imageUrl = (image) => (typeof image === "string" ? image : image?.url);
 
 export default function AddProduct() {
   const [form, setForm] = useState({
@@ -70,20 +87,18 @@ export default function AddProduct() {
     stock: "",
     description: "",
     category: "",
+    jewelleryType: "",
     images: [],
   });
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [uploading, setUploading] =
-    useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const [message, setMessage] =
-    useState({
-      type: "",
-      text: "",
-    });
+  const [message, setMessage] = useState({
+    type: "",
+    text: "",
+  });
 
   const notify = (type, text) => {
     setMessage({ type, text });
@@ -103,6 +118,7 @@ export default function AddProduct() {
       stock: "",
       description: "",
       category: "",
+      jewelleryType: "",
       images: [],
     });
   };
@@ -119,51 +135,38 @@ export default function AddProduct() {
   const removeImage = (index) => {
     setForm((prev) => ({
       ...prev,
-      images: prev.images.filter(
-        (_, i) => i !== index,
-      ),
+      images: prev.images.filter((_, i) => i !== index),
     }));
   };
 
   const validateForm = () => {
-    if (!form.title.trim())
-      return "Product name is required";
+    if (!form.title.trim()) return "Product name is required";
 
-    if (
-      !form.price ||
-      Number(form.price) <= 0
-    )
-      return "Enter valid price";
+    if (!form.price || Number(form.price) <= 0) return "Enter valid price";
 
-    if (
-      form.stock === "" ||
-      Number(form.stock) < 0
-    )
-      return "Enter valid stock";
+    if (form.stock === "" || Number(form.stock) < 0) return "Enter valid stock";
 
-    if (!form.category.trim())
-      return "Category is required";
+    if (!form.category.trim()) return "Category is required";
 
-    if (
-      !VALID_CATEGORIES.includes(
-        form.category.toLowerCase(),
-      )
-    ) {
+    if (!VALID_CATEGORIES.includes(form.category.toLowerCase())) {
       return "Category must be party, daily, traditional, western, statement, or bridal";
     }
 
-    if (!form.description.trim())
-      return "Description is required";
+    if (!form.jewelleryType.trim()) return "Jewellery Type is required";
 
-    if (form.images.length === 0)
-      return "Please upload at least 1 image";
+    if (!VALID_JEWELLERY_TYPES.includes(form.jewelleryType.toLowerCase())) {
+      return "Jewellery Type must be earrings, necklaces, rings, bracelets, bangles, anklets, sets, or other";
+    }
+
+    if (!form.description.trim()) return "Description is required";
+
+    if (form.images.length === 0) return "Please upload at least 1 image";
 
     return null;
   };
 
   const uploadImages = async (files) => {
-    if (!files || files.length === 0)
-      return;
+    if (!files || files.length === 0) return;
 
     try {
       setUploading(true);
@@ -171,46 +174,28 @@ export default function AddProduct() {
       const uploaded = [];
 
       for (const file of files) {
-        if (
-          !file.type.startsWith("image/")
-        )
-          continue;
+        if (!file.type.startsWith("image/")) continue;
 
         const data = new FormData();
 
         data.append("image", file);
 
-        const res =
-          await adminAPI.uploadImage(
-            data,
-          );
+        const res = await adminAPI.uploadImage(data);
 
         uploaded.push({
           url: res.data.url,
-          publicId:
-            res.data.publicId,
+          publicId: res.data.publicId,
         });
       }
 
       setForm((prev) => ({
         ...prev,
-        images: [
-          ...prev.images,
-          ...uploaded,
-        ],
+        images: [...prev.images, ...uploaded],
       }));
 
-      notify(
-        "success",
-        `${uploaded.length} image(s) uploaded successfully ✨`,
-      );
+      notify("success", `${uploaded.length} image(s) uploaded successfully ✨`);
     } catch (error) {
-      notify(
-        "error",
-        error.response?.data
-          ?.message ||
-          "Image upload failed",
-      );
+      notify("error", error.response?.data?.message || "Image upload failed");
     } finally {
       setUploading(false);
     }
@@ -237,18 +222,16 @@ export default function AddProduct() {
 
         stock: Number(form.stock),
 
-        description:
-          form.description.trim(),
+        description: form.description.trim(),
 
-        category:
-          form.category.toLowerCase(),
+        category: form.category.toLowerCase(),
+
+        jewelleryType: form.jewelleryType.toLowerCase(),
 
         images: form.images,
       };
 
-      await adminAPI.createProduct(
-        payload,
-      );
+      await adminAPI.createProduct(payload);
 
       notify(
         "success",
@@ -259,9 +242,7 @@ export default function AddProduct() {
     } catch (error) {
       notify(
         "error",
-        error.response?.data
-          ?.message ||
-          "Failed to create product",
+        error.response?.data?.message || "Failed to create product",
       );
     } finally {
       setLoading(false);
@@ -274,10 +255,7 @@ export default function AddProduct() {
         {/* HEADER */}
         <div className="mb-6 sm:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gold-gradient shadow-gold-lg border-gold-animated">
-            <Crown
-              size={24}
-              className="font-bold text-black"
-            />
+            <Crown size={24} className="font-bold text-black" />
           </div>
 
           <div>
@@ -286,9 +264,7 @@ export default function AddProduct() {
             </h1>
 
             <p className="mt-1 text-sm sm:text-base lg:text-lg text-luxury-dim">
-              Create exquisite jewelry
-              pieces for Nayamo
-              collection
+              Create exquisite jewelry pieces for Nayamo collection
             </p>
           </div>
         </div>
@@ -297,22 +273,18 @@ export default function AddProduct() {
         {message.text && (
           <div
             className={`glass-card mb-6 flex items-center gap-3 rounded-2xl border p-3 sm:p-4 ${
-              message.type ===
-              "success"
+              message.type === "success"
                 ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
                 : "border-rose-500/30 bg-rose-500/5 text-rose-300"
             }`}
           >
-            {message.type ===
-            "success" ? (
+            {message.type === "success" ? (
               <CheckCircle2 size={20} />
             ) : (
               <AlertCircle size={20} />
             )}
 
-            <span className="text-sm sm:text-base">
-              {message.text}
-            </span>
+            <span className="text-sm sm:text-base">{message.text}</span>
           </div>
         )}
 
@@ -329,15 +301,9 @@ export default function AddProduct() {
                 label="Product Title *"
                 name="title"
                 value={form.title}
-                onChange={
-                  changeHandler
-                }
+                onChange={changeHandler}
                 placeholder="18K Gold Diamond Necklace"
-                icon={
-                  <BadgeInfo
-                    size={16}
-                  />
-                }
+                icon={<BadgeInfo size={16} />}
               />
 
               <Input
@@ -345,15 +311,9 @@ export default function AddProduct() {
                 name="price"
                 type="number"
                 value={form.price}
-                onChange={
-                  changeHandler
-                }
+                onChange={changeHandler}
                 placeholder="125000"
-                icon={
-                  <IndianRupee
-                    size={16}
-                  />
-                }
+                icon={<IndianRupee size={16} />}
               />
 
               <Input
@@ -361,26 +321,42 @@ export default function AddProduct() {
                 name="stock"
                 type="number"
                 value={form.stock}
-                onChange={
-                  changeHandler
-                }
+                onChange={changeHandler}
                 placeholder="15"
-                icon={
-                  <Package
-                    size={16}
-                  />
-                }
+                icon={<Package size={16} />}
               />
 
               <Input
                 label="Category *"
                 name="category"
                 value={form.category}
-                onChange={
-                  changeHandler
-                }
+                onChange={changeHandler}
                 placeholder="party | daily | traditional | western | statement | bridal"
               />
+
+              <div>
+                <label className="mb-2 block text-sm text-luxury-dim">
+                  Jewellery Type *
+                </label>
+
+                <div className="relative">
+                  <select
+                    name="jewelleryType"
+                    value={form.jewelleryType}
+                    onChange={changeHandler}
+                    className="luxury-input h-12 w-full appearance-none pl-4 pr-10 focus:border-gold-400/50 focus:shadow-gold-sm"
+                  >
+                    <option value="" disabled>
+                      Select jewellery type
+                    </option>
+                    {JEWELLERY_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
 
             {/* DESCRIPTION */}
@@ -393,9 +369,7 @@ export default function AddProduct() {
                 rows="6"
                 name="description"
                 value={form.description}
-                onChange={
-                  changeHandler
-                }
+                onChange={changeHandler}
                 placeholder="Describe the luxury craftsmanship..."
                 className="luxury-input h-32 sm:h-40 w-full resize-none focus:shadow-gold-md"
               />
@@ -413,24 +387,17 @@ export default function AddProduct() {
 
               <button
                 type="submit"
-                disabled={
-                  loading || uploading
-                }
+                disabled={loading || uploading}
                 className="luxury-btn luxury-btn-primary shadow-gold-lg hover:shadow-gold-xl flex w-full flex-1 items-center justify-center gap-2 px-6 sm:px-8 py-3 font-semibold"
               >
                 {loading ? (
                   <>
-                    <Loader2
-                      size={18}
-                      className="animate-spin"
-                    />
-
+                    <Loader2 size={18} className="animate-spin" />
                     Creating...
                   </>
                 ) : (
                   <>
                     <Save size={18} />
-
                     Add to Collection
                   </>
                 )}
@@ -443,9 +410,7 @@ export default function AddProduct() {
             {/* IMAGE UPLOAD */}
             <div className="glass-card rounded-2xl p-4 sm:p-6">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <ImagePlus
-                  size={20}
-                />
+                <ImagePlus size={20} />
                 Luxury Product Images *
               </h3>
 
@@ -455,13 +420,7 @@ export default function AddProduct() {
                   hidden
                   multiple
                   accept="image/*"
-                  onChange={(e) =>
-                    uploadImages(
-                      Array.from(
-                        e.target.files,
-                      ),
-                    )
-                  }
+                  onChange={(e) => uploadImages(Array.from(e.target.files))}
                 />
 
                 <div className="text-center">
@@ -479,9 +438,7 @@ export default function AddProduct() {
                       </p>
 
                       <p className="text-sm text-luxury-dim">
-                        High-res jewelry
-                        photos (JPG,
-                        PNG, up to 10MB)
+                        High-res jewelry photos (JPG, PNG, up to 10MB)
                       </p>
                     </>
                   )}
@@ -489,41 +446,25 @@ export default function AddProduct() {
               </label>
 
               {/* PREVIEW IMAGES */}
-              {form.images.length >
-                0 && (
+              {form.images.length > 0 && (
                 <div className="mt-6 grid grid-cols-2 gap-3">
-                  {form.images.map(
-                    (img, index) => (
-                      <div
-                        key={index}
-                        className="group relative"
-                      >
-                        <img
-                          src={imageUrl(
-                            img,
-                          )}
-                          alt="preview"
-                          className="h-28 sm:h-32 w-full rounded-2xl object-cover transition-transform duration-300 hover:scale-105"
-                        />
+                  {form.images.map((img, index) => (
+                    <div key={index} className="group relative">
+                      <img
+                        src={imageUrl(img)}
+                        alt="preview"
+                        className="h-28 sm:h-32 w-full rounded-2xl object-cover transition-transform duration-300 hover:scale-105"
+                      />
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeImage(
-                              index,
-                            )
-                          }
-                          className="absolute right-2 top-2 rounded-xl bg-rose-500/90 p-1.5 text-white opacity-0 transition-all hover:bg-rose-600 group-hover:opacity-100"
-                        >
-                          <X
-                            size={
-                              14
-                            }
-                          />
-                        </button>
-                      </div>
-                    ),
-                  )}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute right-2 top-2 rounded-xl bg-rose-500/90 p-1.5 text-white opacity-0 transition-all hover:bg-rose-600 group-hover:opacity-100"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -536,53 +477,45 @@ export default function AddProduct() {
 
               {form.images[0] ? (
                 <img
-                  src={imageUrl(
-                    form.images[0],
-                  )}
+                  src={imageUrl(form.images[0])}
                   alt="main preview"
                   className="shadow-gold-sm hover:shadow-gold-md mb-4 h-40 sm:h-48 w-full rounded-2xl object-cover transition-all"
                 />
               ) : (
                 <div className="bg-luxury-surface/50 mb-4 flex h-40 sm:h-48 w-full items-center justify-center rounded-2xl">
-                  <Crown
-                    size={32}
-                    className="text-gold-400/50"
-                  />
+                  <Crown size={32} className="text-gold-400/50" />
                 </div>
               )}
 
               <div className="space-y-1">
                 <h3 className="font-display truncate text-lg sm:text-xl font-bold">
-                  {form.title ||
-                    "Nayamo Masterpiece"}
+                  {form.title || "Nayamo Masterpiece"}
                 </h3>
 
                 <p className="text-gold-gradient text-2xl font-bold">
-                  ₹
-                  {form.price ||
-                    "0"}
+                  ₹{form.price || "0"}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-medium ${
-                      Number(
-                        form.stock,
-                      ) === 0
+                      Number(form.stock) === 0
                         ? "bg-rose-500/20 text-rose-400"
                         : "bg-emerald-500/20 text-emerald-400"
                     }`}
                   >
-                    Stock:{" "}
-                    {form.stock ||
-                      0}
+                    Stock: {form.stock || 0}
                   </span>
 
                   {form.category && (
                     <span className="rounded-full bg-white/10 px-2 py-1 text-xs text-luxury-dim">
-                      {
-                        form.category
-                      }
+                      {form.category}
+                    </span>
+                  )}
+
+                  {form.jewelleryType && (
+                    <span className="rounded-full bg-[#D4A853]/15 px-2 py-1 text-xs text-[#D4A853]">
+                      {form.jewelleryType}
                     </span>
                   )}
                 </div>
