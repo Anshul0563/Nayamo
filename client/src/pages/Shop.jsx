@@ -86,7 +86,12 @@ const productReveal = {
 };
 
 const parseNumber = (value, fallback) => {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
   const n = Number(value);
+
   return Number.isFinite(n) && n >= 0 ? n : fallback;
 };
 
@@ -103,7 +108,8 @@ const FILTER_KEYS = {
 };
 
 const getQueryValue = (params, key, fallbackKey) => {
-  const value = params.get(key) ?? (fallbackKey ? params.get(fallbackKey) : null);
+  const value =
+    params.get(key) ?? (fallbackKey ? params.get(fallbackKey) : null);
   return value ? String(value).trim() : "";
 };
 
@@ -230,10 +236,7 @@ export default function Shop() {
       searchParams,
       FILTER_KEYS.legacyJewelleryType,
     );
-    const currentValue = getQueryValue(
-      searchParams,
-      FILTER_KEYS.jewelleryType,
-    );
+    const currentValue = getQueryValue(searchParams, FILTER_KEYS.jewelleryType);
 
     if (legacyValue && currentValue !== legacyValue) {
       const params = new URLSearchParams(searchParams);
@@ -246,7 +249,8 @@ export default function Shop() {
   const fetchProducts = useCallback(async () => {
     const params = {};
     if (queryFilters.category) params.category = queryFilters.category;
-    if (queryFilters.jewelleryType) params.jewelleryType = queryFilters.jewelleryType;
+    if (queryFilters.jewelleryType)
+      params.jewelleryType = queryFilters.jewelleryType;
     if (queryFilters.sortParam) params.sort = queryFilters.sortParam;
     if (queryFilters.searchParam) params.search = queryFilters.searchParam;
     if (queryFilters.priceMin > 0) params.min = queryFilters.priceMin;
@@ -590,7 +594,7 @@ export default function Shop() {
                         priceRange[1],
                       ])
                     }
-                    className="h-9 w-20 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 text-xs text-white outline-none placeholder:text-zinc-600 focus:border-[#D4A853]/55"
+                    className="h-9 w-20 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 text-xs text-white outline-none placeholder:text-zinc-600 focus:border-[#D4A853]/55 appearance-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                   <span className="text-zinc-600">–</span>
                   <input
@@ -604,7 +608,7 @@ export default function Shop() {
                         parseNumber(e.target.value, DEFAULT_MAX),
                       ])
                     }
-                    className="h-9 w-20 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 text-xs text-white outline-none placeholder:text-zinc-600 focus:border-[#D4A853]/55"
+                    className="h-9 w-20 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 text-xs text-white outline-none placeholder:text-zinc-600 focus:border-[#D4A853]/55 appearance-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                   <button
                     type="button"
@@ -743,7 +747,9 @@ export default function Shop() {
                 <motion.button
                   key={pageNumber}
                   type="button"
-                  aria-current={pageNumber === queryFilters.page ? "page" : undefined}
+                  aria-current={
+                    pageNumber === queryFilters.page ? "page" : undefined
+                  }
                   onClick={() =>
                     updateSearchParams({ page: pageNumber }, false)
                   }
