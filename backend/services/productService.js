@@ -86,6 +86,14 @@ exports.getProducts = async (queryParams) => {
   const minPrice = min ?? priceMin;
   const maxPrice = max ?? priceMax;
 
+  const normalizedCategory = category
+    ? String(category).trim().toLowerCase()
+    : undefined;
+  const normalizedJewelleryType =
+    jewelleryType || queryParams.jewellerytype
+      ? String(jewelleryType || queryParams.jewellerytype).trim().toLowerCase()
+      : undefined;
+
   let query = {};
 
   // Sanitized search with regex
@@ -97,9 +105,9 @@ exports.getProducts = async (queryParams) => {
     ];
   }
 
-  if (category) query.category = category;
+  if (normalizedCategory) query.category = normalizedCategory;
 
-  if (jewelleryType) query.jewelleryType = jewelleryType;
+  if (normalizedJewelleryType) query.jewelleryType = normalizedJewelleryType;
 
   if (minPrice || maxPrice) {
     query.price = {};

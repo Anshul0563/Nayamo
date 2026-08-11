@@ -109,10 +109,13 @@ export default function Shop() {
   const [rating, setRating] = useState(0);
   const [sortFilter, setSortFilter] = useState("");
 
-  const category = searchParams.get("category") || "";
-  const jewelleryType = searchParams.get("jewelleryType") || "";
-  const sortParam = searchParams.get("sort") || "";
-  const searchParam = searchParams.get("search") || "";
+  const getQueryParam = (param, fallback) =>
+    searchParams.get(param) || searchParams.get(fallback) || "";
+
+  const category = getQueryParam("category", "");
+  const jewelleryType = getQueryParam("jewelleryType", "jewellerytype");
+  const sortParam = getQueryParam("sort", "");
+  const searchParam = getQueryParam("search", "");
   const ratingParam = parseNumber(searchParams.get("rating"), 0);
   const priceMin = parseNumber(
     searchParams.get("min") || searchParams.get("priceMin"),

@@ -79,7 +79,8 @@ export default function Navbar() {
   const profileRef = useRef(null);
 
   // Active jewelleryType from URL (for highlighting active category in menu)
-  const activeJewellery = searchParams.get("jewelleryType") || "";
+  const activeJewellery =
+    searchParams.get("jewelleryType") || searchParams.get("jewellerytype") || "";
 
   useEffect(() => {
     const onScroll = () => {
