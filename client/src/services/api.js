@@ -1,11 +1,17 @@
 import axios from "axios";
 import { decrementLoading, incrementLoading } from "./loadingService";
 
-// ✅ Using CRA environment variable with a local fallback for graceful dev startup
+//  Using CRA environment variable with a same-origin fallback for graceful dev startup
+const rawApiUrl = 
+// process.env.REACT_APP_API_URL || 
+"http://localhost:5000/api/v1";
 const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
+  rawApiUrl
+    .split(",")
+    .map((value) => value.trim())
+    .find(Boolean) || "/api/v1";
 
-// ✅ Axios instance
+// Axios instance
 // NOTE: We intentionally do NOT set a global "Content-Type" here. Axios will
 // automatically set `application/json` for plain objects, and for FormData
 // payloads it lets the browser generate the correct `multipart/form-data`
@@ -96,11 +102,11 @@ apiClient.interceptors.response.use(
 
         const { accessToken, refreshToken: newRefreshToken } = res.data;
 
-        // ✅ Save tokens
+        //  Save tokens
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", newRefreshToken);
 
-        // ✅ Update default header properly
+        //  Update default header properly
         apiClient.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
         onTokenRefreshed(accessToken);
@@ -108,7 +114,7 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (err) {
-        // ❌ logout fallback
+        //  logout fallback
         localStorage.clear();
         window.location.href = "/login";
         return Promise.reject(err);

@@ -67,6 +67,7 @@ const getBestSellerRanking = async () => {
 };
 
 exports.getProducts = async (queryParams) => {
+  logger.info && logger.info("productService.getProducts called", { queryParams });
   const {
     search = "",
     category,
@@ -139,10 +140,13 @@ exports.getProducts = async (queryParams) => {
 
   if (redis) {
     try {
+      logger.info && logger.info("Redis lookup", { cacheKey });
       const cached = await redis.get(cacheKey);
       if (cached) {
+        logger.info && logger.info("Redis cache hit", { cacheKey });
         return JSON.parse(cached);
       }
+      logger.info && logger.info("Redis cache miss", { cacheKey });
     } catch (err) {
       logger.warn("Redis cache read failed:", err.message);
     }
@@ -165,6 +169,13 @@ exports.getProducts = async (queryParams) => {
     Product.countDocuments(query),
   ]);
 
+  logger.info && logger.info("Mongo query executed", {
+    query,
+    skip,
+    limit: perPage,
+    returned: Array.isArray(products) ? products.length : 0,
+    totalItems,
+  });
   // Apply best-seller ranking to the already-fetched page (stable, real order data).
   if (bestSellerRank) {
     products.sort((a, b) => {

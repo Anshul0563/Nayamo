@@ -140,7 +140,7 @@ export default function Navbar() {
   const isActive = (path) =>
     path === "/"
       ? location.pathname === "/"
-      : location.pathname.startsWith(path);
+      : location.pathname === path || location.pathname.startsWith(`${path}/`);
 
   const openShopMenu = () => {
     if (shopCloseTimer.current) {

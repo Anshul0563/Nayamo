@@ -32,7 +32,9 @@ export const JEWELLERY_CATEGORIES = JEWELLERY_MENU.flatMap((group) =>
 export const jewelleryLabel = (value) =>
   JEWELLERY_CATEGORIES.find((item) => item.value === value)?.label || "";
 
-export const jewelleryHref = (value) =>
-  `/shop?jewelleryType=${encodeURIComponent(value)}`;
+export const jewelleryHref = (value) => ({
+  pathname: "/shop",
+  search: `?jewelleryType=${encodeURIComponent(value)}`,
+});
 
 export const jewellerySortHref = (sort) => `/shop?sort=${sort}`;
