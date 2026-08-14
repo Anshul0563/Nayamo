@@ -429,27 +429,64 @@ export default function Orders() {
             ))}
           </select>
 
-          <button
-            type="button"
-            onClick={bulkCreateShipping}
-            disabled={actionLoading === "bulk-shipping"}
-            className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-black text-sm font-semibold disabled:opacity-50"
-          >
-            {actionLoading === "bulk-shipping"
-              ? "Creating Shipments..."
-              : "Global Shipping"}
-          </button>
+          {tab === "pending" && (
+            <>
+              <button
+                type="button"
+                onClick={() => bulkStatusUpdate("confirmed")}
+                disabled={actionLoading === "bulk"}
+                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black text-sm font-semibold disabled:opacity-50"
+              >
+                Accept Selected
+              </button>
 
-          <button
-            type="button"
-            onClick={bulkDownloadInvoices}
-            disabled={actionLoading === "bulk-invoices"}
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-50"
-          >
-            {actionLoading === "bulk-invoices"
-              ? "Preparing Invoices..."
-              : "Global Invoice Download"}
-          </button>
+              <button
+                type="button"
+                onClick={() => bulkStatusUpdate("cancelled")}
+                disabled={actionLoading === "bulk"}
+                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold disabled:opacity-50"
+              >
+                Reject Selected
+              </button>
+            </>
+          )}
+
+          {tab === "confirmed" && (
+            <button
+              type="button"
+              onClick={() => bulkStatusUpdate("ready_to_ship")}
+              disabled={actionLoading === "bulk"}
+              className="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold disabled:opacity-50"
+            >
+              Ready To Ship Selected
+            </button>
+          )}
+
+          {tab === "ready_to_ship" && (
+            <>
+              <button
+                type="button"
+                onClick={bulkCreateShipping}
+                disabled={actionLoading === "bulk-shipping"}
+                className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-black text-sm font-semibold disabled:opacity-50"
+              >
+                {actionLoading === "bulk-shipping"
+                  ? "Creating Shipments..."
+                  : "Global Shipping"}
+              </button>
+
+              <button
+                type="button"
+                onClick={bulkDownloadInvoices}
+                disabled={actionLoading === "bulk-invoices"}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-50"
+              >
+                {actionLoading === "bulk-invoices"
+                  ? "Preparing Invoices..."
+                  : "Global Invoice Download"}
+              </button>
+            </>
+          )}
 
           <button
             onClick={bulkCancel}
@@ -488,57 +525,88 @@ export default function Orders() {
             label: "Actions",
             render: (_, row) => (
               <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setDetailOrder(row)}
-                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
-                >
-                  <Eye size={14} />
-                  View
-                </button>
-                <select
-                  value={row.status}
-                  disabled={actionLoading === row._id}
-                  onChange={(event) =>
-                    updateStatus(row._id, event.target.value)
-                  }
-                  className="px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs outline-none"
-                >
-                  {TABS.map(([key, label]) => (
-                    <option key={key} value={key}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                {row.delhivery?.waybill && !row.delhivery?.pickupRequested && (
+                {tab === "pending" ? (
+                  <>
+                    <button
+                      onClick={() => updateStatus(row._id, "confirmed")}
+                      className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-xs font-medium text-black"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => updateStatus(row._id, "cancelled")}
+                      className="px-3 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-xs font-medium text-white"
+                    >
+                      Reject
+                    </button>
+                  </>
+                ) : tab === "confirmed" ? (
                   <button
-                    onClick={() => requestPickup(row._id)}
-                    disabled={actionLoading === `pickup-${row._id}`}
-                    className="px-3 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-xs font-medium text-white disabled:opacity-50"
+                    onClick={() => updateStatus(row._id, "ready_to_ship")}
+                    className="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-xs font-medium text-white"
                   >
-                    {actionLoading === `pickup-${row._id}`
-                      ? "Requesting..."
-                      : "Request Pickup"}
+                    Ready To Ship
                   </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setDetailOrder(row)}
+                      className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
+                    >
+                      <Eye size={14} />
+                      View
+                    </button>
+
+                    <select
+                      value={row.status}
+                      disabled={actionLoading === row._id}
+                      onChange={(event) =>
+                        updateStatus(row._id, event.target.value)
+                      }
+                      className="px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs outline-none"
+                    >
+                      {TABS.map(([key, label]) => (
+                        <option key={key} value={key}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+
+                    {row.delhivery?.waybill &&
+                      !row.delhivery?.pickupRequested && (
+                        <button
+                          onClick={() => requestPickup(row._id)}
+                          disabled={actionLoading === `pickup-${row._id}`}
+                          className="px-3 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-xs font-medium text-white disabled:opacity-50"
+                        >
+                          {actionLoading === `pickup-${row._id}`
+                            ? "Requesting..."
+                            : "Request Pickup"}
+                        </button>
+                      )}
+
+                    {row.delhivery?.waybill && row.delhivery?.labelUrl && (
+                      <button
+                        onClick={() => downloadLabel(row._id)}
+                        disabled={actionLoading === `label-${row._id}`}
+                        className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-medium text-white disabled:opacity-50 flex items-center gap-1"
+                      >
+                        <FileDown size={14} />
+                        {actionLoading === `label-${row._id}`
+                          ? "Opening..."
+                          : "Label"}
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => invoice(row._id)}
+                      className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
+                    >
+                      <FileText size={14} />
+                      Invoice
+                    </button>
+                  </>
                 )}
-                {row.delhivery?.waybill && row.delhivery?.labelUrl && (
-                  <button
-                    onClick={() => downloadLabel(row._id)}
-                    disabled={actionLoading === `label-${row._id}`}
-                    className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-medium text-white disabled:opacity-50 flex items-center gap-1"
-                  >
-                    <FileDown size={14} />
-                    {actionLoading === `label-${row._id}`
-                      ? "Opening..."
-                      : "Label"}
-                  </button>
-                )}
-                <button
-                  onClick={() => invoice(row._id)}
-                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
-                >
-                  <FileText size={14} />
-                  Invoice
-                </button>
               </div>
             ),
           },
