@@ -1,20 +1,20 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
-import DataTable from "../components/DataTable.jsx";
-import OrderDetailModal from "../components/orders/OrderDetailModal.jsx";
-import ExportButton from "../components/ExportButton.jsx";
-import { adminAPI } from "../services/api";
-import { useDebounce } from "../hooks/useApi";
 import {
-  RefreshCcw,
-  Search,
-  FileText,
-  Loader2,
   AlertCircle,
   ChevronLeft,
   ChevronRight,
   Eye,
+  FileText,
+  Loader2,
+  RefreshCcw,
+  Search,
   XSquare,
 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import DataTable from "../components/DataTable.jsx";
+import ExportButton from "../components/ExportButton.jsx";
+import OrderDetailModal from "../components/orders/OrderDetailModal.jsx";
+import { useDebounce } from "../hooks/useApi";
+import { adminAPI } from "../services/api";
 
 const TABS = [
   ["pending", "Pending"],
@@ -176,9 +176,7 @@ export default function Orders() {
     try {
       setActionLoading("bulk-shipment");
 
-      await Promise.all(
-        selected.map((id) => adminAPI.createShipment(id)),
-      );
+      await Promise.all(selected.map((id) => adminAPI.createShipment(id)));
 
       setSelected([]);
 
@@ -187,6 +185,18 @@ export default function Orders() {
       setError(
         error.response?.data?.message || "Bulk shipment creation failed",
       );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const requestPickup = async (id) => {
+    try {
+      setActionLoading(`pickup-${id}`);
+      await adminAPI.requestPickup(id);
+      await Promise.all([loadOrders(page), loadStats()]);
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to request pickup");
     } finally {
       setActionLoading(null);
     }
@@ -395,6 +405,17 @@ export default function Orders() {
                     </option>
                   ))}
                 </select>
+                {row.delhivery?.waybill && !row.delhivery?.pickupRequested && (
+                  <button
+                    onClick={() => requestPickup(row._id)}
+                    disabled={actionLoading === `pickup-${row._id}`}
+                    className="px-3 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-xs font-medium text-white disabled:opacity-50"
+                  >
+                    {actionLoading === `pickup-${row._id}`
+                      ? "Requesting..."
+                      : "Request Pickup"}
+                  </button>
+                )}
                 <button
                   onClick={() => invoice(row._id)}
                   className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"

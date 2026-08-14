@@ -12,6 +12,7 @@ const admin =
 
 const {
   createShipment,
+  requestPickup,
   trackShipment,
 } = require(
   "../controllers/shippingController"
@@ -22,6 +23,13 @@ router.post(
   protect,
   admin,
   createShipment
+);
+
+router.post(
+  "/request-pickup/:id",
+  protect,
+  admin,
+  requestPickup
 );
 
 router.get(
