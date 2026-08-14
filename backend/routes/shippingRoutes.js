@@ -15,6 +15,9 @@ const {
   requestPickup,
   getShipmentLabel,
   trackShipment,
+  createReturnShipment,
+  requestReturnPickup,
+  getReturnLabel,
 } = require(
   "../controllers/shippingController"
 );
@@ -38,6 +41,27 @@ router.get(
   protect,
   admin,
   getShipmentLabel
+);
+
+router.post(
+  "/return/create/:id",
+  protect,
+  admin,
+  createReturnShipment
+);
+
+router.post(
+  "/return/request-pickup/:id",
+  protect,
+  admin,
+  requestReturnPickup
+);
+
+router.get(
+  "/return/label/:id",
+  protect,
+  admin,
+  getReturnLabel
 );
 
 router.get(

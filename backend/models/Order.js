@@ -130,6 +130,17 @@ const orderSchema = new mongoose.Schema(
       createdAt: Date,
     },
 
+    returnShipment: {
+      waybill: String,
+      labelUrl: String,
+      trackingUrl: String,
+      pickupRequested: {
+        type: Boolean,
+        default: false,
+      },
+      createdAt: Date,
+    },
+
     deliveredAt: Date,
     cancelledAt: Date,
     returnedAt: Date,

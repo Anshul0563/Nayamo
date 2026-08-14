@@ -8,4 +8,12 @@ describe('shipping controller pickup workflow', () => {
   it('exposes a shipment label retrieval handler once a waybill exists', () => {
     expect(typeof shippingController.getShipmentLabel).toBe('function');
   });
+
+  it('exposes an explicit return pickup handler for return shipments', () => {
+    expect(typeof shippingController.requestReturnPickup).toBe('function');
+  });
+
+  it('exposes a return shipment label retrieval handler once a return waybill exists', () => {
+    expect(typeof shippingController.getReturnLabel).toBe('function');
+  });
 });
