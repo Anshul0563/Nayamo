@@ -28,6 +28,7 @@ const {
   getOrderStats,
   getUserStats,
   getReturns,
+  getReturnStats,
   updateReturnStatus,
   getSettings,
   updateSettings,
@@ -184,6 +185,7 @@ router.get("/users/stats", protect, admin, getUserStats);
 
 // Returns
 router.get("/returns", protect, admin, getReturns);
+router.get("/returns/stats", protect, admin, getReturnStats);
 router.put("/returns/:id", protect, admin, updateReturnStatus);
 
 // Settings

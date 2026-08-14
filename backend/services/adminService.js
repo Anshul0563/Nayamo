@@ -527,6 +527,29 @@ exports.getReturns = async ({ page = 1, limit = 20, status, search }) => {
   };
 };
 
+exports.getReturnStats = async () => {
+  const stats = await Order.aggregate([
+    { $match: { status: { $in: ["returned", "rto", "refunded"] } } },
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+
+  const result = {
+    returned: 0,
+    refunded: 0,
+    rto: 0,
+    total: 0,
+  };
+
+  stats.forEach((item) => {
+    if (item._id && result[item._id] !== undefined) {
+      result[item._id] = item.count;
+    }
+    result.total += item.count;
+  });
+
+  return result;
+};
+
 exports.updateReturnStatus = async (id, data) => {
   const update = { status: data.status };
   if (data.refundAmount !== undefined) update.refundAmount = data.refundAmount;

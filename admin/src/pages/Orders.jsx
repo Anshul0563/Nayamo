@@ -137,26 +137,30 @@ export default function Orders() {
   };
 
   const toggleSelect = (id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
-  };
+    if (id === "__SELECT_ALL__") {
+      const currentIds = orders.map((order) => order._id);
+      const allSelected =
+        currentIds.length > 0 &&
+        currentIds.every((orderId) => selected.includes(orderId));
 
-  const toggleSelectAll = () => {
-    const currentIds = orders.map((order) => order._id);
-    const allSelected =
-      currentIds.length > 0 && currentIds.every((id) => selected.includes(id));
+      if (allSelected) {
+        setSelected((prev) =>
+          prev.filter((orderId) => !currentIds.includes(orderId)),
+        );
+        return;
+      }
 
-    if (allSelected) {
-      setSelected((prev) => prev.filter((id) => !currentIds.includes(id)));
+      setSelected((prev) => {
+        const merged = new Set(prev);
+        currentIds.forEach((orderId) => merged.add(orderId));
+        return [...merged];
+      });
       return;
     }
 
-    setSelected((prev) => {
-      const merged = new Set(prev);
-      currentIds.forEach((id) => merged.add(id));
-      return [...merged];
-    });
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
   };
 
   const bulkStatusUpdate = async (status) => {

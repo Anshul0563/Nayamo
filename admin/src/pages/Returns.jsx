@@ -1,19 +1,19 @@
-import { useEffect, useState, useCallback } from "react";
-import { adminAPI } from "../services/api";
 import {
-  RefreshCcw,
-  RotateCcw,
   AlertCircle,
   CheckCircle2,
-  Loader2,
-  Search,
   ChevronLeft,
   ChevronRight,
   DollarSign,
-  X,
+  Loader2,
+  RefreshCcw,
+  RotateCcw,
+  Search,
   TrendingUp,
+  X,
 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import ExportButton from "../components/ExportButton";
+import { adminAPI } from "../services/api";
 
 const TABS = [
   ["all", "All Returns"],
@@ -41,36 +41,39 @@ export default function Returns() {
   const [partialRefundId, setPartialRefundId] = useState(null);
   const [refundAmount, setRefundAmount] = useState("");
 
-  const loadReturns = useCallback(async (currentPage = 1) => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const res = await adminAPI.getReturns({
-        page: currentPage,
-        limit: 20,
-        status: tab !== "all" ? tab : undefined,
-        search: search || undefined,
-      });
-
-      const result = res.data;
-      setOrders(result.data || result.orders || []);
-      setPage(result.pagination?.currentPage || 1);
-      setTotalPages(result.pagination?.totalPages || 1);
-
-      // Load stats
+  const loadReturns = useCallback(
+    async (currentPage = 1) => {
       try {
-        const statsRes = await adminAPI.getReturnStats();
-        setStats(statsRes.data?.stats || {});
-      } catch {
-        // fallback
+        setLoading(true);
+        setError("");
+
+        const res = await adminAPI.getReturns({
+          page: currentPage,
+          limit: 20,
+          status: tab !== "all" ? tab : undefined,
+          search: search || undefined,
+        });
+
+        const result = res.data;
+        setOrders(result.data || result.orders || []);
+        setPage(result.pagination?.currentPage || 1);
+        setTotalPages(result.pagination?.totalPages || 1);
+
+        // Load stats
+        try {
+          const statsRes = await adminAPI.getReturnStats();
+          setStats(statsRes.data?.stats || {});
+        } catch {
+          // fallback
+        }
+      } catch (error) {
+        setError(error.response?.data?.message || "Failed to load returns");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setError(error.response?.data?.message || "Failed to load returns");
-    } finally {
-      setLoading(false);
-    }
-  }, [tab, search]);
+    },
+    [tab, search],
+  );
 
   useEffect(() => {
     loadReturns(1);
@@ -87,6 +90,51 @@ export default function Returns() {
       setRefundAmount("");
     } catch (error) {
       setError(error.response?.data?.message || "Failed to update status");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const createReturnShipment = async (id) => {
+    try {
+      setActionLoading(`return-create-${id}`);
+      await adminAPI.createReturnShipment(id);
+      await loadReturns(page);
+    } catch (error) {
+      setError(
+        error.response?.data?.message || "Failed to create return shipment",
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const requestReturnPickup = async (id) => {
+    try {
+      setActionLoading(`return-pickup-${id}`);
+      await adminAPI.requestReturnPickup(id);
+      await loadReturns(page);
+    } catch (error) {
+      setError(
+        error.response?.data?.message || "Failed to request return pickup",
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const downloadReturnLabel = async (id) => {
+    try {
+      setActionLoading(`return-label-${id}`);
+      const res = await adminAPI.getReturnLabel(id);
+      const labelUrl = res.data?.data?.labelUrl;
+      if (!labelUrl) {
+        setError("Return label is not available yet");
+        return;
+      }
+      window.open(labelUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to open return label");
     } finally {
       setActionLoading(null);
     }
@@ -118,7 +166,9 @@ export default function Returns() {
     customer: order.user?.name || "Guest",
     status: order.status,
     amount: order.totalPrice,
-    items: (order.items || []).map((i) => `${i.quantity}x ${i.product?.title || i.name}`).join(", "),
+    items: (order.items || [])
+      .map((i) => `${i.quantity}x ${i.product?.title || i.name}`)
+      .join(", "),
     date: new Date(order.createdAt).toLocaleDateString("en-IN"),
   }));
 
@@ -137,7 +187,9 @@ export default function Returns() {
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
           <AlertCircle size={16} />
           {error}
-          <button onClick={() => setError("")} className="ml-auto underline">Dismiss</button>
+          <button onClick={() => setError("")} className="ml-auto underline">
+            Dismiss
+          </button>
         </div>
       )}
 
@@ -145,7 +197,9 @@ export default function Returns() {
       <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-6 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
         <div className="min-w-0">
           <h1 className="text-2xl md:text-4xl font-bold">Returns & Refunds</h1>
-          <p className="text-zinc-400 mt-1">Manage returned orders and process refunds.</p>
+          <p className="text-zinc-400 mt-1">
+            Manage returned orders and process refunds.
+          </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto min-w-0">
@@ -241,23 +295,73 @@ export default function Returns() {
               <div className="flex flex-col xl:flex-row gap-5 xl:items-center xl:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-semibold">#{order._id?.slice(-6)}</h3>
+                    <h3 className="text-xl font-semibold">
+                      #{order._id?.slice(-6)}
+                    </h3>
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium border capitalize ${
-                        statusColors[order.status] || "bg-zinc-500/20 text-zinc-400 border-zinc-500/30"
+                        statusColors[order.status] ||
+                        "bg-zinc-500/20 text-zinc-400 border-zinc-500/30"
                       }`}
                     >
                       {order.status?.replaceAll("_", " ")}
                     </span>
                   </div>
-                  <p className="text-zinc-300">{order.user?.name || "Customer"}</p>
-                  <p className="text-zinc-500 text-sm mt-1">{order.address || order.shippingAddress}</p>
+                  <p className="text-zinc-300">
+                    {order.user?.name || "Customer"}
+                  </p>
+                  <p className="text-zinc-500 text-sm mt-1">
+                    {order.address || order.shippingAddress}
+                  </p>
                   <p className="text-sm text-zinc-400 mt-2">
                     {order.items?.length || 0} items • ₹{order.totalPrice}
                   </p>
                 </div>
 
                 <div className="flex gap-2 flex-wrap xl:justify-end">
+                  {order.status === "return_requested" &&
+                    !order.returnShipment?.waybill && (
+                      <button
+                        onClick={() => createReturnShipment(order._id)}
+                        disabled={
+                          actionLoading === `return-create-${order._id}`
+                        }
+                        className="px-4 py-2 rounded-xl bg-violet-600 text-sm hover:bg-violet-700 transition disabled:opacity-50"
+                      >
+                        {actionLoading === `return-create-${order._id}`
+                          ? "Creating..."
+                          : "Create Return Shipment"}
+                      </button>
+                    )}
+
+                  {order.returnShipment?.waybill &&
+                    !order.returnShipment?.pickupRequested && (
+                      <button
+                        onClick={() => requestReturnPickup(order._id)}
+                        disabled={
+                          actionLoading === `return-pickup-${order._id}`
+                        }
+                        className="px-4 py-2 rounded-xl bg-amber-600 text-sm hover:bg-amber-700 transition disabled:opacity-50"
+                      >
+                        {actionLoading === `return-pickup-${order._id}`
+                          ? "Requesting..."
+                          : "Request Return Pickup"}
+                      </button>
+                    )}
+
+                  {order.returnShipment?.waybill &&
+                    order.returnShipment?.labelUrl && (
+                      <button
+                        onClick={() => downloadReturnLabel(order._id)}
+                        disabled={actionLoading === `return-label-${order._id}`}
+                        className="px-4 py-2 rounded-xl bg-emerald-600 text-sm hover:bg-emerald-700 transition disabled:opacity-50"
+                      >
+                        {actionLoading === `return-label-${order._id}`
+                          ? "Opening..."
+                          : "Return Label"}
+                      </button>
+                    )}
+
                   {order.status === "returned" && (
                     <>
                       <button
@@ -269,7 +373,9 @@ export default function Returns() {
                         Full Refund
                       </button>
                       <button
-                        onClick={() => handlePartialRefund(order._id, order.totalPrice)}
+                        onClick={() =>
+                          handlePartialRefund(order._id, order.totalPrice)
+                        }
                         disabled={actionLoading === order._id}
                         className="px-4 py-2 rounded-xl bg-blue-600 text-sm hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2"
                       >
@@ -309,7 +415,9 @@ export default function Returns() {
                 <div className="mt-4 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                   <DollarSign size={16} className="text-blue-400 shrink-0" />
                   <div className="flex-1">
-                    <label className="text-sm text-blue-300 block mb-1">Partial Refund Amount (Max: ₹{order.totalPrice})</label>
+                    <label className="text-sm text-blue-300 block mb-1">
+                      Partial Refund Amount (Max: ₹{order.totalPrice})
+                    </label>
                     <input
                       type="number"
                       min={1}

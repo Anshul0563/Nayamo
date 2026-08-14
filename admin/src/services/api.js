@@ -197,6 +197,8 @@ export const adminAPI = {
 
   getReturns: (params = {}) =>
     apiClient.get("/admin/returns", { params }),
+  getReturnStats: () =>
+    apiClient.get("/admin/returns/stats"),
   updateReturnStatus: (id, data) =>
     apiClient.put(`/admin/returns/${id}`, data),
 

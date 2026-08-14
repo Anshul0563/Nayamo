@@ -487,6 +487,11 @@ exports.getReturns = asyncHandler(async (req, res) => {
   });
 });
 
+exports.getReturnStats = asyncHandler(async (req, res) => {
+  const stats = await adminService.getReturnStats();
+  res.json({ success: true, stats });
+});
+
 exports.updateReturnStatus = asyncHandler(async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     res.status(400);
