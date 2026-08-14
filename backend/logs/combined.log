@@ -21305,3 +21305,8 @@
 {"level":"info","message":"productService.getProducts called","queryParams":{"jewelleryType":"earrings","max":"499","sort":"newest"},"service":"nayamo-api","timestamp":"2026-08-11 16:23:35"}
 {"level":"info","limit":12,"message":"Mongo query executed","query":{"isActive":true,"jewelleryType":"earrings","price":{"$lte":499}},"returned":5,"service":"nayamo-api","skip":0,"timestamp":"2026-08-11 16:23:35","totalItems":5}
 {"level":"info","message":"127.0.0.1 - - [11/Aug/2026:10:53:35 +0000] \"GET /api/v1/products?jewelleryType=earrings&sort=newest&max=499 HTTP/1.1\" 200 - \"http://localhost:3000/\" \"Mozilla/5.0 (X11; Linux x86_64; rv:153.0) Gecko/20100101 Firefox/153.0\"","service":"nayamo-api","timestamp":"2026-08-11 16:23:35"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-08-11 16:27:10"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-08-11 16:27:11"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-08-11 16:27:11"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-08-11 16:27:11"}
+{"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-08-11 16:27:12"}
