@@ -72,16 +72,19 @@ const amountToWords = (value) => {
   };
 
   const words = convert(whole).replace(/\s+/g, " ").trim();
-  return paise > 0 ? `${words} rupees and ${paise} paise only` : `${words} rupees only`;
+  const finalWords = words.charAt(0).toUpperCase() + words.slice(1);
+  return paise > 0 ? `${finalWords} Rupees and ${paise} Paise Only` : `${finalWords} Rupees Only`;
 };
 
 const buildInvoiceDocument = (doc, order) => {
-  const gold = "#D4A853";
-  const black = "#111111";
-  const gray = "#5B5B5B";
-  const light = "#F7F4EE";
-  const soft = "#FAFAF8";
-  const line = "#E6DFD2";
+  const cream = "#F6F3EE";
+  const paper = "#F8F6F2";
+  const ink = "#1A1A1A";
+  const softInk = "#464646";
+  const gold = "#CC9A3E";
+  const line = "#D7D0C4";
+  const tableHead = "#EDE8E0";
+  const rowAlt = "#F3F0EA";
   const white = "#FFFFFF";
 
   const invoiceNumber = safeValue(order._id, "-");
@@ -99,182 +102,86 @@ const buildInvoiceDocument = (doc, order) => {
   const gst = gstValue;
   const grandTotal = Number(order.totalPrice || 0);
 
-  const headerHeight = 92;
-  doc
-    .rect(0, 0, 595, headerHeight)
-    .fill(black);
+  doc.rect(0, 0, 595, 842).fill(paper);
 
-  doc
-    .fillColor(gold)
-    .font("Helvetica-Bold")
-    .fontSize(27)
-    .text("NAYAMO", 42, 30);
+  doc.fillColor(white).font("Helvetica-Bold").fontSize(70).text("NAYAMO", 40, 28);
+  doc.fillColor(ink).font("Helvetica").fontSize(18).text("Artificial Jewellery", 42, 98);
 
-  doc
-    .fillColor("white")
-    .font("Helvetica")
-    .fontSize(10)
-    .text("Premium Jewellery Store", 42, 63);
+  doc.moveTo(42, 122).lineTo(240, 122).strokeColor(gold).stroke();
+  doc.fillColor(gold).font("Helvetica-Bold").fontSize(18).text("✦", 247, 111);
+  doc.moveTo(255, 122).lineTo(330, 122).strokeColor(gold).stroke();
 
-  doc
-    .fillColor(white)
-    .font("Helvetica-Bold")
-    .fontSize(20)
-    .text("TAX INVOICE", 430, 32);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(27).text("TAX INVOICE", 390, 36);
 
-  doc
-    .fillColor("#E8E0D0")
-    .font("Helvetica")
-    .fontSize(9)
-    .text("Invoice No.", 420, 60)
-    .text("Date", 420, 74)
-    .text("Payment", 420, 88);
+  const invoiceDetailX = 380;
+  doc.fillColor(softInk).font("Helvetica").fontSize(12).text("Invoice No.", invoiceDetailX, 82).text("Invoice Date", invoiceDetailX, 106).text("Order No.", invoiceDetailX, 130).text("Order Date", invoiceDetailX, 154);
 
-  doc
-    .fillColor(white)
-    .font("Helvetica-Bold")
-    .fontSize(9)
-    .text(invoiceNumber, 485, 60)
-    .text(formatDate(order.createdAt), 485, 74)
-    .text(paymentLabel.toUpperCase(), 485, 88);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(12).text(invoiceNumber, 500, 82).text(formatDate(order.createdAt), 500, 106).text(safeValue(order.orderNumber || order.orderId || "-", "-"), 500, 130).text(formatDate(order.createdAt), 500, 154);
 
-  const sellerY = 115;
-  doc
-    .roundedRect(40, sellerY, 255, 110, 8)
-    .fillAndStroke(light, line);
+  doc.moveTo(42, 180).lineTo(553, 180).strokeColor(line).stroke();
 
-  doc
-    .fillColor(black)
-    .font("Helvetica-Bold")
-    .fontSize(11)
-    .text("Seller", 56, sellerY + 16)
-    .font("Helvetica")
-    .fontSize(10)
-    .text("Nayamo Jewellery Pvt. Ltd.", 56, sellerY + 36)
-    .text("Delhi, India", 56, sellerY + 52)
-    .text("support@nayamo.in", 56, sellerY + 68)
-    .text("+91 9718176159", 56, sellerY + 84)
-    .text("GSTIN: 07TCRPS8655B1ZK", 56, sellerY + 100);
+  const leftColX = 42;
+  const rightColX = 330;
+  const sectionY = 196;
 
-  doc
-    .roundedRect(310, sellerY, 245, 110, 8)
-    .fillAndStroke(light, line);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(15).text("Sold By :", leftColX, sectionY);
+  doc.fillColor(softInk).font("Helvetica").fontSize(12).text("Nayamo", leftColX, sectionY + 28).text("Roshan vihar, Najafgarh,", leftColX, sectionY + 48).text("New Delhi, 110043", leftColX, sectionY + 66).text("India", leftColX, sectionY + 84).text("GSTIN : 07TCRPS8655B1ZK", leftColX, sectionY + 108);
 
-  doc
-    .fillColor(black)
-    .font("Helvetica-Bold")
-    .fontSize(11)
-    .text("Bill To", 326, sellerY + 16)
-    .font("Helvetica")
-    .fontSize(10)
-    .text(customerName, 326, sellerY + 36, { width: 200 })
-    .text(customerEmail, 326, sellerY + 52, { width: 200 })
-    .text(customerPhone, 326, sellerY + 68, { width: 200 })
-    .text(billingAddress, 326, sellerY + 84, { width: 200 });
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(15).text("Bill To :", rightColX, sectionY);
+  doc.fillColor(softInk).font("Helvetica").fontSize(12).text(customerName, rightColX, sectionY + 28).text(billingAddress, rightColX, sectionY + 48).text(customerPhone, rightColX, sectionY + 84);
 
-  const tableTop = 250;
+  const tableTop = 332;
   const tableWidth = 515;
+  const cellHeight = 34;
 
-  doc
-    .roundedRect(40, tableTop, tableWidth, 26, 6)
-    .fill(black);
+  doc.roundedRect(40, tableTop, tableWidth, cellHeight, 0).fill(tableHead);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(10).text("S.No.", 52, tableTop + 10).text("Product", 110, tableTop + 10).text("HSN", 338, tableTop + 10).text("Qty", 396, tableTop + 10).text("Unit Price", 436, tableTop + 10).text("Tax", 490, tableTop + 10).text("Amount", 520, tableTop + 10);
 
-  doc
-    .fillColor(white)
-    .font("Helvetica-Bold")
-    .fontSize(10)
-    .text("Product", 52, tableTop + 8)
-    .text("Qty", 310, tableTop + 8)
-    .text("Price", 382, tableTop + 8)
-    .text("Amount", 468, tableTop + 8);
-
-  let y = tableTop + 35;
+  let currentY = tableTop + cellHeight;
   order.items.forEach((item, index) => {
     const itemName = safeValue(item.product?.title || item.name || "Product", "Product");
     const itemQty = Number(item.quantity || 0);
     const itemPrice = Number(item.price || 0);
     const itemTotal = itemQty * itemPrice;
+    const taxAmount = Number(item.taxAmount || (itemTotal * 0.18) || 0);
 
     if (index % 2 === 0) {
-      doc.rect(40, y - 5, tableWidth, 30).fill(soft);
+      doc.rect(40, currentY, tableWidth, cellHeight).fill(rowAlt);
     }
 
-    doc
-      .fillColor(black)
-      .font("Helvetica")
-      .fontSize(10)
-      .text(itemName, 52, y, { width: 230 })
-      .text(String(itemQty), 315, y)
-      .text(formatCurrency(itemPrice), 372, y)
-      .text(formatCurrency(itemTotal), 455, y);
+    doc.fillColor(ink).font("Helvetica").fontSize(10).text(String(index + 1), 52, currentY + 10).text(itemName, 110, currentY + 10, { width: 200 }).text(String(item.product?.hsn || item.hsn || "7117"), 338, currentY + 10).text(String(itemQty), 405, currentY + 10).text(formatCurrency(itemPrice), 432, currentY + 10).text(`${formatCurrency(taxAmount)}\n(18%)`, 488, currentY + 8, { width: 70 }).text(formatCurrency(itemTotal), 520, currentY + 10);
 
-    y += 30;
+    currentY += cellHeight;
   });
 
-  const summaryY = y + 20;
-  doc
-    .roundedRect(330, summaryY, 225, 130, 10)
-    .fillAndStroke(light, line);
+  doc.rect(40, currentY, tableWidth, cellHeight).fill(white).stroke(line);
+  doc.fillColor(ink).font("Helvetica").fontSize(11).text("Total Items: " + String(order.items?.length || 0), 44, currentY + 10);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(10).text("Sub Total", 410, currentY + 10).text(formatCurrency(subtotal), 510, currentY + 10);
 
-  doc
-    .fillColor(black)
-    .font("Helvetica")
-    .fontSize(10)
-    .text("Subtotal", 350, summaryY + 18)
-    .text(formatCurrency(subtotal), 475, summaryY + 18)
-    .text("GST (18%)", 350, summaryY + 42)
-    .text(formatCurrency(gst), 475, summaryY + 42);
+  currentY += cellHeight;
+  doc.rect(40, currentY, tableWidth, cellHeight).fill(white).stroke(line);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(10).text("Total Tax (18%)", 410, currentY + 10).text(formatCurrency(gst), 510, currentY + 10);
 
-  doc
-    .moveTo(350, summaryY + 68)
-    .lineTo(528, summaryY + 68)
-    .strokeColor("#D5CAB6")
-    .stroke();
+  currentY += cellHeight;
+  doc.rect(40, currentY, tableWidth, cellHeight).fill(white).stroke(line);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(10).text("Shipping Charges", 410, currentY + 10).text("₹ 0.00", 510, currentY + 10);
 
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(12)
-    .text("Grand Total", 350, summaryY + 82)
-    .text(formatCurrency(grandTotal), 455, summaryY + 82);
+  currentY += cellHeight;
+  doc.rect(40, currentY, tableWidth, cellHeight).fill(white).stroke(line);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(11).text("Order Total", 410, currentY + 10).text(formatCurrency(grandTotal), 500, currentY + 10);
 
-  const amountWordsY = summaryY + 150;
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(9)
-    .fillColor(gray)
-    .text("Amount in words", 42, amountWordsY)
-    .font("Helvetica")
-    .fillColor(black)
-    .text(`${amountToWords(grandTotal)}`, 42, amountWordsY + 16, { width: 360 });
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(11).text("Amount in Words:", 42, currentY + 48);
+  doc.fillColor(softInk).font("Helvetica").fontSize(12).text(amountToWords(grandTotal), 42, currentY + 68, { width: 350 });
 
-  doc
-    .font("Helvetica")
-    .fontSize(9)
-    .fillColor(gray)
-    .text("This is a computer-generated invoice and does not require a signature.", 40, 760, { align: "center", width: 515 });
+  doc.fillColor(softInk).font("Helvetica").fontSize(10).text("Thank you for shopping with Nayamo.", 42, 760).text("We hope you love your purchase!", 42, 775);
 
-  doc
-    .moveTo(390, 710)
-    .lineTo(525, 710)
-    .strokeColor(gold)
-    .stroke();
+  doc.moveTo(385, 700).lineTo(528, 700).strokeColor(gold).stroke();
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(18).text("Anshul", 430, 705);
+  doc.fillColor(softInk).font("Helvetica").fontSize(10).text("Authorized Signature", 430, 724);
 
-  doc
-    .fillColor(black)
-    .font("Helvetica-Bold")
-    .fontSize(10)
-    .text("Anshul", 430, 716);
-
-  doc
-    .font("Helvetica")
-    .fontSize(8)
-    .fillColor(gray)
-    .text("Authorized Signature", 420, 732);
-
-  doc
-    .fontSize(11)
-    .fillColor(gold)
-    .text("Thank you for shopping with NAYAMO", 40, 780, { align: "center", width: 515 });
+  doc.fillColor(ink).font("Helvetica").fontSize(12).text("☎ +91 99773951349", 42, 812); 
+  doc.fillColor(ink).font("Helvetica").fontSize(12).text("✉ support@nayamo.in", 212, 812);
+  doc.fillColor(ink).font("Helvetica").fontSize(12).text("◌ www.nayamo.in", 420, 812);
 };
 
 exports.generateInvoiceBuffer = (order) =>
