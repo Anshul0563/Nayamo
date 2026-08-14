@@ -6,7 +6,10 @@ const logger = require("../config/logger");
 
 const Order = require("../models/Order");
 const mongoose = require("mongoose");
-const JSZip = require("jszip");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const { execFileSync } = require("child_process");
 
 // PLACE ORDER
 exports.placeOrder = asyncHandler(async (req, res) => {
@@ -178,39 +181,65 @@ exports.downloadBulkInvoices = asyncHandler(async (req, res) => {
 
   const orderMap = new Map(orders.map((order) => [String(order._id), order]));
 
-  const zip = new JSZip();
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "nayamo-invoices-"));
   const results = [];
+  const createdFiles = [];
 
-  for (const orderId of validIds) {
-    const order = orderMap.get(orderId);
+  try {
+    for (const orderId of validIds) {
+      const order = orderMap.get(orderId);
 
-    if (!order) {
-      results.push({ orderId, status: "unavailable", message: "Order not found" });
-      continue;
+      if (!order) {
+        results.push({ orderId, status: "unavailable", message: "Order not found" });
+        continue;
+      }
+
+      try {
+        const pdfBuffer = await invoiceService.generateInvoiceBuffer(order);
+        const pdfPath = path.join(tempDir, `invoice-${order._id}.pdf`);
+        fs.writeFileSync(pdfPath, pdfBuffer);
+        createdFiles.push(pdfPath);
+        results.push({ orderId, status: "ready", message: "Invoice generated" });
+      } catch (error) {
+        results.push({
+          orderId,
+          status: "unavailable",
+          message: error.message || "Invoice generation failed",
+        });
+      }
     }
 
-    try {
-      const pdfBuffer = await invoiceService.generateInvoiceBuffer(order);
-      zip.file(`invoice-${order._id}.pdf`, pdfBuffer);
-      results.push({ orderId, status: "ready", message: "Invoice generated" });
-    } catch (error) {
-      results.push({ orderId, status: "unavailable", message: error.message || "Invoice generation failed" });
+    if (!createdFiles.length) {
+      res.status(400).json({
+        success: false,
+        message: "No invoice files were generated",
+        data: { results: [...results, ...invalidResults] },
+      });
+      return;
     }
-  }
 
-  const files = zip.files;
-  if (!Object.keys(files).length) {
-    res.status(400).json({
-      success: false,
-      message: "No invoice files were generated",
-      data: { results: [...results, ...invalidResults] },
+    const zipPath = path.join(tempDir, "nayamo-invoices.zip");
+    execFileSync("zip", ["-j", "-q", zipPath, ...createdFiles], {
+      stdio: "inherit",
     });
-    return;
+
+    const archiveBuffer = fs.readFileSync(zipPath);
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", "attachment; filename=nayamo-invoices.zip");
+    res.send(archiveBuffer);
+  } finally {
+    for (const filePath of createdFiles) {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    const zipPath = path.join(tempDir, "nayamo-invoices.zip");
+    if (fs.existsSync(zipPath)) {
+      fs.unlinkSync(zipPath);
+    }
+
+    fs.rmSync(tempDir, { recursive: true, force: true });
   }
-
-  const archiveBuffer = await zip.generateAsync({ type: "nodebuffer" });
-
-  res.setHeader("Content-Type", "application/zip");
-  res.setHeader("Content-Disposition", "attachment; filename=nayamo-invoices.zip");
-  res.send(archiveBuffer);
 });
