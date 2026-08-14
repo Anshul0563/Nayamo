@@ -286,7 +286,9 @@ export default function Orders() {
     );
 
     if (!eligibleOrderIds.length) {
-      setError("Create shipment for at least one selected order before downloading labels");
+      setError(
+        "Create shipment for at least one selected order before downloading labels",
+      );
       return;
     }
 
@@ -562,7 +564,10 @@ export default function Orders() {
               <button
                 type="button"
                 onClick={bulkDownloadLabels}
-                disabled={actionLoading === "bulk-labels" || selectedShippedOrderCount === 0}
+                disabled={
+                  actionLoading === "bulk-labels" ||
+                  selectedShippedOrderCount === 0
+                }
                 className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
               >
                 <FileDown size={14} />
