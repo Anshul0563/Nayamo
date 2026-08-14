@@ -2,8 +2,8 @@ import axios from "axios";
 import { decrementLoading, incrementLoading } from "./loadingService";
 
 //  Using CRA environment variable with a same-origin fallback for graceful dev startup
-const rawApiUrl = 
-// process.env.REACT_APP_API_URL || 
+const rawApiUrl =
+ process.env.REACT_APP_API_URL ||
 "http://localhost:5000/api/v1";
 const API_BASE_URL =
   rawApiUrl
