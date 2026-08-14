@@ -84,14 +84,19 @@ const buildInvoiceDocument = (doc, order) => {
   const line = "#E6DFD2";
   const white = "#FFFFFF";
 
-  const invoiceNumber = safeValue(order._id, "- ");
+  const invoiceNumber = safeValue(order._id, "-");
   const customerName = safeValue(order.user?.name || order.customerName || "Customer", "Customer");
   const customerEmail = safeValue(order.user?.email || order.email || "-");
   const customerPhone = safeValue(order.phone || order.mobile || "-");
   const billingAddress = safeValue(order.address || "-");
   const paymentLabel = safeValue(order.paymentMethod, "-");
-  const subtotal = Number(order.subtotal ?? order.totalPrice / 1.18 || 0);
-  const gst = Number(order.gstAmount ?? order.totalPrice - subtotal || 0);
+
+  const subtotalValue =
+    order.subtotal !== undefined && order.subtotal !== null ? Number(order.subtotal) : Number(order.totalPrice / 1.18 || 0);
+  const gstValue =
+    order.gstAmount !== undefined && order.gstAmount !== null ? Number(order.gstAmount) : Number(order.totalPrice - subtotalValue || 0);
+  const subtotal = subtotalValue;
+  const gst = gstValue;
   const grandTotal = Number(order.totalPrice || 0);
 
   const headerHeight = 92;
