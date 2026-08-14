@@ -13,6 +13,7 @@ const admin =
 const {
   createShipment,
   requestPickup,
+  getShipmentLabel,
   trackShipment,
 } = require(
   "../controllers/shippingController"
@@ -30,6 +31,13 @@ router.post(
   protect,
   admin,
   requestPickup
+);
+
+router.get(
+  "/label/:id",
+  protect,
+  admin,
+  getShipmentLabel
 );
 
 router.get(

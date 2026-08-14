@@ -3,6 +3,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  FileDown,
   FileText,
   Loader2,
   RefreshCcw,
@@ -197,6 +198,27 @@ export default function Orders() {
       await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to request pickup");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const downloadLabel = async (id) => {
+    try {
+      setActionLoading(`label-${id}`);
+      const res = await adminAPI.getShipmentLabel(id);
+      const labelUrl = res.data?.data?.labelUrl;
+
+      if (!labelUrl) {
+        setError("Label is not available for this shipment");
+        return;
+      }
+
+      window.open(labelUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      setError(
+        error.response?.data?.message || "Failed to open shipment label",
+      );
     } finally {
       setActionLoading(null);
     }
@@ -414,6 +436,18 @@ export default function Orders() {
                     {actionLoading === `pickup-${row._id}`
                       ? "Requesting..."
                       : "Request Pickup"}
+                  </button>
+                )}
+                {row.delhivery?.waybill && row.delhivery?.labelUrl && (
+                  <button
+                    onClick={() => downloadLabel(row._id)}
+                    disabled={actionLoading === `label-${row._id}`}
+                    className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-medium text-white disabled:opacity-50 flex items-center gap-1"
+                  >
+                    <FileDown size={14} />
+                    {actionLoading === `label-${row._id}`
+                      ? "Opening..."
+                      : "Label"}
                   </button>
                 )}
                 <button

@@ -91,6 +91,37 @@ exports.requestPickup = asyncHandler(async (req, res) => {
 });
 
 // =========================
+// GET SHIPMENT LABEL
+// =========================
+exports.getShipmentLabel = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id).populate("user", "name");
+
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  if (!order.delhivery?.waybill) {
+    res.status(400);
+    throw new Error("Shipment must be created before downloading the label");
+  }
+
+  if (!order.delhivery.labelUrl) {
+    res.status(404);
+    throw new Error("Shipment label is not available yet");
+  }
+
+  res.json({
+    success: true,
+    message: "Shipment label ready",
+    data: {
+      waybill: order.delhivery.waybill,
+      labelUrl: order.delhivery.labelUrl,
+    },
+  });
+});
+
+// =========================
 // TRACK ORDER
 // =========================
 exports.trackShipment =
