@@ -1,7 +1,10 @@
 import { io } from 'socket.io-client';
 import { adminAPI } from './api';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL ||
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api/v1'
+    : 'https://nayamo-3.onrender.com/api/v1');
 const SOCKET_URL = API_URL.replace(/\/api\/v1\/?$/, '');
 
 class SocketService {
@@ -24,10 +27,10 @@ class SocketService {
 // Admin namespace connection
     this.socket.on('connect', () => {
 
-      
+
       // Emit socket connect event for UI state tracking
       window.dispatchEvent(new CustomEvent('socket:connect'));
-      
+
       // Note: Initial notifications are sent directly from server on connection
       // No need to call fetchNotifications() - prevents duplicate 429 errors
     });
@@ -36,12 +39,12 @@ class SocketService {
     this.socket.on('notification:new', (notification) => {
       this.notifications.unshift(notification);
       this.unreadCount++;
-      
+
       // Emit to global toast system
-      window.dispatchEvent(new CustomEvent('realtime-notification', { 
-        detail: notification 
+      window.dispatchEvent(new CustomEvent('realtime-notification', {
+        detail: notification
       }));
-      
+
 
     });
 
@@ -63,8 +66,8 @@ class SocketService {
     // Live dashboard refresh triggers
     this.socket.on('order:new', (order) => {
       // Emit order data for RealTimeFeed component
-      window.dispatchEvent(new CustomEvent('order:new', { 
-        detail: order || {} 
+      window.dispatchEvent(new CustomEvent('order:new', {
+        detail: order || {}
       }));
       // Legacy event for backward compatibility
       window.dispatchEvent(new CustomEvent('refresh-dashboard'));
@@ -72,8 +75,8 @@ class SocketService {
 
     this.socket.on('order:status_updated', (order) => {
       // Emit order data for RealTimeFeed component
-      window.dispatchEvent(new CustomEvent('order:status_updated', { 
-        detail: order || {} 
+      window.dispatchEvent(new CustomEvent('order:status_updated', {
+        detail: order || {}
       }));
       // Legacy event for backward compatibility
       window.dispatchEvent(new CustomEvent('refresh-orders'));

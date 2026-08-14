@@ -1,9 +1,21 @@
 import axios from "axios";
 
-//  ENV with local fallback so admin can render graceful API states in dev
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
-  console.log("🔥 API_BASE_URL =", API_BASE_URL);
+const DEFAULT_LOCAL_API_BASE = "http://localhost:5000/api/v1";
+const DEFAULT_PROD_API_BASE = "https://nayamo-3.onrender.com/api/v1";
+
+const resolveApiBaseUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+  const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
+
+  return isLocalHost ? DEFAULT_LOCAL_API_BASE : DEFAULT_PROD_API_BASE;
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
+console.log("🔥 API_BASE_URL =", API_BASE_URL);
 
 //  AXIOS INSTANCE
 const apiClient = axios.create({
