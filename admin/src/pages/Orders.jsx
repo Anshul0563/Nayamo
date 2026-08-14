@@ -300,7 +300,14 @@ export default function Orders() {
         return;
       }
 
-      window.open(labelUrl, "_blank", "noopener,noreferrer");
+      const link = document.createElement("a");
+      link.href = labelUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     } catch (error) {
       setError(
         error.response?.data?.message || "Failed to open shipment label",
@@ -412,56 +419,6 @@ export default function Orders() {
         ))}
       </div>
 
-      {tab === "ready_to_ship" && (
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <button
-            type="button"
-            onClick={bulkCreateShipping}
-            disabled={
-              actionLoading === "bulk-shipping" || selectedOrderIds.length === 0
-            }
-            className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-black text-sm font-semibold disabled:opacity-50"
-          >
-            {actionLoading === "bulk-shipping"
-              ? "Creating Shipments..."
-              : "Global Shipping"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (selectedOrderIds.length === 1) {
-                createShipmentForOrder(selectedOrderIds[0]);
-                return;
-              }
-              bulkCreateShipping();
-            }}
-            disabled={
-              actionLoading === "bulk-shipping" ||
-              (!selectedOrderIds.length && actionLoading === "bulk-shipping")
-            }
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold disabled:opacity-50"
-          >
-            {actionLoading === "bulk-shipping"
-              ? "Creating Shipment..."
-              : "Create Shipment"}
-          </button>
-
-          <button
-            type="button"
-            onClick={bulkDownloadInvoices}
-            disabled={
-              actionLoading === "bulk-invoices" || selectedOrderIds.length === 0
-            }
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-50"
-          >
-            {actionLoading === "bulk-invoices"
-              ? "Preparing Invoices..."
-              : "Global Invoice Download"}
-          </button>
-        </div>
-      )}
-
       {/* Bulk Actions */}
       {selectedOrderIds.length > 0 && (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center gap-3">
@@ -524,46 +481,6 @@ export default function Orders() {
             </button>
           )}
 
-          {tab === "ready_to_ship" && (
-            <>
-              <button
-                type="button"
-                onClick={bulkCreateShipping}
-                disabled={actionLoading === "bulk-shipping"}
-                className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-black text-sm font-semibold disabled:opacity-50"
-              >
-                {actionLoading === "bulk-shipping"
-                  ? "Creating Shipments..."
-                  : "Global Shipping"}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => createShipmentForOrder(selectedOrderIds[0])}
-                disabled={
-                  actionLoading === `shipment-${selectedOrderIds[0]}` ||
-                  selectedOrderIds.length !== 1
-                }
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold disabled:opacity-50"
-              >
-                {actionLoading === `shipment-${selectedOrderIds[0]}`
-                  ? "Creating Shipment..."
-                  : "Create Shipment"}
-              </button>
-
-              <button
-                type="button"
-                onClick={bulkDownloadInvoices}
-                disabled={actionLoading === "bulk-invoices"}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-50"
-              >
-                {actionLoading === "bulk-invoices"
-                  ? "Preparing Invoices..."
-                  : "Global Invoice Download"}
-              </button>
-            </>
-          )}
-
           <button
             onClick={bulkCancel}
             disabled={actionLoading === "bulk"}
@@ -613,7 +530,7 @@ export default function Orders() {
               }
 
               return (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2 min-w-0">
                   {tab === "pending" ? (
                     <>
                       <button
@@ -637,30 +554,18 @@ export default function Orders() {
                       Ready To Ship
                     </button>
                   ) : tab === "ready_to_ship" ? (
-                    <>
-                      <button
-                        onClick={() => createShipmentForOrder(row._id)}
-                        disabled={actionLoading === `shipment-${row._id}`}
-                        className="px-3 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-xs font-medium text-black disabled:opacity-50"
-                      >
-                        {actionLoading === `shipment-${row._id}`
-                          ? "Creating..."
-                          : "Create Shipment"}
-                      </button>
-
-                      <button
-                        onClick={() => setDetailOrder(row)}
-                        className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
-                      >
-                        <Eye size={14} />
-                        View
-                      </button>
-                    </>
+                    <button
+                      onClick={() => setDetailOrder(row)}
+                      className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center gap-1 whitespace-nowrap min-w-[72px]"
+                    >
+                      <Eye size={14} />
+                      View
+                    </button>
                   ) : (
                     <>
                       <button
                         onClick={() => setDetailOrder(row)}
-                        className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
+                        className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center gap-1 whitespace-nowrap min-w-[72px]"
                       >
                         <Eye size={14} />
                         View
