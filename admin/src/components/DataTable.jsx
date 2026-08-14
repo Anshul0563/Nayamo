@@ -51,6 +51,17 @@ const DataTable = ({
     );
   });
 
+  const selectedIdSet = new Set(Array.isArray(selected) ? selected : []);
+  const allVisibleSelected =
+    Array.isArray(data) &&
+    data.length > 0 &&
+    data.every((row) => selectedIdSet.has(row._id || row.id));
+  const someVisibleSelected =
+    Array.isArray(data) &&
+    data.length > 0 &&
+    data.some((row) => selectedIdSet.has(row._id || row.id)) &&
+    !allVisibleSelected;
+
   return (
     <div className={`glass-card rounded-3xl overflow-hidden ${className}`}>
       {/* Header */}
@@ -99,22 +110,10 @@ const DataTable = ({
                   <input
                     type="checkbox"
                     className="w-4 h-4 rounded text-gold-500"
-                    checked={
-                      Array.isArray(data) &&
-                      data.length > 0 &&
-                      data.every((row) => selected?.includes(row._id || row.id))
-                    }
+                    checked={allVisibleSelected}
                     ref={(input) => {
                       if (input) {
-                        input.indeterminate =
-                          Array.isArray(data) &&
-                          data.length > 0 &&
-                          data.some((row) =>
-                            selected?.includes(row._id || row.id),
-                          ) &&
-                          !data.every((row) =>
-                            selected?.includes(row._id || row.id),
-                          );
+                        input.indeterminate = someVisibleSelected;
                       }
                     }}
                     onChange={
@@ -156,8 +155,12 @@ const DataTable = ({
                   <td className="p-4">
                     <input
                       type="checkbox"
-                      checked={selected?.includes(row._id || row.id)}
-                      onChange={() => onSelect?.(row._id || row.id)}
+                      checked={selectedIdSet.has(row._id || row.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        onSelect?.(row._id || row.id);
+                      }}
                       className="w-4 h-4 rounded text-gold-500"
                     />
                   </td>

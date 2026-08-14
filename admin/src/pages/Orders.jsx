@@ -36,7 +36,7 @@ export default function Orders() {
   const [tab, setTab] = useState("pending");
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
-  const [selected, setSelected] = useState([]);
+  const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -136,35 +136,37 @@ export default function Orders() {
     return stats[key] || 0;
   };
 
-  const toggleSelect = (id) => {
+  const toggleOrderSelection = (id) => {
     if (id === "__SELECT_ALL__") {
-      const currentIds = orders.map((order) => order._id);
+      const visibleOrderIds = orders.map((order) => order._id);
       const allSelected =
-        currentIds.length > 0 &&
-        currentIds.every((orderId) => selected.includes(orderId));
+        visibleOrderIds.length > 0 &&
+        visibleOrderIds.every((orderId) => selectedOrderIds.includes(orderId));
 
       if (allSelected) {
-        setSelected((prev) =>
-          prev.filter((orderId) => !currentIds.includes(orderId)),
+        setSelectedOrderIds((prev) =>
+          prev.filter((orderId) => !visibleOrderIds.includes(orderId)),
         );
         return;
       }
 
-      setSelected((prev) => {
+      setSelectedOrderIds((prev) => {
         const merged = new Set(prev);
-        currentIds.forEach((orderId) => merged.add(orderId));
+        visibleOrderIds.forEach((orderId) => merged.add(orderId));
         return [...merged];
       });
       return;
     }
 
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    setSelectedOrderIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((orderId) => orderId !== id)
+        : [...prev, id],
     );
   };
 
   const bulkStatusUpdate = async (status) => {
-    if (!selected.length) return;
+    if (!selectedOrderIds.length) return;
     if (!TABS.map(([key]) => key).includes(status)) {
       setError("Invalid status selected");
       return;
@@ -172,9 +174,11 @@ export default function Orders() {
     try {
       setActionLoading("bulk");
       await Promise.all(
-        selected.map((id) => adminAPI.updateOrderStatus(id, { status })),
+        selectedOrderIds.map((id) =>
+          adminAPI.updateOrderStatus(id, { status }),
+        ),
       );
-      setSelected([]);
+      setSelectedOrderIds([]);
       await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {
       setError(error.response?.data?.message || "Bulk update failed");
@@ -184,8 +188,9 @@ export default function Orders() {
   };
 
   const bulkCancel = async () => {
-    if (!selected.length) return;
-    if (!window.confirm(`Cancel ${selected.length} selected orders?`)) return;
+    if (!selectedOrderIds.length) return;
+    if (!window.confirm(`Cancel ${selectedOrderIds.length} selected orders?`))
+      return;
     await bulkStatusUpdate("cancelled");
   };
 
@@ -193,14 +198,16 @@ export default function Orders() {
   // BULK CREATE SHIPMENT
   // =========================
   const bulkCreateShipment = async () => {
-    if (!selected.length) return;
+    if (!selectedOrderIds.length) return;
 
     try {
       setActionLoading("bulk-shipment");
 
-      await Promise.all(selected.map((id) => adminAPI.createShipment(id)));
+      await Promise.all(
+        selectedOrderIds.map((id) => adminAPI.createShipment(id)),
+      );
 
-      setSelected([]);
+      setSelectedOrderIds([]);
 
       await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {
@@ -334,7 +341,7 @@ export default function Orders() {
             key={key}
             onClick={() => {
               setTab(key);
-              setSelected([]);
+              setSelectedOrderIds([]);
             }}
             className={`px-5 py-3 rounded-2xl whitespace-nowrap transition shrink-0 ${
               tab === key
@@ -348,15 +355,15 @@ export default function Orders() {
       </div>
 
       {/* Bulk Actions */}
-      {selected.length > 0 && (
+      {selectedOrderIds.length > 0 && (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center gap-3">
           <span className="text-sm font-medium">
-            {selected.length} selected
+            {selectedOrderIds.length} selected
           </span>
 
           <button
             type="button"
-            onClick={() => setSelected([])}
+            onClick={() => setSelectedOrderIds([])}
             className="text-sm text-zinc-300 hover:text-white underline"
           >
             Clear
@@ -489,8 +496,8 @@ export default function Orders() {
         loading={loading}
         total={orders.length}
         enableSelection={true}
-        selected={selected}
-        onSelect={toggleSelect}
+        selected={selectedOrderIds}
+        onSelect={toggleOrderSelection}
         exportData={() => {
           /* handled by ExportButton above */
         }}
