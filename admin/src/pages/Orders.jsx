@@ -142,6 +142,23 @@ export default function Orders() {
     );
   };
 
+  const toggleSelectAll = () => {
+    const currentIds = orders.map((order) => order._id);
+    const allSelected =
+      currentIds.length > 0 && currentIds.every((id) => selected.includes(id));
+
+    if (allSelected) {
+      setSelected((prev) => prev.filter((id) => !currentIds.includes(id)));
+      return;
+    }
+
+    setSelected((prev) => {
+      const merged = new Set(prev);
+      currentIds.forEach((id) => merged.add(id));
+      return [...merged];
+    });
+  };
+
   const bulkStatusUpdate = async (status) => {
     if (!selected.length) return;
     if (!TABS.map(([key]) => key).includes(status)) {
@@ -333,6 +350,14 @@ export default function Orders() {
             {selected.length} selected
           </span>
 
+          <button
+            type="button"
+            onClick={() => setSelected([])}
+            className="text-sm text-zinc-300 hover:text-white underline"
+          >
+            Clear
+          </button>
+
           <select
             value=""
             onChange={(e) => e.target.value && bulkStatusUpdate(e.target.value)}
@@ -369,13 +394,6 @@ export default function Orders() {
           >
             <XSquare size={14} />
             Bulk Cancel
-          </button>
-
-          <button
-            onClick={() => setSelected([])}
-            className="text-sm text-zinc-400 hover:text-white ml-auto underline"
-          >
-            Clear
           </button>
         </div>
       )}

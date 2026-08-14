@@ -156,6 +156,12 @@ export const adminAPI = {
     apiClient.post(`/shipping/request-pickup/${id}`, {}),
   getShipmentLabel: (id) =>
     apiClient.get(`/shipping/label/${id}`),
+  createReturnShipment: (id) =>
+    apiClient.post(`/shipping/return/create/${id}`, {}),
+  requestReturnPickup: (id) =>
+    apiClient.post(`/shipping/return/request-pickup/${id}`, {}),
+  getReturnLabel: (id) =>
+    apiClient.get(`/shipping/return/label/${id}`),
 
   getProducts: (params = {}) =>
     apiClient.get("/admin/products", { params }),

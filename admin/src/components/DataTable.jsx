@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from "react";
-import { Search, Filter, Loader2, Download } from "lucide-react";
+import { Download, Filter, Loader2, Search } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { SkeletonRow } from "./ui/Skeleton";
 
 const DataTable = ({
@@ -99,6 +99,28 @@ const DataTable = ({
                   <input
                     type="checkbox"
                     className="w-4 h-4 rounded text-gold-500"
+                    checked={
+                      Array.isArray(data) &&
+                      data.length > 0 &&
+                      data.every((row) => selected?.includes(row._id || row.id))
+                    }
+                    ref={(input) => {
+                      if (input) {
+                        input.indeterminate =
+                          Array.isArray(data) &&
+                          data.length > 0 &&
+                          data.some((row) =>
+                            selected?.includes(row._id || row.id),
+                          ) &&
+                          !data.every((row) =>
+                            selected?.includes(row._id || row.id),
+                          );
+                      }
+                    }}
+                    onChange={
+                      onSelect ? () => onSelect("__SELECT_ALL__") : undefined
+                    }
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </th>
               )}
