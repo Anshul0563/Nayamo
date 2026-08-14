@@ -3,8 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  FileDown,
-  FileText,
   Loader2,
   RefreshCcw,
   Search,
@@ -585,40 +583,6 @@ export default function Orders() {
                           </option>
                         ))}
                       </select>
-
-                      {row.delhivery?.waybill &&
-                        !row.delhivery?.pickupRequested && (
-                          <button
-                            onClick={() => requestPickup(row._id)}
-                            disabled={actionLoading === `pickup-${row._id}`}
-                            className="px-3 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 text-xs font-medium text-white disabled:opacity-50"
-                          >
-                            {actionLoading === `pickup-${row._id}`
-                              ? "Requesting..."
-                              : "Request Pickup"}
-                          </button>
-                        )}
-
-                      {row.delhivery?.waybill && row.delhivery?.labelUrl && (
-                        <button
-                          onClick={() => downloadLabel(row._id)}
-                          disabled={actionLoading === `label-${row._id}`}
-                          className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-medium text-white disabled:opacity-50 flex items-center gap-1"
-                        >
-                          <FileDown size={14} />
-                          {actionLoading === `label-${row._id}`
-                            ? "Opening..."
-                            : "Label"}
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => invoice(row._id)}
-                        className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center gap-1"
-                      >
-                        <FileText size={14} />
-                        Invoice
-                      </button>
                     </>
                   )}
                 </div>
