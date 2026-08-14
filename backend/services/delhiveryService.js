@@ -37,6 +37,25 @@ function toStateFromAddress(_address) {
   return "Delhi";
 }
 
+function getDelhiveryPaymentDetails(order) {
+  const totalAmount = Number(order?.totalPrice ?? 0);
+  const paymentMethod = String(order?.paymentMethod || "").toLowerCase();
+  const isCod = paymentMethod === "cod";
+
+  if (isCod && (!Number.isFinite(totalAmount) || totalAmount <= 0)) {
+    throw new Error("COD shipment requires a positive total amount");
+  }
+
+  const payment = isCod ? "COD" : "Prepaid";
+
+  return {
+    payment,
+    payment_mode: payment,
+    total_amount: totalAmount,
+    cod_amount: isCod ? totalAmount : 0,
+  };
+}
+
 // =========================
 // CREATE SHIPMENT
 // =========================
@@ -48,6 +67,7 @@ exports.createShipment = async (order) => {
   try {
     const api = getApi();
     const token = getDelhiveryToken();
+    const paymentDetails = getDelhiveryPaymentDetails(order);
     const payload = {
       shipments: [
         {
@@ -67,9 +87,7 @@ exports.createShipment = async (order) => {
 
           order: order._id.toString(),
 
-          payment_mode: order.paymentMethod === "cod" ? "COD" : "Prepaid",
-
-          total_amount: order.totalPrice,
+          ...paymentDetails,
 
           quantity: Array.isArray(order.items) ? order.items.length : 1,
 
