@@ -13,7 +13,8 @@ const DataTable = ({
   onSearch,
   enableSelection = false,
   selected,
-  onSelect,
+  onSelectAll,
+  onSelectRow,
   exportData,
   className = "",
 }) => {
@@ -52,15 +53,15 @@ const DataTable = ({
   });
 
   const selectedIdSet = new Set(Array.isArray(selected) ? selected : []);
+  const visibleRows = filteredData;
+  const visibleIds = visibleRows
+    .map((row) => row._id || row.id)
+    .filter(Boolean);
+
   const allVisibleSelected =
-    Array.isArray(data) &&
-    data.length > 0 &&
-    data.every((row) => selectedIdSet.has(row._id || row.id));
+    visibleIds.length > 0 && visibleIds.every((id) => selectedIdSet.has(id));
   const someVisibleSelected =
-    Array.isArray(data) &&
-    data.length > 0 &&
-    data.some((row) => selectedIdSet.has(row._id || row.id)) &&
-    !allVisibleSelected;
+    visibleIds.some((id) => selectedIdSet.has(id)) && !allVisibleSelected;
 
   return (
     <div className={`glass-card rounded-3xl overflow-hidden ${className}`}>
@@ -117,7 +118,7 @@ const DataTable = ({
                       }
                     }}
                     onChange={
-                      onSelect ? () => onSelect("__SELECT_ALL__") : undefined
+                      onSelectAll ? () => onSelectAll(visibleIds) : undefined
                     }
                     onClick={(e) => e.stopPropagation()}
                   />
@@ -159,7 +160,7 @@ const DataTable = ({
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => {
                         e.stopPropagation();
-                        onSelect?.(row._id || row.id);
+                        onSelectRow?.(row._id || row.id);
                       }}
                       className="w-4 h-4 rounded text-gold-500"
                     />

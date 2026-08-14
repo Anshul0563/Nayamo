@@ -137,32 +137,34 @@ export default function Orders() {
   };
 
   const toggleOrderSelection = (id) => {
-    if (id === "__SELECT_ALL__") {
-      const visibleOrderIds = orders.map((order) => order._id);
-      const allSelected =
-        visibleOrderIds.length > 0 &&
-        visibleOrderIds.every((orderId) => selectedOrderIds.includes(orderId));
-
-      if (allSelected) {
-        setSelectedOrderIds((prev) =>
-          prev.filter((orderId) => !visibleOrderIds.includes(orderId)),
-        );
-        return;
-      }
-
-      setSelectedOrderIds((prev) => {
-        const merged = new Set(prev);
-        visibleOrderIds.forEach((orderId) => merged.add(orderId));
-        return [...merged];
-      });
-      return;
-    }
-
     setSelectedOrderIds((prev) =>
       prev.includes(id)
         ? prev.filter((orderId) => orderId !== id)
         : [...prev, id],
     );
+  };
+
+  const toggleSelectAllVisibleOrders = (
+    visibleOrderIds = orders.map((order) => order._id),
+  ) => {
+    if (!visibleOrderIds.length) return;
+
+    const allSelected =
+      visibleOrderIds.length > 0 &&
+      visibleOrderIds.every((orderId) => selectedOrderIds.includes(orderId));
+
+    if (allSelected) {
+      setSelectedOrderIds((prev) =>
+        prev.filter((orderId) => !visibleOrderIds.includes(orderId)),
+      );
+      return;
+    }
+
+    setSelectedOrderIds((prev) => {
+      const merged = new Set(prev);
+      visibleOrderIds.forEach((orderId) => merged.add(orderId));
+      return [...merged];
+    });
   };
 
   const bulkStatusUpdate = async (status) => {
@@ -497,7 +499,8 @@ export default function Orders() {
         total={orders.length}
         enableSelection={true}
         selected={selectedOrderIds}
-        onSelect={toggleOrderSelection}
+        onSelectAll={toggleSelectAllVisibleOrders}
+        onSelectRow={toggleOrderSelection}
         exportData={() => {
           /* handled by ExportButton above */
         }}
