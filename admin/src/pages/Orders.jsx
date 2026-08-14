@@ -137,6 +137,8 @@ export default function Orders() {
     return stats[key] || 0;
   };
 
+  const hasShipmentCreated = (order) => Boolean(order?.delhivery?.waybill);
+
   const toggleOrderSelection = (id) => {
     setSelectedOrderIds((prev) =>
       prev.includes(id)
@@ -279,12 +281,19 @@ export default function Orders() {
   };
 
   const bulkDownloadLabels = async () => {
-    if (!selectedOrderIds.length) return;
+    const eligibleOrderIds = selectedOrderIds.filter((id) =>
+      orders.some((order) => order._id === id && hasShipmentCreated(order)),
+    );
+
+    if (!eligibleOrderIds.length) {
+      setError("Create shipment for at least one selected order before downloading labels");
+      return;
+    }
 
     try {
       setActionLoading("bulk-labels");
       const results = await Promise.allSettled(
-        selectedOrderIds.map((id) => adminAPI.getShipmentLabel(id)),
+        eligibleOrderIds.map((id) => adminAPI.getShipmentLabel(id)),
       );
 
       const labelUrls = results
@@ -359,6 +368,10 @@ export default function Orders() {
       setActionLoading(null);
     }
   };
+
+  const selectedShippedOrderCount = selectedOrderIds.filter((id) =>
+    orders.some((order) => order._id === id && hasShipmentCreated(order)),
+  ).length;
 
   const exportData = useMemo(() => {
     return orders.map((order) => ({
@@ -549,7 +562,7 @@ export default function Orders() {
               <button
                 type="button"
                 onClick={bulkDownloadLabels}
-                disabled={actionLoading === "bulk-labels"}
+                disabled={actionLoading === "bulk-labels" || selectedShippedOrderCount === 0}
                 className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
               >
                 <FileDown size={14} />
@@ -607,7 +620,7 @@ export default function Orders() {
               }
 
               return (
-                <div className="flex flex-wrap items-center gap-2 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 min-w-0 max-w-[240px]">
                   {tab === "pending" ? (
                     <>
                       <button
@@ -631,17 +644,30 @@ export default function Orders() {
                       Ready To Ship
                     </button>
                   ) : tab === "ready_to_ship" ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        onClick={() => createShipmentForOrder(row._id)}
-                        disabled={actionLoading === `shipment-${row._id}`}
-                        className="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-xs font-medium text-white disabled:opacity-50 flex items-center gap-1 whitespace-nowrap"
-                      >
-                        <Truck size={14} />
-                        {actionLoading === `shipment-${row._id}`
-                          ? "Creating..."
-                          : "Create Shipment"}
-                      </button>
+                    <div className="flex flex-wrap items-center gap-2 max-w-[220px]">
+                      {!hasShipmentCreated(row) ? (
+                        <button
+                          onClick={() => createShipmentForOrder(row._id)}
+                          disabled={actionLoading === `shipment-${row._id}`}
+                          className="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-xs font-medium text-white disabled:opacity-50 flex items-center gap-1 whitespace-nowrap"
+                        >
+                          <Truck size={14} />
+                          {actionLoading === `shipment-${row._id}`
+                            ? "Creating..."
+                            : "Create Shipment"}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => downloadLabel(row._id)}
+                          disabled={actionLoading === `label-${row._id}`}
+                          className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-xs font-medium text-black disabled:opacity-50 flex items-center gap-1 whitespace-nowrap"
+                        >
+                          <FileDown size={14} />
+                          {actionLoading === `label-${row._id}`
+                            ? "Opening..."
+                            : "Download Label"}
+                        </button>
+                      )}
 
                       <button
                         onClick={() => setDetailOrder(row)}
