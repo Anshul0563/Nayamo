@@ -12,6 +12,7 @@ const admin =
 
 const {
   createShipment,
+  createBulkShipment,
   requestPickup,
   getShipmentLabel,
   trackShipment,
@@ -20,6 +21,13 @@ const {
   getReturnLabel,
 } = require(
   "../controllers/shippingController"
+);
+
+router.post(
+  "/bulk",
+  protect,
+  admin,
+  createBulkShipment
 );
 
 router.post(

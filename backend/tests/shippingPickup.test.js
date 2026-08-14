@@ -1,6 +1,10 @@
 const shippingController = require('../controllers/shippingController');
 
 describe('shipping controller pickup workflow', () => {
+  it('exposes a bulk shipment creation handler for selected orders', () => {
+    expect(typeof shippingController.createBulkShipment).toBe('function');
+  });
+
   it('exposes an explicit request pickup handler for admin-initiated Delhivery pickup requests', () => {
     expect(typeof shippingController.requestPickup).toBe('function');
   });

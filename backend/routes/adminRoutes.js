@@ -35,6 +35,8 @@ const {
   changePassword,
 } = require("../controllers/adminController");
 
+const { downloadBulkInvoices } = require("../controllers/orderController");
+
 const protect = require("../middleware/authMiddleware");
 const admin = require("../middleware/adminMiddleware");
 const upload = require("../middleware/uploadMiddleware");
@@ -165,6 +167,7 @@ router.delete("/notifications/:id", protect, admin, deleteNotification);
 router.delete("/notifications/all", protect, admin, deleteAllNotifications);
 
 router.get("/orders", protect, admin, getAllOrders);
+router.post("/orders/invoices/bulk", protect, admin, downloadBulkInvoices);
 router.put("/orders/:id", protect, admin, statusValidation, validate, updateOrderStatus);
 
 router.get("/users", protect, admin, getAllUsers);

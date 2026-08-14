@@ -152,8 +152,14 @@ export const adminAPI = {
     }),
   createShipment: (id) =>
     apiClient.post(`/shipping/create/${id}`, {}),
+  createBulkShipping: (orderIds) =>
+    apiClient.post("/shipping/bulk", { orderIds }),
   requestPickup: (id) =>
     apiClient.post(`/shipping/request-pickup/${id}`, {}),
+  downloadBulkInvoices: (orderIds) =>
+    apiClient.post("/admin/orders/invoices/bulk", { orderIds }, {
+      responseType: "blob",
+    }),
   getShipmentLabel: (id) =>
     apiClient.get(`/shipping/label/${id}`),
   createReturnShipment: (id) =>

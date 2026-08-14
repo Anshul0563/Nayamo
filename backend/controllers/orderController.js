@@ -6,6 +6,7 @@ const logger = require("../config/logger");
 
 const Order = require("../models/Order");
 const mongoose = require("mongoose");
+const JSZip = require("jszip");
 
 // PLACE ORDER
 exports.placeOrder = asyncHandler(async (req, res) => {
@@ -155,4 +156,61 @@ exports.downloadInvoice = asyncHandler(async (req, res) => {
   }
 
   invoiceService.generateInvoice(order, res);
+});
+
+exports.downloadBulkInvoices = asyncHandler(async (req, res) => {
+  const rawOrderIds = Array.isArray(req.body?.orderIds) ? req.body.orderIds : [];
+  const uniqueOrderIds = [...new Set(rawOrderIds.map(String))];
+
+  if (!uniqueOrderIds.length) {
+    res.status(400);
+    throw new Error("At least one order ID is required");
+  }
+
+  const validIds = uniqueOrderIds.filter((id) => mongoose.Types.ObjectId.isValid(id));
+  const invalidResults = uniqueOrderIds
+    .filter((id) => !mongoose.Types.ObjectId.isValid(id))
+    .map((orderId) => ({ orderId, status: "unavailable", message: "Invalid order ID" }));
+
+  const orders = await Order.find({ _id: { $in: validIds } })
+    .populate("user")
+    .populate("items.product");
+
+  const orderMap = new Map(orders.map((order) => [String(order._id), order]));
+
+  const zip = new JSZip();
+  const results = [];
+
+  for (const orderId of validIds) {
+    const order = orderMap.get(orderId);
+
+    if (!order) {
+      results.push({ orderId, status: "unavailable", message: "Order not found" });
+      continue;
+    }
+
+    try {
+      const pdfBuffer = await invoiceService.generateInvoiceBuffer(order);
+      zip.file(`invoice-${order._id}.pdf`, pdfBuffer);
+      results.push({ orderId, status: "ready", message: "Invoice generated" });
+    } catch (error) {
+      results.push({ orderId, status: "unavailable", message: error.message || "Invoice generation failed" });
+    }
+  }
+
+  const files = zip.files;
+  if (!Object.keys(files).length) {
+    res.status(400).json({
+      success: false,
+      message: "No invoice files were generated",
+      data: { results: [...results, ...invalidResults] },
+    });
+    return;
+  }
+
+  const archiveBuffer = await zip.generateAsync({ type: "nodebuffer" });
+
+  res.setHeader("Content-Type", "application/zip");
+  res.setHeader("Content-Disposition", "attachment; filename=nayamo-invoices.zip");
+  res.send(archiveBuffer);
 });

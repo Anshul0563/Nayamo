@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Order = require("../models/Order");
 
 const delhiveryService =
@@ -45,6 +46,100 @@ exports.createShipment = asyncHandler(async (req, res) => {
     success: true,
     message: "Shipment created successfully",
     data: order,
+  });
+});
+
+exports.createBulkShipment = asyncHandler(async (req, res) => {
+  const rawOrderIds = Array.isArray(req.body?.orderIds) ? req.body.orderIds : [];
+  const uniqueOrderIds = [...new Set(rawOrderIds.map(String))];
+
+  const validIds = [];
+  const invalidResults = [];
+
+  uniqueOrderIds.forEach((orderId) => {
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      invalidResults.push({
+        orderId,
+        status: "skipped",
+        message: "Invalid order ID",
+      });
+      return;
+    }
+
+    validIds.push(orderId);
+  });
+
+  const orders = await Order.find({ _id: { $in: validIds } }).populate("user", "name");
+  const orderMap = new Map(orders.map((order) => [String(order._id), order]));
+
+  const results = [...invalidResults];
+  const summary = {
+    total: validIds.length,
+    created: 0,
+    skipped: 0,
+    failed: 0,
+  };
+
+  for (const orderId of validIds) {
+    const order = orderMap.get(orderId);
+
+    if (!order) {
+      summary.skipped += 1;
+      results.push({
+        orderId,
+        status: "skipped",
+        message: "Order not found",
+      });
+      continue;
+    }
+
+    if (order.delhivery?.waybill) {
+      summary.skipped += 1;
+      results.push({
+        orderId,
+        status: "skipped",
+        message: "Shipment already exists",
+      });
+      continue;
+    }
+
+    try {
+      const shipment = await delhiveryService.createShipment(order);
+
+      order.delhivery = {
+        waybill: shipment.waybill,
+        trackingUrl: shipment.trackingUrl,
+        labelUrl: shipment.labelUrl || undefined,
+        createdAt: new Date(),
+        pickupRequested: false,
+      };
+
+      order.status = "confirmed";
+      await order.save();
+
+      summary.created += 1;
+      results.push({
+        orderId,
+        status: "created",
+        message: "Shipment created successfully",
+      });
+    } catch (error) {
+      summary.failed += 1;
+      results.push({
+        orderId,
+        status: "failed",
+        message: error.message || "Shipment creation failed",
+      });
+    }
+  }
+
+  res.json({
+    success: true,
+    message: "Bulk shipment processing completed",
+    data: {
+      summary,
+      results,
+    },
   });
 });
 

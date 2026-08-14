@@ -144,26 +144,27 @@ export default function Orders() {
     );
   };
 
-  const toggleSelectAllVisibleOrders = (
-    visibleOrderIds = orders.map((order) => order._id),
-  ) => {
+  const toggleSelectAllVisibleOrders = (visibleOrderIds = []) => {
     if (!visibleOrderIds.length) return;
 
-    const allSelected =
-      visibleOrderIds.length > 0 &&
-      visibleOrderIds.every((orderId) => selectedOrderIds.includes(orderId));
-
-    if (allSelected) {
-      setSelectedOrderIds((prev) =>
-        prev.filter((orderId) => !visibleOrderIds.includes(orderId)),
-      );
-      return;
-    }
-
     setSelectedOrderIds((prev) => {
-      const merged = new Set(prev);
-      visibleOrderIds.forEach((orderId) => merged.add(orderId));
-      return [...merged];
+      const selectedSet = new Set(prev);
+
+      const allSelected = visibleOrderIds.every((id) => selectedSet.has(id));
+
+      if (allSelected) {
+        // Deselect all visible orders
+        visibleOrderIds.forEach((id) => {
+          selectedSet.delete(id);
+        });
+      } else {
+        // Select all visible orders
+        visibleOrderIds.forEach((id) => {
+          selectedSet.add(id);
+        });
+      }
+
+      return Array.from(selectedSet);
     });
   };
 
@@ -196,26 +197,69 @@ export default function Orders() {
     await bulkStatusUpdate("cancelled");
   };
 
-  // =========================
-  // BULK CREATE SHIPMENT
-  // =========================
-  const bulkCreateShipment = async () => {
+  const bulkCreateShipping = async () => {
     if (!selectedOrderIds.length) return;
 
     try {
-      setActionLoading("bulk-shipment");
+      setActionLoading("bulk-shipping");
+      const res = await adminAPI.createBulkShipping(selectedOrderIds);
 
-      await Promise.all(
-        selectedOrderIds.map((id) => adminAPI.createShipment(id)),
-      );
+      const summary = res.data?.data?.summary || {};
+      const results = res.data?.data?.results || [];
+      const createdCount = summary.created || 0;
+      const skippedCount = summary.skipped || 0;
+      const failedCount = summary.failed || 0;
+
+      if (createdCount || skippedCount || failedCount) {
+        setError("");
+        window.alert(
+          [
+            `Created: ${createdCount}`,
+            `Skipped: ${skippedCount}`,
+            `Failed: ${failedCount}`,
+            results
+              .filter((result) => result.status !== "created")
+              .map((result) => `${result.orderId}: ${result.message}`)
+              .join("\n") || "All selected eligible orders were processed.",
+          ].join("\n"),
+        );
+      }
 
       setSelectedOrderIds([]);
-
       await Promise.all([loadOrders(page), loadStats()]);
     } catch (error) {
-      setError(
-        error.response?.data?.message || "Bulk shipment creation failed",
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Bulk shipment creation failed";
+      setError(message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const bulkDownloadInvoices = async () => {
+    if (!selectedOrderIds.length) return;
+
+    try {
+      setActionLoading("bulk-invoices");
+      const res = await adminAPI.downloadBulkInvoices(selectedOrderIds);
+      const url = window.URL.createObjectURL(
+        new Blob([res.data], { type: "application/zip" }),
       );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "nayamo-invoices.zip";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Bulk invoice download failed";
+      setError(message);
     } finally {
       setActionLoading(null);
     }
@@ -385,20 +429,27 @@ export default function Orders() {
             ))}
           </select>
 
-          {/* =========================
-        BULK CREATE SHIPMENT
-    ========================= */}
-          {tab === "ready_to_ship" && (
-            <button
-              onClick={bulkCreateShipment}
-              disabled={actionLoading === "bulk-shipment"}
-              className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-black text-sm font-semibold disabled:opacity-50"
-            >
-              {actionLoading === "bulk-shipment"
-                ? "Creating..."
-                : "Create Shipments"}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={bulkCreateShipping}
+            disabled={actionLoading === "bulk-shipping"}
+            className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-black text-sm font-semibold disabled:opacity-50"
+          >
+            {actionLoading === "bulk-shipping"
+              ? "Creating Shipments..."
+              : "Global Shipping"}
+          </button>
+
+          <button
+            type="button"
+            onClick={bulkDownloadInvoices}
+            disabled={actionLoading === "bulk-invoices"}
+            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-50"
+          >
+            {actionLoading === "bulk-invoices"
+              ? "Preparing Invoices..."
+              : "Global Invoice Download"}
+          </button>
 
           <button
             onClick={bulkCancel}
