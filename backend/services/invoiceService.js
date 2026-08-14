@@ -179,7 +179,7 @@ const buildInvoiceDocument = (doc, order) => {
   doc.fillColor(ink).font("Helvetica-Bold").fontSize(18).text("Anshul", 430, 705);
   doc.fillColor(softInk).font("Helvetica").fontSize(10).text("Authorized Signature", 430, 724);
 
-  doc.fillColor(ink).font("Helvetica").fontSize(12).text("☎ +91 99773951349", 42, 812); 
+  doc.fillColor(ink).font("Helvetica").fontSize(12).text("☎ +91 99773951349", 42, 812);
   doc.fillColor(ink).font("Helvetica").fontSize(12).text("✉ support@nayamo.in", 212, 812);
   doc.fillColor(ink).font("Helvetica").fontSize(12).text("◌ www.nayamo.in", 420, 812);
 };
