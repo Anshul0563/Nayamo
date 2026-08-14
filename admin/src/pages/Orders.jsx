@@ -345,9 +345,15 @@ export default function Orders() {
 
   const downloadLabel = async (id) => {
     try {
+      const row = orders.find((order) => order._id === id);
+      if (!row || !hasShipmentCreated(row)) {
+        setError("Create the shipment first before downloading the label");
+        return;
+      }
+
       setActionLoading(`label-${id}`);
       const res = await adminAPI.getShipmentLabel(id);
-      const labelUrl = res.data?.data?.labelUrl;
+      const labelUrl = row.delhivery?.labelUrl || res.data?.data?.labelUrl;
 
       if (!labelUrl) {
         setError("Label is not available for this shipment");
@@ -625,7 +631,7 @@ export default function Orders() {
               }
 
               return (
-                <div className="flex flex-wrap items-center gap-2 min-w-0 max-w-[240px]">
+                <div className="flex flex-wrap items-center gap-2 min-w-0 max-w-[170px]">
                   {tab === "pending" ? (
                     <>
                       <button
@@ -649,7 +655,7 @@ export default function Orders() {
                       Ready To Ship
                     </button>
                   ) : tab === "ready_to_ship" ? (
-                    <div className="flex flex-wrap items-center gap-2 max-w-[220px]">
+                    <div className="flex flex-wrap items-center gap-2 max-w-[170px]">
                       {!hasShipmentCreated(row) ? (
                         <button
                           onClick={() => createShipmentForOrder(row._id)}
