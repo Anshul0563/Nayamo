@@ -3,9 +3,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  FileDown,
+  FileText,
   Loader2,
   RefreshCcw,
   Search,
+  Truck,
   XSquare,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -275,6 +278,48 @@ export default function Orders() {
     }
   };
 
+  const bulkDownloadLabels = async () => {
+    if (!selectedOrderIds.length) return;
+
+    try {
+      setActionLoading("bulk-labels");
+      const results = await Promise.allSettled(
+        selectedOrderIds.map((id) => adminAPI.getShipmentLabel(id)),
+      );
+
+      const labelUrls = results
+        .filter(
+          (result) =>
+            result.status === "fulfilled" && result.value?.data?.data?.labelUrl,
+        )
+        .map((result) => result.value.data.data.labelUrl);
+
+      if (!labelUrls.length) {
+        setError("No shipment labels are available for the selected orders");
+        return;
+      }
+
+      labelUrls.forEach((labelUrl) => {
+        const link = document.createElement("a");
+        link.href = labelUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      });
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Bulk label download failed";
+      setError(message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const requestPickup = async (id) => {
     try {
       setActionLoading(`pickup-${id}`);
@@ -479,6 +524,40 @@ export default function Orders() {
             </button>
           )}
 
+          {tab === "ready_to_ship" && (
+            <>
+              <button
+                type="button"
+                onClick={bulkCreateShipping}
+                disabled={actionLoading === "bulk-shipping"}
+                className="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
+              >
+                <Truck size={14} />
+                Create Shipment
+              </button>
+
+              <button
+                type="button"
+                onClick={bulkDownloadInvoices}
+                disabled={actionLoading === "bulk-invoices"}
+                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
+              >
+                <FileText size={14} />
+                Download Invoice
+              </button>
+
+              <button
+                type="button"
+                onClick={bulkDownloadLabels}
+                disabled={actionLoading === "bulk-labels"}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
+              >
+                <FileDown size={14} />
+                Download Label
+              </button>
+            </>
+          )}
+
           <button
             onClick={bulkCancel}
             disabled={actionLoading === "bulk"}
@@ -552,13 +631,26 @@ export default function Orders() {
                       Ready To Ship
                     </button>
                   ) : tab === "ready_to_ship" ? (
-                    <button
-                      onClick={() => setDetailOrder(row)}
-                      className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center gap-1 whitespace-nowrap min-w-[72px]"
-                    >
-                      <Eye size={14} />
-                      View
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        onClick={() => createShipmentForOrder(row._id)}
+                        disabled={actionLoading === `shipment-${row._id}`}
+                        className="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-xs font-medium text-white disabled:opacity-50 flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Truck size={14} />
+                        {actionLoading === `shipment-${row._id}`
+                          ? "Creating..."
+                          : "Create Shipment"}
+                      </button>
+
+                      <button
+                        onClick={() => setDetailOrder(row)}
+                        className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center gap-1 whitespace-nowrap min-w-[72px]"
+                      >
+                        <Eye size={14} />
+                        View
+                      </button>
+                    </div>
                   ) : (
                     <>
                       <button
