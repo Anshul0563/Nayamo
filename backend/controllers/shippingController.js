@@ -34,13 +34,27 @@ exports.createShipment = asyncHandler(async (req, res) => {
     trackingUrl: shipment.trackingUrl,
     labelUrl: shipment.labelUrl || undefined,
     createdAt: new Date(),
-    pickupRequested: false,
+    pickupRequested: true,
   };
 
-  // Shipment creation does not trigger a pickup request; the admin must do that explicitly.
-  order.status = "confirmed";
+  // After creating shipment, move order to pickup requested so pickup can be scheduled.
+  order.status = "pickup_requested";
+  order.statusUpdatedAt = new Date();
 
   await order.save();
+
+  // Emit socket event to notify admin/frontends about status change
+  try {
+    if (global && global.io) {
+      global.io.emit("order:status_updated", {
+        orderId: order._id,
+        status: order.status,
+        updatedAt: order.statusUpdatedAt || new Date(),
+      });
+    }
+  } catch (err) {
+    // silent
+  }
 
   res.json({
     success: true,
@@ -111,12 +125,25 @@ exports.createBulkShipment = asyncHandler(async (req, res) => {
         trackingUrl: shipment.trackingUrl,
         labelUrl: shipment.labelUrl || undefined,
         createdAt: new Date(),
-        pickupRequested: false,
+        pickupRequested: true,
       };
 
-      order.status = "confirmed";
+      order.status = "pickup_requested";
+      order.statusUpdatedAt = new Date();
       await order.save();
 
+      // Emit socket event to notify admin/frontends about status change
+      try {
+        if (global && global.io) {
+          global.io.emit("order:status_updated", {
+            orderId: order._id,
+            status: order.status,
+            updatedAt: order.statusUpdatedAt || new Date(),
+          });
+        }
+      } catch (err) {
+        // silent - socket may not be connected in dev
+      }
       summary.created += 1;
       results.push({
         orderId,

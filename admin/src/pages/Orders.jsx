@@ -147,6 +147,20 @@ export default function Orders() {
     );
   };
 
+  const isRowSelectable = (order) => {
+    if (!order) return false;
+    const nonSelectable = [
+      "pickup_requested",
+      "in_transit",
+      "delivered",
+      "returned",
+      "rto",
+      "cancelled",
+    ];
+
+    return !nonSelectable.includes(order.status);
+  };
+
   const toggleSelectAllVisibleOrders = (visibleOrderIds = []) => {
     if (!visibleOrderIds.length) return;
 
@@ -582,14 +596,16 @@ export default function Orders() {
             </>
           )}
 
-          <button
-            onClick={bulkCancel}
-            disabled={actionLoading === "bulk"}
-            className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-sm flex items-center gap-2 disabled:opacity-50"
-          >
-            <XSquare size={14} />
-            Bulk Cancel
-          </button>
+          {tab !== "cancelled" && (
+            <button
+              onClick={bulkCancel}
+              disabled={actionLoading === "bulk"}
+              className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-sm flex items-center gap-2 disabled:opacity-50"
+            >
+              <XSquare size={14} />
+              Bulk Cancel
+            </button>
+          )}
         </div>
       )}
 
@@ -625,6 +641,8 @@ export default function Orders() {
                 "returned",
                 "rto",
               ];
+
+              if (tab === "cancelled") return null;
 
               if (hiddenStatuses.includes(row.status)) {
                 return null;
@@ -728,6 +746,7 @@ export default function Orders() {
         selected={selectedOrderIds}
         onSelectAll={toggleSelectAllVisibleOrders}
         onSelectRow={toggleOrderSelection}
+        isRowSelectable={isRowSelectable}
         exportData={() => {
           /* handled by ExportButton above */
         }}

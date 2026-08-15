@@ -15,6 +15,7 @@ const DataTable = ({
   selected,
   onSelectAll,
   onSelectRow,
+  isRowSelectable,
   exportData,
   className = "",
 }) => {
@@ -54,7 +55,10 @@ const DataTable = ({
 
   const selectedIdSet = new Set(Array.isArray(selected) ? selected : []);
   const visibleRows = filteredData;
-  const visibleIds = visibleRows
+  const selectableVisibleRows = visibleRows.filter((row) =>
+    typeof isRowSelectable === "function" ? isRowSelectable(row) : true,
+  );
+  const visibleIds = selectableVisibleRows
     .map((row) => row._id || row.id)
     .filter(Boolean);
 
@@ -142,39 +146,49 @@ const DataTable = ({
                 ))}
               </>
             )}
-            {filteredData.map((row, index) => (
-              <tr
-                key={row._id || row.id || index}
-                ref={
-                  hasMore && index === filteredData.length - 1
-                    ? lastRowRef
-                    : null
-                }
-                className="border-b border-luxury-border/50 hover:bg-white/[0.02] transition-colors group"
-              >
-                {enableSelection && (
-                  <td className="p-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedIdSet.has(row._id || row.id)}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        onSelectRow?.(row._id || row.id);
-                      }}
-                      className="w-4 h-4 rounded text-gold-500"
-                    />
-                  </td>
-                )}
-                {columns.map((col) => (
-                  <td key={col.key} className="p-4 text-luxury-text">
-                    {col.render
-                      ? col.render(getValue(row, col.key), row)
-                      : getValue(row, col.key) || "—"}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {filteredData.map((row, index) => {
+              const rowSelectable =
+                typeof isRowSelectable === "function"
+                  ? isRowSelectable(row)
+                  : true;
+              return (
+                <tr
+                  key={row._id || row.id || index}
+                  ref={
+                    hasMore && index === filteredData.length - 1
+                      ? lastRowRef
+                      : null
+                  }
+                  className="border-b border-luxury-border/50 hover:bg-white/[0.02] transition-colors group"
+                >
+                  {enableSelection && (
+                    <td className="p-4">
+                      {rowSelectable ? (
+                        <input
+                          type="checkbox"
+                          checked={selectedIdSet.has(row._id || row.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onSelectRow?.(row._id || row.id);
+                          }}
+                          className="w-4 h-4 rounded text-gold-500"
+                        />
+                      ) : (
+                        <div className="w-4 h-4" />
+                      )}
+                    </td>
+                  )}
+                  {columns.map((col) => (
+                    <td key={col.key} className="p-4 text-luxury-text">
+                      {col.render
+                        ? col.render(getValue(row, col.key), row)
+                        : getValue(row, col.key) || "—"}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

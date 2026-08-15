@@ -21,10 +21,10 @@
   --theme-border-hover: rgba(212,150,42,0.25);
   --theme-input-bg: rgba(255,255,255,0.05);
   --theme-header-bg: rgba(10,10,10,0.85);
-  
+
   --gold-primary: #d4a853;
   --gold-light: #f5e0b3;
-  
+
   /* Luxuries */
   --luxury-black: #0a0a0a;
   --luxury-dark: #111111;
@@ -34,7 +34,7 @@
   --luxury-muted: #a1a1aa;
   --luxury-dim: #71717a;
   --luxury-border: rgba(255,255,255,0.08);
-  
+
   /* Shadows */
   --shadow-card: 0 4px 24px rgba(0,0,0,0.2);
   --shadow-elevated: 0 20px 60px rgba(0,0,0,0.4);
@@ -47,22 +47,22 @@
   --theme-bg: #f8f7f4;
   --theme-bg-sec: #f0eee9;
   --theme-bg-tert: #ebe8e1;
-  
+
   /* Cards slightly lighter than page */
   --theme-card: #ffffff;
   --theme-surface: #f5f4f0;
-  
+
   /* Premium text hierarchy */
   --theme-text: #111111;
   --theme-muted: #52525b;
   --theme-dim: #71717a;
-  
+
   /* Soft gray borders */
   --theme-border: rgba(0,0,0,0.08);
   --theme-border-hover: rgba(212,150,42,0.3);
   --theme-input-bg: rgba(0,0,0,0.04);
   --theme-header-bg: rgba(255,255,255,0.72);
-  
+
   /* Light luxuries */
   --luxury-black: #f0eee9;
   --luxury-dark: #e8e6e1;
@@ -72,7 +72,7 @@
   --luxury-muted: #52525b;
   --luxury-dim: #71717a;
   --luxury-border: rgba(0,0,0,0.08);
-  
+
   /* Premium light shadows */
   --shadow-card: 0 2px 12px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
   --shadow-elevated: 0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
@@ -138,6 +138,13 @@
     border-radius: 12px;
     outline: none;
     transition: all 0.3s ease;
+  }
+
+  /* Ensure select and option inherit readable colors in both themes */
+  select.luxury-input,
+  select.luxury-input option {
+    color: var(--theme-text);
+    background: var(--theme-input-bg);
   }
 
   .luxury-input:focus {
@@ -301,23 +308,23 @@ aside.sidebar,
   [class*="bg-luxury"] {
     background-color: #f8f7f4 !important;
   }
-  
+
   /* Arbitrary dark backgrounds (e.g. bg-[#0c0c0e]) */
   [class*="bg-\\["] {
     background-color: #f8f7f4 !important;
   }
-  
+
   /* Sidebar override */
   html.light aside[class*="bg-luxury-black"],
   html.light .sidebar {
     background-color: #f0eee9 !important;
   }
-  
+
   /* Header glass override */
   html.light header {
     background: rgba(255,255,255,0.72) !important;
   }
-  
+
   /* Card overrides */
   .glass-card,
   [class*="glass-card"],
@@ -326,14 +333,14 @@ aside.sidebar,
     background-color: #ffffff !important;
     border-color: rgba(0,0,0,0.08) !important;
   }
-  
+
   /* Page backgrounds */
   .page-enter,
   main.bg-transparent,
   main[class*="p-"] {
     background-color: #f8f7f4 !important;
   }
-  
+
   /* Semi-transparent (dark mode) to light */
   .bg-black\/30,
   .bg-black\/40,
@@ -342,20 +349,20 @@ aside.sidebar,
   .bg-black\/70 {
     background-color: rgba(0,0,0,0.06) !important;
   }
-  
+
   .bg-white\/5,
   .bg-white\/10,
   .bg-white\/20 {
     background-color: rgba(0,0,0,0.04) !important;
   }
-  
+
   /* Hover states */
   .hover\:bg-white\/5:hover,
   .hover\:bg-white\/10:hover,
   [class*="hover"]:hover {
     background-color: rgba(0,0,0,0.04) !important;
   }
-  
+
   /* Border overrides */
   .border-white,
   .border-white\/10,
@@ -364,7 +371,7 @@ aside.sidebar,
   [class*="border-luxury-border"] {
     border-color: rgba(0,0,0,0.08) !important;
   }
-  
+
   /* Text hierarchy - Premium dark */
   .text-white,
   .text-luxury-text,
@@ -372,20 +379,20 @@ aside.sidebar,
   .text-zinc-400 {
     color: #111111 !important;
   }
-  
+
   .text-luxury-dim,
   .text-luxury-muted,
   .text-zinc-500 {
     color: #52525b !important;
   }
-  
+
   h1, h2, h3, h4, h5, h6,
   .font-semibold,
   .font-medium,
   .font-bold {
     color: #111111 !important;
   }
-  
+
   /* Input fields */
   input,
   textarea,
@@ -395,40 +402,47 @@ aside.sidebar,
     border-color: rgba(0,0,0,0.1) !important;
     color: #111111 !important;
   }
-  
+
+  /* Make sure options are visible in light mode too */
+  .light select.luxury-input,
+  .light select.luxury-input option {
+    color: #111111 !important;
+    background-color: rgba(0,0,0,0.04) !important;
+  }
+
   input::placeholder,
   textarea::placeholder {
     color: #71717a !important;
   }
-  
+
   /* Buttons - keep gold gradient */
   .bg-gold-gradient,
   .bg-gold-gradient-soft {
     background: linear-gradient(135deg, #d4a853 0%, #f5e0b3 50%, #d4a853 100%) !important;
     color: #000 !important;
   }
-  
+
   /* Dropdowns/Dialogs */
   [class*="dropdown"],
   [class*="modal"],
   [class*="fixed inset-0"][class*="bg-black"] {
     background-color: rgba(0,0,0,0.25) !important;
   }
-  
+
   /* Footer */
   footer[class*="border-t"],
   footer {
     background-color: rgba(255,255,255,0.5);
     border-color: rgba(0,0,0,0.08);
   }
-  
+
   /* Active nav indicator */
   .nav-link-active,
   [class*="bg-gold"][class*="/10"] {
     background-color: rgba(212,168,83,0.12) !important;
     border-left-color: #d4a853 !important;
   }
-  
+
   /* Status badges */
   .bg-emerald-500\/10,
   .bg-rose-500\/10,
@@ -437,7 +451,7 @@ aside.sidebar,
   .bg-orange-500\/10 {
     background-color: rgba(0,0,0,0.06) !important;
   }
-  
+
   /* Loader */
   .animate-spin {
     color: #d4a853 !important;
