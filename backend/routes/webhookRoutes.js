@@ -9,9 +9,14 @@ const {
   "../controllers/webhookController"
 );
 
+const { handleDelhiveryWebhook } = require('../controllers/delhiveryWebhookController');
+
 router.post(
   "/razorpay",
   handleRazorpayWebhook
 );
+
+// Delhivery webhook endpoint (public)
+router.post('/delhivery', express.json(), handleDelhiveryWebhook);
 
 module.exports = router;
