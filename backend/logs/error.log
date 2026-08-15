@@ -41,3 +41,7 @@
 {"level":"error","message":"400 - Shipment must be created before downloading the label","service":"nayamo-api","timestamp":"2026-08-14 21:56:54"}
 {"level":"error","message":"401 - Invalid email or password","service":"nayamo-api","timestamp":"2026-08-14 22:18:29"}
 {"level":"error","message":"❌ Server failed: Database connection failed","service":"nayamo-api","stack":"Error: Database connection failed\n    at startServer (/home/jarvis/Documents/IT/Nayamo/backend/server.js:257:13)","timestamp":"2026-08-14 22:19:20"}
+{"level":"error","message":"500 - read ECONNRESET","service":"nayamo-api","timestamp":"2026-08-15 20:00:56"}
+{"0":"r","1":"e","10":"R","11":"E","12":"S","13":"E","14":"T","2":"a","3":"d","4":" ","5":"E","6":"C","7":"O","8":"N","9":"N","level":"error","message":"Auth middleware error:","service":"nayamo-api","timestamp":"2026-08-15 20:00:59"}
+{"level":"error","message":"500 - read ECONNRESET","service":"nayamo-api","timestamp":"2026-08-15 20:01:00"}
+{"level":"error","message":"500 - read ECONNRESET","service":"nayamo-api","timestamp":"2026-08-15 20:01:00"}
