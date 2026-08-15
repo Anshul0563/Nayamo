@@ -747,6 +747,16 @@ export default function Orders() {
         onSelectAll={toggleSelectAllVisibleOrders}
         onSelectRow={toggleOrderSelection}
         isRowSelectable={isRowSelectable}
+        showHeaderCheckbox={
+          ![
+            "pickup_requested",
+            "in_transit",
+            "delivered",
+            "returned",
+            "rto",
+            "cancelled",
+          ].includes(tab)
+        }
         exportData={() => {
           /* handled by ExportButton above */
         }}

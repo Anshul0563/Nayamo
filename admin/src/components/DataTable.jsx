@@ -18,6 +18,7 @@ const DataTable = ({
   isRowSelectable,
   exportData,
   className = "",
+  showHeaderCheckbox = true,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const observer = useRef();
@@ -110,7 +111,7 @@ const DataTable = ({
         <table className="w-full">
           <thead>
             <tr className="border-b border-luxury-border">
-              {enableSelection && (
+              {enableSelection && showHeaderCheckbox && (
                 <th className="p-4 w-12">
                   <input
                     type="checkbox"
