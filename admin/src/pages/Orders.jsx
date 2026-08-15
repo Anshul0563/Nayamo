@@ -452,26 +452,16 @@ export default function Orders() {
             />
           </div>
 
-          <label className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-black/30 border border-white/10 text-sm cursor-pointer hover:bg-black/40 transition-all">
-            <input
-              type="checkbox"
-              className="w-4 h-4 rounded text-indigo-600 bg-black/50 border-white/20 focus:ring-indigo-500 focus:ring-2"
-              checked={showArchived}
-              onChange={(e) => setShowArchived(e.target.checked)}
-            />
-            Show Archived
-          </label>
-
-          <ExportButton filename="orders" data={exportData} />
+          {/* Show Archived and Export removed per request */}
 
           <button
             onClick={() => {
               loadOrders(page);
               loadStats();
             }}
-            className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-semibold flex items-center justify-center gap-2 shrink-0"
+            className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-semibold text-sm flex items-center justify-center gap-2 shrink-0"
           >
-            <RefreshCcw size={16} />
+            <RefreshCcw size={14} />
             Refresh
           </button>
         </div>
