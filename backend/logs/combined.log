@@ -22044,3 +22044,10 @@
 {"level":"info","message":"127.0.0.1 - - [15/Aug/2026:14:41:32 +0000] \"GET /api/v1/admin/orders?page=1&limit=20&status=pickup_requested&includeArchived=false HTTP/1.1\" 200 - \"http://localhost:3000/\" \"Mozilla/5.0 (X11; Linux x86_64; rv:153.0) Gecko/20100101 Firefox/153.0\"","service":"nayamo-api","timestamp":"2026-08-15 20:11:32"}
 {"level":"info","message":"127.0.0.1 - - [15/Aug/2026:14:42:19 +0000] \"GET /api/v1/admin/orders/stats HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (X11; Linux x86_64; rv:153.0) Gecko/20100101 Firefox/153.0\"","service":"nayamo-api","timestamp":"2026-08-15 20:12:19"}
 {"level":"info","message":"127.0.0.1 - - [15/Aug/2026:14:42:19 +0000] \"GET /api/v1/admin/orders?page=1&limit=20&status=pickup_requested&includeArchived=false HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (X11; Linux x86_64; rv:153.0) Gecko/20100101 Firefox/153.0\"","service":"nayamo-api","timestamp":"2026-08-15 20:12:19"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-08-15 20:42:02"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-08-15 20:42:02"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-08-15 20:42:02"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-08-15 20:42:02"}
+{"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-08-15 20:42:03"}
+{"level":"info","message":"🛑 Shutting down...","service":"nayamo-api","timestamp":"2026-08-15 20:42:26"}
+{"level":"info","message":"🛑 Shutting down...","service":"nayamo-api","timestamp":"2026-08-15 20:42:26"}
