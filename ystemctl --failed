@@ -1,0 +1,124 @@
+[4mUNIT FILE                         [0m[4m [0m[4mSTATE  [0m[4m [0m[4mPRESET  [0m
+[0;4mcups.path                         [0m[0;4m [0m[0;1;4;32menabled[0m[0;1;4;32m [0m[0;1;4;32menabled [0m
+abrt-journal-core.service          [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+abrt-oops.service                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+abrt-vmcore.service                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+abrt-xorg.service                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+abrtd.service                      [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+accounts-daemon.service            [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+atd.service                        [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+audit-rules.service                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+auditd.service                     [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+authselect-apply-changes.service   [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+avahi-daemon.service               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+bluetooth.service                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+chronyd.service                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+crond.service                      [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+cups.service                       [0;1;32menabled[0m[0;1;32m [0m[0;1;31mdisabled[0m
+dbus-broker.service                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+docker.service                     [0;1;32menabled[0m[0;1;32m [0m[0;1;31mdisabled[0m
+fips-crypto-policy-overlay.service [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+firewalld.service                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+flatpak-add-fedora-repos.service   [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+gdm.service                        [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+getty@.service                     [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+intel_lpmd.service                 [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+irqbalance.service                 [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+iscsi-onboot.service               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+iscsi-starter.service              [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+livesys-late.service               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+livesys.service                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+lm_sensors.service                 [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+lvm2-monitor.service               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+mcelog.service                     [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+mdmonitor.service                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+ModemManager.service               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+mongod.service                     [0;1;32menabled[0m[0;1;32m [0m[0;1;31mdisabled[0m
+NetworkManager-dispatcher.service  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+NetworkManager-wait-online.service [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+NetworkManager.service             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+postgresql.service                 [0;1;32menabled[0m[0;1;32m [0m[0;1;31mdisabled[0m
+qemu-guest-agent.service           [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+rpmdb-rebuild.service              [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+rsyslog.service                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+rtkit-daemon.service               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+selinux-autorelabel-mark.service   [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+smartd.service                     [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+sshd.service                       [0;1;32menabled[0m[0;1;32m [0m[0;1;31mdisabled[0m
+sssd.service                       [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+switcheroo-control.service         [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-boot-clear-sysfail.service [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-confext.service            [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-homed-activate.service     [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-homed.service              [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-network-generator.service  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-oomd.service               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-pstore.service             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-resolved.service           [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-sysext.service             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-tpm2-clear.service         [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+thermald.service                   [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+tuned-ppd.service                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+tuned.service                      [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+udisks2.service                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+upower.service                     [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+uresourced.service                 [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+vboxservice.service                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+vgauthd.service                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtqemud.service                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+[0;4mvmtoolsd.service                  [0m[0;4m [0m[0;1;4;32menabled[0m[0;1;4;32m [0m[0;1;4;32menabled [0m
+avahi-daemon.socket                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+cups.socket                        [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+dbus.socket                        [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+dm-event.socket                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+iscsid.socket                      [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+iscsiuio.socket                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+lvm2-lvmpolld.socket               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+pcscd.socket                       [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+sssd-kcm.socket                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-journald-audit.socket      [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-oomd.socket                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+systemd-resolved-monitor.socket    [0;1;32menabled[0m[0;1;32m [0m[0;1;31mdisabled[0m
+systemd-resolved-varlink.socket    [0;1;32menabled[0m[0;1;32m [0m[0;1;31mdisabled[0m
+systemd-userdbd.socket             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtinterfaced-admin.socket        [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtinterfaced-ro.socket           [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtinterfaced.socket              [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtlockd-admin.socket             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtlockd.socket                   [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtlogd-admin.socket              [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtlogd.socket                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnetworkd-admin.socket          [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnetworkd-ro.socket             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnetworkd.socket                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnodedevd-admin.socket          [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnodedevd-ro.socket             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnodedevd.socket                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnwfilterd-admin.socket         [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnwfilterd-ro.socket            [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtnwfilterd.socket               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtproxyd-admin.socket            [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtproxyd-ro.socket               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtproxyd.socket                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtqemud-admin.socket             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtqemud-ro.socket                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtqemud.socket                   [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtsecretd-admin.socket           [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtsecretd-ro.socket              [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtsecretd.socket                 [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtstoraged-admin.socket          [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+virtstoraged-ro.socket             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+[0;4mvirtstoraged.socket               [0m[0;4m [0m[0;1;4;32menabled[0m[0;1;4;32m [0m[0;1;4;32menabled [0m
+nfs-client.target                  [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+reboot.target                      [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+remote-cryptsetup.target           [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+remote-fs.target                   [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+[0;4mremote-veritysetup.target         [0m[0;4m [0m[0;1;4;32menabled[0m[0;1;4;32m [0m[0;1;4;32menabled [0m
+dnf-makecache.timer                [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+fstrim.timer                       [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+logrotate.timer                    [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+plocate-updatedb.timer             [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+raid-check.timer                   [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+unbound-anchor.timer               [0;1;32menabled[0m[0;1;32m [0m[0;1;32menabled [0m
+
+121 unit files listed.
