@@ -136,7 +136,7 @@ export default function Orders() {
     return stats[key] || 0;
   };
 
-  const hasShipmentCreated = (order) => Boolean(order?.delhivery?.waybill);
+  const hasShipmentCreated = (order) => Boolean(order?.shiprocket?.orderId || order?.delhivery?.waybill);
 
   const toggleOrderSelection = (id) => {
     setSelectedOrderIds((prev) =>
@@ -356,6 +356,18 @@ export default function Orders() {
     }
   };
 
+  const assignAwb = async (id) => {
+    try {
+      setActionLoading(`awb-${id}`);
+      await adminAPI.assignAwb(id);
+      await Promise.all([loadOrders(page), loadStats()]);
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to assign courier/AWB");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const downloadLabel = async (id) => {
     try {
       const row = orders.find((order) => order._id === id);
@@ -366,7 +378,7 @@ export default function Orders() {
 
       setActionLoading(`label-${id}`);
       const res = await adminAPI.getShipmentLabel(id);
-      const labelUrl = row.delhivery?.labelUrl || res.data?.data?.labelUrl;
+      const labelUrl = row.shiprocket?.labelUrl || row.delhivery?.labelUrl || res.data?.data?.labelUrl;
 
       if (!labelUrl) {
         setError("Label is not available for this shipment");
@@ -674,7 +686,7 @@ export default function Orders() {
                             ? "Creating..."
                             : "Create Shipment"}
                         </button>
-                      ) : (
+                      ) : row.shiprocket?.awb ? (
                         <button
                           onClick={() => downloadLabel(row._id)}
                           disabled={actionLoading === `label-${row._id}`}
@@ -684,6 +696,14 @@ export default function Orders() {
                           {actionLoading === `label-${row._id}`
                             ? "Opening..."
                             : "Download Label"}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => assignAwb(row._id)}
+                          disabled={actionLoading === `awb-${row._id}`}
+                          className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-xs font-medium text-black disabled:opacity-50"
+                        >
+                          {actionLoading === `awb-${row._id}` ? "Assigning..." : "Assign Courier"}
                         </button>
                       )}
 

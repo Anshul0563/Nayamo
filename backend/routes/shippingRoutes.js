@@ -12,6 +12,9 @@ const admin =
 
 const {
   createShipment,
+  assignAwb,
+  cancelShipment,
+  recoverShipmentCreation,
   createBulkShipment,
   requestPickup,
   getShipmentLabel,
@@ -35,6 +38,27 @@ router.post(
   protect,
   admin,
   createShipment
+);
+
+router.post(
+  "/assign-awb/:id",
+  protect,
+  admin,
+  assignAwb,
+);
+
+router.post(
+  "/recover/:id",
+  protect,
+  admin,
+  recoverShipmentCreation,
+);
+
+router.post(
+  "/cancel/:id",
+  protect,
+  admin,
+  cancelShipment,
 );
 
 router.post(

@@ -130,10 +130,42 @@ const orderSchema = new mongoose.Schema(
       createdAt: Date,
     },
 
+    // Shiprocket shipment data for orders created after the shipping migration.
+    // The legacy Delhivery object above is intentionally retained for history.
+    shiprocket: {
+      orderId: String,
+      shipmentId: String,
+      awb: String,
+      courier: String,
+      trackingUrl: String,
+      labelUrl: String,
+      status: String,
+      pickupRequested: { type: Boolean, default: false },
+      creationStatus: { type: String, enum: ["creating", "created", "failed", "reconciliation_required"] },
+      creationAttemptId: String,
+      creationAttemptedAt: Date,
+      lastCreationError: String,
+      creationLockAt: Date,
+      createdAt: Date,
+      updatedAt: Date,
+      lastWebhookAt: Date,
+      lastWebhook: mongoose.Schema.Types.Mixed,
+      events: { type: [mongoose.Schema.Types.Mixed], default: undefined },
+    },
+
     returnShipment: {
+      provider: String,
+      orderId: String,
+      shipmentId: String,
+      awb: String,
       waybill: String,
+      courier: String,
       labelUrl: String,
       trackingUrl: String,
+      status: String,
+      lastWebhookAt: Date,
+      lastWebhook: mongoose.Schema.Types.Mixed,
+      events: { type: [mongoose.Schema.Types.Mixed], default: undefined },
       pickupRequested: {
         type: Boolean,
         default: false,
@@ -191,6 +223,8 @@ orderSchema.index({ user: 1, createdAt: -1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ "delhivery.waybill": 1 });
+orderSchema.index({ "shiprocket.awb": 1 });
+orderSchema.index({ "shiprocket.orderId": 1 });
 orderSchema.index({ createdAt: -1 });
 // Index for order cleanup cron job
 orderSchema.index({ status: 1, statusUpdatedAt: 1, isArchived: 1 });

@@ -10,6 +10,7 @@ const {
 );
 
 const { handleDelhiveryWebhook } = require('../controllers/delhiveryWebhookController');
+const { handleShiprocketWebhook } = require('../controllers/webhookController');
 
 router.post(
   "/razorpay",
@@ -18,5 +19,7 @@ router.post(
 
 // Delhivery webhook endpoint (public)
 router.post('/delhivery', express.json(), handleDelhiveryWebhook);
+// Neutral path required by Shiprocket webhook URL rules.
+router.post('/status', express.json(), handleShiprocketWebhook);
 
 module.exports = router;

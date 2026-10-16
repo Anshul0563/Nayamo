@@ -164,6 +164,10 @@ export const adminAPI = {
     }),
   createShipment: (id) =>
     apiClient.post(`/shipping/create/${id}`, {}),
+  assignAwb: (id) =>
+    apiClient.post(`/shipping/assign-awb/${id}`, {}),
+  cancelShipment: (id) =>
+    apiClient.post(`/shipping/cancel/${id}`, {}),
   createBulkShipping: (orderIds) =>
     apiClient.post("/shipping/bulk", { orderIds }),
   requestPickup: (id) =>

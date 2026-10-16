@@ -77,6 +77,26 @@ export default function OrderDetailModal({ order, onClose, onStatusChange }) {
         <div className="p-6 grid lg:grid-cols-[1fr_340px] gap-6">
           {/* Left Column */}
           <div className="space-y-6">
+            {order.shiprocket?.orderId && (
+              <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-5">
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  <Truck size={18} className="text-indigo-400" />
+                  Shiprocket Shipment
+                </h3>
+                <div className="space-y-2 text-sm text-zinc-300">
+                  <p>Order ID: <span className="text-white">{order.shiprocket.orderId}</span></p>
+                  <p>Courier: <span className="text-white">{order.shiprocket.courier || "Pending"}</span></p>
+                  <p>AWB: <span className="text-white">{order.shiprocket.awb || "Pending"}</span></p>
+                  <p>Status: <span className="text-white capitalize">{(order.shiprocket.status || "created").replaceAll("_", " ")}</span></p>
+                  {order.shiprocket.trackingUrl && (
+                    <a className="text-indigo-300 hover:text-indigo-200 underline" href={order.shiprocket.trackingUrl} target="_blank" rel="noreferrer">Open tracking</a>
+                  )}
+                  {order.shiprocket.labelUrl && (
+                    <a className="block text-indigo-300 hover:text-indigo-200 underline" href={order.shiprocket.labelUrl} target="_blank" rel="noreferrer">Open label</a>
+                  )}
+                </div>
+              </div>
+            )}
             {/* Items */}
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">

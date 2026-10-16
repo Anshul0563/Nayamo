@@ -4,9 +4,9 @@ const isConfigured = (value) => {
   const normalized = String(value).trim();
   if (!normalized) return false;
 
-  return !["TBD", "TODO", "CHANGE_ME", "YOUR_SUPPORT_EMAIL_PASSWORD"].includes(
-    normalized.toUpperCase()
-  );
+  const upper = normalized.toUpperCase();
+  return !["TBD", "TODO", "CHANGE_ME", "YOUR_SUPPORT_EMAIL_PASSWORD"].includes(upper) &&
+    !upper.includes("REPLACE_WITH") && !upper.includes("YOUR_") && !upper.includes("YOUR ") && !upper.includes("EXAMPLE.COM");
 };
 
 const getSmtpConfig = () => {
@@ -48,9 +48,34 @@ const getDelhiveryToken = () =>
 const getDelhiveryBaseUrl = () =>
   process.env.DELHIVERY_BASE_URL || "https://track.delhivery.com";
 
+const getShiprocketEmail = () => process.env.SHIPROCKET_EMAIL;
+const getShiprocketPassword = () => process.env.SHIPROCKET_PASSWORD;
+const getShiprocketBaseUrl = () =>
+  process.env.SHIPROCKET_BASE_URL || "https://apiv2.shiprocket.in/v1/external";
+const getShiprocketPickupLocation = () => process.env.SHIPROCKET_PICKUP_LOCATION;
+const getShiprocketPickupPincode = () => process.env.SHIPROCKET_PICKUP_PINCODE;
+const getShiprocketWebhookToken = () => process.env.SHIPROCKET_WEBHOOK_TOKEN;
+const getShiprocketReturnSeller = () => ({
+  name: process.env.SHIPROCKET_RETURN_SELLER_NAME,
+  address: process.env.SHIPROCKET_RETURN_SELLER_ADDRESS,
+  city: process.env.SHIPROCKET_RETURN_SELLER_CITY,
+  state: process.env.SHIPROCKET_RETURN_SELLER_STATE,
+  pincode: process.env.SHIPROCKET_RETURN_SELLER_PINCODE,
+  country: process.env.SHIPROCKET_RETURN_SELLER_COUNTRY || "India",
+  phone: process.env.SHIPROCKET_RETURN_SELLER_PHONE,
+  email: process.env.SHIPROCKET_RETURN_SELLER_EMAIL,
+});
+
 module.exports = {
   getDelhiveryBaseUrl,
   getDelhiveryToken,
+  getShiprocketEmail,
+  getShiprocketPassword,
+  getShiprocketBaseUrl,
+  getShiprocketPickupLocation,
+  getShiprocketPickupPincode,
+  getShiprocketWebhookToken,
+  getShiprocketReturnSeller,
   getEmailProvider,
   getResendConfig,
   getSmtpConfig,
