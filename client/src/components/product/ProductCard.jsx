@@ -1,6 +1,6 @@
 import React from "react";
-import { Eye, Heart, ShoppingBag, Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Eye, Heart, ShoppingBag, Star, Zap } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
@@ -17,6 +17,7 @@ const getProductImage = (product) =>
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const navigate = useNavigate();
 
   const productId = product._id || product.id;
   const title = product.title || product.name || "Exquisite Jewellery";
@@ -90,19 +91,33 @@ export default function ProductCard({ product, index = 0 }) {
             </Link>
           </div>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              addToCart(productId);
-            }}
-            className="absolute bottom-2 left-2 right-2 flex h-10 items-center justify-center gap-2 rounded-full bg-[#D4A853] text-xs font-bold text-[#060607] shadow-[0_12px_34px_rgba(212,168,83,0.28)] transition-all duration-300 hover:bg-[#F0D78C] sm:bottom-3 sm:left-3 sm:right-3 sm:h-11 sm:text-sm"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            <span className="hidden min-[380px]:inline">Add to Cart</span>
-            <span className="min-[380px]:hidden">Add</span>
-          </button>
+          <div className="absolute bottom-2 left-2 right-2 grid grid-cols-2 gap-2 sm:bottom-3 sm:left-3 sm:right-3">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart(productId);
+              }}
+              className="flex h-10 items-center justify-center gap-1.5 rounded-full bg-[#D4A853] text-[11px] font-bold text-[#060607] shadow-[0_12px_34px_rgba(212,168,83,0.28)] transition-all duration-300 hover:bg-[#F0D78C] sm:h-11 sm:gap-2 sm:text-sm"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              <span>Add to Cart</span>
+            </button>
+            <button
+              type="button"
+              onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const added = await addToCart(productId);
+                if (added) navigate("/checkout");
+              }}
+              className="flex h-10 items-center justify-center gap-1.5 rounded-full border border-[#D4A853]/70 bg-black/75 text-[11px] font-bold text-[#F0D78C] shadow-[0_12px_34px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all duration-300 hover:bg-[#D4A853] hover:text-[#060607] sm:h-11 sm:gap-2 sm:text-sm"
+            >
+              <Zap className="h-4 w-4" />
+              <span>Buy Now</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-1 flex-col p-3 sm:p-5">

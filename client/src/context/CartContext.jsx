@@ -55,14 +55,14 @@ export function CartProvider({ children }) {
       try {
         if (!productId) {
           toast.error("Product ID missing");
-          return;
+          return false;
         }
 
         const normalizedProductId = String(productId);
         // Prevent backend 400s from invalid ids
         if (!/^[a-fA-F0-9]{24}$/.test(normalizedProductId)) {
           toast.error("Invalid product id");
-          return;
+          return false;
         }
 
         await cartAPI.addToCart(normalizedProductId, Number(quantity));
@@ -70,6 +70,7 @@ export function CartProvider({ children }) {
         await fetchCart();
 
         toast.success("Added to cart");
+        return true;
       } catch (err) {
         const msg =
           err?.response?.data?.errors?.[0]?.message ||
@@ -77,6 +78,7 @@ export function CartProvider({ children }) {
           "Failed to add to cart";
 
         toast.error(msg);
+        return false;
       } finally {
         setLoading(false);
       }

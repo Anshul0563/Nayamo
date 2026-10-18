@@ -11,6 +11,7 @@ import {
   Sparkles,
   Star,
   Truck,
+  Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -97,6 +98,13 @@ export default function ProductDetails() {
     setAdded(true);
 
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleBuyNow = async () => {
+    if (!product) return;
+
+    const addedToCart = await addToCart(product._id, qty);
+    if (addedToCart) navigate("/checkout");
   };
 
   const getImageUrl = (p, idx = 0) => {
@@ -592,6 +600,18 @@ export default function ProductDetails() {
 
                       <Sparkles className="h-5 w-5 opacity-0 transition-opacity group-hover:opacity-100" />
                     </div>
+                  </motion.button>
+
+                  <motion.button
+                    onClick={handleBuyNow}
+                    className="flex-1 rounded-3xl border-2 border-[#D4A853]/70 bg-[#D4A853]/10 px-6 sm:px-8 py-4 sm:py-5 text-lg font-bold text-[#F0D78C] transition-all duration-500 hover:bg-[#D4A853] hover:text-black"
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="flex items-center justify-center gap-3">
+                      <Zap className="h-6 w-6" />
+                      Buy Now
+                    </span>
                   </motion.button>
 
                   <motion.button
