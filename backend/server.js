@@ -18,7 +18,7 @@ const logger = require("./config/logger");
 const connectDB = require("./config/db");
 const { checkDB } = require("./config/db");
 const redis = require("./config/redis");
-const { getDelhiveryToken, isConfigured } = require("./config/env");
+const { isConfigured } = require("./config/env");
 
 // Routes
 const productRoutes = require("./routes/productRoutes");
@@ -29,7 +29,6 @@ const wishlistRoutes = require("./routes/wishlistRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const delhiveryRoutes = require("./routes/delhiveryRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const imageRoutes = require("./routes/imageRoutes");
@@ -240,10 +239,6 @@ if (
 
 // Ensure auth routes are always mounted under /api/v1/auth (used by frontend refresh)
 // (No-op here; kept as documentation anchor)
-
-if (isConfigured(getDelhiveryToken())) {
-  app.use("/api/v1/delhivery", requireDB, delhiveryRoutes);
-}
 
 // ================= ERRORS =================
 app.use(notFound);

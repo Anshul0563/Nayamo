@@ -42,12 +42,6 @@ const getResendConfig = () => ({
   fromEmail: process.env.RESEND_FROM_EMAIL || process.env.SMTP_FROM_EMAIL,
 });
 
-const getDelhiveryToken = () =>
-  process.env.DELHIVERY_API_KEY || process.env.DELHIVERY_TOKEN;
-
-const getDelhiveryBaseUrl = () =>
-  process.env.DELHIVERY_BASE_URL || "https://track.delhivery.com";
-
 const getShiprocketEmail = () => process.env.SHIPROCKET_EMAIL;
 const getShiprocketPassword = () => process.env.SHIPROCKET_PASSWORD;
 const getShiprocketBaseUrl = () =>
@@ -67,8 +61,6 @@ const getShiprocketReturnSeller = () => ({
 });
 
 module.exports = {
-  getDelhiveryBaseUrl,
-  getDelhiveryToken,
   getShiprocketEmail,
   getShiprocketPassword,
   getShiprocketBaseUrl,

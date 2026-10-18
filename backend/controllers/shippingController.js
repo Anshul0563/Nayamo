@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Order = require("../models/Order");
 
 const shiprocketService = require("../services/shiprocketService");
-const delhiveryService = require("../services/delhiveryService");
 
 const asyncHandler =
   require("../utils/asyncHandler");
@@ -18,7 +17,7 @@ exports.createShipment = asyncHandler(async (req, res) => {
     throw new Error("Order not found");
   }
 
-  if (order.delhivery?.waybill || order.shiprocket?.orderId) {
+  if (order.shiprocket?.orderId) {
     return res.json({
       success: true,
       message: "Shipment already created",
@@ -27,7 +26,7 @@ exports.createShipment = asyncHandler(async (req, res) => {
   }
 
   const claimed = await Order.findOneAndUpdate(
-    { _id: order._id, "shiprocket.orderId": { $exists: false }, "shiprocket.creationStatus": { $ne: "creating" }, "delhivery.waybill": { $exists: false } },
+    { _id: order._id, "shiprocket.orderId": { $exists: false }, "shiprocket.creationStatus": { $ne: "creating" } },
     { $set: { "shiprocket.creationStatus": "creating", "shiprocket.creationLockAt": new Date(), "shiprocket.creationAttemptedAt": new Date(), "shiprocket.creationAttemptId": new mongoose.Types.ObjectId().toString() } },
     { new: true },
   );
@@ -181,7 +180,7 @@ exports.createBulkShipment = asyncHandler(async (req, res) => {
     }
 
     const claimed = await Order.findOneAndUpdate(
-      { _id: order._id, "shiprocket.orderId": { $exists: false }, "shiprocket.creationStatus": { $nin: ["creating", "reconciliation_required"] }, "delhivery.waybill": { $exists: false } },
+      { _id: order._id, "shiprocket.orderId": { $exists: false }, "shiprocket.creationStatus": { $nin: ["creating", "reconciliation_required"] } },
       { $set: { "shiprocket.creationStatus": "creating", "shiprocket.creationAttemptedAt": new Date(), "shiprocket.creationAttemptId": new mongoose.Types.ObjectId().toString() } },
       { new: true },
     );
@@ -391,10 +390,6 @@ exports.createReturnShipment = asyncHandler(async (req, res) => {
         order.returnShipment.labelUrl = label?.label_url || label?.labelUrl;
       } catch (error) { /* Shiprocket documents label generation as optional for returns. */ }
     }
-  } else if (order.delhivery?.waybill) {
-    // Historical Delhivery orders remain readable and manually operable.
-    const shipment = await delhiveryService.createShipment(order);
-    order.returnShipment = { provider: "delhivery", waybill: shipment.waybill, trackingUrl: shipment.trackingUrl, labelUrl: shipment.labelUrl || undefined, pickupRequested: false, createdAt: new Date() };
   } else {
     res.status(400);
     throw new Error("Original shipment must be created before arranging a return shipment");
@@ -442,9 +437,8 @@ exports.requestReturnPickup = asyncHandler(async (req, res) => {
     await shiprocketService.requestPickup(order.returnShipment.shipmentId);
     order.returnShipment.status = "pickup_requested";
   } else {
-    // Historical Delhivery returns retain the old record; do not claim a new pickup was booked.
     res.status(409);
-    throw new Error("Historical Delhivery return pickup requires manual carrier confirmation");
+    throw new Error("Return shipment provider is not supported");
   }
   order.returnShipment.pickupRequested = true;
   order.statusUpdatedAt = new Date();

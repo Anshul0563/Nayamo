@@ -115,23 +115,6 @@ const orderSchema = new mongoose.Schema(
       default: false,
     },
 
-    delhivery: {
-      waybill: String,
-      labelUrl: String,
-      courier: {
-        type: String,
-        default: "Delhivery",
-      },
-      pickupRequested: {
-        type: Boolean,
-        default: false,
-      },
-      trackingUrl: String,
-      createdAt: Date,
-    },
-
-    // Shiprocket shipment data for orders created after the shipping migration.
-    // The legacy Delhivery object above is intentionally retained for history.
     shiprocket: {
       orderId: String,
       shipmentId: String,
@@ -222,7 +205,6 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ user: 1, createdAt: -1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ paymentStatus: 1 });
-orderSchema.index({ "delhivery.waybill": 1 });
 orderSchema.index({ "shiprocket.awb": 1 });
 orderSchema.index({ "shiprocket.orderId": 1 });
 orderSchema.index({ createdAt: -1 });

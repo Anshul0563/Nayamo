@@ -136,7 +136,7 @@ export default function Orders() {
     return stats[key] || 0;
   };
 
-  const hasShipmentCreated = (order) => Boolean(order?.shiprocket?.orderId || order?.delhivery?.waybill);
+  const hasShipmentCreated = (order) => Boolean(order?.shiprocket?.orderId);
 
   const toggleOrderSelection = (id) => {
     setSelectedOrderIds((prev) =>
@@ -378,7 +378,7 @@ export default function Orders() {
 
       setActionLoading(`label-${id}`);
       const res = await adminAPI.getShipmentLabel(id);
-      const labelUrl = row.shiprocket?.labelUrl || row.delhivery?.labelUrl || res.data?.data?.labelUrl;
+      const labelUrl = row.shiprocket?.labelUrl || res.data?.data?.labelUrl;
 
       if (!labelUrl) {
         setError("Label is not available for this shipment");

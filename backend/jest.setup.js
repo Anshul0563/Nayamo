@@ -13,8 +13,6 @@ process.env.CLOUDINARY_API_KEY = "test";
 process.env.CLOUDINARY_API_SECRET = "test";
 process.env.RAZORPAY_KEY_ID = "test";
 process.env.RAZORPAY_KEY_SECRET = "test";
-process.env.DELHIVERY_BASE_URL = "https://test.delhivery.com";
-process.env.DELHIVERY_TOKEN = "test";
 process.env.REDIS_URL = "redis://localhost:6379";
 
 // Suppress console logs in tests
