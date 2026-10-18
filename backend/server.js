@@ -100,7 +100,7 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-// 🔥 APPLY FIRST
+//  APPLY FIRST
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
