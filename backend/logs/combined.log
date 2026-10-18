@@ -22061,3 +22061,4 @@
 {"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-10-18 14:11:33"}
 {"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-10-18 14:11:33"}
 {"level":"info","message":"✅ Server running on port 5000 (production)","service":"nayamo-api","timestamp":"2026-10-18 14:11:35"}
+{"level":"info","message":"🛑 Shutting down...","service":"nayamo-api","timestamp":"2026-10-18 14:32:29"}
