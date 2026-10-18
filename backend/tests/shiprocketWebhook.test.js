@@ -50,6 +50,7 @@ describe("Shiprocket webhook security and state handling", () => {
     );
     expect(response.json).toHaveBeenCalledWith({ success: true, message: "Processed" });
     expect(order.status).toBe("delivered");
+    expect(order.shiprocket.status).toBe("in_transit");
     expect(order.save).toHaveBeenCalledTimes(1);
   });
 

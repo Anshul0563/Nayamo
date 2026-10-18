@@ -249,7 +249,10 @@ exports.handleShiprocketWebhook = asyncHandler(async (req, res) => {
   if (payload.courier_name) shipment.courier = payload.courier_name;
   if (awb) { shipment.awb = String(awb); if (isReturn) shipment.waybill = String(awb); }
   if (mapped) {
-    shipment.status = String(status).toLowerCase();
+    // Shiprocket sends display labels such as "IN TRANSIT". Persist the
+    // canonical Nayamo status so the admin UI and order lifecycle use the
+    // same values as the rest of the application.
+    shipment.status = mapped;
     if (!isReturn && order.status !== mapped && canAdvanceOrderStatus(order.status, mapped)) {
       order.status = mapped;
       order.statusUpdatedAt = new Date();
