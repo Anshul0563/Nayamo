@@ -4,7 +4,7 @@ import { adminAPI } from './api';
 const API_URL = process.env.REACT_APP_API_URL ||
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000/api/v1'
-    : 'https://nayamo-3.onrender.com/api/v1');
+    : 'https://nayamo.onrender.com/api/v1');
 const SOCKET_URL = API_URL.replace(/\/api\/v1\/?$/, '');
 
 class SocketService {

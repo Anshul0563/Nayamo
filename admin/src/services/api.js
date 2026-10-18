@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const DEFAULT_LOCAL_API_BASE = "http://localhost:5000/api/v1";
-const DEFAULT_PROD_API_BASE = "https://nayamo-3.onrender.com/api/v1";
+const DEFAULT_PROD_API_BASE = "https://nayamo.onrender.com/api/v1";
 
 const resolveApiBaseUrl = () => {
   if (process.env.REACT_APP_API_URL) {
