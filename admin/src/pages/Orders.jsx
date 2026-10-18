@@ -29,6 +29,8 @@ const TABS = [
   ["rto", "RTO"],
 ];
 
+const BULK_CANCEL_STATUSES = new Set(["pending", "confirmed", "ready_to_ship"]);
+
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -184,8 +186,8 @@ export default function Orders() {
     });
   };
 
-  const bulkStatusUpdate = async (status) => {
-    if (!selectedOrderIds.length) return;
+  const bulkStatusUpdate = async (status, orderIds = selectedOrderIds) => {
+    if (!orderIds.length) return;
     if (!TABS.map(([key]) => key).includes(status)) {
       setError("Invalid status selected");
       return;
@@ -193,7 +195,7 @@ export default function Orders() {
     try {
       setActionLoading("bulk");
       await Promise.all(
-        selectedOrderIds.map((id) =>
+        orderIds.map((id) =>
           adminAPI.updateOrderStatus(id, { status }),
         ),
       );
@@ -207,10 +209,20 @@ export default function Orders() {
   };
 
   const bulkCancel = async () => {
-    if (!selectedOrderIds.length) return;
-    if (!window.confirm(`Cancel ${selectedOrderIds.length} selected orders?`))
+    const cancellableOrderIds = selectedOrderIds.filter((id) =>
+      orders.some(
+        (order) => order._id === id && BULK_CANCEL_STATUSES.has(order.status),
+      ),
+    );
+
+    if (!cancellableOrderIds.length) {
+      setError("Only pending, confirmed, or ready-to-ship orders can be cancelled");
       return;
-    await bulkStatusUpdate("cancelled");
+    }
+
+    if (!window.confirm(`Cancel ${cancellableOrderIds.length} selected orders?`))
+      return;
+    await bulkStatusUpdate("cancelled", cancellableOrderIds);
   };
 
   const createShipmentForOrder = async (id) => {
@@ -513,19 +525,21 @@ export default function Orders() {
             Clear
           </button>
 
-          <select
-            value=""
-            onChange={(e) => e.target.value && bulkStatusUpdate(e.target.value)}
-            className="px-4 py-2 rounded-xl bg-black/40 border border-white/10 text-sm outline-none"
-          >
-            <option value="">Bulk Update Status</option>
+          {BULK_CANCEL_STATUSES.has(tab) && (
+            <select
+              value=""
+              onChange={(e) => e.target.value && bulkStatusUpdate(e.target.value)}
+              className="px-4 py-2 rounded-xl bg-black/40 border border-white/10 text-sm outline-none"
+            >
+              <option value="">Bulk Update Status</option>
 
-            {TABS.map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
+              {TABS.map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          )}
 
           {tab === "pending" && (
             <>
@@ -597,7 +611,7 @@ export default function Orders() {
             </>
           )}
 
-          {tab !== "cancelled" && (
+          {BULK_CANCEL_STATUSES.has(tab) && (
             <button
               onClick={bulkCancel}
               disabled={actionLoading === "bulk"}
