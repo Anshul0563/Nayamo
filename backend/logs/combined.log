@@ -22087,3 +22087,8 @@
 {"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-10-20 16:32:53"}
 {"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-10-20 16:32:53"}
 {"level":"error","message":"❌ Server failed: Database connection failed","service":"nayamo-api","stack":"Error: Database connection failed\n    at startServer (/home/jarvis/Documents/IT/Nayamo/backend/server.js:252:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)","timestamp":"2026-10-20 16:32:54"}
+{"level":"warn","message":"Redis not configured. Running without Redis.","service":"nayamo-api","timestamp":"2026-10-20 16:37:03"}
+{"level":"info","message":"Razorpay initialized","service":"nayamo-api","timestamp":"2026-10-20 16:37:03"}
+{"level":"info","message":"Starting Nayamo server...","service":"nayamo-api","timestamp":"2026-10-20 16:37:03"}
+{"level":"info","message":"✅ CORS Origins: https://nayamo.in, https://nayamo-2.onrender.com, https://nayamo-3.onrender.com, http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000, http://127.0.0.1:3001","service":"nayamo-api","timestamp":"2026-10-20 16:37:03"}
+{"level":"error","message":"❌ Server failed: Database connection failed","service":"nayamo-api","stack":"Error: Database connection failed\n    at startServer (/home/jarvis/Documents/IT/Nayamo/backend/server.js:252:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)","timestamp":"2026-10-20 16:37:03"}
