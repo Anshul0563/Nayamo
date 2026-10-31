@@ -15,24 +15,31 @@ const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
 const MAX_FILE_SIZE = MAX_VIDEO_SIZE; // Multer global limit (videos are largest)
 
 // File signature validation (magic bytes)
-const VALID_SIGNATURES = {
-  "image/jpeg": ["FFD8FF"],
-  "image/png": ["89504E47"],
-  "image/webp": ["52494646"],
-  "image/jpg": ["FFD8FF"],
-  "video/mp4": ["66747970", "0000001466747970"], // ftyp
-  "video/quicktime": ["66747970"], // ftyp (QuickTime .mov)
-  "video/x-msvideo": ["52494646"], // RIFF (AVI)
-  "video/webm": ["1A45DFA3"], // EBML header
-};
-
 const isVideoMime = (mimeType) => ALLOWED_VIDEO_MIME_TYPES.includes(mimeType);
 
-const validateFileSignature = (buffer) => {
-  const hex = buffer.toString("hex", 0, 16).toUpperCase();
-  return Object.values(VALID_SIGNATURES).some((signatures) =>
-    signatures.some((sig) => hex.startsWith(sig))
-  );
+const validateFileSignature = (buffer, mimeType) => {
+  if (!Buffer.isBuffer(buffer)) return false;
+  const hex = buffer.toString("hex").toUpperCase();
+  const ascii = buffer.toString("ascii");
+
+  switch (mimeType) {
+    case "image/jpeg":
+    case "image/jpg":
+      return hex.startsWith("FFD8FF");
+    case "image/png":
+      return hex.startsWith("89504E470D0A1A0A");
+    case "image/webp":
+      return ascii.startsWith("RIFF") && ascii.slice(8, 12) === "WEBP";
+    case "video/mp4":
+    case "video/quicktime":
+      return ascii.slice(4, 8) === "ftyp";
+    case "video/x-msvideo":
+      return ascii.startsWith("RIFF") && ascii.slice(8, 12) === "AVI ";
+    case "video/webm":
+      return hex.startsWith("1A45DFA3");
+    default:
+      return false;
+  }
 };
 
 // File filter to validate uploads
@@ -48,14 +55,17 @@ const fileFilter = (req, file, cb) => {
 // Memory storage for security (avoids temp file leaks)
 const storage = multer.memoryStorage();
 
-const upload = multer({
+const createUpload = (fileSize, files) => multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: MAX_FILE_SIZE,
-    files: 6, // Max 6 files per upload (5 images + 1 video)
+    fileSize,
+    files,
   },
 });
+
+const upload = createUpload(MAX_FILE_SIZE, 6);
+const imageUpload = createUpload(MAX_IMAGE_SIZE, 5);
 
 // Middleware to validate file signatures after upload
 const validateSignatures = (req, res, next) => {
@@ -71,7 +81,7 @@ const validateSignatures = (req, res, next) => {
   const files = collectFiles();
 
   for (const file of files) {
-    const signatureValid = validateFileSignature(file.buffer);
+    const signatureValid = validateFileSignature(file.buffer, file.mimetype);
     const sizeValid = isVideoMime(file.mimetype)
       ? file.size <= MAX_VIDEO_SIZE
       : file.size <= MAX_IMAGE_SIZE;
@@ -95,7 +105,9 @@ const validateSignatures = (req, res, next) => {
   next();
 };
 
+upload.validateSignatures = validateSignatures;
+imageUpload.validateSignatures = validateSignatures;
 module.exports = upload;
-module.exports.validateSignatures = validateSignatures;
+module.exports.imageUpload = imageUpload;
 module.exports.isVideoMime = isVideoMime;
 module.exports.ALLOWED_VIDEO_MIME_TYPES = ALLOWED_VIDEO_MIME_TYPES;

@@ -26,13 +26,18 @@ const uploadBufferToCloudinary = async (buffer, options = {}) => {
   if (!buffer || !(buffer instanceof Buffer) || buffer.length === 0) {
     throw new Error("Upload buffer is missing or empty");
   }
+  if (!["image", "video"].includes(resource_type)) {
+    throw new Error("Unsupported Cloudinary resource type");
+  }
 
   const dataUri = `data:${mimetype};base64,${buffer.toString("base64")}`;
 
   const result = await cloudinary.uploader.upload(dataUri, {
+    ...rest,
     resource_type,
     folder,
-    ...rest,
+    use_filename: false,
+    unique_filename: true,
   });
 
   if (!result || !result.secure_url || !result.public_id) {

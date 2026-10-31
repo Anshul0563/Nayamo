@@ -176,7 +176,14 @@ router.delete("/users/:id", protect, admin, deleteUser);
 
 router.get("/products", protect, admin, getAllProducts);
 router.post("/products", protect, admin, productCreateValidation, validate, createProduct);
-router.post("/products/upload", protect, admin, upload.single("image"), uploadProductImage);
+router.post(
+  "/products/upload",
+  protect,
+  admin,
+  upload.imageUpload.single("image"),
+  upload.imageUpload.validateSignatures,
+  uploadProductImage,
+);
 router.put("/products/:id", protect, admin, productUpdateValidation, validate, updateProduct);
 router.delete("/products/:id", protect, admin, deleteProduct);
 

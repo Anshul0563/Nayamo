@@ -186,8 +186,8 @@ exports.submitReview = asyncHandler(async (req, res) => {
       title: normalizedTitle || normalizedComment.substring(0, 30) || "User Review",
       images: uploadedImages,
       videos: uploadedVideos,
-      isApproved: true,  // Auto-approve for now (change to false for production)
-      status: "approved"
+      isApproved: false,
+      status: "pending"
     });
   } catch (error) {
     await cleanupReviewImages(uploadedImages, "review creation rollback");

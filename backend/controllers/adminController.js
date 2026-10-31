@@ -1,7 +1,7 @@
 const orderService = require("../services/orderService");
 const adminService = require("../services/adminService");
 const productService = require("../services/productService");
-const cloudinary = require("../config/cloudinary");
+const { uploadBufferToCloudinary } = require("../utils/cloudinaryUpload");
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
 const logger = require("../config/logger");
@@ -329,10 +329,9 @@ exports.uploadProductImage = asyncHandler(async (req, res) => {
     throw new Error("No image uploaded");
   }
 
-  const fileStr = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-
-  const result = await cloudinary.uploader.upload(fileStr, {
+  const result = await uploadBufferToCloudinary(req.file.buffer, {
     folder: "nayamo-products",
+    mimetype: req.file.mimetype,
     transformation: [
       { width: 800, height: 800, crop: "limit" },
       { quality: "auto", fetch_format: "auto" },
@@ -341,11 +340,11 @@ exports.uploadProductImage = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    url: result.secure_url,
-    publicId: result.public_id,
+    url: result.url,
+    publicId: result.publicId,
     data: {
-      url: result.secure_url,
-      publicId: result.public_id,
+      url: result.url,
+      publicId: result.publicId,
     },
   });
 });

@@ -10,7 +10,7 @@ const {
 
 const protect = require("../middleware/authMiddleware");
 const admin = require("../middleware/adminMiddleware");
-const upload = require("../middleware/uploadMiddleware");
+const { imageUpload } = require("../middleware/uploadMiddleware");
 const validate = require("../middleware/validateMiddleware");
 
 const productValidation = [
@@ -54,8 +54,8 @@ router.post(
   "/",
   protect,
   admin,
-  upload.array("images", 5),
-  upload.validateSignatures,
+  imageUpload.array("images", 5),
+  imageUpload.validateSignatures,
   productValidation,
   validate,
   createProduct

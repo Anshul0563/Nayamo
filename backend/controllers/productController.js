@@ -1,5 +1,6 @@
 const productService = require("../services/productService");
 const cloudinary = require("../config/cloudinary");
+const { uploadBufferToCloudinary } = require("../utils/cloudinaryUpload");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
 
@@ -34,17 +35,24 @@ exports.createProduct = asyncHandler(async (req, res) => {
   let images = [];
 
   // Upload images to Cloudinary from memory buffer
-  if (req.files && req.files.length > 0) {
-    for (let file of req.files) {
-      const fileStr = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
-      const result = await cloudinary.uploader.upload(fileStr, {
-        folder: "nayamo-products",
-        transformation: [
-          { width: 800, height: 800, crop: "limit" },
-          { quality: "auto", fetch_format: "auto" },
-        ],
-      });
-      images.push({ url: result.secure_url, publicId: result.public_id });
+  if (req.files?.length) {
+    try {
+      for (const file of req.files) {
+        const result = await uploadBufferToCloudinary(file.buffer, {
+          folder: "nayamo-products",
+          mimetype: file.mimetype,
+          transformation: [
+            { width: 800, height: 800, crop: "limit" },
+            { quality: "auto", fetch_format: "auto" },
+          ],
+        });
+        images.push({ url: result.url, publicId: result.publicId });
+      }
+    } catch (error) {
+      await Promise.allSettled(
+        images.map(({ publicId }) => cloudinary.uploader.destroy(publicId)),
+      );
+      throw error;
     }
   } else if (Array.isArray(req.body.images)) {
     images = req.body.images.map((image) =>
