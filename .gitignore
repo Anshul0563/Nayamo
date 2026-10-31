@@ -17,3 +17,7 @@ client/.env*.local
 Thumbs.db
 
 recup_dir.*
+
+# Runtime logs
+logs/
+backend/logs/
