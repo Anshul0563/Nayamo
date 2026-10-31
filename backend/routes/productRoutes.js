@@ -12,6 +12,7 @@ const protect = require("../middleware/authMiddleware");
 const admin = require("../middleware/adminMiddleware");
 const { imageUpload } = require("../middleware/uploadMiddleware");
 const validate = require("../middleware/validateMiddleware");
+const { CATEGORIES, JEWELLERY_TYPES } = require("../constants/catalog");
 
 const productValidation = [
   body("title")
@@ -33,7 +34,7 @@ const productValidation = [
   body("category")
     .notEmpty()
     .withMessage("Category is required")
-    .isIn(["party", "daily", "traditional", "western", "statement", "bridal"])
+    .isIn(CATEGORIES)
     .withMessage("Category must be party, daily, traditional, western, statement, or bridal"),
   body("stock")
     .optional()
@@ -41,7 +42,7 @@ const productValidation = [
     .withMessage("Stock must be a non-negative integer"),
   body("jewelleryType")
     .optional()
-    .isIn(["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"])
+    .isIn(JEWELLERY_TYPES)
     .withMessage("jewelleryType must be earrings, necklaces, rings, bracelets, bangles, anklets, sets, or other"),
 ];
 

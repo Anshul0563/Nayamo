@@ -3,6 +3,7 @@ const cloudinary = require("../config/cloudinary");
 const { uploadBufferToCloudinary } = require("../utils/cloudinaryUpload");
 const asyncHandler = require("../utils/asyncHandler");
 const logger = require("../config/logger");
+const { CATEGORIES, JEWELLERY_TYPES } = require("../constants/catalog");
 
 // ADD PRODUCT
 exports.createProduct = asyncHandler(async (req, res) => {
@@ -14,14 +15,14 @@ exports.createProduct = asyncHandler(async (req, res) => {
     throw new Error("Title, price, and category are required");
   }
 
-  if (!["party", "daily", "traditional", "western", "statement", "bridal"].includes(category)) {
+  if (!CATEGORIES.includes(category)) {
     res.status(400);
     throw new Error("Category must be party, daily, traditional, western, statement, or bridal");
   }
 
   if (
     jewelleryType &&
-    !["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"].includes(jewelleryType)
+    !JEWELLERY_TYPES.includes(jewelleryType)
   ) {
     res.status(400);
     throw new Error("Invalid jewellery type");

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { CATEGORIES, JEWELLERY_TYPES } = require("../constants/catalog");
 
 const productSchema = new mongoose.Schema(
   {
@@ -32,7 +33,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Category is required"],
       enum: {
-        values: ["party", "daily", "traditional", "western", "statement", "bridal"],
+        values: CATEGORIES,
         message: "Category must be party, daily, traditional, western, statement, or bridal",
       },
     },
@@ -41,7 +42,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "earrings",
       enum: {
-        values: ["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"],
+        values: JEWELLERY_TYPES,
         message: "Invalid jewellery type",
       },
     },

@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const logger = require("../config/logger");
 const Notification = require("../models/Notification");
 const { emitInventoryNotification } = require("../services/notificationService");
+const { CATEGORIES, JEWELLERY_TYPES } = require("../constants/catalog");
 
 const validStatuses = [
   "pending",
@@ -409,12 +410,12 @@ exports.createProduct = asyncHandler(async (req, res) => {
     throw new Error("Title, price, and category are required");
   }
 
-  if (!["party", "daily", "traditional", "western", "statement", "bridal"].includes(category)) {
+  if (!CATEGORIES.includes(category)) {
     res.status(400);
     throw new Error("Category must be party, daily, traditional, western, statement, or bridal");
   }
 
-  if (jewelleryType && !["earrings", "necklaces", "rings", "bracelets", "bangles", "anklets", "sets", "other"].includes(jewelleryType)) {
+  if (jewelleryType && !JEWELLERY_TYPES.includes(jewelleryType)) {
     res.status(400);
     throw new Error("jewelleryType must be earrings, necklaces, rings, bracelets, bangles, anklets, sets, or other");
   }
